@@ -1,0 +1,33 @@
+.app-form {
+  display: grid;
+  gap: var(--app-space-3);
+}
+
+.app-field.required > label::after {
+  content: " *";
+  color: var(--app-danger-500);
+}
+
+.app-form-hint {
+  color: var(--app-text-muted);
+  font-size: var(--app-font-size-xs);
+}
+
+.app-field-validation {
+  min-height: 1rem;
+}
+
+.app-select-form,
+.app-select-compact,
+.app-select-duty {
+  width: 100%;
+}
+
+.app-select-form {
+  --app-control-height: 36px;
+}
+
+.app-select-compact,
+.app-select-duty {
+  --app-control-height: 34px;
+}

@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="hexBg" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#3a7fc1"/>
+      <stop offset="100%" stop-color="#0f2747"/>
+    </radialGradient>
+    <radialGradient id="centerRed" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e83030"/>
+      <stop offset="100%" stop-color="#8b0000"/>
+    </radialGradient>
+    <radialGradient id="outerRing" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFD700"/>
+      <stop offset="100%" stop-color="#CC8800"/>
+    </radialGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="nodeglow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="dropShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="rgba(0,0,0,0.45)"/>
+    </filter>
+    <clipPath id="hexClip">
+      <!-- Regular hexagon, flat-top, r=232 -->
+      <polygon points="256,24 488,140 488,372 256,488 24,372 24,140"/>
+    </clipPath>
+    <clipPath id="innerHexClip">
+      <polygon points="256,68 444,162 444,350 256,444 68,350 68,162"/>
+    </clipPath>
+    <clipPath id="centerCircleClip">
+      <circle cx="256" cy="256" r="118"/>
+    </clipPath>
+  </defs>
+
+  <!-- ====== OUTER HEX: GOLD BORDER ====== -->
+  <polygon points="256,18 494,137 494,375 256,494 18,375 18,137"
+           fill="url(#outerRing)"
+           filter="url(#dropShadow)"/>
+  <polygon points="256,18 494,137 494,375 256,494 18,375 18,137"
+           fill="none" stroke="#CC0000" stroke-width="2.5"/>
+
+  <!-- ====== MAIN HEX: NAVY BLUE ====== -->
+  <polygon points="256,30 482,143 482,369 256,482 30,369 30,143"
+           fill="url(#hexBg)"/>
+
+  <!-- ====== MICRO HEX GRID BACKGROUND ====== -->
+  <!-- Row of small hexagons (flat-top, size=22) tiling the interior -->
+  <g clip-path="url(#hexClip)" opacity="0.13" stroke="#90c8ff" stroke-width="0.8" fill="none">
+    <!-- Generated hex grid: offset columns, ~10 cols x 10 rows -->
+    <!-- Col 0 (x=42) -->
+    <polygon points="42,66  60,75  60,93  42,102 24,93  24,75"/>
+    <polygon points="42,106 60,115 60,133 42,142 24,133 24,115"/>
+    <polygon points="42,146 60,155 60,173 42,182 24,173 24,155"/>
+    <polygon points="42,186 60,195 60,213 42,222 24,213 24,195"/>
+    <polygon points="42,226 60,235 60,253 42,262 24,253 24,235"/>
+    <polygon points="42,266 60,275 60,293 42,302 24,293 24,275"/>
+    <polygon points="42,306 60,315 60,333 42,342 24,333 24,315"/>
+    <polygon points="42,346 60,355 60,373 42,382 24,373 24,355"/>
+    <polygon points="42,386 60,395 60,413 42,422 24,413 24,395"/>
+    <polygon points="42,426 60,435 60,453 42,462 24,453 24,435"/>
+    <!-- Col 1 (x=84, offset y+20) -->
+    <polygon points="84,46  102,55  102,73  84,82   66,73   66,55"/>
+    <polygon points="84,86  102,95  102,113 84,122  66,113  66,95"/>
+    <polygon points="84,126 102,135 102,153 84,162  66,153  66,135"/>
+    <polygon points="84,166 102,175 102,193 84,202  66,193  66,175"/>
+    <polygon points="84,206 102,215 102,233 84,242  66,233  66,215"/>
+    <polygon points="84,246 102,255 102,273 84,282  66,273  66,255"/>
+    <polygon points="84,286 102,295 102,313 84,322  66,313  66,295"/>
+    <polygon points="84,326 102,335 102,353 84,362  66,353  66,335"/>
+    <polygon points="84,366 102,375 102,393 84,402  66,393  66,375"/>
+    <polygon points="84,406 102,415 102,433 84,442  66,433  66,415"/>
+    <polygon points="84,446 102,455 102,473 84,482  66,473  66,455"/>
+    <!-- Col 2 (x=126) -->
+    <polygon points="126,66  144,75  144,93  126,102 108,93  108,75"/>
+    <polygon points="126,106 144,115 144,133 126,142 108,133 108,115"/>
+    <polygon points="126,146 144,155 144,173 126,182 108,173 108,155"/>
+    <polygon points="126,186 144,195 144,213 126,222 108,213 108,195"/>
+    <polygon points="126,226 144,235 144,253 126,262 108,253 108,235"/>
+    <polygon points="126,266 144,275 144,293 126,302 108,293 108,275"/>
+    <polygon points="126,306 144,315 144,333 126,342 108,333 108,315"/>
+    <polygon points="126,346 144,355 144,373 126,382 108,373 108,355"/>
+    <polygon points="126,386 144,395 144,413 126,422 108,413 108,395"/>
+    <polygon points="126,426 144,435 144,453 126,462 108,453 108,435"/>
+    <!-- Col 3 (x=168, offset) -->
+    <polygon points="168,46  186,55  186,73  168,82  150,73  150,55"/>
+    <polygon points="168,86  186,95  186,113 168,122 150,113 150,95"/>
+    <polygon points="168,126 186,135 186,153 168,162 150,153 150,135"/>
+    <polygon points="168,166 186,175 186,193 168,202 150,193 150,175"/>
+    <polygon points="168,206 186,215 186,233 168,242 150,233 150,215"/>
+    <polygon points="168,246 186,255 186,273 168,282 150,273 150,255"/>
+    <polygon points="168,286 186,295 186,313 168,322 150,313 150,295"/>
+    <polygon points="168,326 186,335 186,353 168,362 150,353 150,335"/>
+    <polygon points="168,366 186,375 186,393 168,402 150,393 150,375"/>
+    <polygon points="168,406 186,415 186,433 168,442 150,433 150,415"/>
+    <polygon points="168,446 186,455 186,473 168,482 150,473 150,455"/>
+    <!-- Col 4 (x=210) -->
+    <polygon points="210,66  228,75  228,93  210,102 192,93  192,75"/>
+    <polygon points="210,106 228,115 228,133 210,142 192,133 192,115"/>
+    <polygon points="210,146 228,155 228,173 210,182 192,173 192,155"/>
+    <polygon points="210,186 228,195 228,213 210,222 192,213 192,195"/>
+    <polygon points="210,226 228,235 228,253 210,262 192,253 192,235"/>
+    <polygon points="210,266 228,275 228,293 210,302 192,293 192,275"/>
+    <polygon points="210,306 228,315 228,333 210,342 192,333 192,315"/>
+    <polygon points="210,346 228,355 228,373 210,382 192,373 192,355"/>
+    <polygon points="210,386 228,395 228,413 210,422 192,413 192,395"/>
+    <polygon points="210,426 228,435 228,453 210,462 192,453 192,435"/>
+    <!-- Col 5 (x=252, offset) -->
+    <polygon points="252,46  270,55  270,73  252,82  234,73  234,55"/>
+    <polygon points="252,86  270,95  270,113 252,122 234,113 234,95"/>
+    <polygon points="252,126 270,135 270,153 252,162 234,153 234,135"/>
+    <polygon points="252,166 270,175 270,193 252,202 234,193 234,175"/>
+    <polygon points="252,206 270,215 270,233 252,242 234,233 234,215"/>
+    <polygon points="252,246 270,255 270,273 252,282 234,273 234,255"/>
+    <polygon points="252,286 270,295 270,313 252,322 234,313 234,295"/>
+    <polygon points="252,326 270,335 270,353 252,362 234,353 234,335"/>
+    <polygon points="252,366 270,375 270,393 252,402 234,393 234,375"/>
+    <polygon points="252,406 270,415 270,433 252,442 234,433 234,415"/>
+    <polygon points="252,446 270,455 270,473 252,482 234,473 234,455"/>
+    <!-- Col 6 (x=294) -->
+    <polygon points="294,66  312,75  312,93  294,102 276,93  276,75"/>
+    <polygon points="294,106 312,115 312,133 294,142 276,133 276,115"/>
+    <polygon points="294,146 312,155 312,173 294,182 276,173 276,155"/>
+    <polygon points="294,186 312,195 312,213 294,222 276,213 276,195"/>
+    <polygon points="294,226 312,235 312,253 294,262 276,253 276,235"/>
+    <polygon points="294,266 312,275 312,293 294,302 276,293 276,275"/>
+    <polygon points="294,306 312,315 312,333 294,342 276,333 276,315"/>
+    <polygon points="294,346 312,355 312,373 294,382 276,373 276,355"/>
+    <polygon points="294,386 312,395 312,413 294,422 276,413 276,395"/>
+    <polygon points="294,426 312,435 312,453 294,462 276,453 276,435"/>
+    <!-- Col 7 (x=336, offset) -->
+    <polygon points="336,46  354,55  354,73  336,82  318,73  318,55"/>
+    <polygon points="336,86  354,95  354,113 336,122 318,113 318,95"/>
+    <polygon points="336,126 354,135 354,153 336,162 318,153 318,135"/>
+    <polygon points="336,166 354,175 354,193 336,202 318,193 318,175"/>
+    <polygon points="336,206 354,215 354,233 336,242 318,233 318,215"/>
+    <polygon points="336,246 354,255 354,273 336,282 318,273 318,255"/>
+    <polygon points="336,286 354,295 354,313 336,322 318,313 318,295"/>
+    <polygon points="336,326 354,335 354,353 336,362 318,353 318,335"/>
+    <polygon points="336,366 354,375 354,393 336,402 318,393 318,375"/>
+    <polygon points="336,406 354,415 354,433 336,442 318,433 318,415"/>
+    <polygon points="336,446 354,455 354,473 336,482 318,473 318,455"/>
+    <!-- Col 8 (x=378) -->
+    <polygon points="378,66  396,75  396,93  378,102 360,93  360,75"/>
+    <polygon points="378,106 396,115 396,133 378,142 360,133 360,115"/>
+    <polygon points="378,146 396,155 396,173 378,182 360,173 360,155"/>
+    <polygon points="378,186 396,195 396,213 378,222 360,213 360,195"/>
+    <polygon points="378,226 396,235 396,253 378,262 360,253 360,235"/>
+    <polygon points="378,266 396,275 396,293 378,302 360,293 360,275"/>
+    <polygon points="378,306 396,315 396,333 378,342 360,333 360,315"/>
+    <polygon points="378,346 396,355 396,373 378,382 360,373 360,355"/>
+    <polygon points="378,386 396,395 396,413 378,422 360,413 360,395"/>
+    <polygon points="378,426 396,435 396,453 378,462 360,453 360,435"/>
+    <!-- Col 9 (x=420, offset) -->
+    <polygon points="420,46  438,55  438,73  420,82  402,73  402,55"/>
+    <polygon points="420,86  438,95  438,113 420,122 402,113 402,95"/>
+    <polygon points="420,126 438,135 438,153 420,162 402,153 402,135"/>
+    <polygon points="420,166 438,175 438,193 420,202 402,193 402,175"/>
+    <polygon points="420,206 438,215 438,233 420,242 402,233 402,215"/>
+    <polygon points="420,246 438,255 438,273 420,282 402,273 402,255"/>
+    <polygon points="420,286 438,295 438,313 420,322 402,313 402,295"/>
+    <polygon points="420,326 438,335 438,353 420,362 402,353 402,335"/>
+    <polygon points="420,366 438,375 438,393 420,402 402,393 402,375"/>
+    <polygon points="420,406 438,415 438,433 420,442 402,433 402,415"/>
+    <polygon points="420,446 438,455 438,473 420,482 402,473 402,455"/>
+    <!-- Col 10 (x=462) -->
+    <polygon points="462,66  480,75  480,93  462,102 444,93  444,75"/>
+    <polygon points="462,106 480,115 480,133 462,142 444,133 444,115"/>
+    <polygon points="462,146 480,155 480,173 462,182 444,173 444,155"/>
+    <polygon points="462,186 480,195 480,213 462,222 444,213 444,195"/>
+    <polygon points="462,226 480,235 480,253 462,262 444,253 444,235"/>
+    <polygon points="462,266 480,275 480,293 462,302 444,293 444,275"/>
+    <polygon points="462,306 480,315 480,333 462,342 444,333 444,315"/>
+    <polygon points="462,346 480,355 480,373 462,382 444,373 444,355"/>
+    <polygon points="462,386 480,395 480,413 462,422 444,413 444,395"/>
+    <polygon points="462,426 480,435 480,453 462,462 444,453 444,435"/>
+  </g>
+
+  <!-- ====== NETWORK TOPOLOGY: Corner nodes + lines ====== -->
+  <!-- Hex vertices (r=226): Top(256,30), TR(482,143), BR(482,369), Bot(256,482), BL(30,369), TL(30,143) -->
+  <!-- Network connection lines -->
+  <g stroke="#90c8ff" stroke-width="1.8" opacity="0.55" fill="none" stroke-dasharray="6,5">
+    <!-- All 6 corners to center -->
+    <line x1="256" y1="50"  x2="256" y2="256"/>
+    <line x1="465" y1="156" x2="256" y2="256"/>
+    <line x1="465" y1="356" x2="256" y2="256"/>
+    <line x1="256" y1="462" x2="256" y2="256"/>
+    <line x1="47"  y1="356" x2="256" y2="256"/>
+    <line x1="47"  y1="156" x2="256" y2="256"/>
+    <!-- Adjacent corners -->
+    <line x1="256" y1="50"  x2="465" y2="156"/>
+    <line x1="465" y1="156" x2="465" y2="356"/>
+    <line x1="465" y1="356" x2="256" y2="462"/>
+    <line x1="256" y1="462" x2="47"  y2="356"/>
+    <line x1="47"  y1="356" x2="47"  y2="156"/>
+    <line x1="47"  y1="156" x2="256" y2="50"/>
+    <!-- Midpoint nodes -->
+    <line x1="362" y1="103" x2="256" y2="256"/>
+    <line x1="465" y1="256" x2="256" y2="256"/>
+    <line x1="362" y1="409" x2="256" y2="256"/>
+    <line x1="150" y1="409" x2="256" y2="256"/>
+    <line x1="47"  y1="256" x2="256" y2="256"/>
+    <line x1="150" y1="103" x2="256" y2="256"/>
+  </g>
+
+  <!-- Corner network nodes (6 hex vertices) -->
+  <g filter="url(#nodeglow)">
+    <circle cx="256" cy="50"  r="10" fill="#FFD700" stroke="#CC0000" stroke-width="2"/>
+    <circle cx="465" cy="156" r="10" fill="#FFD700" stroke="#CC0000" stroke-width="2"/>
+    <circle cx="465" cy="356" r="10" fill="#FFD700" stroke="#CC0000" stroke-width="2"/>
+    <circle cx="256" cy="462" r="10" fill="#FFD700" stroke="#CC0000" stroke-width="2"/>
+    <circle cx="47"  cy="356" r="10" fill="#FFD700" stroke="#CC0000" stroke-width="2"/>
+    <circle cx="47"  cy="156" r="10" fill="#FFD700" stroke="#CC0000" stroke-width="2"/>
+  </g>
+
+  <!-- Midpoint nodes (edge midpoints) -->
+  <g filter="url(#nodeglow)">
+    <circle cx="362" cy="103" r="7" fill="#90c8ff" stroke="#2a5a8a" stroke-width="1.5"/>
+    <circle cx="465" cy="256" r="7" fill="#90c8ff" stroke="#2a5a8a" stroke-width="1.5"/>
+    <circle cx="362" cy="409" r="7" fill="#90c8ff" stroke="#2a5a8a" stroke-width="1.5"/>
+    <circle cx="150" cy="409" r="7" fill="#90c8ff" stroke="#2a5a8a" stroke-width="1.5"/>
+    <circle cx="47"  cy="256" r="7" fill="#90c8ff" stroke="#2a5a8a" stroke-width="1.5"/>
+    <circle cx="150" cy="103" r="7" fill="#90c8ff" stroke="#2a5a8a" stroke-width="1.5"/>
+  </g>
+
+  <!-- ====== CENTER: RED CIRCLE (Công an huy hiệu) ====== -->
+  <circle cx="256" cy="256" r="128" fill="none" stroke="#FFD700" stroke-width="4"/>
+  <circle cx="256" cy="256" r="124" fill="url(#centerRed)"/>
+  <circle cx="256" cy="256" r="124" fill="none" stroke="#1A6B2A" stroke-width="6"/>
+
+  <!-- Radial rays inside red circle -->
+  <g transform="translate(256,256)" opacity="0.4">
+    <line x1="0" y1="0" x2="0"   y2="-122" stroke="#FFD700" stroke-width="1.8" transform="rotate(0)"/>
+    <line x1="0" y1="0" x2="0"   y2="-122" stroke="#FFD700" stroke-width="1.8" transform="rotate(24)"/>
+    <line x1="0" y1="0" x2="0"   y2="-122" stroke="#FFD700" stroke-width="1.8" transform="rotate(48)"/>
+    <line x1="0" y1="0" x2="0"   y2="-122" stroke="#FFD700" stroke-width="1.8" transform="rotate(72)"/>
+    <line x1="0" y1="0" x2="0"   y2="-122" stroke="#FFD700" stroke-width="1.8" transform="rotate(96)"/>
+    <line x1="0" y1="0" x2="0"   y2="-122" stroke="#FFD700" stroke-width="1.8" transform="rotate(120)"/>
+    <line x1="0" y1="0" x2="0"   y2="-122" stroke="#FFD700" stroke-width="1.8" transform="rotate(144)"/>
+    <line x1="0" y1="0" x2="0"   y2="-122" stroke="#FFD700" stroke-width="1.8" transform="rotate(168)"/>
+    <line x1="0" y1="0" x2="0"   y2="-122" stroke="#FFD700" stroke-width="1.8" transform="rotate(192)"/>
+    <line x1="0" y1="0" x2="0"   y2="-122" stroke="#FFD700" stroke-width="1.8" transform="rotate(216)"/>
+    <line x1="0" y1="0" x2="0"   y2="-122" stroke="#FFD700" stroke-width="1.8" transform="rotate(240)"/>
+    <line x1="0" y1="0" x2="0"   y2="-122" stroke="#FFD700" stroke-width="1.8" transform="rotate(264)"/>
+    <line x1="0" y1="0" x2="0"   y2="-122" stroke="#FFD700" stroke-width="1.8" transform="rotate(288)"/>
+    <line x1="0" y1="0" x2="0"   y2="-122" stroke="#FFD700" stroke-width="1.8" transform="rotate(312)"/>
+    <line x1="0" y1="0" x2="0"   y2="-122" stroke="#FFD700" stroke-width="1.8" transform="rotate(336)"/>
+  </g>
+
+  <!-- ====== GOLD 5-POINTED STAR (center) ====== -->
+  <!-- Center (256,244), Outer R=62, Inner R=24 -->
+  <!-- Outer tips: 270°,342°,54°,126°,198° -->
+  <!-- (256,182) (310.9,221.7) (289.2,284.7) (222.8,284.7) (201.1,221.7) -->
+  <!-- Inner: 306°,18°,90°,162°,234° -->
+  <!-- (273.5,218.4) (280.8,244.5) (256,261.4) (231.2,244.5) (238.5,218.4) -->
+  <polygon
+    points="256,182 272,218 310,222 280,285 273,218 256,261 239,218 232,285 202,222 240,218"
+    fill="#FFD700" stroke="#CC8800" stroke-width="1.5" stroke-linejoin="round"
+    filter="url(#glow)"/>
+  <!-- Simplified clean star -->
+  <polygon
+    transform="translate(256,244)"
+    points="0,-62 14.7,-20.2 58.9,-19.1 24.1,7.7 37.2,51.1 0,24.8 -37.2,51.1 -24.1,7.7 -58.9,-19.1 -14.7,-20.2"
+    fill="#FFD700" stroke="#CC8800" stroke-width="1.5" stroke-linejoin="round"
+    filter="url(#glow)"/>
+
+  <!-- Digital circuit accents around star -->
+  <g stroke="#FFD700" stroke-width="1.2" fill="none" opacity="0.7">
+    <!-- Hex circuit frame around star -->
+    <polygon transform="translate(256,244)" points="0,-80 69.3,-40 69.3,40 0,80 -69.3,40 -69.3,-40"
+             fill="none" stroke="#FFD700" stroke-width="1" stroke-dasharray="8,6" opacity="0.5"/>
+    <!-- Corner circuit nodes on inner hex -->
+    <circle cx="256" cy="164" r="4" fill="#FFD700" stroke="none" opacity="0.8"/>
+    <circle cx="325" cy="204" r="4" fill="#FFD700" stroke="none" opacity="0.8"/>
+    <circle cx="325" cy="284" r="4" fill="#FFD700" stroke="none" opacity="0.8"/>
+    <circle cx="256" cy="324" r="4" fill="#FFD700" stroke="none" opacity="0.8"/>
+    <circle cx="187" cy="284" r="4" fill="#FFD700" stroke="none" opacity="0.8"/>
+    <circle cx="187" cy="204" r="4" fill="#FFD700" stroke="none" opacity="0.8"/>
+  </g>
+
+  <!-- ====== BOTTOM TEXT ====== -->
+  <!-- Text arc below center circle -->
+  <path id="textArc" d="M 148,338 A 118,118 0 0,0 364,338" fill="none"/>
+  <text font-family="'Arial Narrow', Arial, sans-serif" font-size="13.5" font-weight="bold"
+        fill="#FFD700" letter-spacing="1">
+    <textPath href="#textArc" startOffset="5%">QUẢN LÝ CÔNG NGHỆ THÔNG TIN</textPath>
+  </text>
+
+  <!-- ====== TOP TEXT IN HEX ====== -->
+  <text x="256" y="82" font-family="'Arial Narrow', Arial, sans-serif"
+        font-size="15" font-weight="bold" fill="#FFD700"
+        text-anchor="middle" letter-spacing="2" opacity="0.9">
+    CÔNG AN NHÂN DÂN
+  </text>
+
+  <!-- Small separator line under top text -->
+  <line x1="170" y1="88" x2="342" y2="88" stroke="#FFD700" stroke-width="1" opacity="0.5"/>
+
+  <!-- ====== OUTER HEX BORDER (final) ====== -->
+  <polygon points="256,18 494,137 494,375 256,494 18,375 18,137"
+           fill="none" stroke="#FFD700" stroke-width="5"/>
+  <polygon points="256,22 490,139 490,373 256,490 22,373 22,139"
+           fill="none" stroke="#CC0000" stroke-width="1.5"/>
+
+  <!-- Inner hex accent border -->
+  <polygon points="256,42 470,151 470,361 256,470 42,361 42,151"
+           fill="none" stroke="rgba(144,200,255,0.3)" stroke-width="1" stroke-dasharray="4,8"/>
+</svg>

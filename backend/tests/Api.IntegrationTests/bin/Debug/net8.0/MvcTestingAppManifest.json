@@ -1,0 +1,6 @@
+{
+  "ThucLuc.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\Projects\\ThucLuc_V2\\.sources\\backend\\src\\Api",
+  "ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\Projects\\ThucLuc_V2\\.sources\\backend\\src\\Application",
+  "ThucLuc.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\Projects\\ThucLuc_V2\\.sources\\backend\\src\\Domain",
+  "ThucLuc.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\Projects\\ThucLuc_V2\\.sources\\backend\\src\\Infrastructure"
+}

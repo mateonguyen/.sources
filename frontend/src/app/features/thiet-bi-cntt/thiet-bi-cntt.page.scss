@@ -1,0 +1,61 @@
+:host ::ng-deep .app-thiet-bi-dialog .app-dialog-body-standard {
+  max-height: min(70vh, 680px);
+  overflow: auto;
+}
+
+.thiet-bi-group-row td {
+  background: color-mix(in srgb, var(--app-primary-50) 52%, white 48%);
+  color: var(--app-primary-800);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.thiet-bi-group-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-weight: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.thiet-bi-quick-add-row td {
+  background: color-mix(in srgb, var(--app-surface-soft) 54%, white 46%);
+}
+
+:host ::ng-deep .thiet-bi-quick-add-input,
+:host ::ng-deep .thiet-bi-quick-add-number {
+  width: 100%;
+}
+
+.thiet-bi-name-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.thiet-bi-row-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border: 0;
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  border-radius: 0.35rem;
+}
+
+.thiet-bi-row-toggle:hover {
+  background: var(--app-surface-soft);
+  color: var(--app-text-strong);
+}
+
+.thiet-bi-child-row td:first-child {
+  padding-left: 1.85rem;
+}

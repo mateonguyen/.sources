@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="navyGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#3a7fc1"/>
+      <stop offset="100%" stop-color="#0f2747"/>
+    </radialGradient>
+    <radialGradient id="redGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e02020"/>
+      <stop offset="100%" stop-color="#9a0000"/>
+    </radialGradient>
+    <filter id="starGlow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <clipPath id="navyClip">
+      <circle cx="256" cy="256" r="117"/>
+    </clipPath>
+  </defs>
+
+  <!-- ====== OUTER GOLD RING ====== -->
+  <circle cx="256" cy="256" r="248" fill="#FFD700"/>
+  <circle cx="256" cy="256" r="248" fill="none" stroke="#CC0000" stroke-width="3"/>
+
+  <!-- ====== GREEN MAIN CIRCLE ====== -->
+  <circle cx="256" cy="256" r="234" fill="#1A6B2A"/>
+
+  <!-- Circuit dashed ring on green -->
+  <circle cx="256" cy="256" r="241" fill="none" stroke="#FFD700" stroke-width="1.5"
+    stroke-dasharray="6,13.5" stroke-dashoffset="3"/>
+
+  <!-- 16 circuit nodes at r=241 -->
+  <g fill="#FFD700" stroke="#CC0000" stroke-width="0.8">
+    <circle cx="497" cy="256" r="5.5"/>
+    <circle cx="479" cy="348" r="5.5"/>
+    <circle cx="426" cy="426" r="5.5"/>
+    <circle cx="348" cy="479" r="5.5"/>
+    <circle cx="256" cy="497" r="5.5"/>
+    <circle cx="164" cy="479" r="5.5"/>
+    <circle cx="86"  cy="426" r="5.5"/>
+    <circle cx="33"  cy="348" r="5.5"/>
+    <circle cx="15"  cy="256" r="5.5"/>
+    <circle cx="33"  cy="164" r="5.5"/>
+    <circle cx="86"  cy="86"  r="5.5"/>
+    <circle cx="164" cy="33"  r="5.5"/>
+    <circle cx="256" cy="15"  r="5.5"/>
+    <circle cx="348" cy="33"  r="5.5"/>
+    <circle cx="426" cy="86"  r="5.5"/>
+    <circle cx="479" cy="164" r="5.5"/>
+  </g>
+
+  <!-- ====== GOLD SEPARATOR RING ====== -->
+  <circle cx="256" cy="256" r="197" fill="#FFD700"/>
+  <circle cx="256" cy="256" r="197" fill="none" stroke="#CC0000" stroke-width="1.5"/>
+
+  <!-- ====== RED CIRCLE WITH RAYS ====== -->
+  <circle cx="256" cy="256" r="187" fill="url(#redGrad)"/>
+
+  <!-- 12 solid gold rays -->
+  <g transform="translate(256,256)" stroke="#FFD700" stroke-width="2.8" opacity="0.9">
+    <line x1="0" y1="0" x2="0"    y2="-185" transform="rotate(0)"/>
+    <line x1="0" y1="0" x2="0"    y2="-185" transform="rotate(30)"/>
+    <line x1="0" y1="0" x2="0"    y2="-185" transform="rotate(60)"/>
+    <line x1="0" y1="0" x2="0"    y2="-185" transform="rotate(90)"/>
+    <line x1="0" y1="0" x2="0"    y2="-185" transform="rotate(120)"/>
+    <line x1="0" y1="0" x2="0"    y2="-185" transform="rotate(150)"/>
+    <line x1="0" y1="0" x2="0"    y2="-185" transform="rotate(180)"/>
+    <line x1="0" y1="0" x2="0"    y2="-185" transform="rotate(210)"/>
+    <line x1="0" y1="0" x2="0"    y2="-185" transform="rotate(240)"/>
+    <line x1="0" y1="0" x2="0"    y2="-185" transform="rotate(270)"/>
+    <line x1="0" y1="0" x2="0"    y2="-185" transform="rotate(300)"/>
+    <line x1="0" y1="0" x2="0"    y2="-185" transform="rotate(330)"/>
+  </g>
+
+  <!-- 12 circuit-style rays (dashed + nodes) at 15°, 45°... -->
+  <g transform="translate(256,256)" fill="#FFD700">
+    <g transform="rotate(15)">
+      <line x1="0" y1="-132" x2="0" y2="-183" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="4,7"/>
+      <circle cx="0" cy="-150" r="3.5"/>
+      <circle cx="0" cy="-174" r="2.5"/>
+    </g>
+    <g transform="rotate(45)">
+      <line x1="0" y1="-132" x2="0" y2="-183" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="4,7"/>
+      <circle cx="0" cy="-150" r="3.5"/>
+      <circle cx="0" cy="-174" r="2.5"/>
+    </g>
+    <g transform="rotate(75)">
+      <line x1="0" y1="-132" x2="0" y2="-183" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="4,7"/>
+      <circle cx="0" cy="-150" r="3.5"/>
+      <circle cx="0" cy="-174" r="2.5"/>
+    </g>
+    <g transform="rotate(105)">
+      <line x1="0" y1="-132" x2="0" y2="-183" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="4,7"/>
+      <circle cx="0" cy="-150" r="3.5"/>
+      <circle cx="0" cy="-174" r="2.5"/>
+    </g>
+    <g transform="rotate(135)">
+      <line x1="0" y1="-132" x2="0" y2="-183" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="4,7"/>
+      <circle cx="0" cy="-150" r="3.5"/>
+      <circle cx="0" cy="-174" r="2.5"/>
+    </g>
+    <g transform="rotate(165)">
+      <line x1="0" y1="-132" x2="0" y2="-183" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="4,7"/>
+      <circle cx="0" cy="-150" r="3.5"/>
+      <circle cx="0" cy="-174" r="2.5"/>
+    </g>
+    <g transform="rotate(195)">
+      <line x1="0" y1="-132" x2="0" y2="-183" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="4,7"/>
+      <circle cx="0" cy="-150" r="3.5"/>
+      <circle cx="0" cy="-174" r="2.5"/>
+    </g>
+    <g transform="rotate(225)">
+      <line x1="0" y1="-132" x2="0" y2="-183" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="4,7"/>
+      <circle cx="0" cy="-150" r="3.5"/>
+      <circle cx="0" cy="-174" r="2.5"/>
+    </g>
+    <g transform="rotate(255)">
+      <line x1="0" y1="-132" x2="0" y2="-183" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="4,7"/>
+      <circle cx="0" cy="-150" r="3.5"/>
+      <circle cx="0" cy="-174" r="2.5"/>
+    </g>
+    <g transform="rotate(285)">
+      <line x1="0" y1="-132" x2="0" y2="-183" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="4,7"/>
+      <circle cx="0" cy="-150" r="3.5"/>
+      <circle cx="0" cy="-174" r="2.5"/>
+    </g>
+    <g transform="rotate(315)">
+      <line x1="0" y1="-132" x2="0" y2="-183" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="4,7"/>
+      <circle cx="0" cy="-150" r="3.5"/>
+      <circle cx="0" cy="-174" r="2.5"/>
+    </g>
+    <g transform="rotate(345)">
+      <line x1="0" y1="-132" x2="0" y2="-183" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="4,7"/>
+      <circle cx="0" cy="-150" r="3.5"/>
+      <circle cx="0" cy="-174" r="2.5"/>
+    </g>
+  </g>
+
+  <!-- ====== GOLD INNER RING ====== -->
+  <circle cx="256" cy="256" r="129" fill="#FFD700"/>
+  <circle cx="256" cy="256" r="129" fill="none" stroke="#CC0000" stroke-width="1.5"/>
+
+  <!-- ====== NAVY INNER CIRCLE ====== -->
+  <circle cx="256" cy="256" r="119" fill="url(#navyGrad)"/>
+
+  <!-- Subtle circuit grid in navy -->
+  <g clip-path="url(#navyClip)" stroke="rgba(100,180,255,0.22)" stroke-width="1" fill="none">
+    <line x1="196" y1="226" x2="316" y2="226"/>
+    <line x1="196" y1="256" x2="316" y2="256"/>
+    <line x1="196" y1="286" x2="316" y2="286"/>
+    <line x1="226" y1="196" x2="226" y2="316"/>
+    <line x1="256" y1="196" x2="256" y2="316"/>
+    <line x1="286" y1="196" x2="286" y2="316"/>
+    <!-- L-shaped circuit connectors -->
+    <polyline points="206,236 206,246 216,246" stroke-width="1.2"/>
+    <polyline points="306,236 306,246 296,246" stroke-width="1.2"/>
+    <polyline points="206,276 206,266 216,266" stroke-width="1.2"/>
+    <polyline points="306,276 306,266 296,266" stroke-width="1.2"/>
+  </g>
+  <!-- Circuit intersection nodes -->
+  <g clip-path="url(#navyClip)" fill="rgba(120,200,255,0.4)">
+    <circle cx="226" cy="226" r="3"/>
+    <circle cx="256" cy="226" r="3"/>
+    <circle cx="286" cy="226" r="3"/>
+    <circle cx="226" cy="256" r="3"/>
+    <circle cx="286" cy="256" r="3"/>
+    <circle cx="226" cy="286" r="3"/>
+    <circle cx="256" cy="286" r="3"/>
+    <circle cx="286" cy="286" r="3"/>
+  </g>
+
+  <!-- ====== GOLD 5-POINTED STAR ====== -->
+  <!-- Outer R=63, Inner R=25, center (256,252) — shifted slightly up -->
+  <polygon
+    points="256,189 271,232 316,233 280,260 293,303 256,278 219,303 232,260 196,233 241,232"
+    fill="#FFD700"
+    stroke="#CC8800"
+    stroke-width="1.8"
+    stroke-linejoin="round"
+    filter="url(#starGlow)"/>
+
+  <!-- Small circuit lines radiating from star tips (digital accent) -->
+  <g stroke="#FFD700" stroke-width="1" opacity="0.6">
+    <!-- Top tip accent -->
+    <line x1="256" y1="185" x2="256" y2="173"/>
+    <line x1="252" y1="173" x2="260" y2="173"/>
+    <!-- Upper-right tip accent -->
+    <line x1="319" y1="230" x2="328" y2="223"/>
+    <circle cx="330" cy="221" r="2" fill="#FFD700" stroke="none"/>
+    <!-- Upper-left tip accent -->
+    <line x1="193" y1="230" x2="184" y2="223"/>
+    <circle cx="182" cy="221" r="2" fill="#FFD700" stroke="none"/>
+  </g>
+
+  <!-- ====== BOTTOM TEXT IN GREEN RING (curved) ====== -->
+  <path id="bottomArc" d="M 80,340 A 194,194 0 0,0 432,340" fill="none"/>
+  <text font-family="'Arial Narrow', Arial, sans-serif" font-size="15" font-weight="bold"
+        fill="#FFD700" letter-spacing="1.5">
+    <textPath href="#bottomArc" startOffset="8%">QUẢN LÝ CÔNG NGHỆ THÔNG TIN</textPath>
+  </text>
+
+  <!-- Decorative side elements in green ring -->
+  <!-- Left diamond -->
+  <polygon points="52,256 62,248 72,256 62,264" fill="#FFD700" opacity="0.8"/>
+  <!-- Right diamond -->
+  <polygon points="460,256 470,248 480,256 470,264" fill="#FFD700" opacity="0.8"/>
+</svg>

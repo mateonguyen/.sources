@@ -1,0 +1,416 @@
+2026-04-05 06:49:51.852 +07:00 [WRN] The decimal property 'KinhPhi' on entity type 'AtttHtttDauTu' does not have a store type specified. This may lead to a precision loss if the values do not fit in the default precision and scale. Oracle recommends to explicitly specify the column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2026-04-05 06:49:51.889 +07:00 [WRN] The decimal property 'KinhPhi' on entity type 'DaoTaoBoiDuong' does not have a store type specified. This may lead to a precision loss if the values do not fit in the default precision and scale. Oracle recommends to explicitly specify the column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2026-04-05 06:49:51.893 +07:00 [WRN] The decimal property 'KinhPhi' on entity type 'DaoTaoNuocNgoai' does not have a store type specified. This may lead to a precision loss if the values do not fit in the default precision and scale. Oracle recommends to explicitly specify the column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2026-04-05 06:49:53.777 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-05 06:49:53.881 +07:00 [INF] User profile is available. Using 'C:\Users\CNTT\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-04-05 06:49:54.003 +07:00 [INF] Now listening on: http://localhost:5283
+2026-04-05 06:49:54.004 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-04-05 06:49:54.005 +07:00 [INF] Hosting environment: Development
+2026-04-05 06:49:54.006 +07:00 [INF] Content root path: D:\Projects\ThucLuc_V2\.sources\backend\src\api
+2026-04-05 06:51:34.706 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/auth/login - null null
+2026-04-05 06:51:34.747 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-04-05 06:51:34.750 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:34.753 +07:00 [INF] HTTP OPTIONS /api/v1/auth/login => 204 in 14.2823 ms CorrelationId=f6f7cdb2d0b54d61a57876d155f83326 UserId=anonymous
+2026-04-05 06:51:34.757 +07:00 [INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 22.3296 ms
+2026-04-05 06:51:34.765 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/auth/login - 204 null null 60.2116ms
+2026-04-05 06:51:34.769 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - application/json 43
+2026-04-05 06:51:34.776 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:36.105 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-05 06:51:36.134 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Auth.AuthTokenDto]]] Login(ThucLuc.Application.Features.Auth.LoginRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.AuthController (ThucLuc.Api).
+2026-04-05 06:51:36.993 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Auth.AuthTokenDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-05 06:51:37.015 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api) in 875.603ms
+2026-04-05 06:51:37.017 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-05 06:51:37.019 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 2243.7933 ms CorrelationId=d2c382bbb4ea4e5da306e083250e5d3b UserId=anonymous
+2026-04-05 06:51:37.023 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 2247.7695 ms
+2026-04-05 06:51:37.030 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - 200 null application/json; charset=utf-8 2260.4955ms
+2026-04-05 06:51:37.035 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/auth/me - null null
+2026-04-05 06:51:37.036 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:37.037 +07:00 [INF] HTTP OPTIONS /api/v1/auth/me => 204 in 1.4355 ms CorrelationId=28ee44199d82459490a886e27b70d672 UserId=anonymous
+2026-04-05 06:51:37.039 +07:00 [INF] HTTP OPTIONS /api/v1/auth/me responded 204 in 2.9561 ms
+2026-04-05 06:51:37.042 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/auth/me - 204 null null 7.8152ms
+2026-04-05 06:51:37.048 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/auth/me - null null
+2026-04-05 06:51:37.052 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:37.091 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Me (ThucLuc.Api)'
+2026-04-05 06:51:37.095 +07:00 [INF] Route matched with {action = "Me", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Auth.UserProfileDto]]] Me(System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.AuthController (ThucLuc.Api).
+2026-04-05 06:51:37.127 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Auth.UserProfileDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-05 06:51:37.133 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.AuthController.Me (ThucLuc.Api) in 34.0706ms
+2026-04-05 06:51:37.134 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Me (ThucLuc.Api)'
+2026-04-05 06:51:37.136 +07:00 [INF] HTTP GET /api/v1/auth/me => 200 in 84.2441 ms CorrelationId=243f03fdb4ab47ff9d33c0459b81a1d0 UserId=5001
+2026-04-05 06:51:37.139 +07:00 [INF] HTTP GET /api/v1/auth/me responded 200 in 87.2371 ms
+2026-04-05 06:51:37.141 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/auth/me - 200 null application/json; charset=utf-8 92.9198ms
+2026-04-05 06:51:40.797 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/nhan-luc-cntt - null null
+2026-04-05 06:51:40.798 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - null null
+2026-04-05 06:51:40.799 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - null null
+2026-04-05 06:51:40.799 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - null null
+2026-04-05 06:51:40.800 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - null null
+2026-04-05 06:51:40.801 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - null null
+2026-04-05 06:51:40.803 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:40.807 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:40.809 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:40.811 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:40.813 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:40.816 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:40.820 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/CAP_BAC_CONG_AN => 204 in 4.268 ms CorrelationId=ed3be4b30def44d6acb475e470ecfeda UserId=anonymous
+2026-04-05 06:51:40.817 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/GIOI_TINH => 204 in 10.5737 ms CorrelationId=b9159ad8487e40a1b84dc4fcd829bce6 UserId=anonymous
+2026-04-05 06:51:40.818 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/LOAI_NHAN_LUC => 204 in 9.3212 ms CorrelationId=7691804cd6d24a93aa06e805039dceec UserId=anonymous
+2026-04-05 06:51:40.825 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/LOAI_NHAN_LUC responded 204 in 16.9120 ms
+2026-04-05 06:51:40.819 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_LLCT => 204 in 5.9953 ms CorrelationId=9a93e467dad74e728602d695a4ad5a58 UserId=anonymous
+2026-04-05 06:51:40.816 +07:00 [INF] HTTP OPTIONS /api/v1/nhan-luc-cntt => 204 in 13.2659 ms CorrelationId=d6bd33522cd8489bbd083f1c227c45aa UserId=anonymous
+2026-04-05 06:51:40.822 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/CAP_BAC_CONG_AN responded 204 in 6.3767 ms
+2026-04-05 06:51:40.824 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/GIOI_TINH responded 204 in 17.2262 ms
+2026-04-05 06:51:40.819 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_CNTT => 204 in 7.2983 ms CorrelationId=0252f901f7b64f71abd75317a6a579b6 UserId=anonymous
+2026-04-05 06:51:40.828 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - 204 null null 29.0934ms
+2026-04-05 06:51:40.830 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_LLCT responded 204 in 16.2808 ms
+2026-04-05 06:51:40.832 +07:00 [INF] HTTP OPTIONS /api/v1/nhan-luc-cntt responded 204 in 28.6466 ms
+2026-04-05 06:51:40.833 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - 204 null null 31.8935ms
+2026-04-05 06:51:40.835 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - 204 null null 36.871ms
+2026-04-05 06:51:40.836 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_CNTT responded 204 in 24.9604 ms
+2026-04-05 06:51:40.838 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/don-vi/tree - null null
+2026-04-05 06:51:40.840 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - 204 null null 40.2464ms
+2026-04-05 06:51:40.842 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/nhan-luc-cntt - 204 null null 45.0871ms
+2026-04-05 06:51:40.844 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - null null
+2026-04-05 06:51:40.846 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - null null
+2026-04-05 06:51:40.847 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - 204 null null 48.2167ms
+2026-04-05 06:51:40.848 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:40.851 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - null null
+2026-04-05 06:51:40.853 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - null null
+2026-04-05 06:51:40.855 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:40.857 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:40.859 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/nhan-luc-cntt - null null
+2026-04-05 06:51:40.859 +07:00 [INF] HTTP OPTIONS /api/v1/don-vi/tree => 204 in 11.3888 ms CorrelationId=5e4d4f9e661c468fbc7a20eff0bd9ed2 UserId=anonymous
+2026-04-05 06:51:40.872 +07:00 [INF] HTTP OPTIONS /api/v1/don-vi/tree responded 204 in 24.1396 ms
+2026-04-05 06:51:40.863 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:40.868 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:51:40.868 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:51:40.869 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:40.861 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:40.874 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/don-vi/tree - 204 null null 35.7349ms
+2026-04-05 06:51:40.876 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:51:40.878 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.NhanLucCnttController.GetAll (ThucLuc.Api)'
+2026-04-05 06:51:40.878 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:51:40.880 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - null null
+2026-04-05 06:51:40.881 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-05 06:51:40.881 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-05 06:51:40.883 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-05 06:51:40.884 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-05 06:51:40.885 +07:00 [INF] Route matched with {action = "GetAll", controller = "NhanLucCntt"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.NhanLucCntt.NhanLucCnttDto]]]] GetAll(System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.NhanLucCnttController (ThucLuc.Api).
+2026-04-05 06:51:40.885 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:40.897 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:51:40.899 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-05 06:51:40.918 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.NhanLucCntt.NhanLucCnttDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-05 06:51:40.931 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.NhanLucCnttController.GetAll (ThucLuc.Api) in 35.7107ms
+2026-04-05 06:51:40.934 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.NhanLucCnttController.GetAll (ThucLuc.Api)'
+2026-04-05 06:51:40.935 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt => 200 in 66.6974 ms CorrelationId=e2f0892908794b25820132d4612d73ba UserId=5001
+2026-04-05 06:51:40.938 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt responded 200 in 69.1762 ms
+2026-04-05 06:51:40.939 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/nhan-luc-cntt - 200 null application/json; charset=utf-8 80.7845ms
+2026-04-05 06:51:40.943 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/don-vi/tree - null null
+2026-04-05 06:51:40.946 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:51:40.947 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DonViController.GetTree (ThucLuc.Api)'
+2026-04-05 06:51:40.951 +07:00 [INF] Route matched with {action = "GetTree", controller = "DonVi"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.DonVi.DonViDto]]]] GetTree(System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DonViController (ThucLuc.Api).
+2026-04-05 06:51:40.971 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-05 06:51:40.976 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 83.0995ms
+2026-04-05 06:51:40.979 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:51:40.980 +07:00 [INF] HTTP GET /api/v1/codes/by-code/GIOI_TINH => 200 in 119.0105 ms CorrelationId=575a7f1975254b18b536f52c5d71460b UserId=5001
+2026-04-05 06:51:40.981 +07:00 [INF] HTTP GET /api/v1/codes/by-code/GIOI_TINH responded 200 in 120.3476 ms
+2026-04-05 06:51:40.983 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - 200 null application/json; charset=utf-8 131.8715ms
+2026-04-05 06:51:41.018 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-05 06:51:41.020 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 118.4825ms
+2026-04-05 06:51:41.021 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:51:41.022 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_CNTT => 200 in 137.038 ms CorrelationId=39228ffec1234434937621264e270783 UserId=5001
+2026-04-05 06:51:41.025 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_CNTT responded 200 in 139.7797 ms
+2026-04-05 06:51:41.028 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - 200 null application/json; charset=utf-8 147.8629ms
+2026-04-05 06:51:41.038 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-05 06:51:41.039 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-05 06:51:41.040 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 150.1478ms
+2026-04-05 06:51:41.040 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-05 06:51:41.041 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 150.7039ms
+2026-04-05 06:51:41.042 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:51:41.044 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 156.2247ms
+2026-04-05 06:51:41.045 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:51:41.046 +07:00 [INF] HTTP GET /api/v1/codes/by-code/LOAI_NHAN_LUC => 200 in 190.7218 ms CorrelationId=6510bfdc90634d1f8d6dee050edc6475 UserId=5001
+2026-04-05 06:51:41.047 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:51:41.048 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.DonVi.DonViDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-05 06:51:41.048 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_LLCT => 200 in 185.5859 ms CorrelationId=c124be5e4b25487092870ca77789f5d3 UserId=5001
+2026-04-05 06:51:41.050 +07:00 [INF] HTTP GET /api/v1/codes/by-code/LOAI_NHAN_LUC responded 200 in 194.8657 ms
+2026-04-05 06:51:41.052 +07:00 [INF] HTTP GET /api/v1/codes/by-code/CAP_BAC_CONG_AN => 200 in 194.5471 ms CorrelationId=2d5427891723442f927ba4f2427e7f1b UserId=5001
+2026-04-05 06:51:41.054 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_LLCT responded 200 in 191.6540 ms
+2026-04-05 06:51:41.055 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - 200 null application/json; charset=utf-8 211.0339ms
+2026-04-05 06:51:41.056 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DonViController.GetTree (ThucLuc.Api) in 102.1105ms
+2026-04-05 06:51:41.058 +07:00 [INF] HTTP GET /api/v1/codes/by-code/CAP_BAC_CONG_AN responded 200 in 200.4712 ms
+2026-04-05 06:51:41.060 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - 200 null application/json; charset=utf-8 206.0979ms
+2026-04-05 06:51:41.063 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DonViController.GetTree (ThucLuc.Api)'
+2026-04-05 06:51:41.065 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - 200 null application/json; charset=utf-8 219.0405ms
+2026-04-05 06:51:41.068 +07:00 [INF] HTTP GET /api/v1/don-vi/tree => 200 in 122.2897 ms CorrelationId=722820b9f9c3404a86f1ac83ea2b2e2c UserId=5001
+2026-04-05 06:51:41.071 +07:00 [INF] HTTP GET /api/v1/don-vi/tree responded 200 in 125.6910 ms
+2026-04-05 06:51:41.073 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/don-vi/tree - 200 null application/json; charset=utf-8 130.0024ms
+2026-04-05 06:52:43.154 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/dao-tao-boi-duong?kyCode=2026Q1 - null null
+2026-04-05 06:52:43.157 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:43.158 +07:00 [INF] HTTP OPTIONS /api/v1/dao-tao-boi-duong => 204 in 0.6595 ms CorrelationId=4028288b0fc04be68608833e3e45091a UserId=anonymous
+2026-04-05 06:52:43.159 +07:00 [INF] HTTP OPTIONS /api/v1/dao-tao-boi-duong responded 204 in 2.0690 ms
+2026-04-05 06:52:43.164 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/dao-tao-boi-duong?kyCode=2026Q1 - 204 null null 9.5662ms
+2026-04-05 06:52:43.170 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-boi-duong?kyCode=2026Q1 - null null
+2026-04-05 06:52:43.173 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:43.175 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoBoiDuongController.GetAll (ThucLuc.Api)'
+2026-04-05 06:52:43.181 +07:00 [INF] Route matched with {action = "GetAll", controller = "DaoTaoBoiDuong"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.DaoTaoBoiDuong.DaoTaoBoiDuongDto]]]] GetAll(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoBoiDuongController (ThucLuc.Api).
+2026-04-05 06:52:43.237 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.DaoTaoBoiDuong.DaoTaoBoiDuongDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-05 06:52:43.247 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoBoiDuongController.GetAll (ThucLuc.Api) in 63.05ms
+2026-04-05 06:52:43.250 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoBoiDuongController.GetAll (ThucLuc.Api)'
+2026-04-05 06:52:43.251 +07:00 [INF] HTTP GET /api/v1/dao-tao-boi-duong => 200 in 78.0436 ms CorrelationId=927f692372a44fbbad11286ac56ae822 UserId=5001
+2026-04-05 06:52:43.253 +07:00 [INF] HTTP GET /api/v1/dao-tao-boi-duong responded 200 in 79.6031 ms
+2026-04-05 06:52:43.254 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-boi-duong?kyCode=2026Q1 - 200 null application/json; charset=utf-8 83.7974ms
+2026-04-05 06:52:45.586 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=2026Q1 - null null
+2026-04-05 06:52:45.589 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:45.590 +07:00 [INF] HTTP OPTIONS /api/v1/dao-tao-hoc-vien => 204 in 0.7763 ms CorrelationId=389bbf0448964df4a53ff6d136139f6d UserId=anonymous
+2026-04-05 06:52:45.591 +07:00 [INF] HTTP OPTIONS /api/v1/dao-tao-hoc-vien responded 204 in 2.4227 ms
+2026-04-05 06:52:45.594 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=2026Q1 - 204 null null 7.9711ms
+2026-04-05 06:52:45.599 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=2026Q1 - null null
+2026-04-05 06:52:45.600 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:45.601 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api)'
+2026-04-05 06:52:45.605 +07:00 [INF] Route matched with {action = "GetAll", controller = "DaoTaoHocVien"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto]]]] GetAll(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoHocVienController (ThucLuc.Api).
+2026-04-05 06:52:45.660 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-05 06:52:45.664 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api) in 56.1983ms
+2026-04-05 06:52:45.665 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api)'
+2026-04-05 06:52:45.665 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien => 200 in 65.016 ms CorrelationId=68b67fcf418d441989ca2c5636c0a733 UserId=5001
+2026-04-05 06:52:45.667 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien responded 200 in 66.2176 ms
+2026-04-05 06:52:45.667 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=2026Q1 - 200 null application/json; charset=utf-8 68.7732ms
+2026-04-05 06:52:45.876 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/dao-tao-nuoc-ngoai?kyCode=2026Q1 - null null
+2026-04-05 06:52:45.880 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:45.881 +07:00 [INF] HTTP OPTIONS /api/v1/dao-tao-nuoc-ngoai => 204 in 1.1589 ms CorrelationId=d7311bb5929d496fa871b565f31b3b76 UserId=anonymous
+2026-04-05 06:52:45.884 +07:00 [INF] HTTP OPTIONS /api/v1/dao-tao-nuoc-ngoai responded 204 in 4.0487 ms
+2026-04-05 06:52:45.885 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/dao-tao-nuoc-ngoai?kyCode=2026Q1 - 204 null null 9.149ms
+2026-04-05 06:52:45.889 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-nuoc-ngoai?kyCode=2026Q1 - null null
+2026-04-05 06:52:45.892 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:45.893 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoNuocNgoaiController.GetAll (ThucLuc.Api)'
+2026-04-05 06:52:45.899 +07:00 [INF] Route matched with {action = "GetAll", controller = "DaoTaoNuocNgoai"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.DaoTaoNuocNgoai.DaoTaoNuocNgoaiDto]]]] GetAll(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoNuocNgoaiController (ThucLuc.Api).
+2026-04-05 06:52:45.957 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.DaoTaoNuocNgoai.DaoTaoNuocNgoaiDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-05 06:52:45.960 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoNuocNgoaiController.GetAll (ThucLuc.Api) in 57.0052ms
+2026-04-05 06:52:45.962 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoNuocNgoaiController.GetAll (ThucLuc.Api)'
+2026-04-05 06:52:45.963 +07:00 [INF] HTTP GET /api/v1/dao-tao-nuoc-ngoai => 200 in 71.3817 ms CorrelationId=e48ddd0e28834f0b9f6527f39764580f UserId=5001
+2026-04-05 06:52:45.967 +07:00 [INF] HTTP GET /api/v1/dao-tao-nuoc-ngoai responded 200 in 75.0492 ms
+2026-04-05 06:52:45.969 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-nuoc-ngoai?kyCode=2026Q1 - 200 null application/json; charset=utf-8 79.3207ms
+2026-04-05 06:52:46.194 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/nang-luc-so?kyCode=2026Q1 - null null
+2026-04-05 06:52:46.200 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:46.201 +07:00 [INF] HTTP OPTIONS /api/v1/nang-luc-so => 204 in 0.8653 ms CorrelationId=6a79588bfb054d2c81a8778280a26806 UserId=anonymous
+2026-04-05 06:52:46.206 +07:00 [INF] HTTP OPTIONS /api/v1/nang-luc-so responded 204 in 6.4129 ms
+2026-04-05 06:52:46.209 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/nang-luc-so?kyCode=2026Q1 - 204 null null 14.7669ms
+2026-04-05 06:52:46.214 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/nang-luc-so?kyCode=2026Q1 - null null
+2026-04-05 06:52:46.216 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:46.217 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.GetAll (ThucLuc.Api)'
+2026-04-05 06:52:46.221 +07:00 [INF] Route matched with {action = "GetAll", controller = "NangLucSo"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.NangLucSo.NangLucSoDto]]]] GetAll(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.NangLucSoController (ThucLuc.Api).
+2026-04-05 06:52:46.273 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.NangLucSo.NangLucSoDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-05 06:52:46.280 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.NangLucSoController.GetAll (ThucLuc.Api) in 57.1841ms
+2026-04-05 06:52:46.282 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.GetAll (ThucLuc.Api)'
+2026-04-05 06:52:46.283 +07:00 [INF] HTTP GET /api/v1/nang-luc-so => 200 in 67.1501 ms CorrelationId=41c8eea233ee42049fad14b74d860122 UserId=5001
+2026-04-05 06:52:46.286 +07:00 [INF] HTTP GET /api/v1/nang-luc-so responded 200 in 69.7130 ms
+2026-04-05 06:52:46.287 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/nang-luc-so?kyCode=2026Q1 - 200 null application/json; charset=utf-8 72.7923ms
+2026-04-05 06:52:46.922 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/nhan-luc-cntt - null null
+2026-04-05 06:52:46.922 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - null null
+2026-04-05 06:52:46.922 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - null null
+2026-04-05 06:52:46.922 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - null null
+2026-04-05 06:52:46.923 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - null null
+2026-04-05 06:52:46.923 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - null null
+2026-04-05 06:52:46.925 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:46.927 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:46.930 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:46.933 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:46.935 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:46.936 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:46.937 +07:00 [INF] HTTP OPTIONS /api/v1/nhan-luc-cntt => 204 in 11.825 ms CorrelationId=3ab49de25cec4a108520c85d9e7a97ec UserId=anonymous
+2026-04-05 06:52:46.937 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/GIOI_TINH => 204 in 9.8445 ms CorrelationId=fb48f60964b34af092b0fe4b4efcd2c0 UserId=anonymous
+2026-04-05 06:52:46.944 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/GIOI_TINH responded 204 in 16.8854 ms
+2026-04-05 06:52:46.938 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_CNTT => 204 in 5.1769 ms CorrelationId=010b6a8d2d784296b9fd37c66d425ac9 UserId=anonymous
+2026-04-05 06:52:46.949 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_CNTT responded 204 in 15.8520 ms
+2026-04-05 06:52:46.940 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_LLCT => 204 in 3.7404 ms CorrelationId=ff6e9fb3d7a647a68a0fa740b08210ff UserId=anonymous
+2026-04-05 06:52:46.942 +07:00 [INF] HTTP OPTIONS /api/v1/nhan-luc-cntt responded 204 in 17.0123 ms
+2026-04-05 06:52:46.938 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/CAP_BAC_CONG_AN => 204 in 8.1564 ms CorrelationId=abc7ab6103834091bd9c19b655c59fa8 UserId=anonymous
+2026-04-05 06:52:46.947 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - 204 null null 25.3675ms
+2026-04-05 06:52:46.939 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/LOAI_NHAN_LUC => 204 in 4.357 ms CorrelationId=631d546f2a18449ea16000cfdd447e96 UserId=anonymous
+2026-04-05 06:52:46.950 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - 204 null null 27.987ms
+2026-04-05 06:52:46.952 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_LLCT responded 204 in 15.9357 ms
+2026-04-05 06:52:46.954 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/nhan-luc-cntt - 204 null null 32.3268ms
+2026-04-05 06:52:46.955 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/CAP_BAC_CONG_AN responded 204 in 25.3806 ms
+2026-04-05 06:52:46.957 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/don-vi/tree - null null
+2026-04-05 06:52:46.958 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/LOAI_NHAN_LUC responded 204 in 23.1314 ms
+2026-04-05 06:52:46.960 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - null null
+2026-04-05 06:52:46.961 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - 204 null null 38.0061ms
+2026-04-05 06:52:46.965 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - null null
+2026-04-05 06:52:46.966 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - 204 null null 44.0339ms
+2026-04-05 06:52:46.969 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:46.981 +07:00 [INF] HTTP OPTIONS /api/v1/don-vi/tree => 204 in 12.3656 ms CorrelationId=66ec67e9e28048b19dc4034cfe538bc6 UserId=anonymous
+2026-04-05 06:52:46.972 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:46.974 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/nhan-luc-cntt - null null
+2026-04-05 06:52:46.977 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:46.980 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - null null
+2026-04-05 06:52:46.970 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - 204 null null 47.5962ms
+2026-04-05 06:52:46.984 +07:00 [INF] HTTP OPTIONS /api/v1/don-vi/tree responded 204 in 15.3642 ms
+2026-04-05 06:52:46.995 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/don-vi/tree - 204 null null 37.7377ms
+2026-04-05 06:52:46.986 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:46.987 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:52:46.988 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:46.991 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - null null
+2026-04-05 06:52:46.985 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:52:47.000 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - null null
+2026-04-05 06:52:47.001 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.NhanLucCnttController.GetAll (ThucLuc.Api)'
+2026-04-05 06:52:47.001 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-05 06:52:47.002 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:52:47.005 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:47.006 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-05 06:52:47.007 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:47.020 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:52:47.015 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-05 06:52:47.016 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:52:47.024 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-05 06:52:47.021 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-05 06:52:47.009 +07:00 [INF] Route matched with {action = "GetAll", controller = "NhanLucCntt"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.NhanLucCntt.NhanLucCnttDto]]]] GetAll(System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.NhanLucCnttController (ThucLuc.Api).
+2026-04-05 06:52:47.032 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-05 06:52:47.040 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 14.2832ms
+2026-04-05 06:52:47.035 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-05 06:52:47.041 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.NhanLucCntt.NhanLucCnttDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-05 06:52:47.047 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.NhanLucCnttController.GetAll (ThucLuc.Api) in 11.6661ms
+2026-04-05 06:52:47.049 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.NhanLucCnttController.GetAll (ThucLuc.Api)'
+2026-04-05 06:52:47.049 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt => 200 in 63.045 ms CorrelationId=bf708cbd381743ebab765437b3c01967 UserId=5001
+2026-04-05 06:52:47.046 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 13.1912ms
+2026-04-05 06:52:47.053 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:52:47.054 +07:00 [INF] HTTP GET /api/v1/codes/by-code/LOAI_NHAN_LUC => 200 in 47.1017 ms CorrelationId=5160a354e3394081a21eb6c0b679b807 UserId=5001
+2026-04-05 06:52:47.044 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:52:47.053 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt responded 200 in 66.1633 ms
+2026-04-05 06:52:47.064 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/nhan-luc-cntt - 200 null application/json; charset=utf-8 89.9902ms
+2026-04-05 06:52:47.060 +07:00 [INF] HTTP GET /api/v1/codes/by-code/CAP_BAC_CONG_AN => 200 in 55.6756 ms CorrelationId=a332ad71e81d4d3ba699bb75daef3785 UserId=5001
+2026-04-05 06:52:47.061 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-05 06:52:47.075 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 63.0509ms
+2026-04-05 06:52:47.065 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-05 06:52:47.082 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 63.5759ms
+2026-04-05 06:52:47.083 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:52:47.074 +07:00 [INF] HTTP GET /api/v1/codes/by-code/CAP_BAC_CONG_AN responded 200 in 69.4085 ms
+2026-04-05 06:52:47.088 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - 200 null application/json; charset=utf-8 96.9178ms
+2026-04-05 06:52:47.080 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:52:47.066 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-05 06:52:47.093 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 70.8801ms
+2026-04-05 06:52:47.094 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 06:52:47.098 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_LLCT => 200 in 110.0775 ms CorrelationId=0692653446dd475a853f3856f6480fdb UserId=5001
+2026-04-05 06:52:47.092 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_CNTT => 200 in 115.4593 ms CorrelationId=f073cd9b5872403c85185b461d6b6551 UserId=5001
+2026-04-05 06:52:47.102 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_CNTT responded 200 in 125.0757 ms
+2026-04-05 06:52:47.108 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - 200 null application/json; charset=utf-8 143.7172ms
+2026-04-05 06:52:47.057 +07:00 [INF] HTTP GET /api/v1/codes/by-code/LOAI_NHAN_LUC responded 200 in 49.2550 ms
+2026-04-05 06:52:47.116 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - 200 null application/json; charset=utf-8 115.9604ms
+2026-04-05 06:52:47.072 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/don-vi/tree - null null
+2026-04-05 06:52:47.086 +07:00 [INF] HTTP GET /api/v1/codes/by-code/GIOI_TINH => 200 in 114.0258 ms CorrelationId=25fc802b2edd4691aa00c7028d718e76 UserId=5001
+2026-04-05 06:52:47.124 +07:00 [INF] HTTP GET /api/v1/codes/by-code/GIOI_TINH responded 200 in 151.8358 ms
+2026-04-05 06:52:47.125 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - 200 null application/json; charset=utf-8 165.0927ms
+2026-04-05 06:52:47.100 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_LLCT responded 200 in 112.0891 ms
+2026-04-05 06:52:47.131 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - 200 null application/json; charset=utf-8 151.3701ms
+2026-04-05 06:52:47.122 +07:00 [INF] CORS policy execution successful.
+2026-04-05 06:52:47.138 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DonViController.GetTree (ThucLuc.Api)'
+2026-04-05 06:52:47.140 +07:00 [INF] Route matched with {action = "GetTree", controller = "DonVi"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.DonVi.DonViDto]]]] GetTree(System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DonViController (ThucLuc.Api).
+2026-04-05 06:52:47.145 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.DonVi.DonViDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-05 06:52:47.151 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DonViController.GetTree (ThucLuc.Api) in 10.0727ms
+2026-04-05 06:52:47.152 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DonViController.GetTree (ThucLuc.Api)'
+2026-04-05 06:52:47.153 +07:00 [INF] HTTP GET /api/v1/don-vi/tree => 200 in 31.4036 ms CorrelationId=7e88a795ba464b8594ff46600dc8b65e UserId=5001
+2026-04-05 06:52:47.155 +07:00 [INF] HTTP GET /api/v1/don-vi/tree responded 200 in 33.1758 ms
+2026-04-05 06:52:47.159 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/don-vi/tree - 200 null application/json; charset=utf-8 86.4162ms
+2026-04-05 07:29:51.761 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/nhan-luc-cntt - null null
+2026-04-05 07:29:51.762 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - null null
+2026-04-05 07:29:51.763 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - null null
+2026-04-05 07:29:51.764 +07:00 [INF] CORS policy execution successful.
+2026-04-05 07:29:51.763 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - null null
+2026-04-05 07:29:51.765 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - null null
+2026-04-05 07:29:51.765 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - null null
+2026-04-05 07:29:51.766 +07:00 [INF] CORS policy execution successful.
+2026-04-05 07:29:51.768 +07:00 [INF] CORS policy execution successful.
+2026-04-05 07:29:51.768 +07:00 [INF] HTTP OPTIONS /api/v1/nhan-luc-cntt => 204 in 4.6383 ms CorrelationId=c7651d34fd1042afb2aade1577a5bd5a UserId=anonymous
+2026-04-05 07:29:51.769 +07:00 [INF] CORS policy execution successful.
+2026-04-05 07:29:51.770 +07:00 [INF] CORS policy execution successful.
+2026-04-05 07:29:51.771 +07:00 [INF] CORS policy execution successful.
+2026-04-05 07:29:51.772 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/GIOI_TINH => 204 in 6.0749 ms CorrelationId=6da7111d1b3441688eda8488ba86e28a UserId=anonymous
+2026-04-05 07:29:51.772 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/LOAI_NHAN_LUC => 204 in 4.5461 ms CorrelationId=8e5e0b8c64684bc1953747dc39c29689 UserId=anonymous
+2026-04-05 07:29:51.774 +07:00 [INF] HTTP OPTIONS /api/v1/nhan-luc-cntt responded 204 in 10.0912 ms
+2026-04-05 07:29:51.774 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/CAP_BAC_CONG_AN => 204 in 4.8659 ms CorrelationId=fa3152d5fd694998af7b4e88089bd553 UserId=anonymous
+2026-04-05 07:29:51.775 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_CNTT => 204 in 4.5412 ms CorrelationId=2e250b232d2043da85211f00a2d6d953 UserId=anonymous
+2026-04-05 07:29:51.776 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_LLCT => 204 in 4.8297 ms CorrelationId=7cdb4fbf801d4cffbc32d12f8ff0fdda UserId=anonymous
+2026-04-05 07:29:51.777 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/GIOI_TINH responded 204 in 11.6479 ms
+2026-04-05 07:29:51.778 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/LOAI_NHAN_LUC responded 204 in 10.8637 ms
+2026-04-05 07:29:51.779 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/nhan-luc-cntt - 204 null null 18.4231ms
+2026-04-05 07:29:51.781 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/CAP_BAC_CONG_AN responded 204 in 11.1977 ms
+2026-04-05 07:29:51.782 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_CNTT responded 204 in 11.5518 ms
+2026-04-05 07:29:51.783 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_LLCT responded 204 in 11.9930 ms
+2026-04-05 07:29:51.784 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - 204 null null 22.7897ms
+2026-04-05 07:29:51.785 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - 204 null null 22.3212ms
+2026-04-05 07:29:51.787 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/don-vi/tree - null null
+2026-04-05 07:29:51.788 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - 204 null null 24.8288ms
+2026-04-05 07:29:51.789 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - 204 null null 23.9343ms
+2026-04-05 07:29:51.789 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - 204 null null 24.7553ms
+2026-04-05 07:29:51.791 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/nhan-luc-cntt - null null
+2026-04-05 07:29:51.794 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - null null
+2026-04-05 07:29:51.795 +07:00 [INF] CORS policy execution successful.
+2026-04-05 07:29:51.797 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - null null
+2026-04-05 07:29:51.798 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - null null
+2026-04-05 07:29:51.800 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - null null
+2026-04-05 07:29:51.801 +07:00 [INF] CORS policy execution successful.
+2026-04-05 07:29:51.802 +07:00 [INF] CORS policy execution successful.
+2026-04-05 07:29:51.802 +07:00 [INF] HTTP OPTIONS /api/v1/don-vi/tree => 204 in 7.1113 ms CorrelationId=3e6a7744192c4875b5a3c71c17a647f7 UserId=anonymous
+2026-04-05 07:29:51.803 +07:00 [INF] CORS policy execution successful.
+2026-04-05 07:29:51.805 +07:00 [INF] CORS policy execution successful.
+2026-04-05 07:29:51.806 +07:00 [INF] CORS policy execution successful.
+2026-04-05 07:29:51.807 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 07:29:51.807 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.NhanLucCnttController.GetAll (ThucLuc.Api)'
+2026-04-05 07:29:51.809 +07:00 [INF] HTTP OPTIONS /api/v1/don-vi/tree responded 204 in 13.2894 ms
+2026-04-05 07:29:51.809 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 07:29:51.810 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 07:29:51.810 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 07:29:51.811 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-05 07:29:51.811 +07:00 [INF] Route matched with {action = "GetAll", controller = "NhanLucCntt"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.NhanLucCntt.NhanLucCnttDto]]]] GetAll(System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.NhanLucCnttController (ThucLuc.Api).
+2026-04-05 07:29:51.812 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/don-vi/tree - 204 null null 25.1933ms
+2026-04-05 07:29:51.813 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-05 07:29:51.813 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-05 07:29:51.814 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-05 07:29:51.818 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - null null
+2026-04-05 07:29:51.823 +07:00 [INF] CORS policy execution successful.
+2026-04-05 07:29:51.824 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 07:29:51.825 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-05 07:29:51.863 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-05 07:29:51.864 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 49.738ms
+2026-04-05 07:29:51.865 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 07:29:51.865 +07:00 [INF] HTTP GET /api/v1/codes/by-code/GIOI_TINH => 200 in 63.4739 ms CorrelationId=2d6da46a6444405ba734d37e3f581e84 UserId=5001
+2026-04-05 07:29:51.866 +07:00 [INF] HTTP GET /api/v1/codes/by-code/GIOI_TINH responded 200 in 64.4729 ms
+2026-04-05 07:29:51.867 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - 200 null application/json; charset=utf-8 73.2517ms
+2026-04-05 07:29:51.869 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/don-vi/tree - null null
+2026-04-05 07:29:51.870 +07:00 [INF] CORS policy execution successful.
+2026-04-05 07:29:51.871 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DonViController.GetTree (ThucLuc.Api)'
+2026-04-05 07:29:51.871 +07:00 [INF] Route matched with {action = "GetTree", controller = "DonVi"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.DonVi.DonViDto]]]] GetTree(System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DonViController (ThucLuc.Api).
+2026-04-05 07:29:51.874 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.DonVi.DonViDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-05 07:29:51.876 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DonViController.GetTree (ThucLuc.Api) in 3.3913ms
+2026-04-05 07:29:51.877 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DonViController.GetTree (ThucLuc.Api)'
+2026-04-05 07:29:51.878 +07:00 [INF] HTTP GET /api/v1/don-vi/tree => 200 in 7.6254 ms CorrelationId=4e5318553ee3412ea422dab5da40d984 UserId=5001
+2026-04-05 07:29:51.879 +07:00 [INF] HTTP GET /api/v1/don-vi/tree responded 200 in 9.1483 ms
+2026-04-05 07:29:51.880 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/don-vi/tree - 200 null application/json; charset=utf-8 11.1938ms
+2026-04-05 07:29:51.889 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-05 07:29:51.890 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 71.2347ms
+2026-04-05 07:29:51.891 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 07:29:51.892 +07:00 [INF] HTTP GET /api/v1/codes/by-code/LOAI_NHAN_LUC => 200 in 89.0259 ms CorrelationId=a1e03b2141c5465c8917233a9117af8f UserId=5001
+2026-04-05 07:29:51.894 +07:00 [INF] HTTP GET /api/v1/codes/by-code/LOAI_NHAN_LUC responded 200 in 90.9623 ms
+2026-04-05 07:29:51.896 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - 200 null application/json; charset=utf-8 99.4626ms
+2026-04-05 07:29:51.898 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.NhanLucCntt.NhanLucCnttDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-05 07:29:51.900 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.NhanLucCnttController.GetAll (ThucLuc.Api) in 84.226ms
+2026-04-05 07:29:51.901 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.NhanLucCnttController.GetAll (ThucLuc.Api)'
+2026-04-05 07:29:51.902 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt => 200 in 101.6606 ms CorrelationId=43fe9b3ad80e4aeebdafbb99e89edefe UserId=5001
+2026-04-05 07:29:51.903 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-05 07:29:51.904 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt responded 200 in 102.8583 ms
+2026-04-05 07:29:51.905 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 77.1931ms
+2026-04-05 07:29:51.905 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-05 07:29:51.906 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/nhan-luc-cntt - 200 null application/json; charset=utf-8 114.8557ms
+2026-04-05 07:29:51.907 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 07:29:51.908 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 88.0999ms
+2026-04-05 07:29:51.911 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-05 07:29:51.912 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_LLCT => 200 in 88.514 ms CorrelationId=ed05e1b2b32244e7b897e1a83d596040 UserId=5001
+2026-04-05 07:29:51.913 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 07:29:51.913 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 92.334ms
+2026-04-05 07:29:51.914 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_LLCT responded 200 in 91.0266 ms
+2026-04-05 07:29:51.915 +07:00 [INF] HTTP GET /api/v1/codes/by-code/CAP_BAC_CONG_AN => 200 in 110.3893 ms CorrelationId=84156ba57dad4916918d23983ab33f91 UserId=5001
+2026-04-05 07:29:51.916 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-05 07:29:51.916 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - 200 null application/json; charset=utf-8 98.9047ms
+2026-04-05 07:29:51.918 +07:00 [INF] HTTP GET /api/v1/codes/by-code/CAP_BAC_CONG_AN responded 200 in 112.9780 ms
+2026-04-05 07:29:51.918 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_CNTT => 200 in 111.7172 ms CorrelationId=57e97c8ccdef4992856fc731d42a7a6e UserId=5001
+2026-04-05 07:29:51.920 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - 200 null application/json; charset=utf-8 121.9048ms
+2026-04-05 07:29:51.922 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_CNTT responded 200 in 115.3531 ms
+2026-04-05 07:29:51.924 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - 200 null application/json; charset=utf-8 124.1681ms
+2026-04-05 07:30:13.345 +07:00 [INF] Application is shutting down...

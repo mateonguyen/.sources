@@ -1,0 +1,989 @@
+<app-section-card
+  [title]="title"
+  [subtitle]="subtitle"
+  styleClass="identity-admin-card"
+>
+  <button
+    sectionActions
+    *ngIf="module === 'users'"
+    pButton
+    type="button"
+    label="Thêm người dùng"
+    icon="pi pi-plus"
+    class="p-button-primary"
+    (click)="onCreateUser()"
+  ></button>
+  <button
+    sectionActions
+    *ngIf="module === 'roles'"
+    pButton
+    type="button"
+    label="Thêm vai trò"
+    icon="pi pi-plus"
+    class="p-button-primary"
+    (click)="onCreateRole()"
+  ></button>
+  <div
+    sectionActions
+    *ngIf="module === 'phan-quyen' && permissionAdminTab === 'role'"
+    class="flex gap-2"
+  >
+    <button
+      pButton
+      type="button"
+      label="Làm mới"
+      icon="pi pi-refresh"
+      class="p-button-sm p-button-secondary"
+      (click)="onRefreshPermissionManagement()"
+    ></button>
+    <button
+      pButton
+      type="button"
+      label="Lưu phân quyền"
+      icon="pi pi-save"
+      class="p-button-sm p-button-primary"
+      [disabled]="!selectedPermissionRoleId || savingRolePermissions || !hasPermissionSelectionChanged"
+      [loading]="savingRolePermissions"
+      (click)="onSaveRolePermissions()"
+    ></button>
+  </div>
+  <div class="relative mt-3 min-h-40">
+    <app-loading-overlay
+      [active]="loading"
+      label="Đang tải dữ liệu..."
+    ></app-loading-overlay>
+
+    <small class="app-validation-error" *ngIf="apiError">{{ apiError }}</small>
+
+    <ng-container *ngIf="!loading && !apiError && module === 'users'">
+      <!-- Filter Toolbar - Responsive Grid Layout -->
+      <div class="filter-panel">
+        <div class="filter-container">
+          <!-- Row 1: Search + Unit + Status + Actions (Desktop) -->
+          <div class="filter-row">
+            <!-- Search Field -->
+            <div class="filter-group filter-group--lg">
+              <label class="filter-label" for="search-input">Tìm kiếm</label>
+              <input
+                id="search-input"
+                pInputText
+                type="text"
+                placeholder="Nhập tên đăng nhập, họ tên hoặc đơn vị..."
+                [(ngModel)]="searchTerm"
+                (ngModelChange)="onFilterChange()"
+                class="app-filter-input"
+              />
+            </div>
+
+            <!-- Unit Dropdown -->
+            <div class="filter-group filter-group--md">
+              <label class="filter-label" for="unit-dropdown">Đơn vị</label>
+              <p-dropdown
+                id="unit-dropdown"
+                [options]="donViOptions"
+                [(ngModel)]="selectedDonViId"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Tất cả đơn vị"
+                [showClear]="true"
+                (onChange)="onFilterChange()"
+                class="app-filter-select"
+                appendTo="body"
+              ></p-dropdown>
+            </div>
+
+            <!-- Status Dropdown -->
+            <div class="filter-group filter-group--md">
+              <label class="filter-label" for="status-dropdown"
+                >Trạng thái</label
+              >
+              <p-dropdown
+                id="status-dropdown"
+                [options]="statusOptions"
+                [(ngModel)]="selectedStatus"
+                optionLabel="label"
+                optionValue="value"
+                (onChange)="onFilterChange()"
+                class="app-filter-select"
+                appendTo="body"
+              ></p-dropdown>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="filter-actions">
+              <button
+                pButton
+                type="button"
+                icon="pi pi-filter"
+                class="p-button-info p-button-outlined p-button-sm action-icon-btn"
+                pTooltip="Áp dụng bộ lọc"
+                tooltipPosition="top"
+                (click)="onFilterChange()"
+              ></button>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-refresh"
+                class="p-button-secondary p-button-outlined p-button-sm action-icon-btn"
+                pTooltip="Làm mới dữ liệu"
+                tooltipPosition="top"
+                (click)="load()"
+              ></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <app-empty-state
+        *ngIf="users.length === 0"
+        title="Chưa có dữ liệu"
+        message="Không có người dùng nào trong hệ thống."
+        icon="pi-users"
+        actionLabel="Tải lại"
+        actionIcon="pi pi-refresh"
+        (action)="load()"
+      ></app-empty-state>
+
+      <!-- Table Section -->
+      <div class="table-section" *ngIf="users.length > 0">
+        <p-table
+          [value]="pagedUsers"
+          styleClass="p-datatable-sm app-admin-table"
+          responsiveLayout="scroll"
+          [tableStyle]="{ 'min-width': '50rem' }"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="col-stt">STT</th>
+              <th class="col-username">Tên đăng nhập</th>
+              <th class="col-fullname">Họ tên</th>
+              <th class="col-unit">Đơn vị</th>
+              <th class="col-status">Trạng thái</th>
+              <th class="col-actions">Thao tác</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-user let-rowIndex="rowIndex">
+            <tr>
+              <!-- STT -->
+              <td class="col-stt">
+                <span class="app-table-stt">{{ calculateStt(rowIndex) }}</span>
+              </td>
+
+              <!-- Username -->
+              <td class="col-username">
+                <span class="username-text" [title]="user.username"
+                  >{{ user.username }}</span
+                >
+              </td>
+
+              <!-- Full Name -->
+              <td class="col-fullname">
+                <span class="fullname-text">{{ user.hoTen }}</span>
+              </td>
+
+              <!-- Unit Name -->
+              <td class="col-unit">
+                <span class="unit-text"
+                  >{{ resolveDonViName(user.donViId) }}</span
+                >
+              </td>
+
+              <!-- Status -->
+              <td class="col-status">
+                <p-tag
+                  [severity]="user.isActive ? 'success' : 'danger'"
+                  [value]="user.isActive ? 'Đang hoạt động' : 'Ngưng hoạt động'"
+                  styleClass="app-status-badge"
+                ></p-tag>
+              </td>
+
+              <!-- Actions -->
+              <td class="col-actions">
+                <div class="app-inline-actions">
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-pencil"
+                    class="p-button-text p-button-sm app-icon-action-btn app-icon-action-btn--edit"
+                    pTooltip="Chỉnh sửa"
+                    tooltipPosition="top"
+                    aria-label="Chỉnh sửa"
+                    (click)="onEditUser(user)"
+                  ></button>
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-key"
+                    class="p-button-text p-button-sm app-icon-action-btn app-icon-action-btn--key"
+                    pTooltip="Đặt lại mật khẩu"
+                    tooltipPosition="top"
+                    aria-label="Đặt lại mật khẩu"
+                    (click)="onResetPassword(user)"
+                  ></button>
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-trash"
+                    class="p-button-text p-button-sm p-button-danger app-icon-action-btn app-icon-action-btn--delete"
+                    pTooltip="Ngừng hoạt động"
+                    tooltipPosition="top"
+                    aria-label="Ngừng hoạt động"
+                    (click)="onDeleteUser(user)"
+                    [disabled]="!user.isActive"
+                  ></button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+        <!-- 3-Zone Table Footer -->
+        <div class="table-footer">
+          <span class="footer-info">{{ pagedSummary }}</span>
+
+          <p-paginator
+            [first]="first"
+            [rows]="rows"
+            [totalRecords]="totalUsers"
+            (onPageChange)="onPageChange($event)"
+            styleClass="footer-paginator"
+          ></p-paginator>
+
+          <div class="footer-rpp">
+            <span class="rpp-label">Dòng/trang</span>
+            <p-dropdown
+              [options]="pageSizeDropdownOptions"
+              [(ngModel)]="rows"
+              optionLabel="label"
+              optionValue="value"
+              (onChange)="onRowsChange()"
+              class="app-filter-select footer-rpp-select"
+              appendTo="body"
+            ></p-dropdown>
+          </div>
+        </div>
+      </div>
+
+      <app-user-upsert-dialog
+        [visible]="userDialogVisible"
+        [mode]="userDialogMode"
+        [submitting]="userDialogSubmitting"
+        [donViOptions]="userDonViOptions"
+        [roleOptions]="userRoleOptions"
+        [initialData]="userDialogInitialData"
+        (visibleChange)="onUserDialogVisibleChange($event)"
+        (save)="onUserDialogSave($event)"
+      ></app-user-upsert-dialog>
+    </ng-container>
+
+    <ng-container *ngIf="!loading && !apiError && module === 'roles'">
+      <div class="filter-panel role-filter-panel">
+        <div class="filter-container">
+          <div class="filter-row role-filter-row">
+            <div class="filter-group filter-group--lg">
+              <label class="filter-label" for="role-search-input"
+                >Tìm kiếm</label
+              >
+              <input
+                id="role-search-input"
+                pInputText
+                type="text"
+                placeholder="Nhập mã vai trò hoặc tên vai trò..."
+                [(ngModel)]="roleSearchTerm"
+                (ngModelChange)="onRoleFilterChange()"
+                class="app-filter-input"
+              />
+            </div>
+
+            <div class="filter-group filter-group--md">
+              <label class="filter-label" for="role-type-dropdown"
+                >Loại vai trò</label
+              >
+              <p-dropdown
+                id="role-type-dropdown"
+                [options]="roleTypeOptions"
+                [(ngModel)]="selectedRoleType"
+                optionLabel="label"
+                optionValue="value"
+                (onChange)="onRoleFilterChange()"
+                class="app-filter-select"
+                appendTo="body"
+              ></p-dropdown>
+            </div>
+
+            <div class="filter-group filter-group--md">
+              <label class="filter-label" for="role-status-dropdown"
+                >Trạng thái</label
+              >
+              <p-dropdown
+                id="role-status-dropdown"
+                [options]="roleStatusOptions"
+                [(ngModel)]="selectedRoleStatus"
+                optionLabel="label"
+                optionValue="value"
+                (onChange)="onRoleFilterChange()"
+                class="app-filter-select"
+                appendTo="body"
+              ></p-dropdown>
+            </div>
+
+            <div class="filter-actions role-filter-actions">
+              <button
+                pButton
+                type="button"
+                icon="pi pi-refresh"
+                class="p-button-secondary p-button-outlined p-button-sm action-icon-btn"
+                pTooltip="Làm mới dữ liệu"
+                tooltipPosition="top"
+                (click)="load()"
+              ></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <app-empty-state
+        *ngIf="roles.length === 0"
+        title="Chưa có dữ liệu"
+        message="Không có vai trò nào trong hệ thống."
+        icon="pi-shield"
+        actionLabel="Tải lại"
+        actionIcon="pi pi-refresh"
+        (action)="load()"
+      ></app-empty-state>
+
+      <div class="table-section role-table-section" *ngIf="roles.length > 0">
+        <p-table
+          [value]="pagedRoles"
+          styleClass="p-datatable-sm app-admin-table role-admin-table"
+          responsiveLayout="scroll"
+          [tableStyle]="{ 'min-width': '60rem' }"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="col-role-stt">STT</th>
+              <th class="col-role-code">Mã vai trò</th>
+              <th class="col-role-name">Tên vai trò</th>
+              <th class="col-role-type">Loại vai trò</th>
+              <th class="col-role-status">Trạng thái</th>
+              <th class="col-role-desc">Mô tả</th>
+              <th class="col-role-actions">Thao tác</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+            <tr>
+              <td class="col-role-stt">
+                <span class="app-table-stt"
+                  >{{ calculateRoleStt(rowIndex) }}</span
+                >
+              </td>
+              <td class="col-role-code">
+                <span class="role-code-text" [title]="item.roleCode"
+                  >{{ item.roleCode }}</span
+                >
+              </td>
+              <td class="col-role-name">
+                <span class="role-name-text" [title]="item.tenRole"
+                  >{{ item.tenRole }}</span
+                >
+              </td>
+              <td class="col-role-type">
+                <p-tag
+                  [severity]="resolveRoleTypeSeverity(item)"
+                  [value]="resolveRoleTypeLabel(item)"
+                  styleClass="app-type-badge"
+                ></p-tag>
+              </td>
+              <td class="col-role-status">
+                <p-tag
+                  [severity]="resolveRoleIsActive(item) ? 'success' : 'danger'"
+                  [value]="resolveRoleIsActive(item) ? 'Đang hoạt động' : 'Ngừng hoạt động'"
+                  styleClass="app-status-badge"
+                ></p-tag>
+              </td>
+              <td class="col-role-desc">
+                <span
+                  class="role-desc-text"
+                  [title]="resolveRoleDescription(item)"
+                >
+                  {{ resolveRoleDescription(item) }}
+                </span>
+              </td>
+              <td class="col-role-actions">
+                <div class="app-inline-actions">
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-pencil"
+                    class="p-button-text p-button-sm app-icon-action-btn app-icon-action-btn--edit"
+                    (click)="onEditRole(item)"
+                    pTooltip="Sửa vai trò"
+                    tooltipPosition="top"
+                    aria-label="Sửa vai trò"
+                    [disabled]="item.isSystem"
+                  ></button>
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-shield"
+                    class="p-button-text p-button-sm app-icon-action-btn app-icon-action-btn--permissions"
+                    (click)="goToRolePermissions(item)"
+                    pTooltip="Phân quyền"
+                    tooltipPosition="top"
+                    aria-label="Phân quyền"
+                  ></button>
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-trash"
+                    class="p-button-text p-button-sm p-button-danger app-icon-action-btn app-icon-action-btn--delete"
+                    (click)="onDeleteRole(item)"
+                    pTooltip="Xóa vai trò"
+                    tooltipPosition="top"
+                    aria-label="Xóa vai trò"
+                    [disabled]="item.isSystem"
+                  ></button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+        <div class="table-footer role-table-footer">
+          <span class="footer-info">{{ rolePagedSummary }}</span>
+
+          <p-paginator
+            [first]="roleFirst"
+            [rows]="roleRows"
+            [totalRecords]="totalRoles"
+            (onPageChange)="onRolePageChange($event)"
+            styleClass="footer-paginator"
+          ></p-paginator>
+
+          <div class="footer-rpp">
+            <span class="rpp-label">Dòng/trang</span>
+            <p-dropdown
+              [options]="pageSizeDropdownOptions"
+              [(ngModel)]="roleRows"
+              optionLabel="label"
+              optionValue="value"
+              (onChange)="onRoleFilterChange()"
+              class="app-filter-select footer-rpp-select"
+              appendTo="body"
+            ></p-dropdown>
+          </div>
+        </div>
+      </div>
+
+      <app-role-upsert-dialog
+        [visible]="roleDialogVisible"
+        [mode]="roleDialogMode"
+        [submitting]="roleDialogSubmitting"
+        [initialData]="roleDialogInitialData"
+        (visibleChange)="onRoleDialogVisibleChange($event)"
+        (save)="onRoleDialogSave($event)"
+      ></app-role-upsert-dialog>
+    </ng-container>
+
+    <ng-container *ngIf="!loading && !apiError && module === 'permissions'">
+      <div class="filter-panel permission-filter-panel">
+        <div class="filter-container">
+          <div class="filter-row permission-filter-row">
+            <div class="filter-group filter-group--lg">
+              <label class="filter-label" for="permission-search-input"
+                >Tìm kiếm</label
+              >
+              <input
+                id="permission-search-input"
+                pInputText
+                type="text"
+                placeholder="Tìm theo mã quyền, mô-đun hoặc diễn giải"
+                [(ngModel)]="permissionSearchInput"
+                (keydown.enter)="onPermissionApplyFilters()"
+                class="app-filter-input"
+              />
+            </div>
+
+            <div class="filter-group filter-group--md">
+              <label class="filter-label" for="permission-module-dropdown"
+                >Mô-đun</label
+              >
+              <p-dropdown
+                id="permission-module-dropdown"
+                [options]="permissionModuleOptions"
+                [(ngModel)]="permissionModuleInput"
+                optionLabel="label"
+                optionValue="value"
+                class="app-filter-select"
+                appendTo="body"
+              ></p-dropdown>
+            </div>
+
+            <div class="filter-group filter-group--md">
+              <label class="filter-label" for="permission-action-dropdown"
+                >Hành động</label
+              >
+              <p-dropdown
+                id="permission-action-dropdown"
+                [options]="permissionActionOptions"
+                [(ngModel)]="permissionActionInput"
+                optionLabel="label"
+                optionValue="value"
+                class="app-filter-select"
+                appendTo="body"
+              ></p-dropdown>
+            </div>
+
+            <div class="filter-actions permission-filter-actions">
+              <button
+                pButton
+                type="button"
+                label="Lọc"
+                icon="pi pi-filter"
+                class="p-button-info p-button-sm"
+                (click)="onPermissionApplyFilters()"
+              ></button>
+              <button
+                pButton
+                type="button"
+                label="Làm mới"
+                icon="pi pi-refresh"
+                class="p-button-secondary p-button-sm p-button-outlined"
+                (click)="onPermissionRefresh()"
+              ></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <app-empty-state
+        *ngIf="permissions.length === 0"
+        title="Chưa có dữ liệu"
+        message="Không có quyền nào trong hệ thống."
+        icon="pi-key"
+        actionLabel="Tải lại"
+        actionIcon="pi pi-refresh"
+        (action)="load()"
+      ></app-empty-state>
+
+      <app-empty-state
+        *ngIf="permissions.length > 0 && totalPermissions === 0"
+        title="Không tìm thấy dữ liệu"
+        message="Không có quyền phù hợp với điều kiện tra cứu."
+        icon="pi-search"
+        actionLabel="Làm mới bộ lọc"
+        actionIcon="pi pi-refresh"
+        (action)="onPermissionRefresh()"
+      ></app-empty-state>
+
+      <div
+        class="table-section permission-table-section"
+        *ngIf="totalPermissions > 0"
+      >
+        <div class="data-toolbar permission-data-toolbar">
+          <div>
+            <h4 class="data-toolbar-title">Danh sách quyền truy cập</h4>
+            <p class="data-toolbar-subtitle">
+              Tra cứu quyền theo mô-đun và hành động để kiểm soát phân quyền
+              nhanh.
+            </p>
+          </div>
+          <span class="data-toolbar-counter">{{ totalPermissions }} quyền</span>
+        </div>
+
+        <p-table
+          [value]="pagedPermissions"
+          styleClass="p-datatable-sm app-admin-table permission-admin-table"
+          responsiveLayout="scroll"
+          [tableStyle]="{ 'min-width': '60rem' }"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="col-perm-stt">STT</th>
+              <th class="col-perm-code">Mã quyền</th>
+              <th class="col-perm-module">Mô-đun</th>
+              <th class="col-perm-action">Hành động</th>
+              <th class="col-perm-desc">Diễn giải</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+            <tr>
+              <td class="col-perm-stt">
+                <span class="app-table-stt"
+                  >{{ calculatePermissionStt(rowIndex) }}</span
+                >
+              </td>
+              <td class="col-perm-code">
+                <span class="perm-code-text" [title]="item.permCode"
+                  >{{ item.permCode }}</span
+                >
+              </td>
+              <td class="col-perm-module">
+                <p-tag
+                  [value]="resolvePermissionModuleLabel(item.module)"
+                  severity="secondary"
+                  styleClass="permission-module-tag"
+                ></p-tag>
+              </td>
+              <td class="col-perm-action">
+                <p-tag
+                  [value]="resolvePermissionActionLabel(item.action)"
+                  [severity]="resolvePermissionActionSeverity(item.action)"
+                  styleClass="permission-action-tag"
+                ></p-tag>
+              </td>
+              <td class="col-perm-desc">
+                <span
+                  class="permission-desc-text"
+                  [title]="resolvePermissionDescription(item)"
+                >
+                  {{ resolvePermissionDescription(item) }}
+                </span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+        <div class="table-footer permission-table-footer">
+          <span class="footer-info">{{ permissionPagedSummary }}</span>
+
+          <p-paginator
+            [first]="permissionFirst"
+            [rows]="permissionRows"
+            [totalRecords]="totalPermissions"
+            (onPageChange)="onPermissionPageChange($event)"
+            styleClass="footer-paginator"
+          ></p-paginator>
+
+          <div class="footer-rpp">
+            <span class="rpp-label">Dòng/trang</span>
+            <p-dropdown
+              [options]="pageSizeDropdownOptions"
+              [(ngModel)]="permissionRows"
+              optionLabel="label"
+              optionValue="value"
+              (onChange)="onPermissionRowsChange()"
+              class="app-filter-select footer-rpp-select"
+              appendTo="body"
+            ></p-dropdown>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!loading && !apiError && module === 'phan-quyen'">
+      <div class="mb-4 flex gap-2">
+        <button
+          pButton
+          type="button"
+          label="Phân quyền theo vai trò"
+          class="p-button-sm"
+          [class.p-button-outlined]="permissionAdminTab !== 'role'"
+          [class.p-button-primary]="permissionAdminTab === 'role'"
+          (click)="onPermissionAdminTabChange('role')"
+        ></button>
+        <button
+          pButton
+          type="button"
+          label="Phân quyền theo người dùng"
+          class="p-button-sm"
+          [class.p-button-outlined]="permissionAdminTab !== 'user'"
+          [class.p-button-primary]="permissionAdminTab === 'user'"
+          (click)="onPermissionAdminTabChange('user')"
+        ></button>
+      </div>
+
+      <ng-container *ngIf="permissionAdminTab === 'role'">
+        <div class="filter-panel permission-manage-filter-panel">
+          <div class="filter-container">
+            <div class="filter-row permission-manage-filter-row">
+              <div class="filter-group filter-group--md">
+                <label class="filter-label" for="permission-role-dropdown"
+                  >Vai trò</label
+                >
+                <p-dropdown
+                  id="permission-role-dropdown"
+                  [options]="permissionRoleOptions"
+                  [(ngModel)]="selectedPermissionRoleId"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Chọn vai trò"
+                  (onChange)="onPermissionRoleChange()"
+                  class="app-filter-select"
+                  appendTo="body"
+                ></p-dropdown>
+              </div>
+
+              <div class="filter-group filter-group--lg">
+                <label class="filter-label" for="permission-manage-search"
+                  >Tìm kiếm quyền</label
+                >
+                <input
+                  id="permission-manage-search"
+                  pInputText
+                  type="text"
+                  placeholder="Tìm theo nhóm, chức năng hoặc hành động"
+                  [(ngModel)]="rolePermissionSearchTerm"
+                  (ngModelChange)="onPermissionSearchChange()"
+                  class="app-filter-input"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <app-empty-state
+          *ngIf="!selectedPermissionRoleId"
+          title="Chưa chọn vai trò"
+          message="Vui lòng chọn vai trò để bắt đầu cấu hình quyền truy cập."
+          icon="pi-shield"
+        ></app-empty-state>
+
+        <div
+          class="grid items-start gap-4 [grid-template-columns:1fr] md:[grid-template-columns:16rem_minmax(0,1fr)]"
+          *ngIf="selectedPermissionRoleId"
+        >
+          <aside
+            class="rounded-[0.55rem] border border-[var(--surface-border)] bg-[var(--surface-ground)] p-[0.85rem]"
+          >
+            <button
+              type="button"
+              class="permission-module-item"
+              *ngFor="let moduleItem of filteredPermissionMatrixModulesState"
+              [class.active]="currentPermissionModuleState?.businessGroupKey === moduleItem.businessGroupKey"
+              (click)="setActivePermissionModule(moduleItem.businessGroupKey)"
+            >
+              <p-checkbox
+                class="matrix-checkbox"
+                [binary]="true"
+                [ngModel]="isModuleChecked(moduleItem)"
+                [indeterminate]="isModuleIndeterminate(moduleItem)"
+                (onChange)="onPermissionModuleToggle(moduleItem, $event.checked)"
+                (click)="$event.stopPropagation()"
+              ></p-checkbox>
+              <span class="module-item-label"
+                >{{ moduleItem.businessGroupLabel }}</span
+              >
+              <span class="module-item-count"
+                >{{ moduleItem.rows.length }}</span
+              >
+            </button>
+          </aside>
+
+          <section
+            class="overflow-hidden rounded-[0.55rem] border border-[var(--surface-border)] bg-[var(--surface-ground)]"
+            *ngIf="currentPermissionModuleState as activeModule"
+          >
+            <div
+              class="flex items-center justify-between border-b border-[var(--surface-border)] px-4 py-[0.85rem]"
+            >
+              <div>
+                <h4
+                  class="m-0 text-[0.95rem] font-bold text-[var(--app-text-strong)]"
+                >
+                  {{ activeModule.businessGroupLabel }}
+                </h4>
+                <p
+                  class="mt-[0.2rem] text-[0.8rem] text-[var(--app-text-muted)]"
+                >
+                  Thiết lập quyền theo chức năng nghiệp vụ và hành động.
+                </p>
+              </div>
+              <span class="permission-matrix-counter">
+                {{ activeModule.permissionIds.length }} quyền
+              </span>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="permission-matrix-table">
+                <thead>
+                  <tr>
+                    <th class="col-feature">Chức năng</th>
+                    <th
+                      *ngFor="let actionColumn of permissionActionColumns"
+                      class="col-action"
+                    >
+                      <div class="action-header-cell">
+                        <p-checkbox
+                          class="matrix-checkbox"
+                          [binary]="true"
+                          [ngModel]="isAllChecked(actionColumn.key)"
+                          [indeterminate]="isIndeterminate(actionColumn.key)"
+                          (click)="$event.stopPropagation()"
+                          (onChange)="onActionColumnToggle(actionColumn.key, $event.checked)"
+                        ></p-checkbox>
+                        <span>{{ actionColumn.label }}</span>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of activeModule.rows">
+                    <td class="col-feature">
+                      <div class="flex items-center gap-[0.6rem]">
+                        <p-checkbox
+                          class="matrix-checkbox"
+                          [binary]="true"
+                          [ngModel]="isRowChecked(row)"
+                          [indeterminate]="isRowIndeterminate(row)"
+                          (click)="$event.stopPropagation()"
+                          (onChange)="onPermissionRowToggle(row, $event.checked)"
+                        ></p-checkbox>
+                        <span class="overflow-hidden text-ellipsis"
+                          >{{ row.resourceLabel }}</span
+                        >
+                      </div>
+                    </td>
+                    <td
+                      *ngFor="let actionColumn of permissionActionColumns"
+                      class="matrix-cell"
+                      [class.matrix-cell-disabled]="!isActionAllowed(row, actionColumn.key)"
+                      [class.matrix-cell-clickable]="isActionAllowed(row, actionColumn.key)"
+                      (click)="
+                        isActionAllowed(row, actionColumn.key) &&
+                          onPermissionActionCellToggle(
+                            row,
+                            actionColumn.key,
+                            !isActionSelected(row, actionColumn.key)
+                          )
+                      "
+                    >
+                      <ng-container
+                        *ngIf="isActionAllowed(row, actionColumn.key)"
+                      >
+                        <p-checkbox
+                          class="matrix-checkbox"
+                          [binary]="true"
+                          [ngModel]="isActionSelected(row, actionColumn.key)"
+                          (click)="$event.stopPropagation()"
+                          (onChange)="onPermissionActionCellToggle(row, actionColumn.key, $event.checked)"
+                          [pTooltip]="getRowCell(row, actionColumn.key)?.permCode || ''"
+                          tooltipPosition="top"
+                        ></p-checkbox>
+                      </ng-container>
+                      <span
+                        *ngIf="!isActionAllowed(row, actionColumn.key)"
+                        class="matrix-empty"
+                        >-</span
+                      >
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <app-empty-state
+            *ngIf="!currentPermissionModuleState"
+            title="Không có dữ liệu"
+            message="Không tìm thấy quyền phù hợp với từ khóa tra cứu."
+            icon="pi-search"
+          ></app-empty-state>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="permissionAdminTab === 'user'">
+        <div class="filter-panel permission-user-filter-panel">
+          <div class="filter-container">
+            <div class="filter-row permission-user-filter-row">
+              <div class="filter-group filter-group--lg">
+                <label class="filter-label" for="permission-user-dropdown"
+                  >Người dùng</label
+                >
+                <p-dropdown
+                  id="permission-user-dropdown"
+                  [options]="permissionUserOptions"
+                  [(ngModel)]="selectedPermissionUserId"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Chọn người dùng"
+                  (onChange)="onPermissionUserChange()"
+                  class="app-filter-select"
+                  appendTo="body"
+                ></p-dropdown>
+              </div>
+              <div class="filter-actions permission-user-actions">
+                <button
+                  pButton
+                  type="button"
+                  label="Làm mới"
+                  icon="pi pi-refresh"
+                  class="p-button-sm p-button-outlined"
+                  (click)="onRefreshPermissionManagement()"
+                ></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <app-empty-state
+          *ngIf="!selectedPermissionUserId"
+          title="Chưa chọn người dùng"
+          message="Vui lòng chọn người dùng để xem quyền truy cập hiện tại."
+          icon="pi-user"
+        ></app-empty-state>
+
+        <div
+          class="rounded-[0.55rem] border border-[var(--surface-border)] bg-[var(--surface-ground)] p-4"
+          *ngIf="selectedPermissionUserId"
+        >
+          <div
+            class="mb-[0.9rem] flex items-start justify-between gap-4 border-b border-[var(--surface-border)] pb-[0.8rem]"
+          >
+            <div>
+              <h4 class="m-0 text-base font-bold text-[var(--app-text-strong)]">
+                {{ selectedPermissionUser?.hoTen || '-' }}
+              </h4>
+              <p class="mt-1 text-sm text-[var(--app-text-muted)]">
+                {{ selectedPermissionUser?.username || '-' }}
+                <span *ngIf="selectedPermissionUser"
+                  >- Đơn vị {{ resolveDonViName(selectedPermissionUser.donViId)
+                  }}</span
+                >
+              </p>
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              <p-tag
+                *ngFor="let roleName of selectedPermissionUserRoleLabels"
+                [value]="roleName"
+                severity="info"
+              ></p-tag>
+            </div>
+          </div>
+
+          <app-empty-state
+            *ngIf="selectedPermissionUserPermissionGroupsState.length === 0"
+            title="Không có quyền truy cập"
+            message="Người dùng hiện chưa được gán quyền từ bất kỳ vai trò nào."
+            icon="pi-ban"
+          ></app-empty-state>
+
+          <div
+            class="grid gap-2.5 [grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))]"
+            *ngIf="selectedPermissionUserPermissionGroupsState.length > 0"
+          >
+            <div
+              class="rounded border border-[var(--surface-border)] p-[0.62rem]"
+              *ngFor="let moduleGroup of selectedPermissionUserPermissionGroupsState"
+            >
+              <div class="mb-[0.45rem] text-[0.875rem] font-bold">
+                {{ moduleGroup.moduleLabel }}
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                <span
+                  class="rounded border border-[var(--surface-border)] px-[0.46rem] py-[0.16rem] text-[0.75rem] text-[var(--app-text-muted)]"
+                  *ngFor="let p of moduleGroup.permissions"
+                >
+                  {{ p.feature }} - {{ p.action }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+  </div>
+</app-section-card>

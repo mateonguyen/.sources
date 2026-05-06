@@ -1,0 +1,135 @@
+<p-confirmDialog></p-confirmDialog>
+
+<app-section-card
+  title="Tổng hợp dữ liệu"
+  subtitle="Xem số liệu đã khai báo của đơn vị và xác nhận hoàn tất trước khi cấp trên tổng hợp."
+>
+  <!-- Chọn kỳ -->
+  <div
+    class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between mb-4"
+  >
+    <div class="app-field min-w-0 md:min-w-80">
+      <label>Kỳ báo cáo</label>
+      <p-dropdown
+        [options]="kyOptions"
+        optionLabel="label"
+        optionValue="value"
+        [(ngModel)]="selectedKyCode"
+        [ngModelOptions]="{ standalone: true }"
+        appendTo="body"
+        placeholder="Chọn kỳ báo cáo"
+        (onChange)="loadMyTienDo()"
+      ></p-dropdown>
+    </div>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-refresh"
+      label="Làm mới"
+      class="p-button-secondary"
+      (click)="loadMyTienDo()"
+    ></button>
+  </div>
+
+  <div class="relative min-h-40">
+    <app-loading-overlay
+      [active]="loading || saving"
+      [label]="saving ? 'Đang lưu...' : 'Đang tải...'"
+    ></app-loading-overlay>
+
+    <app-empty-state
+      *ngIf="!loading && !myTienDo && selectedKyCode"
+      title="Chưa có dữ liệu"
+      message="Chọn kỳ báo cáo để xem tổng hợp."
+      icon="pi-chart-bar"
+    ></app-empty-state>
+
+    <ng-container *ngIf="!loading && myTienDo">
+      <!-- Trạng thái xác nhận -->
+      <div
+        class="mb-5 flex items-center justify-between gap-4 rounded-xl border p-4"
+        [class.border-emerald-200]="myTienDo.daXacNhan"
+        [class.bg-emerald-50]="myTienDo.daXacNhan"
+        [class.border-amber-200]="!myTienDo.daXacNhan"
+        [class.bg-amber-50]="!myTienDo.daXacNhan"
+      >
+        <div class="flex items-center gap-3">
+          <i
+            class="text-2xl"
+            [class.pi-check-circle]="myTienDo.daXacNhan"
+            [class.text-emerald-600]="myTienDo.daXacNhan"
+            [class.pi-clock]="!myTienDo.daXacNhan"
+            [class.text-amber-600]="!myTienDo.daXacNhan"
+            [ngClass]="['pi', myTienDo.daXacNhan ? 'pi-check-circle' : 'pi-clock']"
+          ></i>
+          <div>
+            <p
+              class="font-semibold m-0"
+              [class.text-emerald-800]="myTienDo.daXacNhan"
+              [class.text-amber-800]="!myTienDo.daXacNhan"
+            >
+              {{ myTienDo.daXacNhan ? 'Đã xác nhận hoàn tất khai báo' : 'Chưa
+              xác nhận — đang khai báo' }}
+            </p>
+            <p
+              class="text-sm m-0 text-slate-500"
+              *ngIf="myTienDo.capNhatLanCuoi"
+            >
+              Cập nhật lúc {{ myTienDo.capNhatLanCuoi | date:'dd/MM/yyyy HH:mm'
+              }}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex gap-2 shrink-0">
+          <button
+            *ngIf="!myTienDo.daXacNhan"
+            pButton
+            type="button"
+            icon="pi pi-check"
+            label="Xác nhận hoàn tất"
+            class="p-button-success"
+            (click)="confirmXacNhan()"
+          ></button>
+          <button
+            *ngIf="myTienDo.daXacNhan"
+            pButton
+            type="button"
+            icon="pi pi-pencil"
+            label="Mở lại để nhập tiếp"
+            class="p-button-outlined p-button-secondary"
+            (click)="confirmMoLai()"
+          ></button>
+        </div>
+      </div>
+
+      <!-- Grid số liệu theo module -->
+      <h3 class="text-base font-semibold text-slate-700 mb-3">
+        Số liệu đã khai báo (live)
+      </h3>
+      <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <a
+          *ngFor="let m of modulStats"
+          [routerLink]="m.route"
+          class="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 hover:border-blue-300 hover:bg-blue-50 transition-colors no-underline"
+        >
+          <div
+            class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600 shrink-0"
+          >
+            <i [class]="m.icon + ' text-lg'"></i>
+          </div>
+          <div class="min-w-0">
+            <p class="m-0 text-sm text-slate-500 truncate">{{ m.label }}</p>
+            <strong class="text-2xl font-semibold text-slate-800"
+              >{{ m.count }}</strong
+            >
+            <span class="text-sm text-slate-400 ml-1">bản ghi</span>
+          </div>
+          <i
+            class="pi pi-chevron-right ml-auto text-slate-400 text-xs shrink-0"
+          ></i>
+        </a>
+      </div>
+    </ng-container>
+  </div>
+</app-section-card>

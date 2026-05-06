@@ -1,0 +1,8 @@
+{
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=827846
+  "recommendations": [
+    "angular.ng-template",
+    // Tailwind CSS IntelliSense: autocomplete for @apply, hover docs, lint
+    "bradlc.vscode-tailwindcss"
+  ]
+}

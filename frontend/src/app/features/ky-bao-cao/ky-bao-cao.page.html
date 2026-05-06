@@ -1,0 +1,326 @@
+<app-section-card
+  title="Kỳ báo cáo"
+  subtitle="Quản lý kỳ báo cáo, theo dõi tiến độ và điều chỉnh trạng thái."
+  styleClass="ky-card"
+>
+  <div sectionActions class="flex gap-2">
+    <button
+      pButton
+      type="button"
+      icon="pi pi-plus"
+      label="Tạo kỳ mới"
+      (click)="openCreateDialog()"
+    ></button>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-refresh"
+      label="Làm mới"
+      class="p-button-secondary"
+      (click)="load()"
+    ></button>
+  </div>
+
+  <div class="content-shell mt-3">
+    <app-loading-overlay
+      [active]="loading"
+      label="Đang tải dữ liệu..."
+    ></app-loading-overlay>
+
+    <div class="ky-current-banner" *ngIf="current && !loading">
+      <div class="ky-current-banner__info">
+        <span class="ky-current-banner__label">Kỳ đang mở</span>
+        <strong class="ky-current-banner__code">{{ current.kyCode }}</strong>
+        <app-status-badge
+          [label]="statusText(current.trangThai)"
+          [tone]="badgeTone(current.trangThai)"
+        ></app-status-badge>
+      </div>
+
+      <div class="ky-current-banner__stats" *ngIf="tienDoMap[current.id] as td">
+        <span class="ky-tiendo-pill">
+          <i class="pi pi-send"></i>
+          {{ td.daNop }}/{{ td.tong }} đơn vị đã nộp
+        </span>
+      </div>
+    </div>
+
+    <app-empty-state
+      *ngIf="!loading && items.length === 0"
+      title="Chưa có kỳ báo cáo nào"
+      message="Bấm 'Tạo kỳ mới' để tạo kỳ báo cáo đầu tiên."
+      icon="pi-calendar"
+      actionLabel="Tạo kỳ mới"
+      actionIcon="pi pi-plus"
+      (action)="openCreateDialog()"
+    ></app-empty-state>
+
+    <div
+      class="app-table-wrap app-table-wrap--spacious mt-3"
+      *ngIf="!loading && items.length > 0"
+    >
+      <p-table [value]="items" styleClass="p-datatable-sm app-admin-table">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Kỳ báo cáo</th>
+            <th>Mẫu báo cáo</th>
+            <th style="width: 60px">Năm</th>
+            <th style="width: 70px">Chu kỳ</th>
+            <th style="width: 110px">Hạn nộp</th>
+            <th style="width: 120px">Trạng thái</th>
+            <th style="width: 130px">Tiến độ nộp</th>
+            <th style="width: 160px; text-align: center">Thao tác</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-item>
+          <tr [class.ky-row--active]="item.id === current?.id">
+            <td>
+              <span class="ky-code">{{ item.kyCode }}</span>
+              <i
+                class="pi pi-star-fill ky-current-icon"
+                *ngIf="item.id === current?.id"
+                pTooltip="Kỳ đang mở"
+                tooltipPosition="right"
+              ></i>
+            </td>
+            <td>{{ mauBaoCaoName(item.mauBaoCaoId) }}</td>
+            <td>{{ item.nam }}</td>
+            <td>{{ kyChuKyText(item) }}</td>
+            <td>
+              <span
+                [class.text-red-600]="isOverDeadline(item.ngayKetThuc)"
+                [class.font-semibold]="isOverDeadline(item.ngayKetThuc)"
+              >
+                {{ formatDate(item.ngayKetThuc) }}
+              </span>
+            </td>
+            <td>
+              <app-status-badge
+                [label]="statusText(item.trangThai)"
+                [tone]="badgeTone(item.trangThai)"
+              ></app-status-badge>
+            </td>
+            <td>
+              <span
+                class="ky-tiendo-pill ky-tiendo-pill--sm"
+                *ngIf="tienDoMap[item.id] as td; else noTd"
+              >
+                {{ td.daNop }}/{{ td.tong }}
+              </span>
+              <ng-template #noTd
+                ><span class="text-gray-400 text-sm">—</span></ng-template
+              >
+            </td>
+            <td style="text-align: center">
+              <div class="app-inline-actions">
+                <button
+                  *ngIf="item.trangThai === 1"
+                  pButton
+                  type="button"
+                  icon="pi pi-play"
+                  class="p-button-text p-button-sm app-icon-action-btn"
+                  pTooltip="Mở kỳ"
+                  tooltipPosition="top"
+                  (click)="moKy(item)"
+                ></button>
+
+                <button
+                  *ngIf="item.trangThai === 2"
+                  pButton
+                  type="button"
+                  icon="pi pi-stop"
+                  class="p-button-text p-button-sm app-icon-action-btn"
+                  pTooltip="Đóng kỳ"
+                  tooltipPosition="top"
+                  (click)="dongKy(item)"
+                ></button>
+
+                <button
+                  *ngIf="item.trangThai === 3"
+                  pButton
+                  type="button"
+                  icon="pi pi-lock"
+                  class="p-button-text p-button-sm app-icon-action-btn"
+                  pTooltip="Khóa kỳ"
+                  tooltipPosition="top"
+                  (click)="khoaKy(item)"
+                ></button>
+
+                <a
+                  pButton
+                  icon="pi pi-chart-bar"
+                  class="p-button-text p-button-sm app-icon-action-btn"
+                  pTooltip="Xem tiến độ nộp"
+                  tooltipPosition="top"
+                  [routerLink]="['/tien-do-nop']"
+                  [queryParams]="{ kyId: item.id }"
+                ></a>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</app-section-card>
+
+<p-dialog
+  [(visible)]="showCreateDialog"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="!creating"
+  header="Tạo kỳ báo cáo mới"
+  [style]="{ width: 'min(700px, 96vw)' }"
+  styleClass="ky-create-dialog"
+  appendTo="body"
+>
+  <div class="create-grid">
+    <div class="app-field app-field--full">
+      <label for="mauBaoCao">
+        Mẫu báo cáo <span class="text-red-500">*</span>
+      </label>
+      <p-dropdown
+        inputId="mauBaoCao"
+        [options]="mauBaoCaos"
+        optionLabel="tenMau"
+        optionValue="id"
+        appendTo="body"
+        placeholder="Chọn mẫu báo cáo"
+        [(ngModel)]="createModel.mauBaoCaoId"
+        [ngModelOptions]="{ standalone: true }"
+        (onChange)="onMauBaoCaoChange()"
+        [filter]="true"
+        filterPlaceholder="Tìm mẫu báo cáo..."
+      >
+        <ng-template pTemplate="item" let-item>
+          <div class="mau-dropdown-item">
+            <span class="mau-dropdown-item__name">{{ item.tenMau }}</span>
+            <span class="mau-dropdown-item__meta">
+              {{ item.maMau }}
+              <span class="mau-dropdown-item__badge"
+                >{{ tanSuatLabel(item.tanSuat) }}</span
+              >
+            </span>
+            <span class="mau-dropdown-item__desc" *ngIf="item.moTa"
+              >{{ item.moTa }}</span
+            >
+          </div>
+        </ng-template>
+        <ng-template pTemplate="selectedItem" let-item>
+          <ng-container *ngIf="item; else placeholderMauSelected">
+            <span>{{ item.tenMau }}</span>
+            <span class="mau-dropdown-selected-badge"
+              >{{ tanSuatLabel(item.tanSuat) }}</span
+            >
+          </ng-container>
+          <ng-template #placeholderMauSelected>
+            <span>Chọn mẫu báo cáo</span>
+          </ng-template>
+        </ng-template>
+      </p-dropdown>
+    </div>
+
+    <div class="app-field">
+      <label for="nam">Năm <span class="text-red-500">*</span></label>
+      <input
+        id="nam"
+        pInputText
+        type="number"
+        [(ngModel)]="createModel.nam"
+        [ngModelOptions]="{ standalone: true }"
+        style="max-width: 120px"
+      />
+    </div>
+
+    <div class="app-field" *ngIf="showQuyField; else noQuy">
+      <label for="quy">Quý</label>
+      <p-dropdown
+        inputId="quy"
+        [options]="quyOptions"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+        placeholder="Chọn quý"
+        [(ngModel)]="createModel.quy"
+        [ngModelOptions]="{ standalone: true }"
+      ></p-dropdown>
+    </div>
+
+    <ng-template #noQuy>
+      <div class="app-field" *ngIf="showThangField">
+        <label for="thang">Tháng</label>
+        <p-dropdown
+          inputId="thang"
+          [options]="thangOptions"
+          optionLabel="label"
+          optionValue="value"
+          appendTo="body"
+          placeholder="Chọn tháng"
+          [(ngModel)]="createModel.thang"
+          [ngModelOptions]="{ standalone: true }"
+        ></p-dropdown>
+      </div>
+    </ng-template>
+
+    <div
+      class="app-field"
+      [class.app-field--span2]="!showQuyField && !showThangField"
+    >
+      <label for="ngayKetThuc">
+        Hạn nộp <span class="text-red-500">*</span>
+      </label>
+      <p-calendar
+        inputId="ngayKetThuc"
+        [(ngModel)]="createModel.ngayKetThuc"
+        [ngModelOptions]="{ standalone: true }"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        [showButtonBar]="true"
+        [minDate]="today"
+        appendTo="body"
+        styleClass="w-full"
+        placeholder="Chọn hạn nộp..."
+      ></p-calendar>
+      <small class="app-field-hint">Đơn vị nộp trước ngày này</small>
+    </div>
+
+    <div class="app-field app-field--full">
+      <label for="ghiChu">Ghi chú</label>
+      <textarea
+        id="ghiChu"
+        pInputTextarea
+        [autoResize]="false"
+        rows="3"
+        [(ngModel)]="createModel.ghiChu"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Ghi chú kỳ báo cáo (không bắt buộc)"
+        style="resize: none"
+      ></textarea>
+    </div>
+  </div>
+
+  <small class="app-validation-error" *ngIf="createError"
+    >{{ createError }}</small
+  >
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      type="button"
+      label="Hủy"
+      severity="secondary"
+      (click)="closeCreateDialog()"
+      [disabled]="creating"
+    ></button>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-plus"
+      label="Tạo & mở ngay"
+      [loading]="creating"
+      (click)="createKyBaoCao()"
+    ></button>
+  </ng-template>
+</p-dialog>

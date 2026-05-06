@@ -1,0 +1,5 @@
+#!/bin/bash
+sqlplus -S "/ as sysdba" <<-SQL
+SELECT USERNAME, ACCOUNT_STATUS FROM DBA_USERS WHERE USERNAME = 'CAND_QLCNTT';
+EXIT;
+SQL

@@ -1,0 +1,95 @@
+.app-table-wrap {
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-table);
+  overflow: hidden;
+  background: var(--app-surface);
+}
+
+.app-table-wrap--spacious {
+  border-radius: 0.75rem;
+}
+
+:root .p-datatable .p-datatable-thead > tr > th {
+  background: var(--app-surface-soft);
+  color: var(--app-text-strong);
+  font-size: var(--app-font-size-ui-table-head);
+  font-weight: var(--app-font-weight-semibold);
+  border-bottom: 1px solid var(--app-border);
+  padding: var(--app-space-3) var(--app-space-3);
+}
+
+:root .p-datatable .p-datatable-tbody > tr > td {
+  color: var(--app-text);
+  font-size: var(--app-font-size-ui-table-body);
+  min-height: 2.5rem;
+  padding: var(--app-space-3);
+  border-bottom: 1px solid var(--app-border);
+}
+
+:root .p-datatable .p-datatable-tbody > tr:hover {
+  background: var(--app-bg-soft);
+}
+
+:root .p-paginator {
+  border-top: 1px solid var(--app-border);
+  background: var(--app-surface);
+}
+
+:root .app-admin-table .p-datatable-thead > tr > th {
+  background: color-mix(in srgb, var(--app-surface-soft) 76%, white 24%);
+  color: var(--app-text-strong);
+  font-size: var(--app-font-size-ui-table-head);
+  font-weight: var(--app-font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid var(--app-border);
+
+  &:not(:last-child) {
+    border-right: 1px solid
+      color-mix(in srgb, var(--app-border) 82%, transparent 18%);
+  }
+}
+
+:root .app-admin-table .p-datatable-tbody > tr {
+  transition: background-color 140ms ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--app-primary-50) 28%, white 72%);
+  }
+}
+
+:root .app-admin-table .p-datatable-tbody > tr > td {
+  padding: 0.875rem 0.75rem;
+  color: var(--app-text);
+  font-size: var(--app-font-size-ui-table-body);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--app-border) 82%, transparent 18%);
+  vertical-align: middle;
+}
+
+:root .app-admin-table .p-datatable-tbody > tr:last-child > td {
+  border-bottom: 0;
+}
+
+.app-table-stt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.8rem;
+  height: 1.8rem;
+  padding: 0 0.4rem;
+  border-radius: 0.4rem;
+  background: rgba(26, 59, 99, 0.1);
+  color: var(--app-primary-600);
+  font-size: var(--app-font-size-ui-meta);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.app-table-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}

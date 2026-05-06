@@ -1,0 +1,115 @@
+2026-04-23 09:27:45.013 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 09:27:45.387 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 09:27:47.014 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 1573.8738 ms CorrelationId=f65e6420de3542698fba194386b50c9c UserId=anonymous
+2026-04-23 09:27:47.018 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 1579.6146 ms
+2026-04-23 09:27:47.139 +07:00 [INF] HTTP POST /api/v1/nhan-luc-cntt => 200 in 112.7975 ms CorrelationId=14d072350eaa4525a98d16fa47373f36 UserId=5003
+2026-04-23 09:27:47.139 +07:00 [INF] HTTP POST /api/v1/nhan-luc-cntt responded 200 in 113.1069 ms
+2026-04-23 09:27:47.163 +07:00 [INF] HTTP PUT /api/v1/nhan-luc-cntt/1 => 200 in 16.9094 ms CorrelationId=6a583409c3714dc0b4766eb617556a3a UserId=5003
+2026-04-23 09:27:47.163 +07:00 [INF] HTTP PUT /api/v1/nhan-luc-cntt/1 responded 200 in 17.0875 ms
+2026-04-23 09:27:47.233 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt => 200 in 68.286 ms CorrelationId=6197a350846d4facac07ce3817d6d478 UserId=5003
+2026-04-23 09:27:47.233 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt responded 200 in 68.4766 ms
+2026-04-23 09:27:47.269 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt => 200 in 35.0005 ms CorrelationId=35a10ff2313146268b3e019ab50337cb UserId=5003
+2026-04-23 09:27:47.269 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt responded 200 in 35.2298 ms
+2026-04-23 09:27:47.299 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt/timeline/358a4cf8de87498487a20dbfe4559b7d => 200 in 28.5679 ms CorrelationId=adb115472895429d8dc2e4255c63f620 UserId=5003
+2026-04-23 09:27:47.299 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt/timeline/358a4cf8de87498487a20dbfe4559b7d responded 200 in 28.7531 ms
+2026-04-23 09:27:47.310 +07:00 [INF] HTTP DELETE /api/v1/nhan-luc-cntt/2 => 200 in 10.1415 ms CorrelationId=80790cf5468440cfb6c935ad68a0ccfd UserId=5003
+2026-04-23 09:27:47.310 +07:00 [INF] HTTP DELETE /api/v1/nhan-luc-cntt/2 responded 200 in 10.3608 ms
+2026-04-23 09:27:47.319 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt/2 => 404 in 8.458 ms CorrelationId=b300fd6bfac04df68ea8a597ea19bcdd UserId=5003
+2026-04-23 09:27:47.319 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt/2 responded 404 in 8.6296 ms
+2026-04-23 09:27:47.543 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 09:27:47.777 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 232.8982 ms CorrelationId=dc8eb51671d7477290a60e2e9d64262f UserId=anonymous
+2026-04-23 09:27:47.777 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 233.1193 ms
+2026-04-23 09:27:47.781 +07:00 [INF] HTTP DELETE /api/v1/nhan-luc-cntt/1 => 403 in 2.409 ms CorrelationId=8c4e311f32ac4f43b37db95524509f0c UserId=5004
+2026-04-23 09:27:47.781 +07:00 [INF] HTTP DELETE /api/v1/nhan-luc-cntt/1 responded 403 in 2.5893 ms
+2026-04-23 09:27:47.968 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 09:27:48.186 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 202.2616 ms CorrelationId=e5de110522f84326b5c895b865726b71 UserId=anonymous
+2026-04-23 09:27:48.187 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 202.7595 ms
+2026-04-23 09:27:48.191 +07:00 [INF] HTTP POST /api/v1/nhan-luc-cntt => 200 in 3.1176 ms CorrelationId=ba3d56f99db44bab8aac20b334c04468 UserId=5003
+2026-04-23 09:27:48.191 +07:00 [INF] HTTP POST /api/v1/nhan-luc-cntt responded 200 in 3.3065 ms
+2026-04-23 09:27:48.209 +07:00 [INF] HTTP POST /api/v1/nhan-luc-cntt/finalize => 200 in 15.6858 ms CorrelationId=73870bcfed2d4b73aae146b6623ca94d UserId=5003
+2026-04-23 09:27:48.209 +07:00 [INF] HTTP POST /api/v1/nhan-luc-cntt/finalize responded 200 in 15.8616 ms
+2026-04-23 09:27:48.246 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt => 200 in 36.01 ms CorrelationId=f4a998dacd02475084f222957a99814b UserId=5003
+2026-04-23 09:27:48.246 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt responded 200 in 36.2096 ms
+2026-04-23 15:28:42.939 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 15:28:43.186 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 15:28:43.585 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 342.6688 ms CorrelationId=d3a1a8013719487caa6d8e632dbbf457 UserId=anonymous
+2026-04-23 15:28:43.589 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 349.3880 ms
+2026-04-23 15:28:43.651 +07:00 [INF] HTTP PUT /api/v1/users/5003/roles => 200 in 46.1191 ms CorrelationId=793ae35fb72a46abaa40e3df46ea7970 UserId=5001
+2026-04-23 15:28:43.651 +07:00 [INF] HTTP PUT /api/v1/users/5003/roles responded 200 in 46.3751 ms
+2026-04-23 15:28:43.877 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 15:28:44.065 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 186.7942 ms CorrelationId=248c83e6577848908995c9d3098fd01d UserId=anonymous
+2026-04-23 15:28:44.066 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 186.9725 ms
+2026-04-23 15:28:44.073 +07:00 [INF] HTTP PUT /api/v1/users/5003/roles => 400 in 6.9158 ms CorrelationId=442894c1fc3f440ab77f4dab53ae7584 UserId=5001
+2026-04-23 15:28:44.073 +07:00 [INF] HTTP PUT /api/v1/users/5003/roles responded 400 in 7.0437 ms
+2026-04-23 15:29:55.127 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 15:29:55.359 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 15:29:55.729 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 325.5789 ms CorrelationId=b5b65bb8597f4a089487b22359a6bd3a UserId=anonymous
+2026-04-23 15:29:55.743 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 341.6048 ms
+2026-04-23 15:29:55.797 +07:00 [INF] HTTP PUT /api/v1/users/5003/roles => 200 in 46.687 ms CorrelationId=20e0b3e6bca04764a3ffe47662535b93 UserId=5001
+2026-04-23 15:29:55.797 +07:00 [INF] HTTP PUT /api/v1/users/5003/roles responded 200 in 46.9093 ms
+2026-04-23 15:29:56.035 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 15:29:56.234 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 197.8646 ms CorrelationId=c5d75882aece43e1a6b10b72cc457cea UserId=anonymous
+2026-04-23 15:29:56.234 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 198.0816 ms
+2026-04-23 15:29:56.242 +07:00 [INF] HTTP PUT /api/v1/users/5003/roles => 400 in 7.3998 ms CorrelationId=ed3caaab005342138957d52ad19d8f5a UserId=5001
+2026-04-23 15:29:56.242 +07:00 [INF] HTTP PUT /api/v1/users/5003/roles responded 400 in 7.6410 ms
+2026-04-23 16:15:53.391 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 16:15:53.391 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 16:15:53.929 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 16:15:53.931 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 16:15:55.678 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 1696.1274 ms CorrelationId=c37a737da55d457a83161fcbdcc6df6b UserId=anonymous
+2026-04-23 16:15:55.678 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 1696.0897 ms CorrelationId=9578ce5c135a4d94859313f7fe020613 UserId=anonymous
+2026-04-23 16:15:55.684 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 1706.2841 ms
+2026-04-23 16:15:55.684 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 1706.2148 ms
+2026-04-23 16:15:55.742 +07:00 [INF] HTTP PUT /api/v1/users/5003/roles => 200 in 51.2104 ms CorrelationId=5bf1b3e310e24dac8552493525abf8bb UserId=5001
+2026-04-23 16:15:55.743 +07:00 [INF] HTTP PUT /api/v1/users/5003/roles responded 200 in 51.4260 ms
+2026-04-23 16:15:55.802 +07:00 [INF] HTTP POST /api/v1/nhan-luc-cntt => 200 in 111.3573 ms CorrelationId=42f0a9f7760f44a3aaf06216d336ad78 UserId=5003
+2026-04-23 16:15:55.802 +07:00 [INF] HTTP POST /api/v1/nhan-luc-cntt responded 200 in 111.5929 ms
+2026-04-23 16:15:55.821 +07:00 [INF] HTTP PUT /api/v1/nhan-luc-cntt/1 => 200 in 17.246 ms CorrelationId=8efecf8ced5c45e3a106f68d98517fe2 UserId=5003
+2026-04-23 16:15:55.821 +07:00 [INF] HTTP PUT /api/v1/nhan-luc-cntt/1 responded 200 in 17.5157 ms
+2026-04-23 16:15:55.881 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt => 200 in 56.7322 ms CorrelationId=05e1f13bed0d4f929dbe1def8b1230d0 UserId=5003
+2026-04-23 16:15:55.881 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt responded 200 in 56.9575 ms
+2026-04-23 16:15:55.916 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt => 200 in 33.9906 ms CorrelationId=d212e74f8d1a4314b89fb2f5c5985f17 UserId=5003
+2026-04-23 16:15:55.916 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt responded 200 in 34.1858 ms
+2026-04-23 16:15:55.944 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt/timeline/418589e0d4484df2a92b6974ab806f2f => 200 in 26.2886 ms CorrelationId=f75a9376454b447e8be4aa250fc5cd03 UserId=5003
+2026-04-23 16:15:55.944 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt/timeline/418589e0d4484df2a92b6974ab806f2f responded 200 in 26.5372 ms
+2026-04-23 16:15:55.973 +07:00 [INF] HTTP DELETE /api/v1/nhan-luc-cntt/2 => 200 in 10.9312 ms CorrelationId=64906c8ff047429aa74f3ab8ef0716bc UserId=5003
+2026-04-23 16:15:55.973 +07:00 [INF] HTTP DELETE /api/v1/nhan-luc-cntt/2 responded 200 in 11.0964 ms
+2026-04-23 16:15:55.979 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt/2 => 404 in 5.4316 ms CorrelationId=329d39fa19424fcf85402f30d20108a3 UserId=5003
+2026-04-23 16:15:55.979 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt/2 responded 404 in 5.6515 ms
+2026-04-23 16:15:55.983 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 16:15:56.182 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 198.0502 ms CorrelationId=a489438f1f7049b6a0cdbbd1ddae0e6a UserId=anonymous
+2026-04-23 16:15:56.182 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 198.2248 ms
+2026-04-23 16:15:56.192 +07:00 [INF] HTTP PUT /api/v1/users/5003/roles => 400 in 8.8114 ms CorrelationId=0cb33bacea454dc28b06947d43e8d06c UserId=5001
+2026-04-23 16:15:56.192 +07:00 [INF] HTTP PUT /api/v1/users/5003/roles responded 400 in 8.9987 ms
+2026-04-23 21:33:15.694 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 21:33:16.674 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 21:33:18.293 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 1450.8245 ms CorrelationId=a30f79bdc6624675be6d1ce276ba9ffd UserId=anonymous
+2026-04-23 21:33:18.307 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 1471.3056 ms
+2026-04-23 21:33:18.709 +07:00 [INF] HTTP POST /api/v1/nhan-luc-cntt => 200 in 379.9871 ms CorrelationId=666ce16522204c9db40044f1422d8441 UserId=5003
+2026-04-23 21:33:18.709 +07:00 [INF] HTTP POST /api/v1/nhan-luc-cntt responded 200 in 380.7207 ms
+2026-04-23 21:33:18.797 +07:00 [INF] HTTP PUT /api/v1/nhan-luc-cntt/1 => 200 in 68.1467 ms CorrelationId=61cc565ebe9f4ea6bafe0c9d03d85038 UserId=5003
+2026-04-23 21:33:18.798 +07:00 [INF] HTTP PUT /api/v1/nhan-luc-cntt/1 responded 200 in 68.5996 ms
+2026-04-23 21:33:18.996 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt => 200 in 192.1702 ms CorrelationId=b5386a4d547544a0a17afe8e7903cbde UserId=5003
+2026-04-23 21:33:18.996 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt responded 200 in 192.6734 ms
+2026-04-23 21:33:19.126 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt => 200 in 125.5773 ms CorrelationId=bcbbdc8003744dc481bb7fe979796521 UserId=5003
+2026-04-23 21:33:19.127 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt responded 200 in 126.1061 ms
+2026-04-23 21:33:19.221 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt/timeline/64f2a29d1d9e42e9821649d861dc6159 => 200 in 92.282 ms CorrelationId=1c761c976ec94a09abb1855b4293df67 UserId=5003
+2026-04-23 21:33:19.221 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt/timeline/64f2a29d1d9e42e9821649d861dc6159 responded 200 in 92.7509 ms
+2026-04-23 21:33:19.255 +07:00 [INF] HTTP DELETE /api/v1/nhan-luc-cntt/2 => 200 in 32.2189 ms CorrelationId=140bce68b2174c129641d6a3c3d2161f UserId=5003
+2026-04-23 21:33:19.255 +07:00 [INF] HTTP DELETE /api/v1/nhan-luc-cntt/2 responded 200 in 32.6738 ms
+2026-04-23 21:33:19.272 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt/2 => 404 in 15.22 ms CorrelationId=9fb57bcd5c85456dbb0c9b5294fb54ec UserId=5003
+2026-04-23 21:33:19.272 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt/2 responded 404 in 15.6682 ms
+2026-04-23 21:33:20.046 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 21:33:20.621 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 571.2328 ms CorrelationId=ed20e78624f84afb873b4bd2ed069356 UserId=anonymous
+2026-04-23 21:33:20.621 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 571.7649 ms
+2026-04-23 21:33:20.657 +07:00 [INF] HTTP POST /api/v1/nhan-luc-cntt => 200 in 28.9046 ms CorrelationId=7742364c836f4e3d881b65ca82a7f9b7 UserId=5003
+2026-04-23 21:33:20.657 +07:00 [INF] HTTP POST /api/v1/nhan-luc-cntt responded 200 in 29.3902 ms
+2026-04-23 21:33:20.667 +07:00 [INF] HTTP PUT /api/v1/nhan-luc-cntt/1 => 200 in 8.9504 ms CorrelationId=2d5b0aab491740a7930392ea4c170323 UserId=5003
+2026-04-23 21:33:20.668 +07:00 [INF] HTTP PUT /api/v1/nhan-luc-cntt/1 responded 200 in 9.3652 ms
+2026-04-23 21:33:20.676 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt/timeline/6142210be3064fc3b6654e34276e065e => 200 in 5.2212 ms CorrelationId=5e56873486ec49fcad0e81b06c57722a UserId=5003
+2026-04-23 21:33:20.677 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt/timeline/6142210be3064fc3b6654e34276e065e responded 200 in 5.6027 ms
+2026-04-23 21:33:21.439 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-23 21:33:22.014 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 573.5166 ms CorrelationId=e34e11417d914f28974f833b02a757ad UserId=anonymous
+2026-04-23 21:33:22.015 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 574.0084 ms
+2026-04-23 21:33:22.019 +07:00 [INF] HTTP DELETE /api/v1/nhan-luc-cntt/1 => 403 in 3.2314 ms CorrelationId=4bea07b6f305467fb78886012b266520 UserId=5004
+2026-04-23 21:33:22.020 +07:00 [INF] HTTP DELETE /api/v1/nhan-luc-cntt/1 responded 403 in 3.7244 ms

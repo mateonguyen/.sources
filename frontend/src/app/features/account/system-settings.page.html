@@ -1,0 +1,98 @@
+<app-section-card
+  title="Cấu hình hệ thống"
+  subtitle="Thiết lập giao diện và hành vi cá nhân của bạn trong hệ thống"
+  styleClass="account-card"
+>
+  <div class="settings-shell mt-3">
+    <form class="settings-form" (ngSubmit)="save()" #settingsForm="ngForm">
+      <!-- Nhóm: Hiển thị dữ liệu -->
+      <div class="settings-group">
+        <h3 class="settings-group__title">Hiển thị dữ liệu</h3>
+
+        <div class="settings-field">
+          <div class="settings-field__info">
+            <span class="settings-field__label"
+              >Số dòng mặc định mỗi trang</span
+            >
+            <span class="settings-field__desc"
+              >Áp dụng cho tất cả các bảng dữ liệu trong hệ thống</span
+            >
+          </div>
+          <div class="settings-field__control">
+            <p-dropdown
+              name="defaultPageSize"
+              [options]="pageSizeOptions"
+              [(ngModel)]="form.defaultPageSize"
+              optionLabel="label"
+              optionValue="value"
+              appendTo="body"
+              styleClass="settings-select"
+            ></p-dropdown>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nhóm: Giao diện -->
+      <div class="settings-group">
+        <h3 class="settings-group__title">Giao diện</h3>
+
+        <div class="settings-field">
+          <div class="settings-field__info">
+            <span class="settings-field__label"
+              >Mở rộng menu khi vào hệ thống</span
+            >
+            <span class="settings-field__desc"
+              >Tự động mở nhóm menu đầu tiên khi đăng nhập</span
+            >
+          </div>
+          <div class="settings-field__control">
+            <p-inputSwitch
+              name="expandMenuOnLoad"
+              [(ngModel)]="form.expandMenuOnLoad"
+            ></p-inputSwitch>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nhóm: Thông báo -->
+      <div class="settings-group">
+        <h3 class="settings-group__title">Thông báo</h3>
+
+        <div class="settings-field">
+          <div class="settings-field__info">
+            <span class="settings-field__label"
+              >Nhận thông báo trong hệ thống</span
+            >
+            <span class="settings-field__desc"
+              >Hiển thị thông báo thành công/lỗi sau mỗi thao tác</span
+            >
+          </div>
+          <div class="settings-field__control">
+            <p-inputSwitch
+              name="enableInAppNotifications"
+              [(ngModel)]="form.enableInAppNotifications"
+            ></p-inputSwitch>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button
+          pButton
+          type="submit"
+          icon="pi pi-save"
+          label="Lưu cấu hình"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-undo"
+          label="Khôi phục mặc định"
+          class="p-button-secondary"
+          (click)="restoreDefaults()"
+        ></button>
+      </div>
+    </form>
+  </div>
+</app-section-card>

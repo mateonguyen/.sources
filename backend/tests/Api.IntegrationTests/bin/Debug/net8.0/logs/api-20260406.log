@@ -1,0 +1,18 @@
+2026-04-06 21:28:27.605 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-06 21:28:27.861 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-06 21:28:28.342 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 412.1389 ms CorrelationId=d3564725c814499a9490444fbade8802 UserId=anonymous
+2026-04-06 21:28:28.346 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 419.3325 ms
+2026-04-06 21:28:28.411 +07:00 [INF] HTTP GET /api/v1/don-vi/tree => 200 in 57.8915 ms CorrelationId=85f67c430a724e2388e001c4f109e769 UserId=5004
+2026-04-06 21:28:28.411 +07:00 [INF] HTTP GET /api/v1/don-vi/tree responded 200 in 58.3920 ms
+2026-04-06 21:28:28.628 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-06 21:28:28.871 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 240.5761 ms CorrelationId=8f348664d2164ed6baa8f03e7f718ddb UserId=anonymous
+2026-04-06 21:28:28.871 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 240.8761 ms
+2026-04-06 21:28:28.876 +07:00 [INF] HTTP POST /api/v1/don-vi => 403 in 1.7384 ms CorrelationId=a19179b3e2d4434ca17d423e09d947f7 UserId=5004
+2026-04-06 21:28:28.876 +07:00 [INF] HTTP POST /api/v1/don-vi responded 403 in 1.9653 ms
+2026-04-06 21:28:29.071 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-06 21:28:29.306 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 233.6627 ms CorrelationId=3386ada100c74acb8bfad156d3aaaf11 UserId=anonymous
+2026-04-06 21:28:29.306 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 233.9935 ms
+2026-04-06 21:28:29.356 +07:00 [INF] HTTP POST /api/v1/don-vi => 200 in 47.1932 ms CorrelationId=ad9ec617fcdd47268331b29388ec92e5 UserId=5001
+2026-04-06 21:28:29.356 +07:00 [INF] HTTP POST /api/v1/don-vi responded 200 in 47.4312 ms
+2026-04-06 21:28:29.363 +07:00 [INF] HTTP GET /api/v1/don-vi/2002 => 200 in 6.4475 ms CorrelationId=00744a73161c4ef2b0c906b2f11a2fcb UserId=5001
+2026-04-06 21:28:29.364 +07:00 [INF] HTTP GET /api/v1/don-vi/2002 responded 200 in 6.7065 ms

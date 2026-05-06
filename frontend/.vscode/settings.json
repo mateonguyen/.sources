@@ -1,0 +1,20 @@
+{
+  // ─── Built-in CSS/SCSS/LESS Language Service ───────────────────────────
+  // Tailwind at-rules (@apply, @tailwind, @layer, @screen, ...) are valid
+  // in our PostCSS pipeline but unknown to the default CSS spec validator.
+  // Keep validation enabled, only suppress the noisy unknown-at-rule warnings.
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+  "less.lint.unknownAtRules": "ignore",
+
+  // ─── Tailwind IntelliSense ───────────────────────────────────────────────
+  // Activate Tailwind suggestions inside .scss files.
+  "tailwindCSS.includeLanguages": {
+    "scss": "css"
+  },
+
+  // Surface @apply class suggestions inside SCSS.
+  "tailwindCSS.experimental.classRegex": [
+    ["@apply\\s+([^;]+)", "([\\w-:/\\[\\].#%]+)"]
+  ]
+}

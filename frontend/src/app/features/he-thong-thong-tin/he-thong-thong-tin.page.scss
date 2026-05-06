@@ -1,0 +1,580 @@
+:host ::ng-deep .app-httt-dialog .app-dialog-body-standard {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.httt-page {
+  padding-top: 0;
+}
+
+.httt-section-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 1rem 0 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--app-text-muted);
+
+  .httt-section-divider {
+    flex: 1;
+    height: 1px;
+    background: var(--app-border);
+  }
+}
+
+:host ::ng-deep .httt-main-card .p-card-title {
+  margin: 0;
+  font-family: "Merriweather", serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--app-primary-600);
+  letter-spacing: 0.02em;
+}
+
+:host ::ng-deep .httt-main-card .p-card-subtitle {
+  margin-top: 0.35rem;
+  margin-bottom: 0;
+  color: var(--app-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.httt-tabs-header {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.httt-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border-radius: 0.45rem;
+  border: 1px solid var(--app-border);
+  background: #fff;
+  color: var(--app-text-muted);
+  font-size: 0.79rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.17s ease;
+
+  &:hover:not(.is-active) {
+    color: var(--app-primary-600);
+    border-color: color-mix(
+      in srgb,
+      var(--app-primary-600) 40%,
+      var(--app-border)
+    );
+    background: color-mix(in srgb, var(--app-primary-600) 5%, #fff);
+  }
+
+  &.is-active {
+    background: var(--app-primary-600);
+    border-color: var(--app-primary-700);
+    color: #fff;
+    font-weight: 700;
+    box-shadow:
+      0 3px 14px color-mix(in srgb, var(--app-primary-600) 45%, transparent),
+      0 1px 4px rgba(0, 0, 0, 0.16);
+  }
+}
+
+.httt-tab-label {
+  line-height: 1.15;
+}
+
+.httt-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4rem;
+  height: 1.3rem;
+  padding: 0 0.44rem;
+  border-radius: 999px;
+  background: var(--app-primary-50);
+  border: 1px solid var(--app-primary-100);
+  color: var(--app-primary-600);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.httt-tab.is-active .httt-tab-badge {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #fff;
+  font-weight: 800;
+}
+
+.httt-tabs-content {
+  display: block;
+}
+
+.httt-tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.httt-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.15rem 0 0.5rem;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--app-border) 86%, transparent);
+}
+
+.httt-toolbar-left {
+  flex: 1;
+  min-width: 220px;
+}
+
+.httt-toolbar-note {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.1rem;
+  padding: 0 0.25rem;
+  font-size: 0.8rem;
+  color: var(--app-text-muted);
+}
+
+.httt-filter-label {
+  display: block;
+  margin: 0 0 0.28rem;
+  font-size: 0.69rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--app-text-muted);
+}
+
+.httt-filter-input-shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 420px;
+
+  i {
+    position: absolute;
+    left: 0.62rem;
+    color: var(--app-text-muted);
+    font-size: 0.76rem;
+    pointer-events: none;
+  }
+
+  input {
+    min-height: 2.1rem;
+    padding-left: 1.86rem !important;
+    font-size: 0.84rem;
+  }
+}
+
+.httt-toolbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  flex-shrink: 0;
+
+  button {
+    white-space: nowrap;
+  }
+}
+
+.httt-content-card {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--app-border) 92%, transparent);
+  border-radius: var(--app-radius-md);
+  background: #fff;
+  overflow: hidden;
+}
+
+.httt-content-card--flat {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+}
+
+.httt-content-card--flat .httt-content {
+  padding: 0;
+}
+
+.httt-std-wrap {
+  border: 1px solid var(--app-border) !important;
+  border-radius: var(--app-radius-table) !important;
+  background: var(--app-surface) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.httt-content {
+  position: relative;
+  padding: 0.55rem 0.6rem;
+}
+
+.httt-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  color: var(--app-text-muted);
+  border-radius: calc(var(--app-radius-md) - 4px);
+  background: color-mix(in srgb, var(--app-surface-soft) 26%, transparent);
+
+  i {
+    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+    opacity: 0.55;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--app-text);
+  }
+
+  small {
+    margin-top: 0.2rem;
+    font-size: 0.77rem;
+    color: var(--app-text-muted);
+  }
+}
+
+// ── HTTT Tiêu chuẩn inline grid ─────────────────────────────────────────────
+
+.httt-dirty-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--app-radius-sm);
+  background: color-mix(
+    in srgb,
+    var(--app-warning-100, #fef3c7) 80%,
+    transparent
+  );
+  border: 1px solid var(--app-warning-300, #fcd34d);
+  font-size: 0.82rem;
+  color: var(--app-warning-700, #92400e);
+
+  i {
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    color: var(--app-warning-500, #f59e0b);
+  }
+}
+
+.httt-matrix-note {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  color: var(--app-text-muted);
+}
+
+:host ::ng-deep .httt-std-grid {
+  &.p-datatable {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  .p-datatable-thead > tr > th {
+    padding: 0.7rem 0.6rem !important;
+    height: 56px;
+    background: color-mix(in srgb, var(--app-surface-soft) 76%, white 24%);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--app-border);
+    border-right: 1px solid
+      color-mix(in srgb, var(--app-border) 82%, transparent 18%);
+    vertical-align: middle;
+
+    &:last-child {
+      border-right: 0;
+    }
+  }
+
+  .p-datatable-tbody > tr > td,
+  .p-datatable-tfoot > tr > td {
+    padding: 0.25rem 0.6rem !important;
+    height: 100px;
+    min-height: 100px;
+    max-height: 100px;
+    vertical-align: middle;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--app-border) 82%, transparent 18%);
+  }
+
+  .p-datatable-tbody > tr {
+    height: 100px;
+    min-height: 100px;
+  }
+
+  .p-datatable-wrapper {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    max-height: none !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+
+  .p-datatable-table {
+    border: none !important;
+    border-radius: 0 !important;
+  }
+
+  // Kill PrimeNG default input styles
+  .httt-std-cell .p-inputtext,
+  .httt-std-cell .p-inputnumber,
+  .httt-std-cell .p-inputnumber-input,
+  .httt-std-cell-input {
+    width: 100%;
+    height: 100%;
+    min-height: 76px;
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  // Transparent bottom-line, revealed on focus
+  .httt-std-cell .p-inputnumber-input,
+  .httt-std-cell-input {
+    border-bottom: 1px solid transparent !important;
+    transition: border-bottom-color 120ms;
+  }
+
+  .httt-std-cell .p-inputtext:focus,
+  .httt-std-cell .p-inputnumber-input:focus,
+  .httt-std-cell-input:focus {
+    border-bottom-color: var(--app-primary-600) !important;
+  }
+
+  // Number font style
+  .httt-std-cell .p-inputnumber-input {
+    font-family: "Source Sans 3", sans-serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #0f172a;
+    font-variant-numeric: tabular-nums;
+    text-align: center !important;
+    padding: 0 !important;
+  }
+
+  // Text input style
+  .httt-std-cell-input {
+    font-size: 0.84rem;
+    font-weight: 400;
+    color: #0f172a;
+    padding: 0.08rem 0;
+
+    &--number {
+      font-size: 0.92rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      text-align: center;
+    }
+
+    &--note {
+      text-align: left;
+      color: #334155;
+    }
+
+    &--name {
+      text-align: left;
+      font-size: 0.88rem;
+    }
+
+    &::placeholder {
+      color: #a3afbf;
+      font-weight: 400;
+    }
+  }
+
+  .httt-std-cell-textarea {
+    resize: none;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: inherit;
+    line-height: 1.4;
+    min-height: 6rem;
+    height: 6rem;
+    padding: 0.02rem 0;
+  }
+
+  // Zero-value grey
+  .httt-std-zero .p-inputnumber-input {
+    color: #94a3b8 !important;
+  }
+
+  // Row states
+  .httt-std-row--dirty td {
+    background: color-mix(in srgb, #f97316 6%, transparent);
+  }
+
+  .httt-std-cell {
+    padding: 0;
+    vertical-align: middle;
+    position: relative;
+
+    &--stt {
+      text-align: center;
+      color: var(--app-text-muted);
+      font-size: 0.78rem;
+    }
+
+    &--number {
+      text-align: center;
+    }
+  }
+
+  // Cell wrap (flex container for input + pencil hint)
+  .httt-cell-wrap {
+    display: flex;
+    align-items: stretch;
+    min-height: 100%;
+    height: 100%;
+    padding: 0.2rem 0;
+    position: relative;
+  }
+
+  .httt-std-cell--number .httt-cell-wrap {
+    justify-content: center;
+  }
+
+  // Pencil hint — hidden by default, shown on row hover
+  .httt-edit-hint {
+    position: absolute;
+    right: 0.1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.65rem;
+    color: #94a3b8;
+    opacity: 0;
+    transition: opacity 120ms ease;
+    pointer-events: none;
+  }
+
+  .p-datatable-tbody > tr:hover .httt-edit-hint {
+    opacity: 0.75;
+  }
+
+  .p-datatable-tbody > tr > td:focus-within {
+    background: #f8fbff;
+  }
+
+  .httt-dirty-mark {
+    position: absolute;
+    left: 0.6rem;
+    bottom: 0.35rem;
+    margin-left: 0;
+    color: #f97316;
+    font-weight: 700;
+    font-size: 0.78rem;
+    line-height: 1;
+    flex-shrink: 0;
+    pointer-events: none;
+  }
+
+  .httt-required-mark {
+    margin-left: 0.2rem;
+    color: #f97316;
+    font-weight: 700;
+  }
+
+  .httt-std-cell-input--invalid,
+  .httt-std-cell-input--invalid:focus {
+    border-bottom-color: var(--app-danger-500, #ef4444) !important;
+  }
+
+  .p-inputnumber {
+    width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  :host ::ng-deep .httt-main-card .p-card-content {
+    padding: 1rem;
+  }
+
+  :host ::ng-deep .httt-main-card .p-card-title {
+    font-size: 1.12rem;
+  }
+
+  .httt-tab {
+    min-height: 2.2rem;
+    padding: 0.38rem 0.5rem;
+    font-size: 0.69rem;
+  }
+
+  .httt-tab-badge {
+    min-width: 1.2rem;
+    height: 1.2rem;
+    font-size: 0.62rem;
+  }
+
+  .httt-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .httt-toolbar-left {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .httt-filter-input-shell {
+    max-width: 100%;
+  }
+
+  .httt-toolbar-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+
+    button {
+      flex: 1 1 calc(50% - 0.3rem);
+      min-width: 150px;
+    }
+  }
+
+  .httt-content {
+    padding: 0.625rem;
+  }
+
+  .httt-empty-state {
+    min-height: 108px;
+    padding: 1rem 0.75rem;
+  }
+}

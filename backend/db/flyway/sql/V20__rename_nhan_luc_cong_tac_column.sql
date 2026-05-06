@@ -1,0 +1,51 @@
+-- V20: Doi ten DON_VI_TRUC_THUOC_ID thanh DON_VI_CONG_TAC_ID tren BIZ_NHAN_LUC_CNTT
+
+BEGIN
+    DECLARE
+        v_count NUMBER := 0;
+    BEGIN
+        SELECT COUNT(1)
+          INTO v_count
+          FROM USER_TAB_COLS
+         WHERE TABLE_NAME = 'BIZ_NHAN_LUC_CNTT'
+           AND COLUMN_NAME = 'DON_VI_TRUC_THUOC_ID';
+
+        IF v_count > 0 THEN
+            EXECUTE IMMEDIATE 'ALTER TABLE BIZ_NHAN_LUC_CNTT RENAME COLUMN DON_VI_TRUC_THUOC_ID TO DON_VI_CONG_TAC_ID';
+        END IF;
+    END;
+END;
+/
+
+BEGIN
+    DECLARE
+        v_count NUMBER := 0;
+    BEGIN
+        SELECT COUNT(1)
+          INTO v_count
+          FROM USER_CONSTRAINTS
+         WHERE TABLE_NAME = 'BIZ_NHAN_LUC_CNTT'
+           AND CONSTRAINT_NAME = 'FK_BIZ_NLC_DV_TRUC_THUOC';
+
+        IF v_count > 0 THEN
+            EXECUTE IMMEDIATE 'ALTER TABLE BIZ_NHAN_LUC_CNTT RENAME CONSTRAINT FK_BIZ_NLC_DV_TRUC_THUOC TO FK_BIZ_NLC_DV_CONG_TAC';
+        END IF;
+    END;
+END;
+/
+
+BEGIN
+    DECLARE
+        v_count NUMBER := 0;
+    BEGIN
+        SELECT COUNT(1)
+          INTO v_count
+          FROM USER_INDEXES
+         WHERE INDEX_NAME = 'IX_BIZ_NLC_DV_TRUC_THUOC';
+
+        IF v_count > 0 THEN
+            EXECUTE IMMEDIATE 'ALTER INDEX IX_BIZ_NLC_DV_TRUC_THUOC RENAME TO IX_BIZ_NLC_DV_CONG_TAC';
+        END IF;
+    END;
+END;
+/

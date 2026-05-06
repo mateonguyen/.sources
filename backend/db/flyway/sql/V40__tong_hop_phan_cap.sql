@@ -1,0 +1,98 @@
+-- V40: Tính năng TONG_HOP — Nhập liệu phân cấp xuống PHONG/XA
+-- 1. Thêm chế độ nhập liệu vào REF_DON_VI
+DECLARE
+    v_col_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_col_count
+      FROM ALL_TAB_COLUMNS
+     WHERE TABLE_NAME = 'REF_DON_VI'
+       AND COLUMN_NAME = 'CHE_DO_NHAP_LIEU';
+    IF v_col_count = 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE REF_DON_VI ADD CHE_DO_NHAP_LIEU NVARCHAR2(20) DEFAULT ''TU_NHAP''';
+    END IF;
+END;
+/
+
+COMMENT ON COLUMN REF_DON_VI.CHE_DO_NHAP_LIEU IS 'TU_NHAP (default) | TONG_HOP. Chi ap dung TINH/CUC.';
+
+-- 2. Thêm chiều gửi vào RPT_YEU_CAU_BO_SUNG (H05→TINH vs TINH→PHONG)
+DECLARE
+    v_col_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_col_count
+      FROM ALL_TAB_COLUMNS
+     WHERE TABLE_NAME = 'RPT_YEU_CAU_BO_SUNG'
+       AND COLUMN_NAME = 'CAP_GUI';
+    IF v_col_count = 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE RPT_YEU_CAU_BO_SUNG ADD CAP_GUI NVARCHAR2(20) DEFAULT ''BO_XUONG_TINH''';
+    END IF;
+END;
+/
+
+COMMENT ON COLUMN RPT_YEU_CAU_BO_SUNG.CAP_GUI IS 'BO_XUONG_TINH (H05->TINH, hien tai) | TINH_XUONG_PHONG (TINH->PHONG, moi)';
+
+-- 3. Bảng mới RPT_PHIEU_SO_LIEU_DON_VI (mini-snapshot khi PHONG/XA nộp lên)
+DECLARE
+    v_tbl_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_tbl_count
+      FROM ALL_TABLES
+     WHERE TABLE_NAME = 'RPT_PHIEU_SO_LIEU_DON_VI';
+    IF v_tbl_count = 0 THEN
+        EXECUTE IMMEDIATE '
+            CREATE TABLE RPT_PHIEU_SO_LIEU_DON_VI (
+                ID                NUMBER(19)      NOT NULL,
+                DON_VI_ID         NUMBER(19)      NOT NULL,
+                KY_BAO_CAO_CODE   NVARCHAR2(20)   NOT NULL,
+                TRANG_THAI        NVARCHAR2(20)   DEFAULT ''DaNop'' NOT NULL,
+                TOM_TAT           NVARCHAR2(2000),
+                SUBMITTED_AT      TIMESTAMP,
+                SUBMITTED_BY      NUMBER(19),
+                HUY_BO_AT         TIMESTAMP,
+                HUY_BO_BY         NUMBER(19),
+                CREATED_AT        TIMESTAMP       DEFAULT SYSTIMESTAMP NOT NULL,
+                CREATED_BY        NUMBER(19),
+                UPDATED_AT        TIMESTAMP,
+                UPDATED_BY        NUMBER(19),
+                CONSTRAINT PK_RPT_PHIEU_SL PRIMARY KEY (ID),
+                CONSTRAINT FK_PHIEU_SL_DONVI FOREIGN KEY (DON_VI_ID) REFERENCES REF_DON_VI(ID)
+            )';
+    END IF;
+END;
+/
+
+DECLARE
+    v_seq_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_seq_count
+      FROM ALL_SEQUENCES
+     WHERE SEQUENCE_NAME = 'SEQ_RPT_PHIEU_SL';
+    IF v_seq_count = 0 THEN
+        EXECUTE IMMEDIATE 'CREATE SEQUENCE SEQ_RPT_PHIEU_SL START WITH 1 INCREMENT BY 1 NOCACHE';
+    END IF;
+END;
+/
+
+DECLARE
+    v_idx_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_idx_count
+      FROM ALL_INDEXES
+     WHERE INDEX_NAME = 'UX_PHIEU_SL_DV_KY';
+    IF v_idx_count = 0 THEN
+        EXECUTE IMMEDIATE 'CREATE UNIQUE INDEX UX_PHIEU_SL_DV_KY ON RPT_PHIEU_SO_LIEU_DON_VI (DON_VI_ID, KY_BAO_CAO_CODE)';
+    END IF;
+END;
+/
+
+DECLARE
+    v_idx_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_idx_count
+      FROM ALL_INDEXES
+     WHERE INDEX_NAME = 'IX_PHIEU_SL_KY';
+    IF v_idx_count = 0 THEN
+        EXECUTE IMMEDIATE 'CREATE INDEX IX_PHIEU_SL_KY ON RPT_PHIEU_SO_LIEU_DON_VI (KY_BAO_CAO_CODE)';
+    END IF;
+END;
+/

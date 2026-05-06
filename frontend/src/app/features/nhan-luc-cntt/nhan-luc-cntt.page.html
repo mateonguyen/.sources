@@ -1,0 +1,53 @@
+<app-section-card title="Nhân lực CNTT" styleClass="nhan-luc-cntt-card">
+  <div class="nhan-luc-cntt-page">
+    <app-nhan-luc-cntt-filter
+      [form]="filterForm"
+      [loading]="loading"
+      [advancedVisible]="advancedVisible"
+      [advancedFilterCount]="advancedFilterCount"
+      [namOptions]="namOptions"
+      [donViOptions]="donViFilterOptions"
+      [gioiTinhOptions]="gioiTinhFilterOptions"
+      [capBacOptions]="capBacFilterOptions"
+      [loaiNhanLucOptions]="loaiNhanLucFilterOptions"
+      [trinhDoCnttOptions]="trinhDoCnttFilterOptions"
+      (apply)="applyFilters()"
+      (clear)="clearFilters()"
+      (toggleAdvanced)="toggleAdvancedFilters()"
+    ></app-nhan-luc-cntt-filter>
+
+    <app-nhan-luc-cntt-table
+      [loading]="loading"
+      [items]="tableRows"
+      [totalRecords]="totalRecords"
+      [overallRecords]="overallRecords"
+      [first]="first"
+      [rows]="rows"
+      [summary]="summary"
+      [pageSizeOptions]="pageSizeOptions"
+      (add)="openCreateDialog()"
+      (edit)="openEditDialog($event)"
+      (delete)="onDelete($event)"
+      (clearFilters)="clearFilters()"
+      (pageChange)="onPageChange($event)"
+      (rowsChange)="onRowsChange($event)"
+    ></app-nhan-luc-cntt-table>
+  </div>
+
+  <app-nhan-luc-cntt-upsert-dialog
+    [visible]="dialogVisible"
+    [mode]="dialogMode"
+    [submitting]="dialogSubmitting"
+    [defaultDonViId]="defaultDonViId"
+    [donViOptions]="donViDialogOptions"
+    [donViCongTacOptions]="donViCongTacDialogOptions"
+    [gioiTinhOptions]="gioiTinhDialogOptions"
+    [capBacOptions]="capBacDialogOptions"
+    [loaiNhanLucOptions]="loaiNhanLucDialogOptions"
+    [trinhDoCnttOptions]="trinhDoCnttDialogOptions"
+    [trinhDoLlctOptions]="trinhDoLlctDialogOptions"
+    [initialData]="dialogInitialData"
+    (visibleChange)="onDialogVisibleChange($event)"
+    (save)="onDialogSave($event)"
+  ></app-nhan-luc-cntt-upsert-dialog>
+</app-section-card>

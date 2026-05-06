@@ -1,0 +1,382 @@
+<p-dialog
+  [visible]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="false"
+  [dismissableMask]="true"
+  [style]="{ width: 'min(1040px, 96vw)' }"
+  [styleClass]="dialogStyleClass"
+  [contentStyleClass]="dialogContentStyleClass"
+  [maskStyleClass]="dialogMaskStyleClass"
+  appendTo="body"
+  (onHide)="onDialogHide()"
+>
+  <ng-template pTemplate="header">
+    <div class="nhan-luc-dialog__header app-dialog-header">
+      <span class="nhan-luc-dialog__title app-dialog-title">
+        <i class="pi pi-id-card" aria-hidden="true"></i>
+        {{ dialogTitle }}
+      </span>
+      <button
+        type="button"
+        class="nhan-luc-dialog__close app-dialog-close"
+        aria-label="Đóng"
+        (click)="closeDialog()"
+      >
+        <i class="pi pi-times" aria-hidden="true"></i>
+      </button>
+    </div>
+  </ng-template>
+
+  <form
+    [formGroup]="form"
+    class="nhan-luc-dialog app-dialog-form"
+    autocomplete="off"
+  >
+    <div class="nhan-luc-dialog__body">
+      <section class="nhan-luc-dialog__section nhan-luc-dialog__section--basic">
+        <div class="nhan-luc-dialog__section-head">
+          <h3>Thông tin cơ bản</h3>
+        </div>
+
+        <div class="app-form-row">
+          <div
+            class="app-form-field app-form-field--full"
+            [class.has-value]="form.get('hoTen')?.value"
+            [class.has-error]="isInvalid('hoTen')"
+          >
+            <label class="app-form-field__label required" for="nhan-luc-ho-ten"
+              >Họ và tên</label
+            >
+            <input
+              id="nhan-luc-ho-ten"
+              pInputText
+              class="app-form-field__input"
+              type="text"
+              formControlName="hoTen"
+              placeholder="Nhập họ và tên nhân lực"
+              maxlength="200"
+            />
+            <div
+              class="app-form-field__feedback"
+              [class.is-visible]="isInvalid('hoTen')"
+              aria-live="polite"
+            >
+              <small class="app-form-field__error">{{
+                getError("hoTen")
+              }}</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-form-row app-form-row--three">
+          <div
+            class="app-form-field nhan-luc-dialog__date-field"
+            [class.has-value]="form.get('ngaySinh')?.value"
+            [class.has-error]="isInvalid('ngaySinh')"
+          >
+            <label class="app-form-field__label" for="nhan-luc-ngay-sinh"
+              >Ngày sinh</label
+            >
+            <p-calendar
+              inputId="nhan-luc-ngay-sinh"
+              formControlName="ngaySinh"
+              [locale]="calendarLocaleVi"
+              dateFormat="dd/mm/yy"
+              placeholder="dd/mm/yyyy"
+              [showIcon]="true"
+              iconDisplay="input"
+              [showButtonBar]="false"
+              appendTo="body"
+              [panelStyleClass]="calendarPanelStyleClass"
+              styleClass="w-full"
+            ></p-calendar>
+            <div
+              class="app-form-field__feedback"
+              [class.is-visible]="isInvalid('ngaySinh')"
+              aria-live="polite"
+            >
+              <small class="app-form-field__error">{{
+                getError("ngaySinh")
+              }}</small>
+            </div>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="form.get('gioiTinh')?.value"
+            [class.has-error]="isInvalid('gioiTinh')"
+          >
+            <label class="app-form-field__label" for="nhan-luc-gioi-tinh"
+              >Giới tính</label
+            >
+            <p-dropdown
+              id="nhan-luc-gioi-tinh"
+              [panelStyleClass]="dropdownPanelStyleClass"
+              [options]="gioiTinhOptions"
+              optionLabel="label"
+              optionValue="value"
+              formControlName="gioiTinh"
+              placeholder="Không chọn"
+              appendTo="body"
+              [filter]="true"
+              filterBy="label"
+              filterPlaceholder="Tìm kiếm"
+            ></p-dropdown>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="form.get('dienThoai')?.value"
+            [class.has-error]="isInvalid('dienThoai')"
+          >
+            <label class="app-form-field__label" for="nhan-luc-dien-thoai"
+              >Số điện thoại</label
+            >
+            <input
+              id="nhan-luc-dien-thoai"
+              pInputText
+              class="app-form-field__input"
+              type="text"
+              formControlName="dienThoai"
+              placeholder="Nhập số điện thoại"
+              maxlength="20"
+            />
+            <div
+              class="app-form-field__feedback"
+              [class.is-visible]="isInvalid('dienThoai')"
+              aria-live="polite"
+            >
+              <small class="app-form-field__error">{{
+                getError("dienThoai")
+              }}</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="nhan-luc-dialog__section">
+        <div class="nhan-luc-dialog__section-head">
+          <h3>Thông tin công tác</h3>
+        </div>
+
+        <div class="app-form-row app-form-row--three">
+          <div
+            class="app-form-field"
+            [class.has-value]="form.get('donViCongTacId')?.value"
+            [class.has-error]="isInvalid('donViCongTacId')"
+          >
+            <label class="app-form-field__label" for="nhan-luc-don-vi-cong-tac"
+              >Đơn vị công tác</label
+            >
+            <p-dropdown
+              id="nhan-luc-don-vi-cong-tac"
+              [panelStyleClass]="dropdownPanelStyleClass"
+              [options]="donViCongTacOptions"
+              optionLabel="label"
+              optionValue="value"
+              formControlName="donViCongTacId"
+              placeholder="Không chọn"
+              appendTo="body"
+              [filter]="true"
+              filterBy="label"
+              filterPlaceholder="Tìm kiếm"
+            ></p-dropdown>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="form.get('capBac')?.value"
+            [class.has-error]="isInvalid('capBac')"
+          >
+            <label class="app-form-field__label" for="nhan-luc-cap-bac"
+              >Cấp bậc</label
+            >
+            <p-dropdown
+              id="nhan-luc-cap-bac"
+              [panelStyleClass]="dropdownPanelStyleClass"
+              [options]="capBacOptions"
+              optionLabel="label"
+              optionValue="value"
+              formControlName="capBac"
+              placeholder="Không chọn"
+              appendTo="body"
+              [filter]="true"
+              filterBy="label"
+              filterPlaceholder="Tìm kiếm"
+            ></p-dropdown>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="form.get('chucVu')?.value"
+          >
+            <label class="app-form-field__label" for="nhan-luc-chuc-vu"
+              >Chức vụ</label
+            >
+            <input
+              id="nhan-luc-chuc-vu"
+              pInputText
+              class="app-form-field__input"
+              type="text"
+              formControlName="chucVu"
+              placeholder="Nhập chức vụ hiện tại"
+              maxlength="200"
+            />
+            <div
+              class="app-form-field__feedback"
+              [class.is-visible]="isInvalid('chucVu')"
+              aria-live="polite"
+            >
+              <small class="app-form-field__error">{{
+                getError("chucVu")
+              }}</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="nhan-luc-dialog__section">
+        <div class="nhan-luc-dialog__section-head">
+          <h3>Thông tin chuyên môn CNTT</h3>
+        </div>
+
+        <div class="app-form-row app-form-row--three">
+          <div
+            class="app-form-field"
+            [class.has-value]="form.get('loaiNhanLuc')?.value"
+          >
+            <label class="app-form-field__label" for="nhan-luc-loai"
+              >Loại nhân lực</label
+            >
+            <p-dropdown
+              id="nhan-luc-loai"
+              [panelStyleClass]="dropdownPanelStyleClass"
+              [options]="loaiNhanLucOptions"
+              optionLabel="label"
+              optionValue="value"
+              formControlName="loaiNhanLuc"
+              placeholder="Không chọn"
+              appendTo="body"
+              [filter]="true"
+              filterBy="label"
+              filterPlaceholder="Tìm kiếm"
+            ></p-dropdown>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="form.get('trinhDoCntt')?.value"
+          >
+            <label class="app-form-field__label" for="nhan-luc-trinh-do-cntt"
+              >Trình độ CNTT</label
+            >
+            <p-dropdown
+              id="nhan-luc-trinh-do-cntt"
+              [panelStyleClass]="dropdownPanelStyleClass"
+              [options]="trinhDoCnttOptions"
+              optionLabel="label"
+              optionValue="value"
+              formControlName="trinhDoCntt"
+              placeholder="Không chọn"
+              appendTo="body"
+              [filter]="true"
+              filterBy="label"
+              filterPlaceholder="Tìm kiếm"
+            ></p-dropdown>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="form.get('trinhDoLlct')?.value"
+          >
+            <label class="app-form-field__label" for="nhan-luc-trinh-do-llct"
+              >Trình độ lý luận chính trị</label
+            >
+            <p-dropdown
+              id="nhan-luc-trinh-do-llct"
+              [panelStyleClass]="dropdownPanelStyleClass"
+              [options]="trinhDoLlctOptions"
+              optionLabel="label"
+              optionValue="value"
+              formControlName="trinhDoLlct"
+              placeholder="Không chọn"
+              appendTo="body"
+              [filter]="true"
+              filterBy="label"
+              filterPlaceholder="Tìm kiếm"
+            ></p-dropdown>
+          </div>
+        </div>
+      </section>
+
+      <section class="nhan-luc-dialog__section">
+        <div class="nhan-luc-dialog__section-head">
+          <h3>Ghi chú</h3>
+        </div>
+
+        <div
+          class="app-form-field app-form-field--full"
+          [class.has-value]="form.get('ghiChu')?.value"
+          [class.has-error]="isInvalid('ghiChu')"
+        >
+          <label class="app-form-field__label" for="nhan-luc-ghi-chu"
+            >Ghi chú</label
+          >
+          <textarea
+            id="nhan-luc-ghi-chu"
+            class="app-form-field__input p-inputtextarea"
+            rows="3"
+            formControlName="ghiChu"
+            placeholder="Nhập ghi chú nếu cần"
+            maxlength="2000"
+          ></textarea>
+          <div
+            class="app-form-field__feedback"
+            [class.is-visible]="isInvalid('ghiChu')"
+            aria-live="polite"
+          >
+            <small class="app-form-field__error">{{
+              getError("ghiChu")
+            }}</small>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="app-dialog-actions nhan-luc-dialog__footer">
+      <button
+        pButton
+        type="button"
+        label="Hủy"
+        icon="pi pi-times"
+        class="p-button-secondary p-button-outlined"
+        [disabled]="submitting"
+        (click)="closeDialog()"
+      ></button>
+
+      <button
+        *ngIf="isCreateMode"
+        pButton
+        type="button"
+        label="Lưu và thêm mới"
+        icon="pi pi-plus"
+        class="p-button-secondary p-button-outlined"
+        [disabled]="submitting"
+        [loading]="submitting"
+        (click)="submit(true)"
+      ></button>
+
+      <button
+        pButton
+        type="button"
+        [label]="isCreateMode ? 'Lưu' : 'Cập nhật'"
+        [icon]="isCreateMode ? 'pi pi-save' : 'pi pi-check'"
+        class="p-button-primary"
+        [loading]="submitting"
+        (click)="submit(false)"
+      ></button>
+    </div>
+  </form>
+</p-dialog>

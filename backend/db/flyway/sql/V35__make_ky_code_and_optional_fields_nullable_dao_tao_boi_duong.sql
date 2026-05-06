@@ -1,0 +1,15 @@
+-- Make KY_BAO_CAO_CODE nullable (period-independent warehouse mode)
+ALTER TABLE BIZ_DAO_TAO_BOI_DUONG MODIFY KY_BAO_CAO_CODE NULL;
+
+-- Make optional fields nullable
+ALTER TABLE BIZ_DAO_TAO_BOI_DUONG MODIFY HINH_THUC NULL;
+ALTER TABLE BIZ_DAO_TAO_BOI_DUONG MODIFY SO_LUONG_HV NULL;
+ALTER TABLE BIZ_DAO_TAO_BOI_DUONG MODIFY THOI_GIAN_TU NULL;
+ALTER TABLE BIZ_DAO_TAO_BOI_DUONG MODIFY THOI_GIAN_DEN NULL;
+
+-- Drop the old index since KY_BAO_CAO_CODE is now nullable
+DROP INDEX IX_BIZ_DTBD_DV_KY;
+
+-- Update existing records: set KY_BAO_CAO_CODE to NULL for records in warehouse mode
+-- (This allows only TEN_KHOA_HOC + DON_VI_TO_CHUC to be required)
+COMMIT;

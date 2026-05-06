@@ -1,0 +1,884 @@
+@ThucLuc.Api_HostAddress = http://localhost:5283
+@username = admin
+@password = Admin@123
+@donViId = 2002
+@donViSampleId = 0
+@haTangMangId = 0
+@htttTieuChuanId = 0
+@mayChuLoaiId = 5
+@mayTinhLoaiId = 6
+@heThongId = 0
+@thietBiId = 1
+@kyBaoCaoId = 6002
+@snapshotId = 0
+@yeuCauBoSungId = 0
+@kyBaoCaoCodeAttt = 2025Q4_ATTT
+@kyBaoCaoCodeDuAn = 2026Q1_NHAN_LUC
+@kyBaoCaoCodeVanBan = 2026Q1
+
+GET {{ThucLuc.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+	"username": "{{username}}",
+	"password": "{{password}}"
+}
+
+> {%
+client.global.set("accessToken", response.body.data.accessToken);
+%}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/don-vi
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/don-vi/tree
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/codes/by-code/CAP_DON_VI
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/don-vi/parent-candidates
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/don-vi
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"maDonVi": "CA_HN_DEMO_HTTP",
+	"tenDonVi": "Cong an Ha Noi - Demo HTTP",
+	"tenVietTat": "CAHN HTTP",
+	"parentId": {{donViId}},
+	"diaChi": "Ha Noi",
+	"capDonVi": "PHONG",
+	"websiteNoiBo": "http://cahn-demo-noibo.local",
+	"websiteInternet": "https://demo.hanoi.gov.vn",
+	"tongBienChe": 150,
+	"isActive": true
+}
+
+> {%
+client.global.set("donViSampleId", response.body.data.id);
+%}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/don-vi/{{donViSampleId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+PUT {{ThucLuc.Api_HostAddress}}/api/v1/don-vi/{{donViSampleId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"maDonVi": "CA_HN_DEMO_HTTP",
+	"tenDonVi": "Cong an Ha Noi - Demo HTTP cap nhat",
+	"tenVietTat": "CAHN HTTP",
+	"parentId": {{donViId}},
+	"diaChi": "Ha Noi - cap nhat",
+	"capDonVi": "XA",
+	"websiteNoiBo": "http://cahn-demo-noibo-v2.local",
+	"websiteInternet": "https://demo-v2.hanoi.gov.vn",
+	"tongBienChe": 175,
+	"isActive": true
+}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/yeu-cau-bo-sung?kyBaoCaoId={{kyBaoCaoId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/yeu-cau-bo-sung
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"kyBaoCaoId": {{kyBaoCaoId}},
+	"donViId": {{donViId}},
+	"lyDo": "De nghi don vi bo sung, cap nhat so lieu truoc khi tong hop.",
+	"hanBoSung": "2026-04-15"
+}
+
+> {%
+client.global.set("yeuCauBoSungId", response.body.data.id);
+%}
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/yeu-cau-bo-sung/{{yeuCauBoSungId}}/duyet
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"hanBoSung": "2026-04-18"
+}
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/yeu-cau-bo-sung/{{yeuCauBoSungId}}/tu-choi
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"tuChoiLyDo": "Noi dung yeu cau chua phu hop, vui long tao lai voi ly do cu the hon."
+}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/snapshot/{{snapshotId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/snapshot/build?kyId={{kyBaoCaoId}}&donViId={{donViId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/snapshot/create-draft
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"kyBaoCaoId": {{kyBaoCaoId}},
+	"donViId": {{donViId}},
+	"snapshotJson": "{\"manualNote\":\"draft mo lai de bo sung\"}",
+	"summaryJson": "{\"source\":\"http-sample\"}"
+}
+
+> {%
+client.global.set("snapshotId", response.body.data.id);
+%}
+
+###
+
+PATCH {{ThucLuc.Api_HostAddress}}/api/v1/snapshot/{{snapshotId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"snapshotJson": "{\"manualNote\":\"cap nhat draft sau khi mo lai\"}",
+	"summaryJson": "{\"source\":\"http-sample\",\"updated\":true}",
+	"ghiChu": "Cap nhat draft sau yeu cau bo sung"
+}
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/snapshot/{{snapshotId}}/submit
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"ghiChu": "Don vi da nop lai sau khi bo sung"
+}
+
+###
+
+DELETE {{ThucLuc.Api_HostAddress}}/api/v1/don-vi/{{donViSampleId}}
+Authorization: Bearer {{accessToken}}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/codes/by-code/TINH_TRANG_TRIEN_KHAI_VB
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/codes/by-code/NGUON_VON_DU_AN
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/du-an-cntt?kyBaoCaoCode={{kyBaoCaoCodeDuAn}}&donViId={{donViId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/du-an-cntt
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"kyBaoCaoCode": "{{kyBaoCaoCodeDuAn}}",
+	"tenDuAn": "Du an trung tam du lieu dung chung",
+	"donViChuTri": "Cuc CNTT",
+	"namTrienKhai": 2025,
+	"namDuaVaoSuDung": 2026,
+	"tongKinhPhi": 12.750,
+	"nguonVon": "BO_CONG_AN",
+	"ghiChu": "Ban ghi mau du an CNTT"
+}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/van-ban-qppl?kyBaoCaoCode={{kyBaoCaoCodeVanBan}}&donViId={{donViId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/van-ban-qppl
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"kyBaoCaoCode": "{{kyBaoCaoCodeVanBan}}",
+	"soHieu": "12/2026/TT-BCA",
+	"tenVanBan": null,
+	"loaiVanBan": null,
+	"coQuanBanHanh": null,
+	"ngayBanHanh": "2026-03-25",
+	"ngayHieuLuc": "2026-04-15",
+	"linhVuc": "CNTT",
+	"trichYeu": "Van ban mau phuc vu kiem thu module VBQPPL",
+	"tinhTrangTrienKhai": "DANG_TRIEN_KHAI",
+	"ghiChu": "Request mau van ban qppl"
+}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/codes/by-code/LOAI_DV_THONG_KE_MANG
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/ha-tang-mang
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/ha-tang-mang
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"loaiDvThongKe": "CAP_PHONG_BO",
+	"soDonViTrucThuoc": 10,
+	"soDaKetNoiBcanet": 9,
+	"soDuongTruyenVnpt": 3,
+	"soDuongTruyenKhac": 1,
+	"soKetNoiInternet": 4,
+	"ghiChu": "Request mau ha tang mang"
+}
+
+> {%
+client.global.set("haTangMangId", response.body.data.id);
+%}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/ha-tang-mang/{{haTangMangId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+PUT {{ThucLuc.Api_HostAddress}}/api/v1/ha-tang-mang/{{haTangMangId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"loaiDvThongKe": "CAP_PHONG_BO",
+	"soDonViTrucThuoc": 12,
+	"soDaKetNoiBcanet": 11,
+	"soDuongTruyenVnpt": 4,
+	"soDuongTruyenKhac": 2,
+	"soKetNoiInternet": 5,
+	"ghiChu": "Request mau ha tang mang cap nhat"
+}
+
+###
+
+DELETE {{ThucLuc.Api_HostAddress}}/api/v1/ha-tang-mang/{{haTangMangId}}
+Authorization: Bearer {{accessToken}}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/codes/by-code/LOAI_PHAN_MEM_CSDL
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/codes/by-code/HTTT_TIEU_CHUAN_CAND
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/codes/by-code/LOAI_MANG_GIAM_SAT
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/codes/by-code/LOP_GIAM_SAT
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/codes/by-code/THUC_TRANG_GIAM_SAT
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/giam-sat-soc?donViId={{donViId}}&kyBaoCaoCode={{kyBaoCaoCodeAttt}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+PUT {{ThucLuc.Api_HostAddress}}/api/v1/giam-sat-soc/matrix
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"kyBaoCaoCode": "{{kyBaoCaoCodeAttt}}",
+	"items": [
+		{
+			"donViId": {{donViId}},
+			"kyBaoCaoCode": "{{kyBaoCaoCodeAttt}}",
+			"loaiMang": "MANG_NOI_BO",
+			"lopGiamSat": "LOP_MANG",
+			"coHeThong": true,
+			"thucTrang": "DA_TRIEN_KHAI",
+			"namThanhLap": 2022,
+			"soNhanSu": 6,
+			"congCuSuDung": "SIEM noi bo",
+			"soCanhBaoThang": 120,
+			"ghiChu": "Du lieu mau lop mang"
+		},
+		{
+			"donViId": {{donViId}},
+			"kyBaoCaoCode": "{{kyBaoCaoCodeAttt}}",
+			"loaiMang": "MANG_NOI_BO",
+			"lopGiamSat": "LOP_UNG_DUNG",
+			"coHeThong": true,
+			"thucTrang": "THUE_DICH_VU",
+			"namThanhLap": 2022,
+			"soNhanSu": 4,
+			"congCuSuDung": "WAF managed",
+			"soCanhBaoThang": 48,
+			"ghiChu": "Du lieu mau lop ung dung"
+		}
+	]
+}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/giam-sat-noc?donViId={{donViId}}&kyBaoCaoCode={{kyBaoCaoCodeAttt}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+PUT {{ThucLuc.Api_HostAddress}}/api/v1/giam-sat-noc/matrix
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"kyBaoCaoCode": "{{kyBaoCaoCodeAttt}}",
+	"items": [
+		{
+			"donViId": {{donViId}},
+			"kyBaoCaoCode": "{{kyBaoCaoCodeAttt}}",
+			"lopGiamSat": "LOP_MANG",
+			"coNoc": true,
+			"thucTrang": "DA_TRIEN_KHAI",
+			"namThanhLap": 2021,
+			"soNhanSu": 10,
+			"ghiChu": "Du lieu mau lop mang"
+		},
+		{
+			"donViId": {{donViId}},
+			"kyBaoCaoCode": "{{kyBaoCaoCodeAttt}}",
+			"lopGiamSat": "LOP_UNG_DUNG",
+			"coNoc": true,
+			"thucTrang": "DA_TRIEN_KHAI",
+			"namThanhLap": 2021,
+			"soNhanSu": 8,
+			"ghiChu": "Du lieu mau lop ung dung"
+		}
+	]
+}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/he-thong-thong-tin
+Authorization: Bearer {{accessToken}}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/codes/by-code/NHOM_CAMERA
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/codes/by-code/DUONG_TRUYEN_CAMERA
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/camera-quan-ly?donViId={{donViId}}&kyCode={{kyBaoCaoCodeAttt}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/camera-quan-ly
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"kyBaoCaoCode": "{{kyBaoCaoCodeAttt}}",
+	"nhomCamera": "NHOM_1",
+	"tenDonViDiaChi": "Khu vuc giam sat trung tam",
+	"buongGiamTrangBiSl": 12,
+	"buongGiamTrangBiTs": 15,
+	"nhuCauDauTu": 3,
+	"baoTri": 2,
+	"suaChua": 1,
+	"soLanViPham": 0,
+	"ketNoiChiaSe": "Ket noi voi trung tam dieu hanh",
+	"hoSoCapDoAttt": 1,
+	"cbChuyenTrach": 2,
+	"cbKiemNhiem": 3,
+	"cbDiaPhuong": 1,
+	"daoTaoBo": 2,
+	"daoTaoNhuCau": 1,
+	"ghiChu": "Ban ghi mau camera quan ly"
+}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/camera-thuc-trang?donViId={{donViId}}&kyCode={{kyBaoCaoCodeAttt}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/camera-thuc-trang
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"kyBaoCaoCode": "{{kyBaoCaoCodeAttt}}",
+	"nhomCamera": "NHOM_1",
+	"tenHeThong": "He thong camera khu A",
+	"cauHinhIp": 20,
+	"cauHinhAnalog": 5,
+	"thucTrangIp": 18,
+	"thucTrangAnalog": 4,
+	"chuDauTu": "Cong an don vi",
+	"namDauTu": 2024,
+	"duongTruyen": "MPLS",
+	"phanMem": "VMS Noi Bo",
+	"luuTru": "NAS tap trung",
+	"ghiChu": "Ban ghi mau camera thuc trang"
+}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/he-thong-thong-tin?loaiPhanMem=DUNG_CHUNG
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/he-thong-thong-tin?loaiPhanMem=TU_PHAT_TRIEN
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/he-thong-thong-tin
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"loaiPhanMem": "DUNG_CHUNG",
+	"tenPhanMem": "Quan ly van ban demo",
+	"maPhanMem": "QLVB-DEMO",
+	"donViPhatTrien": null,
+	"donViQuanLy": "Phong CNTT",
+	"namTrienKhai": 2024,
+	"phamViHoatDong": "Van ban dieu hanh",
+	"ungDungCnMoi": true,
+	"khaNangTichHop": true,
+	"daCongNhanSangKien": false,
+	"ghiChu": "Request mau HTTT dung chung"
+}
+
+> {%
+client.global.set("heThongId", response.body.data.id);
+%}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/he-thong-thong-tin/{{heThongId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+PUT {{ThucLuc.Api_HostAddress}}/api/v1/he-thong-thong-tin/{{heThongId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"loaiPhanMem": "DUNG_CHUNG",
+	"tenPhanMem": "Quan ly van ban demo cap nhat",
+	"maPhanMem": "QLVB-DEMO",
+	"donViPhatTrien": null,
+	"donViQuanLy": "Phong CNTT H05",
+	"namTrienKhai": 2025,
+	"phamViHoatDong": "Van ban dieu hanh va workflow",
+	"ungDungCnMoi": true,
+	"khaNangTichHop": true,
+	"daCongNhanSangKien": false,
+	"ghiChu": "Cap nhat request mau HTTT"
+}
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/he-thong-thong-tin
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"loaiPhanMem": "TU_PHAT_TRIEN",
+	"tenPhanMem": "PM nghiep vu noi bo",
+	"maPhanMem": "PMNB-001",
+	"donViPhatTrien": "CA Ha Noi",
+	"donViQuanLy": "Phong nghiep vu",
+	"namTrienKhai": 2023,
+	"phamViHoatDong": "Nghiep vu chuyen nganh",
+	"ungDungCnMoi": false,
+	"khaNangTichHop": true,
+	"daCongNhanSangKien": true,
+	"ghiChu": "Request mau HTTT tu phat trien"
+}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/httt-tieu-chuan
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/httt-tieu-chuan
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"maHeThong": "QLVB_DIEU_HANH",
+	"dvt": "HT",
+	"soH05": 1,
+	"soTinh": 63,
+	"soXa": 10,
+	"soDvTrucThuocBo": 5,
+	"ghiChu": "Request mau HTTT tieu chuan"
+}
+
+> {%
+client.global.set("htttTieuChuanId", response.body.data.id);
+%}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/httt-tieu-chuan/{{htttTieuChuanId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+PUT {{ThucLuc.Api_HostAddress}}/api/v1/httt-tieu-chuan/{{htttTieuChuanId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"maHeThong": "QLVB_DIEU_HANH",
+	"dvt": "HT",
+	"soH05": 1,
+	"soTinh": 63,
+	"soXa": 25,
+	"soDvTrucThuocBo": 8,
+	"ghiChu": "Cap nhat request mau HTTT tieu chuan"
+}
+
+###
+
+DELETE {{ThucLuc.Api_HostAddress}}/api/v1/httt-tieu-chuan/{{htttTieuChuanId}}
+Authorization: Bearer {{accessToken}}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/ref-loai-thiet-bi/tree
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/thiet-bi-cntt
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/thiet-bi-cntt
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"loaiThietBiId": {{mayChuLoaiId}},
+	"tenThietBi": "May chu demo",
+	"hangSanXuat": "Dell",
+	"model": "PowerEdge R760",
+	"cauHinh": "2 CPU, 128GB RAM, 4TB SSD",
+	"heDieuHanh": "Windows Server 2022",
+	"donViSuDung": "Phong CNTT",
+	"soLuongTong": 1,
+	"soLuongHienDung": 1,
+	"soLuongHong": 0,
+	"tinhTrang": "Dang hoat dong",
+	"ghiChu": "Request mau cho thiet bi chi tiet",
+	"ungDungIds": [{{heThongId}}]
+}
+
+> {%
+client.global.set("thietBiId", response.body.data.id);
+%}
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/thiet-bi-cntt
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"loaiThietBiId": {{mayTinhLoaiId}},
+	"tenThietBi": null,
+	"hangSanXuat": null,
+	"model": null,
+	"cauHinh": null,
+	"heDieuHanh": null,
+	"donViSuDung": null,
+	"soLuongTong": 20,
+	"soLuongHienDung": 18,
+	"soLuongHong": 2,
+	"tinhTrang": "Tong hop",
+	"ghiChu": "Request mau cho loai tong hop",
+	"ungDungIds": []
+}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/thiet-bi-cntt/{{thietBiId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+PUT {{ThucLuc.Api_HostAddress}}/api/v1/thiet-bi-cntt/{{thietBiId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"loaiThietBiId": {{mayChuLoaiId}},
+	"tenThietBi": "May chu demo cap nhat",
+	"hangSanXuat": "Dell",
+	"model": "PowerEdge R760xs",
+	"cauHinh": "2 CPU, 256GB RAM, 8TB SSD",
+	"heDieuHanh": "Windows Server 2022",
+	"donViSuDung": "Phong CNTT",
+	"soLuongTong": 2,
+	"soLuongHienDung": 2,
+	"soLuongHong": 0,
+	"tinhTrang": "Da cap nhat",
+	"ghiChu": "Request mau cap nhat thiet bi",
+	"ungDungIds": [{{heThongId}}]
+}
+
+###
+
+DELETE {{ThucLuc.Api_HostAddress}}/api/v1/thiet-bi-cntt/{{thietBiId}}
+Authorization: Bearer {{accessToken}}
+
+###
+
+DELETE {{ThucLuc.Api_HostAddress}}/api/v1/he-thong-thong-tin/{{heThongId}}
+Authorization: Bearer {{accessToken}}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/codes/by-code/TINH_TRANG_PHE_DUYET_ATTT
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/codes/by-code/GIAI_PHAP_ATTT
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/attt-httt-van-hanh?kyCode={{kyBaoCaoCodeAttt}}&donViId={{donViId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/attt-httt-van-hanh
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"kyBaoCaoCode": "{{kyBaoCaoCodeAttt}}",
+	"htttId": {{heThongId}},
+	"chuQuan": "Cuc CNTT",
+	"donViVanHanh": "Trung tam van hanh H05",
+	"capDoDeXuat": "3",
+	"tinhTrangPheDuyet": "DANG_XAY_DUNG_HO_SO",
+	"quyetDinhPheDuyet": "12/QD-BCA",
+	"quyCheAttt": "34/QC-H05",
+	"duKienNgayPheDuyet": "2026-06-30",
+	"daTrienKhaiPhuongAn": true,
+	"duKienNgayTrienKhai": "2026-08-15",
+	"kiemTraDanhGia": "Da kiem tra noi bo quy 1",
+	"ghiChu": "Request mau ATTT HTTT van hanh"
+}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/attt-httt-dau-tu?kyCode={{kyBaoCaoCodeAttt}}&donViId={{donViId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+POST {{ThucLuc.Api_HostAddress}}/api/v1/attt-httt-dau-tu
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"kyBaoCaoCode": "{{kyBaoCaoCodeAttt}}",
+	"htttId": {{heThongId}},
+	"chuQuan": "Cuc CNTT",
+	"donViVanHanh": "Trung tam tich hop",
+	"capDoDeXuat": "4",
+	"ngayPheDuyetHsdxcd": "2026-07-10",
+	"quyetDinhPheDuyet": "88/QD-BCA",
+	"daLongGhepThuyetMinh": true,
+	"ghiChu": "Request mau ATTT HTTT dau tu"
+}
+
+###
+
+GET {{ThucLuc.Api_HostAddress}}/api/v1/giai-phap-attt?donViId={{donViId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###
+
+PUT {{ThucLuc.Api_HostAddress}}/api/v1/giai-phap-attt/matrix
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"donViId": {{donViId}},
+	"items": [
+		{
+			"donViId": {{donViId}},
+			"tenGiaiPhap": "ANTIVIRUS",
+			"mayTinhBcanetSl": 120,
+			"mayTinhBcanetTs": 150,
+			"mayTinhInternetSl": 60,
+			"mayTinhInternetTs": 80,
+			"mayTinhLocalSl": 25,
+			"mayTinhLocalTs": 30,
+			"mayChuBcanetSl": 12,
+			"mayChuBcanetTs": 15,
+			"mayChuInternetSl": 4,
+			"mayChuInternetTs": 6,
+			"mayChuLocalSl": 8,
+			"mayChuLocalTs": 10,
+			"ghiChu": "Dong bo theo ma tran thang 7"
+		},
+		{
+			"donViId": {{donViId}},
+			"tenGiaiPhap": "FIREWALL",
+			"mayTinhBcanetSl": 40,
+			"mayTinhBcanetTs": 150,
+			"mayTinhInternetSl": 30,
+			"mayTinhInternetTs": 80,
+			"mayTinhLocalSl": 10,
+			"mayTinhLocalTs": 30,
+			"mayChuBcanetSl": 10,
+			"mayChuBcanetTs": 15,
+			"mayChuInternetSl": 6,
+			"mayChuInternetTs": 6,
+			"mayChuLocalSl": 3,
+			"mayChuLocalTs": 10,
+			"ghiChu": "Trang thai bao ve hien tai"
+		}
+	]
+}
+
+###

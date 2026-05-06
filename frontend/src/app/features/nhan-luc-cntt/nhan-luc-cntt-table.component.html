@@ -1,0 +1,147 @@
+<div class="nhan-luc-table-shell">
+  <app-loading-overlay
+    [active]="loading"
+    label="Đang tải dữ liệu nhân lực CNTT..."
+  ></app-loading-overlay>
+
+  <div class="nhan-luc-table-toolbar">
+    <div class="nhan-luc-table-toolbar__left">
+      <div>
+        <h3>Danh sách nhân lực CNTT</h3>
+        <p>
+          Thông tin trọng yếu được hiển thị trực tiếp trên bảng để tra cứu
+          nhanh.
+        </p>
+      </div>
+      <span class="nhan-luc-table-toolbar__count">{{ totalLabel }}</span>
+    </div>
+
+    <button
+      pButton
+      type="button"
+      icon="pi pi-plus"
+      class="p-button-primary nhan-luc-table-toolbar__add-btn"
+      label="Thêm nhân lực"
+      [disabled]="loading"
+      (click)="add.emit()"
+    ></button>
+  </div>
+
+  <app-empty-state
+    *ngIf="!loading && overallRecords === 0"
+    title="Chưa có dữ liệu nhân lực CNTT"
+    message="Hãy bấm ‘Thêm nhân lực’ để bắt đầu cập nhật hồ sơ nhân lực CNTT."
+    icon="pi pi-users"
+    actionLabel="Thêm nhân lực"
+    actionIcon="pi pi-plus"
+    actionSeverity="primary"
+    (action)="add.emit()"
+  ></app-empty-state>
+
+  <app-empty-state
+    *ngIf="!loading && overallRecords > 0 && totalRecords === 0"
+    title="Không tìm thấy kết quả phù hợp"
+    message="Hãy điều chỉnh từ khóa hoặc xóa bớt điều kiện lọc để xem lại danh sách nhân lực."
+    icon="pi pi-filter-slash"
+    actionLabel="Xóa bộ lọc"
+    actionIcon="pi pi-times"
+    (action)="clearFilters.emit()"
+  ></app-empty-state>
+
+  <div class="table-section" *ngIf="!loading && totalRecords > 0">
+    <p-table
+      [value]="items"
+      styleClass="p-datatable-sm app-admin-table nhan-luc-table"
+      responsiveLayout="scroll"
+      [tableStyle]="{ 'min-width': '76rem' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="col-stt">STT</th>
+          <th class="col-ho-ten">Họ tên và chức vụ</th>
+          <th class="col-gioi-tinh">Giới tính</th>
+          <th class="col-loai">Loại nhân lực</th>
+          <th class="col-trinh-do">Trình độ CNTT</th>
+          <th class="col-dien-thoai">Số điện thoại</th>
+          <th class="col-thao-tac">Thao tác</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+        <tr class="nhan-luc-table__row">
+          <td class="col-stt">
+            <span class="app-table-stt">{{ first + rowIndex + 1 }}</span>
+          </td>
+          <td class="col-ho-ten">
+            <div class="nhan-luc-table__identity">
+              <strong>{{ item.hoTenDayDu || item.hoTen }}</strong>
+              <span class="nhan-luc-table__identity-meta">
+                <span class="nhan-luc-table__identity-role">{{
+                  item.chucVuText
+                }}</span>
+                <span class="nhan-luc-table__identity-separator">•</span>
+                <span class="nhan-luc-table__identity-unit">
+                  <i class="pi pi-building"></i>
+                  {{ item.donViCongTacText }}
+                </span>
+              </span>
+            </div>
+          </td>
+          <td class="col-gioi-tinh">{{ item.gioiTinhText }}</td>
+          <td class="col-loai">{{ item.loaiNhanLucText }}</td>
+          <td class="col-trinh-do">{{ item.trinhDoCnttText }}</td>
+          <td class="col-dien-thoai">{{ item.dienThoaiText }}</td>
+          <td class="col-thao-tac" (click)="$event.stopPropagation()">
+            <div class="app-table-actions">
+              <button
+                pButton
+                type="button"
+                icon="pi pi-pencil"
+                class="p-button-text app-table-action-btn app-table-action-btn--edit"
+                pTooltip="Chỉnh sửa hồ sơ"
+                tooltipPosition="top"
+                aria-label="Chỉnh sửa hồ sơ"
+                (click)="edit.emit(item)"
+              ></button>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-trash"
+                class="p-button-text p-button-danger app-table-action-btn app-table-action-btn--delete"
+                pTooltip="Xóa hồ sơ"
+                tooltipPosition="top"
+                aria-label="Xóa hồ sơ"
+                (click)="delete.emit(item)"
+              ></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <div class="table-footer">
+      <span class="footer-info">{{ summary }}</span>
+
+      <p-paginator
+        [first]="first"
+        [rows]="rows"
+        [totalRecords]="totalRecords"
+        styleClass="footer-paginator"
+        (onPageChange)="pageChange.emit($event)"
+      ></p-paginator>
+
+      <div class="footer-rpp">
+        <span class="rpp-label">Dòng/trang</span>
+        <p-dropdown
+          [options]="pageSizeOptions"
+          [ngModel]="rows"
+          optionLabel="label"
+          optionValue="value"
+          appendTo="body"
+          class="app-filter-select footer-rpp-select"
+          (onChange)="rowsChange.emit($event.value)"
+        ></p-dropdown>
+      </div>
+    </div>
+  </div>
+</div>

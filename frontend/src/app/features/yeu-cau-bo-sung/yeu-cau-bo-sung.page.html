@@ -1,0 +1,236 @@
+<app-section-card
+  title="Yêu cầu bổ sung"
+  subtitle="Quản lý yêu cầu mở lại snapshot theo từng kỳ báo cáo và theo dõi trạng thái xử lý của từng đơn vị."
+  styleClass="yeu-cau-bo-sung-card"
+>
+  <div class="yeu-cau-bo-sung-body">
+    <app-loading-overlay
+      [active]="loading || creating || processing"
+      label="Đang xử lý yêu cầu bổ sung..."
+    ></app-loading-overlay>
+
+    <app-filter-bar>
+      <div class="filter-grid">
+        <div class="app-field">
+          <label for="ycbsKy">Kỳ báo cáo</label>
+          <p-dropdown
+            inputId="ycbsKy"
+            [options]="kyOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="selectedKyBaoCaoId"
+            (ngModelChange)="onKyChange($event)"
+            placeholder="Chọn kỳ báo cáo"
+          ></p-dropdown>
+        </div>
+
+        <div class="app-field">
+          <label for="ycbsStatusFilter">Trạng thái</label>
+          <p-dropdown
+            inputId="ycbsStatusFilter"
+            [options]="trangThaiFilterOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="selectedTrangThaiFilter"
+            (ngModelChange)="selectedTrangThaiFilter = $event"
+            placeholder="Lọc trạng thái"
+          ></p-dropdown>
+        </div>
+
+        <div class="app-field">
+          <label for="ycbsDonViFilter">Đơn vị</label>
+          <p-dropdown
+            inputId="ycbsDonViFilter"
+            [options]="donViFilterOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="selectedDonViFilterId"
+            (ngModelChange)="selectedDonViFilterId = $event"
+            placeholder="Lọc đơn vị"
+          ></p-dropdown>
+        </div>
+      </div>
+    </app-filter-bar>
+
+    <app-section-card
+      *ngIf="canCreate"
+      title="Tạo yêu cầu mới"
+      subtitle="Khởi tạo yêu cầu bổ sung cho đơn vị đã nộp snapshot trong kỳ."
+      styleClass="yeu-cau-bo-sung-create-card mt-3"
+    >
+      <form class="app-form-grid three-col" (ngSubmit)="createRequest()">
+        <div class="app-field">
+          <label for="ycbsDonVi" class="required">Đơn vị</label>
+          <p-dropdown
+            inputId="ycbsDonVi"
+            [options]="donViOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="createModel.donViId"
+            (ngModelChange)="createModel.donViId = $event"
+            name="donViId"
+            placeholder="Chọn đơn vị"
+          ></p-dropdown>
+        </div>
+
+        <div class="app-field">
+          <label for="ycbsHan">Hạn bổ sung</label>
+          <input
+            pInputText
+            id="ycbsHan"
+            type="date"
+            [ngModel]="createModel.hanBoSung"
+            (ngModelChange)="createModel.hanBoSung = $event"
+            name="hanBoSung"
+          />
+        </div>
+
+        <div class="app-field app-field--actions">
+          <button
+            pButton
+            type="submit"
+            label="Tạo yêu cầu"
+            icon="pi pi-plus"
+            [disabled]="!selectedKyBaoCaoId || creating"
+          ></button>
+        </div>
+
+        <div class="app-field wide">
+          <label for="ycbsLyDo" class="required">Lý do bổ sung</label>
+          <textarea
+            pInputTextarea
+            id="ycbsLyDo"
+            rows="3"
+            [ngModel]="createModel.lyDo"
+            (ngModelChange)="createModel.lyDo = $event"
+            name="lyDo"
+            placeholder="Nêu rõ nội dung cần đơn vị bổ sung hoặc chỉnh sửa."
+          ></textarea>
+        </div>
+      </form>
+    </app-section-card>
+
+    <div class="list-section mt-3">
+      <p-table
+        *ngIf="filteredRequests.length > 0; else noData"
+        [value]="filteredRequests"
+        styleClass="yeu-cau-bo-sung-table"
+        [tableStyle]="{ 'min-width': '58rem' }"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>ID</th>
+            <th>Đơn vị</th>
+            <th>Trạng thái</th>
+            <th>Lý do / Ghi chú</th>
+            <th>Hạn bổ sung</th>
+            <th>Thời gian</th>
+            <th class="cell-actions">Thao tác</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td>#{{ item.id }}</td>
+            <td>#{{ item.donViId }}</td>
+            <td>
+              <app-status-badge
+                [label]="statusLabel(item.trangThai)"
+                [status]="statusKey(item.trangThai)"
+              ></app-status-badge>
+            </td>
+            <td>
+              <div class="reason-cell">
+                <strong>{{ item.lyDo }}</strong>
+                <span *ngIf="item.tuChoiLyDo"
+                  >Từ chối: {{ item.tuChoiLyDo }}</span
+                >
+              </div>
+            </td>
+            <td>{{ item.hanBoSung || '-' }}</td>
+            <td>
+              <div class="time-cell">
+                <span>Tạo: {{ formatDate(item.requestedAt) }}</span>
+                <span>Duyệt: {{ formatDate(item.approvedAt) }}</span>
+                <span>Hoàn thành: {{ formatDate(item.completedAt) }}</span>
+              </div>
+            </td>
+            <td class="cell-actions">
+              <button
+                pButton
+                type="button"
+                icon="pi pi-check"
+                class="p-button-sm"
+                severity="success"
+                [disabled]="!canAct(item)"
+                (click)="approve(item)"
+              ></button>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-times"
+                class="p-button-sm"
+                severity="danger"
+                [disabled]="!canAct(item)"
+                (click)="openReject(item)"
+              ></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <ng-template #noData>
+        <app-empty-state
+          [title]="requests.length > 0 ? 'Không có dữ liệu theo bộ lọc' : 'Chưa có yêu cầu bổ sung'"
+          [message]="requests.length > 0
+            ? 'Thử đổi bộ lọc trạng thái hoặc đơn vị để xem dữ liệu phù hợp.'
+            : 'Chọn kỳ báo cáo rồi tạo yêu cầu mới hoặc kiểm tra lại khi có dữ liệu.'"
+          icon="pi-file-edit"
+        ></app-empty-state>
+      </ng-template>
+    </div>
+
+    <app-section-card
+      *ngIf="rejectTarget"
+      title="Từ chối yêu cầu"
+      subtitle="Nhập lý do từ chối để phản hồi cho đơn vị thực hiện báo cáo."
+      styleClass="mt-3"
+    >
+      <div class="reject-form">
+        <p class="reject-form__meta">
+          Yêu cầu #{{ rejectTarget.id }} · Đơn vị #{{ rejectTarget.donViId }}
+        </p>
+        <div class="app-field">
+          <label for="rejectReason" class="required">Lý do từ chối</label>
+          <textarea
+            pInputTextarea
+            id="rejectReason"
+            rows="4"
+            [ngModel]="rejectReason"
+            (ngModelChange)="rejectReason = $event"
+            placeholder="Nêu rõ lý do để đơn vị biết cần điều chỉnh nội dung nào."
+          ></textarea>
+        </div>
+
+        <div class="reject-form__actions">
+          <button
+            pButton
+            type="button"
+            label="Xác nhận từ chối"
+            icon="pi pi-times"
+            severity="danger"
+            (click)="submitReject()"
+          ></button>
+          <button
+            pButton
+            type="button"
+            label="Hủy"
+            icon="pi pi-ban"
+            severity="secondary"
+            (click)="cancelReject()"
+          ></button>
+        </div>
+      </div>
+    </app-section-card>
+  </div>
+</app-section-card>

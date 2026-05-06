@@ -1,0 +1,593 @@
+.nhan-luc-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-height: min(78vh, 820px);
+  --surface-input: var(--app-surface, #ffffff);
+  --form-label-font: var(--app-font-family-mono);
+  --form-placeholder-font: var(--app-font-family-mono);
+  --form-value-font: var(--app-font-family-heading);
+}
+
+.nhan-luc-dialog__body {
+  display: grid;
+  gap: 0;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.nhan-luc-dialog__section + .nhan-luc-dialog__section {
+  margin-top: 0.8rem;
+}
+
+.nhan-luc-dialog__body::-webkit-scrollbar {
+  width: 7px;
+}
+
+.nhan-luc-dialog__body::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--app-border-strong);
+}
+
+.nhan-luc-dialog__body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nhan-luc-dialog__header {
+  width: 100%;
+}
+
+.nhan-luc-dialog__section {
+  border: 1px solid color-mix(in srgb, var(--app-border) 76%, white 24%);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--app-surface-soft) 74%, white 26%);
+  padding: 0.8rem 0.9rem;
+}
+
+.nhan-luc-dialog__section-head {
+  margin-bottom: 0.65rem;
+
+  h3 {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--app-text-strong);
+  }
+}
+
+.nhan-luc-dialog__section--basic .app-form-row + .app-form-row {
+  margin-top: 0.6rem;
+}
+
+.nhan-luc-dialog__section--basic
+  .app-form-row:has(.app-form-field__feedback.is-visible)
+  + .app-form-row {
+  margin-top: 0.82rem;
+}
+
+.app-form-row--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.nhan-luc-dialog__footer {
+  margin-top: 0;
+}
+
+:host ::ng-deep .nhan-luc-dialog .app-form-field {
+  --app-form-control-height: 54px;
+}
+
+/* Keep labels always visible on top in this dialog to avoid overlap with placeholders/values. */
+:host ::ng-deep .nhan-luc-dialog .app-form-field .app-form-field__label {
+  top: 0.35rem;
+  transform: none;
+  font-size: 0.68rem;
+  font-weight: 600;
+  font-family: var(--form-label-font) !important;
+}
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .nhan-luc-dialog__date-field
+  .app-form-field__label {
+  top: 0.12rem;
+}
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .nhan-luc-dialog__date-field
+  label[for="nhan-luc-ngay-sinh"] {
+  top: -0.02rem !important;
+}
+
+:host ::ng-deep .nhan-luc-dialog .app-form-field .app-form-field__input,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-dropdown,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-select,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-datepicker,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-calendar,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-inputnumber,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-password,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-dropdown .p-dropdown-label,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-select .p-select-label,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-calendar .p-inputtext,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-inputnumber .p-inputtext,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-password .p-password-input,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .app-form-field__error {
+  font-family: var(--form-value-font) !important;
+}
+
+:host ::ng-deep .nhan-luc-dialog .app-form-field .app-form-field__error,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .app-form-field__label {
+  font-family: var(--form-label-font) !important;
+}
+
+:host ::ng-deep .nhan-luc-dialog .app-form-field .app-form-field__input,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-datepicker .p-inputtext,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-calendar .p-inputtext,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-inputnumber .p-inputtext,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-password .p-password-input {
+  padding-top: 1.35rem !important;
+}
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  .app-form-field__input::placeholder,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  .p-datepicker
+  .p-inputtext::placeholder,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  .p-calendar
+  .p-inputtext::placeholder,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  .p-dropdown
+  .p-dropdown-label.p-placeholder,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  .p-select
+  .p-select-label.p-placeholder,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  .p-multiselect
+  .p-multiselect-label.p-placeholder,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  .p-inputnumber
+  .p-inputtext::placeholder,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  .p-password
+  .p-password-input::placeholder {
+  opacity: 1 !important;
+  color: var(--app-text-muted) !important;
+  font-family: var(--form-placeholder-font) !important;
+}
+
+:host ::ng-deep .nhan-luc-dialog .app-form-field .app-form-field__input,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-datepicker .p-inputtext,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-calendar .p-inputtext,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-dropdown .p-dropdown-label,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-select .p-select-label,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  .p-multiselect
+  .p-multiselect-label,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-password .p-password-input,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  textarea.app-form-field__input {
+  font-family: var(--form-value-font) !important;
+}
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field:not(.has-value):not(:focus-within)
+  .p-datepicker
+  .p-inputtext::placeholder,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field:not(.has-value):not(:focus-within)
+  .p-calendar
+  .p-inputtext::placeholder {
+  opacity: 0 !important;
+}
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field:focus-within
+  .p-datepicker
+  .p-inputtext::placeholder,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field:focus-within
+  .p-calendar
+  .p-inputtext::placeholder {
+  opacity: 1 !important;
+  color: var(--app-text-muted) !important;
+}
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field.has-value
+  .p-datepicker
+  .p-inputtext::placeholder,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field.has-value
+  .p-calendar
+  .p-inputtext::placeholder {
+  opacity: 0 !important;
+}
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field:not(.has-value):not(:focus-within)
+  .p-dropdown
+  .p-dropdown-label.p-placeholder,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field:not(.has-value):not(:focus-within)
+  .p-select
+  .p-select-label.p-placeholder {
+  opacity: 0 !important;
+}
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field:focus-within
+  .p-dropdown
+  .p-dropdown-label.p-placeholder,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field:focus-within
+  .p-select
+  .p-select-label.p-placeholder,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  .p-dropdown.p-focus
+  .p-dropdown-label.p-placeholder,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  .p-select.p-focus
+  .p-select-label.p-placeholder {
+  opacity: 1 !important;
+  color: var(--app-text-muted) !important;
+}
+
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-datepicker,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-calendar {
+  display: flex !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  height: 54px !important;
+  min-height: 54px !important;
+  background: var(--surface-input) !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-bottom: 1px solid var(--app-primary-600) !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-datepicker .p-inputtext,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-calendar .p-inputtext {
+  flex: 1 !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: 1.72rem 0.75rem 0.12rem !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #111827 !important;
+  font-size: 0.92rem !important;
+  font-weight: 400 !important;
+  line-height: 1.1 !important;
+  outline: none !important;
+}
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .nhan-luc-dialog__date-field
+  .p-datepicker
+  .p-inputtext,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .nhan-luc-dialog__date-field
+  .p-calendar
+  .p-inputtext {
+  padding: 2.22rem 0.75rem 0 !important;
+  line-height: 1 !important;
+}
+
+// Global data-entry-form.scss now correctly sets padding-top: 1.35rem for calendar inputs.
+// No component-level override needed for the date field padding.
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  .p-datepicker
+  .p-inputtext:focus,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-calendar .p-inputtext:focus,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  .p-datepicker
+  .p-datepicker-input:focus,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  .p-calendar
+  .p-datepicker-input:focus {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+:host ::ng-deep .nhan-luc-dialog .app-form-field:focus-within .p-datepicker,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-datepicker.p-focus,
+:host ::ng-deep .nhan-luc-dialog .app-form-field:focus-within .p-calendar,
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-calendar.p-focus {
+  border-bottom: 2px solid var(--app-primary-500) !important;
+  background: var(--surface-input) !important;
+  box-shadow: none !important;
+}
+
+:host ::ng-deep .nhan-luc-dialog .app-form-field.has-error .p-datepicker,
+:host ::ng-deep .nhan-luc-dialog .app-form-field.has-error .p-calendar,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field:has(.ng-invalid.ng-touched)
+  .p-datepicker,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field:has(.ng-invalid.ng-touched)
+  .p-calendar {
+  border-bottom: 1.5px solid var(--app-danger-500) !important;
+  background: var(--surface-input) !important;
+  box-shadow: none !important;
+}
+
+:host ::ng-deep .nhan-luc-dialog .app-form-field .p-inputwrapper {
+  background: transparent !important;
+}
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  .p-datepicker
+  .p-datepicker-trigger,
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  .p-calendar
+  .p-datepicker-trigger {
+  width: 2.2rem;
+  min-width: 2.2rem;
+  height: 100%;
+  min-height: 0;
+  border: 0;
+  background: transparent;
+  color: var(--app-primary-600);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog
+  .app-form-field
+  .p-calendar
+  .p-datepicker-trigger-icon {
+  font-size: 0.92rem;
+}
+
+:host ::ng-deep .nhan-luc-dialog__dropdown-panel.p-dropdown-panel,
+:host ::ng-deep .nhan-luc-dialog__calendar-panel.p-datepicker {
+  border: 1px solid var(--app-border) !important;
+  border-radius: 0.7rem !important;
+  box-shadow: var(--app-shadow-2) !important;
+}
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog__dropdown-panel
+  .p-dropdown-items-wrapper::-webkit-scrollbar,
+:host
+  ::ng-deep
+  .nhan-luc-dialog__calendar-panel
+  .p-datepicker-calendar-container::-webkit-scrollbar {
+  width: 7px;
+}
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog__dropdown-panel
+  .p-dropdown-items-wrapper::-webkit-scrollbar-thumb,
+:host
+  ::ng-deep
+  .nhan-luc-dialog__calendar-panel
+  .p-datepicker-calendar-container::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--app-border-strong);
+}
+
+:host ::ng-deep .nhan-luc-dialog__dropdown-panel .p-dropdown-filter-container,
+:host ::ng-deep .nhan-luc-dialog__calendar-panel .p-datepicker-header {
+  padding: 0.42rem 0.5rem !important;
+}
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog__dropdown-panel
+  .p-dropdown-filter-container
+  .p-dropdown-filter {
+  height: 2rem;
+  padding: 0.32rem 0.55rem;
+  border-radius: 0.55rem;
+  border: 1px solid var(--app-border);
+  font-size: 0.84rem;
+}
+
+:host ::ng-deep .nhan-luc-dialog__dropdown-panel .p-dropdown-items {
+  padding: 0.25rem !important;
+}
+
+:host ::ng-deep .nhan-luc-dialog__dropdown-panel .p-dropdown-item {
+  min-height: 2.15rem;
+  padding: 0.45rem 0.62rem !important;
+  border-radius: 0.45rem;
+  font-size: 0.88rem;
+  line-height: 1.25;
+}
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog__dropdown-panel
+  .p-dropdown-item:not(.p-highlight):not(.p-disabled):hover {
+  background: var(--app-surface-soft) !important;
+}
+
+:host ::ng-deep .nhan-luc-dialog__dropdown-panel .p-dropdown-item.p-highlight {
+  background: color-mix(
+    in srgb,
+    var(--app-primary-500) 14%,
+    white 86%
+  ) !important;
+  color: var(--app-primary-700) !important;
+}
+
+:host ::ng-deep .nhan-luc-dialog__calendar-panel.p-datepicker {
+  width: 19rem !important;
+  min-width: 19rem !important;
+  max-width: calc(100vw - 1.5rem) !important;
+}
+
+:host ::ng-deep .nhan-luc-dialog__calendar-panel .p-datepicker-header {
+  padding: 0.3rem 0.4rem !important;
+}
+
+:host ::ng-deep .nhan-luc-dialog__calendar-panel .p-datepicker-title {
+  gap: 0.22rem;
+}
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog__calendar-panel
+  .p-datepicker-title
+  .p-datepicker-month,
+:host
+  ::ng-deep
+  .nhan-luc-dialog__calendar-panel
+  .p-datepicker-title
+  .p-datepicker-year {
+  font-size: 0.8rem;
+  padding: 0.14rem 0.24rem;
+}
+
+:host ::ng-deep .nhan-luc-dialog__calendar-panel .p-datepicker-prev,
+:host ::ng-deep .nhan-luc-dialog__calendar-panel .p-datepicker-next {
+  width: 1.45rem;
+  height: 1.45rem;
+}
+
+:host ::ng-deep .nhan-luc-dialog__calendar-panel .p-datepicker-calendar {
+  margin: 0.1rem 0.3rem 0.28rem;
+}
+
+:host ::ng-deep .nhan-luc-dialog__calendar-panel .p-datepicker-calendar th {
+  padding: 0.12rem;
+  font-size: 0.75rem;
+}
+
+:host ::ng-deep .nhan-luc-dialog__calendar-panel .p-datepicker-calendar td {
+  padding: 0.06rem;
+}
+
+:host
+  ::ng-deep
+  .nhan-luc-dialog__calendar-panel
+  .p-datepicker-calendar
+  td
+  > span {
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.81rem;
+}
+
+:host ::ng-deep .nhan-luc-dialog__calendar-panel .p-timepicker {
+  padding: 0.3rem 0.45rem 0.45rem;
+}
+
+@media (max-width: 1080px) {
+  .app-form-row--three {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .app-form-row--three {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .nhan-luc-dialog__footer {
+    flex-direction: column-reverse;
+  }
+
+  .nhan-luc-dialog__footer .p-button {
+    width: 100%;
+  }
+}

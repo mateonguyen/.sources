@@ -1,0 +1,140 @@
+2026-04-15 10:30:32.762 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:30:32.976 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:30:33.373 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 342.7861 ms CorrelationId=22caa41468da419a83cf1846aa037790 UserId=anonymous
+2026-04-15 10:30:33.376 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 348.7447 ms
+2026-04-15 10:30:33.481 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien => 200 in 68.9573 ms CorrelationId=32af3bb1aa7441fa90574b759e316d0f UserId=5003
+2026-04-15 10:30:33.482 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien responded 200 in 69.2775 ms
+2026-04-15 10:30:33.723 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:30:33.863 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 139.2068 ms CorrelationId=416c8bd731c5468c8e226aa5768dbae0 UserId=anonymous
+2026-04-15 10:30:33.864 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 139.3886 ms
+2026-04-15 10:30:33.914 +07:00 [INF] HTTP GET /api/v1/snapshot/build => 200 in 29.116 ms CorrelationId=c35cfede8fc44f41a48cbffc8c257b92 UserId=5003
+2026-04-15 10:30:33.914 +07:00 [INF] HTTP GET /api/v1/snapshot/build responded 200 in 29.4302 ms
+2026-04-15 10:35:32.131 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:35:32.345 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:35:32.732 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 344.1567 ms CorrelationId=112eb61703314b2782e2e4e126db5be1 UserId=anonymous
+2026-04-15 10:35:32.736 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 350.3238 ms
+2026-04-15 10:35:32.856 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien => 200 in 87.8107 ms CorrelationId=aad09bc2de4a411d9c2bfc3717e03b15 UserId=5003
+2026-04-15 10:35:32.856 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien responded 200 in 88.1153 ms
+2026-04-15 10:35:33.045 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:35:33.242 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 195.1427 ms CorrelationId=d35d7a5ac90c4c5e82c2407782a69629 UserId=anonymous
+2026-04-15 10:35:33.242 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 195.3766 ms
+2026-04-15 10:35:33.296 +07:00 [INF] HTTP GET /api/v1/snapshot/build => 200 in 48.1056 ms CorrelationId=8e10eed3e1ae423ba97f705916eb1b4c UserId=5003
+2026-04-15 10:35:33.297 +07:00 [INF] HTTP GET /api/v1/snapshot/build responded 200 in 48.3145 ms
+2026-04-15 10:44:00.027 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:44:00.279 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:44:00.672 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 340.5126 ms CorrelationId=7c33bc53cb4f4f97aa243a048be5cd82 UserId=anonymous
+2026-04-15 10:44:00.676 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 346.7203 ms
+2026-04-15 10:44:00.705 +07:00 [INF] HTTP POST /api/v1/snapshot/submit-current => 405 in 16.918 ms CorrelationId=1e0ccf16b4da49afad190f4832f26b1b UserId=5003
+2026-04-15 10:44:00.705 +07:00 [INF] HTTP POST /api/v1/snapshot/submit-current responded 405 in 17.1812 ms
+2026-04-15 10:44:00.916 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:44:01.114 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 197.7667 ms CorrelationId=c5325e4453fb40009575e18941d85e2f UserId=anonymous
+2026-04-15 10:44:01.115 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 197.9667 ms
+2026-04-15 10:44:01.190 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 73.1976 ms CorrelationId=d22658ee99d44d1b834aa44a58080471 UserId=5003
+2026-04-15 10:44:01.191 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 73.4243 ms
+2026-04-15 10:44:01.205 +07:00 [ERR] Unhandled exception. CorrelationId=a5064fdeb6374bdba40c222d9b00cd11
+System.InvalidOperationException: Snapshot chưa hợp lệ để nộp.
+   at ThucLuc.Application.Features.BaoCaoSnapshot.BaoCaoSnapshotService.EnsureSnapshotCanBeSubmitted(String snapshotJson) in D:\Projects\ThucLuc_V2\.sources\backend\src\Application\Features\BaoCaoSnapshot\BaoCaoSnapshotService.cs:line 388
+   at ThucLuc.Application.Features.BaoCaoSnapshot.BaoCaoSnapshotService.SubmitAsync(Int64 id, SubmitBaoCaoSnapshotRequest request, CancellationToken cancellationToken) in D:\Projects\ThucLuc_V2\.sources\backend\src\Application\Features\BaoCaoSnapshot\BaoCaoSnapshotService.cs:line 201
+   at ThucLuc.Api.Controllers.V1.BaoCaoSnapshotController.Submit(Int64 id, SubmitBaoCaoSnapshotRequest request, CancellationToken cancellationToken) in D:\Projects\ThucLuc_V2\.sources\backend\src\Api\Controllers\V1\BaoCaoSnapshotController.cs:line 98
+   at lambda_method1674(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at ThucLuc.Api.Common.Middleware.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in D:\Projects\ThucLuc_V2\.sources\backend\src\Api\Common\Middleware\GlobalExceptionMiddleware.cs:line 23
+2026-04-15 10:44:01.223 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 500 in 29.9398 ms CorrelationId=a5064fdeb6374bdba40c222d9b00cd11 UserId=5003
+2026-04-15 10:44:01.223 +07:00 [ERR] HTTP POST /api/v1/snapshot/1/submit responded 500 in 30.1634 ms
+2026-04-15 10:44:01.400 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:44:01.605 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 204.5317 ms CorrelationId=4b82e3b25d234c23a15f5e9265d2c101 UserId=anonymous
+2026-04-15 10:44:01.605 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 204.7322 ms
+2026-04-15 10:44:01.611 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 5.0012 ms CorrelationId=9f80b2c6cc3d48328a3d5e5225512a72 UserId=5003
+2026-04-15 10:44:01.611 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 5.1952 ms
+2026-04-15 10:44:01.651 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 200 in 38.7713 ms CorrelationId=0d968b3dd37c452eb561bb32d05f642f UserId=5003
+2026-04-15 10:44:01.651 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit responded 200 in 38.9564 ms
+2026-04-15 10:44:01.836 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:44:02.025 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 188.5384 ms CorrelationId=df29dbf6c57c44069949e5b8cd938a62 UserId=anonymous
+2026-04-15 10:44:02.025 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 188.8056 ms
+2026-04-15 10:44:02.028 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 2.1928 ms CorrelationId=040fffd75ce24921a529d8f745751729 UserId=5003
+2026-04-15 10:44:02.028 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 2.3474 ms
+2026-04-15 10:44:02.032 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 200 in 2.9099 ms CorrelationId=0062c5def3ab48219c3c668eb9c960eb UserId=5003
+2026-04-15 10:44:02.032 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit responded 200 in 3.0580 ms
+2026-04-15 10:44:02.033 +07:00 [INF] HTTP DELETE /api/v1/snapshot/1 => 405 in 0.4965 ms CorrelationId=00db84b1c70f4557b0ef2da5e5b1788e UserId=5003
+2026-04-15 10:44:02.033 +07:00 [INF] HTTP DELETE /api/v1/snapshot/1 responded 405 in 0.6390 ms
+2026-04-15 10:44:02.227 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:44:02.425 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 197.4986 ms CorrelationId=f46f70c2873640bda016b96a3a1420cc UserId=anonymous
+2026-04-15 10:44:02.425 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 197.7173 ms
+2026-04-15 10:44:02.429 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 2.7141 ms CorrelationId=005fb6c8a0494af7ab20f5ae75969897 UserId=5003
+2026-04-15 10:44:02.429 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 2.8766 ms
+2026-04-15 10:44:02.439 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 200 in 3.3344 ms CorrelationId=de4c44c12ed64468a909a9dca7a21ea0 UserId=5003
+2026-04-15 10:44:02.439 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit responded 200 in 3.5895 ms
+2026-04-15 10:44:02.615 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:44:02.812 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 196.8857 ms CorrelationId=db646995261a40caa4f5fd14d345defa UserId=anonymous
+2026-04-15 10:44:02.812 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 197.0855 ms
+2026-04-15 10:44:02.816 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 2.1579 ms CorrelationId=2a757df9315b4088aa0d6b13ce738f5a UserId=5003
+2026-04-15 10:44:02.816 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 2.2961 ms
+2026-04-15 10:44:02.819 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 200 in 2.2934 ms CorrelationId=9823dfc1556844f29ae9e39bcbb96c16 UserId=5003
+2026-04-15 10:44:02.819 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit responded 200 in 2.3893 ms
+2026-04-15 10:47:12.162 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:47:12.389 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:47:12.754 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 320.9465 ms CorrelationId=cb1e161db3eb462fbd3eb9ebe3b4e9bf UserId=anonymous
+2026-04-15 10:47:12.758 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 326.8076 ms
+2026-04-15 10:47:12.919 +07:00 [INF] HTTP POST /api/v1/snapshot/submit-current => 200 in 149.688 ms CorrelationId=e04794e8a0f54122ae4f27c39d7785f3 UserId=5003
+2026-04-15 10:47:12.920 +07:00 [INF] HTTP POST /api/v1/snapshot/submit-current responded 200 in 149.9860 ms
+2026-04-15 10:47:13.158 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:47:13.361 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 201.2706 ms CorrelationId=1f660ef2fda6402c9a4d317671738490 UserId=anonymous
+2026-04-15 10:47:13.361 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 201.4571 ms
+2026-04-15 10:47:13.374 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 10.4203 ms CorrelationId=d343e4c73782412e9c3b30573a977afd UserId=5003
+2026-04-15 10:47:13.374 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 10.6070 ms
+2026-04-15 10:47:13.384 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 422 in 8.8402 ms CorrelationId=afb663fde3cc4659aa24073cb06a02df UserId=5003
+2026-04-15 10:47:13.385 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit responded 422 in 9.0827 ms
+2026-04-15 10:47:13.553 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:47:13.745 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 191.5619 ms CorrelationId=234a0b9c2ca2408cbaff915b6bf737bb UserId=anonymous
+2026-04-15 10:47:13.745 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 191.7488 ms
+2026-04-15 10:47:13.749 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 2.5772 ms CorrelationId=28dc11aad69646858a34fc2fe6d4a1c1 UserId=5003
+2026-04-15 10:47:13.749 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 2.7178 ms
+2026-04-15 10:47:13.753 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 200 in 3.4256 ms CorrelationId=c06b4f9171f94c67af97e4373cfb793e UserId=5003
+2026-04-15 10:47:13.753 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit responded 200 in 3.6369 ms
+2026-04-15 10:47:13.939 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:47:14.130 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 190.3687 ms CorrelationId=40b3387822ed40478da7815e83731de7 UserId=anonymous
+2026-04-15 10:47:14.131 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 190.5404 ms
+2026-04-15 10:47:14.133 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 1.8828 ms CorrelationId=f59f3d9a003a4962b3c2f2489414a8fe UserId=5003
+2026-04-15 10:47:14.133 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 2.0399 ms
+2026-04-15 10:47:14.136 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 200 in 2.5388 ms CorrelationId=f1750550311b496cb81b024f5eebe4cb UserId=5003
+2026-04-15 10:47:14.137 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit responded 200 in 2.7027 ms
+2026-04-15 10:47:14.149 +07:00 [INF] HTTP DELETE /api/v1/snapshot/1 => 200 in 12.0341 ms CorrelationId=27e1cfc496ed47f78804891a210cfae8 UserId=5003
+2026-04-15 10:47:14.149 +07:00 [INF] HTTP DELETE /api/v1/snapshot/1 responded 200 in 12.2062 ms
+2026-04-15 10:47:14.323 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:47:14.513 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 188.4654 ms CorrelationId=83bf08c76bc44bd58d5f19283e29c301 UserId=anonymous
+2026-04-15 10:47:14.513 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 188.6606 ms
+2026-04-15 10:47:14.515 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 1.8874 ms CorrelationId=2175f93bbdb54440a8f081c5fc9ef5ce UserId=5003
+2026-04-15 10:47:14.515 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 1.9938 ms
+2026-04-15 10:47:14.522 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 422 in 1.407 ms CorrelationId=4d4279dde6a44fd7ba651782a48a6bea UserId=5003
+2026-04-15 10:47:14.522 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit responded 422 in 1.5442 ms
+2026-04-15 10:47:14.684 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:47:14.871 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 186.4336 ms CorrelationId=01b88ae96d2b45529475938412544ddc UserId=anonymous
+2026-04-15 10:47:14.871 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 186.6399 ms
+2026-04-15 10:47:14.883 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 11.6073 ms CorrelationId=191e4be84c344ab686ddb41c7b30ad39 UserId=5003
+2026-04-15 10:47:14.884 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 11.8046 ms
+2026-04-15 10:47:14.887 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 200 in 2.7092 ms CorrelationId=50f4a91913b94da5881d5631de3e026f UserId=5003
+2026-04-15 10:47:14.887 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit responded 200 in 2.9506 ms
+2026-04-15 10:51:00.590 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:51:00.814 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:51:01.184 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 325.4929 ms CorrelationId=bd8e9be1af9c45e88e86a514054b6e19 UserId=anonymous
+2026-04-15 10:51:01.188 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 331.1854 ms
+2026-04-15 10:51:01.301 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien => 200 in 81.1623 ms CorrelationId=ce0c487e2dde43589638c362617d3e69 UserId=5003
+2026-04-15 10:51:01.301 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien responded 200 in 81.4298 ms
+2026-04-15 10:51:01.490 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-15 10:51:01.678 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 187.0728 ms CorrelationId=5259747a02fb474383d817d9ea2e6d53 UserId=anonymous
+2026-04-15 10:51:01.678 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 187.2665 ms
+2026-04-15 10:51:01.718 +07:00 [INF] HTTP GET /api/v1/snapshot/build => 200 in 33.1301 ms CorrelationId=03858a4c99214234a8b297a13f698944 UserId=5003
+2026-04-15 10:51:01.718 +07:00 [INF] HTTP GET /api/v1/snapshot/build responded 200 in 33.3197 ms

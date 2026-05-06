@@ -1,0 +1,381 @@
+:host ::ng-deep .htmang-card {
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+:host ::ng-deep .htmang-card .app-page-title {
+  font-family: var(--app-font-family-base);
+  color: #1e3a5f;
+}
+
+.htmang-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.htmang-info-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  border: 1px solid #d9e2f0;
+  background: #f8fbff;
+  padding: 0.34rem 0.78rem;
+  font-size: 0.8rem;
+  color: #475569;
+
+  i {
+    color: #1e3a5f;
+  }
+
+  strong {
+    color: #0f172a;
+    font-weight: 600;
+  }
+}
+
+.htmang-info-chip--right {
+  margin-left: auto;
+}
+
+.htmang-chip-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.htmang-shell {
+  position: relative;
+}
+
+.training-grid-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.65rem;
+  margin-bottom: 0.45rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.78rem;
+}
+
+.training-grid-hint__icon {
+  color: #1e3a5f;
+  font-size: 0.95rem;
+}
+
+.training-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.training-toolbar__right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.training-btn {
+  border-radius: 6px;
+}
+
+:host ::ng-deep .training-btn.p-button {
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    opacity 140ms ease,
+    box-shadow 140ms ease;
+}
+
+:host ::ng-deep .training-btn--primary.p-button {
+  background: #1e3a5f;
+  border-color: #1e3a5f;
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+}
+
+:host ::ng-deep .training-btn--primary.p-button:not(.p-disabled):hover {
+  background: #163554;
+  border-color: #163554;
+}
+
+:host ::ng-deep .training-btn--outline.p-button {
+  background: transparent;
+  color: #1e3a5f;
+  border: 1px solid #1e3a5f;
+}
+
+:host ::ng-deep .training-btn--outline.p-button:not(.p-disabled):hover {
+  background: #eef5fc;
+}
+
+.training-table-zone {
+  border-radius: 8px;
+  border: 1px solid var(--app-border);
+  overflow: hidden;
+  background: var(--app-surface);
+
+  .app-table-wrap {
+    border: none;
+    border-radius: 0;
+    background: var(--app-surface);
+    margin: 0;
+  }
+}
+
+:host ::ng-deep .training-table {
+  font-family: "Source Sans 3", sans-serif;
+}
+
+:host ::ng-deep .training-table .p-datatable-tbody > tr:nth-child(odd) {
+  background: #ffffff;
+}
+
+:host ::ng-deep .training-table .p-datatable-tbody > tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+:host ::ng-deep .training-table .p-datatable-tbody > tr:hover {
+  background: #fbfdff;
+}
+
+:host ::ng-deep .training-table .p-datatable-thead > tr > th {
+  background: #f1f5f9;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  height: 52px;
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid #dbe3f1;
+  vertical-align: middle;
+}
+
+:host ::ng-deep .training-table .p-datatable-tbody > tr > td,
+:host ::ng-deep .training-table .p-datatable-tfoot > tr > td {
+  border-bottom: 1px solid #f1f5f9;
+  height: 36px;
+  padding: 0.25rem 0.55rem;
+  vertical-align: middle;
+}
+
+:host ::ng-deep .training-table .p-paginator {
+  display: none;
+}
+
+:host ::ng-deep .training-table .p-datatable-wrapper {
+  max-height: calc(100vh - 340px);
+  overflow: auto;
+}
+
+:host ::ng-deep .training-table .p-datatable-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+:host ::ng-deep .training-table col.htmang-col-stt {
+  width: 56px;
+}
+
+:host ::ng-deep .training-table col.htmang-col-loai {
+  width: 320px;
+}
+
+:host ::ng-deep .training-table col.htmang-col-num {
+  width: 120px;
+}
+
+:host ::ng-deep .training-table col.htmang-col-note {
+  width: 190px;
+}
+
+.htmang-th-stt,
+.htmang-th-num,
+.htmang-th-note,
+.hv-cell-stt,
+.training-grid-cell--number {
+  text-align: center;
+}
+
+.htmang-header-help {
+  margin-left: 0.32rem;
+  color: #64748b;
+  font-size: 0.72rem;
+}
+
+.training-cell-text {
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+.training-grid-cell {
+  position: relative;
+}
+
+.training-grid-cell--wrap {
+  white-space: normal;
+  vertical-align: top;
+}
+
+.training-cell-wrap {
+  display: flex;
+  align-items: center;
+  min-height: 100%;
+  position: relative;
+}
+
+.training-grid-cell--number .training-cell-wrap {
+  justify-content: center;
+}
+
+.htmang-readonly-cell {
+  background: #f8fafc;
+}
+
+.htmang-readonly-value,
+:host ::ng-deep .training-grid-cell .p-inputnumber-input {
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-zero .htmang-readonly-value,
+:host ::ng-deep .training-grid-cell.metric-zero .p-inputnumber-input {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.htmang-edit-hint {
+  position: absolute;
+  right: 0.15rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.7rem;
+  color: #94a3b8;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+:host
+  ::ng-deep
+  .training-table
+  .p-datatable-tbody
+  > tr:hover
+  .htmang-edit-hint {
+  opacity: 0.8;
+}
+
+:host ::ng-deep .training-grid-cell .p-inputtext,
+:host ::ng-deep .training-grid-cell .p-inputnumber,
+:host ::ng-deep .training-grid-cell .p-inputnumber-input,
+.training-cell-input {
+  width: 100%;
+  height: 100%;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+:host ::ng-deep .training-grid-cell .p-inputnumber-input,
+.training-cell-input {
+  border-bottom: 1px solid transparent !important;
+}
+
+:host ::ng-deep .training-grid-cell .p-inputnumber-input {
+  padding: 0 0.9rem 0 0 !important;
+  text-align: center;
+}
+
+.training-cell-input {
+  padding: 0.02rem 0.9rem 0.02rem 0 !important;
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.8rem;
+  color: #0f172a;
+}
+
+:host ::ng-deep .training-cell-input::placeholder {
+  color: #a3afbf;
+  font-size: 0.78rem;
+}
+
+:host ::ng-deep .training-grid-cell .p-inputnumber-input:focus,
+.training-cell-input:focus {
+  border-bottom-color: #3b82f6 !important;
+}
+
+:host
+  ::ng-deep
+  .training-table
+  .p-datatable-tbody
+  > tr
+  > td.training-grid-cell:focus-within {
+  background: #f8fbff;
+}
+
+.hv-total-row td {
+  background: #fafafa;
+  color: #334155;
+  font-weight: 600 !important;
+  height: 64px;
+  vertical-align: middle;
+}
+
+.hv-total-row td strong {
+  font-weight: 600 !important;
+}
+
+.hv-total-label {
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.htmang-empty-state {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  color: #94a3b8;
+}
+
+@media (max-width: 768px) {
+  .htmang-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .htmang-info-chip--right {
+    margin-left: 0;
+  }
+
+  .training-toolbar {
+    width: 100%;
+  }
+
+  .training-toolbar__right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  :host ::ng-deep .training-table col.htmang-col-loai {
+    width: 280px;
+  }
+
+  :host ::ng-deep .training-table col.htmang-col-note {
+    width: 170px;
+  }
+
+  :host ::ng-deep .training-table .p-datatable-wrapper {
+    max-height: none;
+  }
+}

@@ -1,0 +1,359 @@
+<app-section-card
+  title="Danh mục đơn vị"
+  subtitle="Quản lý cây đơn vị và cập nhật thông tin chi tiết."
+  styleClass="donvi-card"
+>
+  <div sectionActions class="head-actions">
+    <button
+      pButton
+      type="button"
+      icon="pi pi-refresh"
+      label="Làm mới"
+      class="p-button-secondary"
+      (click)="load()"
+    ></button>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-plus"
+      label="Tạo mới"
+      class="p-button-primary"
+      (click)="createNew()"
+    ></button>
+  </div>
+
+  <div class="content-shell mt-3">
+    <app-loading-overlay
+      [active]="loading"
+      label="Đang tải danh sách đơn vị..."
+    ></app-loading-overlay>
+
+    <app-empty-state
+      *ngIf="!loading && data.length === 0"
+      title="Chưa có đơn vị"
+      message="Hãy tạo đơn vị đầu tiên hoặc làm mới để đồng bộ dữ liệu từ backend."
+      icon="pi-sitemap"
+      actionLabel="Làm mới"
+      actionIcon="pi pi-refresh"
+      (action)="load()"
+    ></app-empty-state>
+
+    <div class="layout" *ngIf="!loading && data.length > 0">
+      <aside class="tree-panel">
+        <div class="tree-panel__head">
+          <div class="tree-header">
+            <div class="panel-heading">
+              <h3 class="panel-title">Cây đơn vị</h3>
+              <p class="panel-subtitle">
+                Tìm kiếm, chọn nhanh và thêm đơn vị con theo cấp.
+              </p>
+            </div>
+            <span class="tree-count">{{ treeRows.length }} mục</span>
+          </div>
+
+          <div class="app-field tree-search">
+            <label for="treeFilter">Tìm kiếm</label>
+            <div class="search-shell">
+              <input
+                pInputText
+                id="treeFilter"
+                type="text"
+                [ngModel]="treeFilter"
+                (ngModelChange)="onTreeFilterChange($event)"
+                placeholder="Tìm kiếm đơn vị..."
+              />
+              <button
+                *ngIf="treeFilter"
+                pButton
+                type="button"
+                class="p-button-text clear-search"
+                icon="pi pi-times"
+                (click)="clearTreeFilter()"
+              ></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tree-panel__body">
+          <app-empty-state
+            *ngIf="treeRows.length === 0"
+            title="Không tìm thấy đơn vị phù hợp"
+            message="Thử từ khóa khác hoặc xóa tìm kiếm để xem toàn bộ cây đơn vị."
+            icon="pi-search"
+          ></app-empty-state>
+
+          <div class="tree-list" *ngIf="treeRows.length > 0">
+            <div
+              class="tree-row"
+              *ngFor="let row of treeRows; trackBy: trackByRow"
+              [attr.data-level]="row.level"
+            >
+              <div
+                class="tree-indent"
+                [style.width.px]="treeIndentPx(row.level)"
+                [style.--tree-indent-step]="treeIndentStepPx + 'px'"
+                aria-hidden="true"
+              >
+                <span
+                  *ngFor="let guide of row.guideColumns"
+                  class="tree-indent__guide"
+                  [style.left.px]="guide * treeIndentStepPx + treeIndentStepPx / 2"
+                ></span>
+                <span
+                  *ngIf="row.level > 0"
+                  class="tree-indent__connector"
+                ></span>
+              </div>
+
+              <div
+                class="unit-tree-node"
+                [class.is-selected]="selected?.id === row.item.id"
+                [class.is-matched]="row.matched"
+                [class.is-inactive]="!row.item.isActive"
+              >
+                <button
+                  *ngIf="row.expandable"
+                  type="button"
+                  class="unit-tree-node__toggle"
+                  (click)="toggleExpanded(row.item.id)"
+                  aria-label="Mở rộng hoặc thu gọn"
+                >
+                  <span
+                    [class.pi]="true"
+                    [class.pi-chevron-down]="row.expanded"
+                    [class.pi-chevron-right]="!row.expanded"
+                  ></span>
+                </button>
+
+                <span
+                  *ngIf="!row.expandable"
+                  class="unit-tree-node__toggle unit-tree-node__toggle--spacer"
+                ></span>
+
+                <span
+                  class="unit-tree-node__icon pi pi-sitemap"
+                  aria-hidden="true"
+                ></span>
+
+                <button
+                  type="button"
+                  class="unit-tree-node__label"
+                  (click)="select(row.item.id)"
+                >
+                  <span
+                    class="node-name"
+                    [innerHTML]="highlightNodeName(row.item.tenDonVi)"
+                  ></span>
+                </button>
+
+                <span
+                  class="unit-tree-node__actions-wrap"
+                  title="Thêm đơn vị con"
+                >
+                  <button
+                    pButton
+                    type="button"
+                    class="p-button-text app-icon-action-btn app-icon-action-btn--primary unit-tree-node__actions"
+                    icon="pi pi-plus"
+                    (click)="addChildFromNode(row.item)"
+                    aria-label="Thêm đơn vị con"
+                  ></button>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <form class="editor" [formGroup]="form">
+        <div class="editor-header">
+          <h3 class="panel-title">
+            {{ editorMode === 'edit' ? 'Cập nhật đơn vị' : editorMode ===
+            'create-child' ? 'Thêm đơn vị con' : 'Tạo đơn vị mới' }}
+          </h3>
+          <p class="panel-subtitle">
+            {{ editorMode === 'create-child' && selectedParent ? 'Đơn vị mới sẽ
+            được tạo trực thuộc đơn vị đang chọn.' : 'Cập nhật thông tin đơn vị
+            theo cấu trúc tổ chức.' }}
+          </p>
+        </div>
+
+        <div class="selection-summary" *ngIf="selectedParent || selected">
+          <span class="summary-chip" *ngIf="selectedParent">
+            Đơn vị cha: {{ selectedParent.tenDonVi }}
+          </span>
+          <span class="summary-chip" *ngIf="selected && !selectedParent">
+            Đang chỉnh sửa: {{ selected.tenDonVi }}
+          </span>
+          <span class="summary-chip" *ngIf="selected?.parentDisplayName">
+            Trực thuộc: {{ selected?.parentDisplayName }}
+          </span>
+          <span class="summary-chip" *ngIf="selected?.capDonVi">
+            Cấp đơn vị: {{ resolveCapDonViLabel(selected?.capDonVi) }}
+          </span>
+        </div>
+
+        <div class="stats-grid" *ngIf="selected">
+          <div class="stat-card">
+            <span class="stat-card__label">Số ĐV cấp Phòng</span>
+            <strong class="stat-card__value"
+              >{{ selected.soDonViCapPhong }}</strong
+            >
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__label">Số ĐV cấp Xã</span>
+            <strong class="stat-card__value"
+              >{{ selected.soDonViCapXa }}</strong
+            >
+          </div>
+        </div>
+
+        <div class="app-field">
+          <label for="maDonVi">Mã đơn vị</label>
+          <input
+            pInputText
+            id="maDonVi"
+            type="text"
+            formControlName="maDonVi"
+          />
+        </div>
+        <small
+          class="app-validation-error"
+          *ngIf="form.controls.maDonVi.invalid && form.controls.maDonVi.touched"
+          >Mã đơn vị bắt buộc, tối đa 50 ký tự.</small
+        >
+
+        <div class="app-field">
+          <label for="tenDonVi">Tên đơn vị</label>
+          <input
+            pInputText
+            id="tenDonVi"
+            type="text"
+            formControlName="tenDonVi"
+          />
+        </div>
+        <small
+          class="app-validation-error"
+          *ngIf="form.controls.tenDonVi.invalid && form.controls.tenDonVi.touched"
+          >Tên đơn vị bắt buộc, tối đa 200 ký tự.</small
+        >
+
+        <div class="app-field">
+          <label for="tenVietTat">Tên viết tắt</label>
+          <input
+            pInputText
+            id="tenVietTat"
+            type="text"
+            formControlName="tenVietTat"
+          />
+        </div>
+
+        <div class="two-col">
+          <div class="app-field">
+            <label for="parentId">Đơn vị cha</label>
+            <p-treeSelect
+              inputId="parentId"
+              [options]="parentTreeOptions"
+              selectionMode="single"
+              [filter]="true"
+              filterPlaceholder="Tìm kiếm đơn vị cha..."
+              containerStyleClass="app-select-form app-tree-select-form"
+              panelStyleClass="app-tree-select-panel"
+              placeholder="Không có đơn vị cha"
+              [showClear]="true"
+              appendTo="body"
+              formControlName="parentNode"
+            ></p-treeSelect>
+          </div>
+          <div class="app-field">
+            <label for="diaChi">Địa chỉ</label>
+            <input
+              pInputText
+              id="diaChi"
+              type="text"
+              formControlName="diaChi"
+            />
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="app-field">
+            <label for="capDonVi">Cấp đơn vị</label>
+            <p-dropdown
+              inputId="capDonVi"
+              formControlName="capDonVi"
+              [options]="capDonViOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Chọn cấp đơn vị"
+              [showClear]="true"
+              appendTo="body"
+            ></p-dropdown>
+          </div>
+          <div class="app-field">
+            <label for="tongBienChe">Tổng biên chế</label>
+            <p-inputNumber
+              inputId="tongBienChe"
+              formControlName="tongBienChe"
+              [useGrouping]="false"
+              [min]="0"
+              placeholder="Nhập tổng biên chế"
+            ></p-inputNumber>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="app-field">
+            <label for="websiteNoiBo">Website nội bộ</label>
+            <input
+              pInputText
+              id="websiteNoiBo"
+              type="text"
+              formControlName="websiteNoiBo"
+            />
+          </div>
+          <div class="app-field">
+            <label for="websiteInternet">Website Internet</label>
+            <input
+              pInputText
+              id="websiteInternet"
+              type="text"
+              formControlName="websiteInternet"
+            />
+          </div>
+        </div>
+
+        <div class="checkbox">
+          <p-checkbox
+            inputId="isActive"
+            formControlName="isActive"
+            [binary]="true"
+          ></p-checkbox>
+          <label for="isActive">Hoạt động</label>
+        </div>
+
+        <p class="app-validation-error" *ngIf="apiError">{{ apiError }}</p>
+
+        <app-form-action-bar>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-save"
+            [loading]="saving"
+            [label]="saving ? 'Đang lưu...' : 'Lưu đơn vị'"
+            (click)="save()"
+          ></button>
+          <button
+            pButton
+            type="button"
+            severity="danger"
+            icon="pi pi-trash"
+            label="Xóa đơn vị"
+            *ngIf="selected"
+            (click)="softDelete()"
+          ></button>
+        </app-form-action-bar>
+      </form>
+    </div>
+  </div>
+</app-section-card>

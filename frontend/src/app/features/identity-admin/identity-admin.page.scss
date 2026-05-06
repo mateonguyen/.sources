@@ -1,0 +1,341 @@
+// ============================================================================
+// IDENTITY ADMIN PAGE
+// Architecture: Tailwind @apply (layout/spacing) + SCSS (PrimeNG overrides)
+// ============================================================================
+
+// ---- Filter-row column variants ---------------------------------------------
+.role-filter-row {
+  grid-template-columns: 2fr 1fr 1fr auto;
+}
+.permission-filter-row {
+  grid-template-columns: 2.2fr 1fr 1fr auto;
+}
+.permission-manage-filter-row {
+  grid-template-columns: 1.2fr 1.8fr;
+}
+.permission-user-filter-row {
+  grid-template-columns: 1fr auto;
+}
+
+.permission-filter-actions {
+  @apply gap-2;
+  .p-button {
+    min-width: 6rem;
+  }
+}
+
+// ---- Table section wrapper --------------------------------------------------
+.table-section {
+  @apply rounded-lg overflow-hidden mb-6;
+  background: var(--surface-ground);
+  border: 1px solid var(--surface-border);
+
+  .col-stt {
+    width: 6%;
+    text-align: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .col-username {
+    width: 22%;
+  }
+  .col-fullname {
+    width: 22%;
+  }
+  .col-unit {
+    width: 25%;
+  }
+  .col-status {
+    width: 15%;
+  }
+  .col-actions {
+    width: 10%;
+    text-align: center;
+  }
+}
+
+.table-section > .table-footer,
+.role-table-section > .table-footer,
+.permission-table-section > .table-footer {
+  margin-top: 0;
+  padding: 0.95rem 1.15rem 1rem;
+  border-top: 1px solid color-mix(in srgb, var(--app-border) 82%, white 18%);
+  background: var(--app-surface);
+}
+
+// ---- Column widths: roles & permissions -------------------------------------
+.role-table-section {
+  .col-role-stt {
+    width: 6%;
+    text-align: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .col-role-code {
+    width: 16%;
+  }
+  .col-role-name {
+    width: 18%;
+  }
+  .col-role-type {
+    width: 13%;
+  }
+  .col-role-status {
+    width: 14%;
+  }
+  .col-role-desc {
+    width: 22%;
+  }
+  .col-role-actions {
+    width: 11%;
+    text-align: center;
+  }
+}
+
+.permission-table-section {
+  .col-perm-stt {
+    width: 6%;
+    text-align: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .col-perm-code {
+    width: 24%;
+  }
+  .col-perm-module {
+    width: 17%;
+  }
+  .col-perm-action {
+    width: 14%;
+  }
+  .col-perm-desc {
+    width: 39%;
+  }
+}
+
+// ---- Permission management --------------------------------------------------
+.permission-module-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  @apply w-full text-left rounded-lg mb-1;
+  padding: 0.45rem 0.5rem;
+  gap: 0.55rem;
+  border: 1px solid var(--surface-border);
+  background: transparent;
+  color: var(--text-color);
+
+  &:hover {
+    background: color-mix(in srgb, var(--app-primary-50) 50%, white 50%);
+  }
+  &.active {
+    border-color: var(--app-primary-300);
+    background: color-mix(in srgb, var(--app-primary-50) 70%, white 30%);
+  }
+}
+
+.module-item-label {
+  font-size: var(--app-font-size-ui-table-body);
+  font-weight: 500;
+}
+.module-item-count {
+  color: var(--text-color-secondary);
+  font-size: var(--app-font-size-ui-badge);
+}
+
+.permission-matrix-table {
+  @apply w-full;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th,
+  td {
+    border-bottom: 1px solid var(--surface-border);
+    padding: 0.65rem 0.7rem;
+    @apply text-center whitespace-nowrap;
+  }
+  th {
+    font-size: var(--app-font-size-ui-table-head);
+    color: var(--app-text-muted);
+    background: var(--app-surface-soft);
+    font-weight: 720;
+  }
+  td {
+    font-size: var(--app-font-size-ui-table-body);
+    color: var(--text-color);
+    background: var(--surface-ground);
+  }
+  tr:hover td {
+    background: #f8fafc;
+  }
+  .col-feature {
+    min-width: 14rem;
+    @apply text-left;
+  }
+}
+
+// ---- Responsive 768px -------------------------------------------------------
+@media (max-width: 768px) {
+  .table-section {
+    .col-stt {
+      width: 8%;
+    }
+    .col-username,
+    .col-fullname,
+    .col-unit {
+      width: 20%;
+    }
+    .col-status {
+      width: 16%;
+    }
+    .col-actions {
+      width: 12%;
+    }
+    .app-table-actions {
+      flex-wrap: wrap;
+    }
+  }
+
+  .role-table-section {
+    .col-role-desc {
+      display: none;
+    }
+    .col-role-code {
+      width: 20%;
+    }
+    .col-role-name {
+      width: 22%;
+    }
+    .col-role-type {
+      width: 15%;
+    }
+    .col-role-status {
+      width: 17%;
+    }
+    .col-role-actions {
+      width: 20%;
+    }
+  }
+
+  .permission-filter-row {
+    grid-template-columns: 1fr 1fr;
+    .filter-group--lg {
+      grid-column: span 2;
+    }
+  }
+
+  .permission-table-section {
+    .col-perm-desc {
+      display: none;
+    }
+    .col-perm-code {
+      width: 34%;
+    }
+    .col-perm-module {
+      width: 28%;
+    }
+    .col-perm-action {
+      width: 24%;
+    }
+  }
+
+  :host ::ng-deep .app-paginator {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+}
+
+// ---- Responsive 480px -------------------------------------------------------
+@media (max-width: 480px) {
+  .permission-matrix-table .col-feature {
+    min-width: 12rem;
+  }
+  .filter-row,
+  .role-filter-row {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-actions {
+    justify-content: stretch;
+  }
+
+  .table-section {
+    .col-fullname,
+    .col-unit {
+      display: none;
+    }
+    .col-stt {
+      width: 10%;
+    }
+    .col-username {
+      width: 40%;
+    }
+    .col-status {
+      width: 20%;
+    }
+    .col-actions {
+      width: 30%;
+    }
+  }
+
+  .app-inline-actions {
+    @apply justify-center flex-wrap;
+  }
+
+  .role-table-section {
+    .col-role-stt,
+    .col-role-status {
+      display: none;
+    }
+    .col-role-code {
+      width: 28%;
+    }
+    .col-role-name {
+      width: 30%;
+    }
+    .col-role-type {
+      width: 20%;
+    }
+    .col-role-actions {
+      width: 22%;
+    }
+  }
+
+  .permission-filter-row {
+    grid-template-columns: 1fr;
+    .filter-group--lg {
+      grid-column: span 1;
+    }
+  }
+
+  .permission-filter-actions {
+    @apply w-full;
+    .p-button {
+      flex: 1;
+    }
+  }
+
+  .data-toolbar {
+    @apply flex-col items-start;
+  }
+
+  .permission-table-section {
+    .col-perm-module {
+      display: none;
+    }
+    .col-perm-stt {
+      width: 12%;
+    }
+    .col-perm-code {
+      width: 44%;
+    }
+    .col-perm-action {
+      width: 20%;
+    }
+    .col-perm-desc {
+      width: 24%;
+      display: table-cell;
+    }
+  }
+}

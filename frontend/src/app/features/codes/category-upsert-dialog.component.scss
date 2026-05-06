@@ -1,0 +1,95 @@
+:host {
+  display: block;
+}
+
+.app-category-upsert-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.app-category-upsert-dialog__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--app-text-strong);
+}
+
+.app-category-upsert-dialog__close {
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: color-mix(in srgb, var(--app-surface-soft) 70%, white 30%);
+    color: var(--app-text-strong);
+  }
+}
+
+.category-upsert-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.category-upsert-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.category-upsert-form__field {
+  display: grid;
+  gap: 0.35rem;
+
+  label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--app-text-muted);
+
+    span {
+      color: var(--app-danger-500);
+    }
+  }
+
+  &--full {
+    grid-column: 1 / -1;
+  }
+}
+
+.category-upsert-form__error {
+  color: var(--app-danger-500);
+  font-size: 0.75rem;
+}
+
+.category-upsert-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+:host ::ng-deep .category-upsert-form {
+  .p-inputtext,
+  .p-dropdown,
+  .p-inputnumber-input,
+  .p-inputtextarea {
+    width: 100%;
+  }
+
+  .p-inputtextarea {
+    resize: vertical;
+    min-height: 6.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .category-upsert-form__grid {
+    grid-template-columns: 1fr;
+  }
+}

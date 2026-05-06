@@ -1,0 +1,627 @@
+﻿<app-section-card
+  title="Thiết Bị CNTT"
+  subtitle="Quản lý thiết bị CNTT theo danh mục phân cấp và ứng dụng đang chạy."
+  styleClass="thietbi-card"
+>
+  <app-filter-bar class="mt-3">
+    <div class="flex flex-wrap items-end gap-3">
+      <div class="filter-group">
+        <label class="filter-label">Loại thiết bị</label>
+        <p-dropdown
+          styleClass="app-filter-select"
+          [panelStyleClass]="selectPanelStyleClass"
+          [options]="loaiThietBiFilterOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="filterLoaiThietBiId()"
+          (ngModelChange)="filterLoaiThietBiId.set($event)"
+          placeholder="Tất cả loại thiết bị"
+        ></p-dropdown>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Tên thiết bị</label>
+        <input
+          pInputText
+          class="app-filter-input"
+          type="text"
+          [ngModel]="filterTenThietBi()"
+          (ngModelChange)="filterTenThietBi.set($event)"
+          placeholder="Tìm theo tên..."
+        />
+      </div>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-search"
+        class="p-button-info"
+        label="Tải dữ liệu"
+        (click)="load()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-times"
+        severity="secondary"
+        label="Xóa bộ lọc"
+        (click)="resetFilters()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-plus"
+        label="Thêm mới"
+        (click)="openCreateDialog()"
+      ></button>
+    </div>
+  </app-filter-bar>
+
+  <div class="relative mt-3 min-h-[140px]">
+    <app-loading-overlay
+      [active]="loading()"
+      label="Đang tải dữ liệu..."
+    ></app-loading-overlay>
+
+    <div
+      class="mb-3 flex items-center gap-2 text-sm text-[var(--app-text-muted)]"
+    >
+      <i class="pi pi-building" aria-hidden="true"></i>
+      <span>
+        Đơn vị ID:
+        <strong class="text-[var(--app-text)]">{{ donViId() }}</strong>
+      </span>
+    </div>
+
+    <p-dialog
+      [visible]="formDialogVisible()"
+      [modal]="true"
+      [draggable]="false"
+      [resizable]="false"
+      [closable]="false"
+      [dismissableMask]="true"
+      [style]="{ width: 'min(980px, 96vw)' }"
+      styleClass="app-thiet-bi-dialog"
+      appendTo="body"
+      (onHide)="closeDialog()"
+    >
+      <ng-template pTemplate="header">
+        <div class="app-dialog-header">
+          <span class="app-dialog-title">
+            <i class="pi pi-desktop" aria-hidden="true"></i>
+            {{ selectedId() ? 'Cập nhật thiết bị' : 'Thêm thiết bị CNTT' }}
+          </span>
+          <button
+            type="button"
+            class="app-dialog-close"
+            aria-label="Đóng"
+            (click)="closeDialog()"
+          >
+            <i class="pi pi-times" aria-hidden="true"></i>
+          </button>
+        </div>
+      </ng-template>
+
+      <form [formGroup]="form" class="app-dialog-form">
+        <div class="app-dialog-body-standard">
+          <div class="mb-2">
+            <span
+              class="text-xs font-semibold uppercase tracking-wide text-[var(--app-text-muted)]"
+            >
+              Phân loại
+            </span>
+            <div class="mt-1 border-t border-[var(--app-border)]"></div>
+          </div>
+
+          <div class="app-form-row">
+            <div
+              class="app-form-field app-form-field--full"
+              [class.has-value]="form.controls.loaiThietBiId.value !== null"
+              [class.has-error]="form.controls.loaiThietBiId.invalid && form.controls.loaiThietBiId.touched && form.dirty"
+            >
+              <label class="app-form-field__label required"
+                >Loại thiết bị</label
+              >
+              <p-dropdown
+                styleClass="w-full"
+                [panelStyleClass]="selectPanelStyleClass"
+                formControlName="loaiThietBiId"
+                [options]="loaiThietBiOptions()"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Chọn loại thiết bị"
+                [filter]="true"
+              ></p-dropdown>
+              <div
+                class="app-form-field__feedback"
+                [class.is-visible]="form.controls.loaiThietBiId.invalid && form.controls.loaiThietBiId.touched && form.dirty"
+                aria-live="polite"
+              >
+                <small class="app-form-field__error"
+                  >Loại thiết bị là bắt buộc.</small
+                >
+              </div>
+            </div>
+          </div>
+
+          <ng-container *ngIf="!isTongHop()">
+            <div class="mb-2 mt-5">
+              <span
+                class="text-xs font-semibold uppercase tracking-wide text-[var(--app-text-muted)]"
+              >
+                Thông tin thiết bị
+              </span>
+              <div class="mt-1 border-t border-[var(--app-border)]"></div>
+            </div>
+
+            <div class="app-form-row">
+              <div
+                class="app-form-field"
+                [class.has-value]="form.controls.tenThietBi.value"
+              >
+                <label class="app-form-field__label">Tên thiết bị</label>
+                <input
+                  pInputText
+                  class="app-form-field__input"
+                  type="text"
+                  formControlName="tenThietBi"
+                  placeholder="Nhập tên thiết bị"
+                />
+              </div>
+
+              <div
+                class="app-form-field"
+                [class.has-value]="form.controls.hangSanXuat.value"
+              >
+                <label class="app-form-field__label">Hãng sản xuất</label>
+                <p-dropdown
+                  styleClass="w-full"
+                  [panelStyleClass]="selectPanelStyleClass"
+                  formControlName="hangSanXuat"
+                  [options]="hangSanXuatOptions()"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Chọn hoặc nhập hãng sản xuất"
+                  [filter]="true"
+                  [editable]="true"
+                ></p-dropdown>
+              </div>
+
+              <div
+                class="app-form-field"
+                [class.has-value]="form.controls.model.value"
+                *ngIf="visibleDialogFields().showModel"
+              >
+                <label class="app-form-field__label">Model</label>
+                <p-autoComplete
+                  styleClass="w-full"
+                  formControlName="model"
+                  [suggestions]="modelSuggestions()"
+                  (completeMethod)="onModelAutocomplete($event)"
+                  [dropdown]="true"
+                  [forceSelection]="false"
+                  placeholder="Chọn hoặc nhập model"
+                ></p-autoComplete>
+              </div>
+
+              <div
+                class="app-form-field"
+                [class.has-value]="form.controls.cauHinh.value"
+                *ngIf="visibleDialogFields().showCauHinh"
+              >
+                <label class="app-form-field__label">Cấu hình</label>
+                <input
+                  pInputText
+                  class="app-form-field__input"
+                  type="text"
+                  formControlName="cauHinh"
+                  placeholder="Nhập cấu hình"
+                />
+              </div>
+
+              <div
+                class="app-form-field"
+                [class.has-value]="form.controls.heDieuHanh.value"
+                *ngIf="visibleDialogFields().showHeDieuHanh"
+              >
+                <label class="app-form-field__label">Hệ điều hành</label>
+                <p-dropdown
+                  styleClass="w-full"
+                  [panelStyleClass]="selectPanelStyleClass"
+                  formControlName="heDieuHanh"
+                  [options]="heDieuHanhOptions()"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Chọn hoặc nhập hệ điều hành"
+                  [filter]="true"
+                  [editable]="true"
+                ></p-dropdown>
+              </div>
+
+              <div
+                class="app-form-field"
+                [class.has-value]="form.controls.donViSuDung.value"
+                *ngIf="visibleDialogFields().showDonViSuDung"
+              >
+                <label class="app-form-field__label">Đơn vị sử dụng</label>
+                <p-dropdown
+                  styleClass="w-full"
+                  [panelStyleClass]="selectPanelStyleClass"
+                  formControlName="donViSuDung"
+                  [options]="donViSuDungOptions()"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Chọn đơn vị sử dụng"
+                  [filter]="true"
+                ></p-dropdown>
+              </div>
+
+              <div
+                class="app-form-field app-form-field--full"
+                [class.has-value]="form.controls.ungDungIds.value?.length"
+                *ngIf="visibleDialogFields().showUngDung"
+              >
+                <label class="app-form-field__label">Ứng dụng đang chạy</label>
+                <p-multiSelect
+                  styleClass="w-full"
+                  [panelStyleClass]="multiSelectPanelStyleClass"
+                  formControlName="ungDungIds"
+                  [options]="heThongOptions()"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Chọn ứng dụng đang chạy"
+                  [filter]="true"
+                  display="chip"
+                ></p-multiSelect>
+              </div>
+            </div>
+          </ng-container>
+
+          <div class="mb-2 mt-5">
+            <span
+              class="text-xs font-semibold uppercase tracking-wide text-[var(--app-text-muted)]"
+            >
+              Số lượng &amp; Tình trạng
+            </span>
+            <div class="mt-1 border-t border-[var(--app-border)]"></div>
+          </div>
+
+          <div class="app-form-row">
+            <div
+              class="app-form-field"
+              [class.has-value]="(form.controls.soLuongTong.value ?? 0) !== 0"
+            >
+              <label class="app-form-field__label">SL Tổng</label>
+              <p-inputNumber
+                styleClass="w-full"
+                inputStyleClass="w-full"
+                [useGrouping]="false"
+                formControlName="soLuongTong"
+                placeholder="0"
+                [min]="0"
+              ></p-inputNumber>
+            </div>
+
+            <div
+              class="app-form-field"
+              [class.has-value]="(form.controls.soLuongHienDung.value ?? 0) !== 0"
+              [class.has-error]="form.controls.soLuongHienDung.invalid && form.controls.soLuongHienDung.touched"
+            >
+              <label class="app-form-field__label required">SL Hiện dùng</label>
+              <p-inputNumber
+                styleClass="w-full"
+                inputStyleClass="w-full"
+                [useGrouping]="false"
+                formControlName="soLuongHienDung"
+                placeholder="0"
+                [min]="0"
+              ></p-inputNumber>
+            </div>
+
+            <div
+              class="app-form-field"
+              [class.has-value]="(form.controls.soLuongHong.value ?? 0) !== 0"
+            >
+              <label class="app-form-field__label">SL Hỏng</label>
+              <p-inputNumber
+                styleClass="w-full"
+                inputStyleClass="w-full"
+                [useGrouping]="false"
+                formControlName="soLuongHong"
+                placeholder="0"
+                [min]="0"
+              ></p-inputNumber>
+            </div>
+
+            <div
+              class="app-form-field"
+              [class.has-value]="form.controls.tinhTrang.value"
+            >
+              <label class="app-form-field__label">Tình trạng</label>
+              <input
+                pInputText
+                class="app-form-field__input"
+                type="text"
+                formControlName="tinhTrang"
+                placeholder="Mô tả tình trạng thiết bị"
+              />
+            </div>
+
+            <div
+              class="app-form-field app-form-field--full"
+              [class.has-value]="form.controls.ghiChu.value"
+            >
+              <label class="app-form-field__label">Ghi chú</label>
+              <input
+                pInputText
+                class="app-form-field__input"
+                type="text"
+                formControlName="ghiChu"
+                placeholder="Nhập ghi chú"
+              />
+            </div>
+          </div>
+
+          <div
+            class="app-form-field__feedback"
+            [class.is-visible]="soLuongError()"
+            aria-live="polite"
+          >
+            <small class="app-form-field__error"
+              >Tổng số lượng hiện dùng và hỏng không được vượt quá SL
+              tổng.</small
+            >
+          </div>
+        </div>
+
+        <div class="app-dialog-actions">
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            label="Hủy"
+            (click)="closeDialog()"
+          ></button>
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            icon="pi pi-pencil"
+            label="Điền mẫu"
+            (click)="fillSampleData()"
+            pTooltip="Điền dữ liệu mẫu để test nhanh"
+            tooltipPosition="top"
+          ></button>
+          <button
+            pButton
+            type="button"
+            [loading]="saving()"
+            [label]="selectedId() ? 'Cập nhật' : 'Thêm mới'"
+            (click)="save()"
+          ></button>
+        </div>
+      </form>
+    </p-dialog>
+
+    <app-empty-state
+      class="mt-3"
+      *ngIf="!loading() && items().length === 0"
+      title="Chưa có dữ liệu thiết bị"
+      message="Chưa có bản ghi nào cho đơn vị hiện tại. Bạn có thể tạo mới ở form bên trên."
+      icon="pi-desktop"
+      actionLabel="Tải lại"
+      actionIcon="pi pi-refresh"
+      (action)="load()"
+    ></app-empty-state>
+
+    <div
+      class="app-table-wrap app-table-wrap--spacious mt-3"
+      *ngIf="!loading() && filteredItems().length > 0"
+    >
+      <table class="app-admin-table p-datatable-sm" [class]="tableStyleClass">
+        <thead>
+          <tr>
+            <th [class]="tableHeaderCellClass">Loại TB</th>
+            <th [class]="tableHeaderCellClass">Tên TB</th>
+            <th [class]="tableHeaderCellClass">Hãng SX</th>
+            <th [class]="tableHeaderCellClass">SL tổng</th>
+            <th [class]="tableHeaderCellClass">SL hiện dùng</th>
+            <th [class]="tableHeaderCellClass">SL hỏng</th>
+            <th [class]="tableHeaderCellClass">HĐH</th>
+            <th [class]="tableHeaderCellClass">Tình trạng</th>
+            <th [class]="tableHeaderCellClass">Ứng dụng</th>
+            <th [class]="tableHeaderCellClass">Tác vụ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let group of groupedFilteredItems()">
+            <tr class="thiet-bi-group-row">
+              <td [attr.colspan]="10" [class]="tableBodyCellClass">
+                <button
+                  type="button"
+                  class="thiet-bi-group-toggle"
+                  (click)="toggleGroup(group.parentLabel)"
+                >
+                  <i
+                    class="pi"
+                    [ngClass]="isGroupExpanded(group.parentLabel) ? 'pi-chevron-down' : 'pi-chevron-right'"
+                    aria-hidden="true"
+                  ></i>
+                  <span
+                    >{{ toRoman(group.index) }}. {{ group.parentLabel }}</span
+                  >
+                </button>
+              </td>
+            </tr>
+
+            <tr
+              class="thiet-bi-quick-add-row"
+              *ngIf="isGroupExpanded(group.parentLabel)"
+            >
+              <td [class]="tableBodyCellClass">—</td>
+              <td [class]="tableBodyCellClass">
+                <input
+                  pInputText
+                  type="text"
+                  class="thiet-bi-quick-add-input"
+                  [ngModel]="quickAddDraft(group.parentLabel).tenThietBi"
+                  (ngModelChange)="updateQuickAddDraft(group.parentLabel, { tenThietBi: $event })"
+                  [ngModelOptions]="{ standalone: true }"
+                  placeholder="Thêm nhanh tên thiết bị..."
+                />
+              </td>
+              <td [class]="tableBodyCellClass">—</td>
+              <td [class]="tableBodyCellClass">—</td>
+              <td [class]="tableBodyCellClass">
+                <p-inputNumber
+                  [ngModel]="quickAddDraft(group.parentLabel).soLuongHienDung"
+                  (ngModelChange)="updateQuickAddDraft(group.parentLabel, { soLuongHienDung: $event ?? 0 })"
+                  [ngModelOptions]="{ standalone: true }"
+                  [useGrouping]="false"
+                  [min]="0"
+                  styleClass="thiet-bi-quick-add-number"
+                ></p-inputNumber>
+              </td>
+              <td [class]="tableBodyCellClass">—</td>
+              <td [class]="tableBodyCellClass">—</td>
+              <td [class]="tableBodyCellClass">
+                <input
+                  pInputText
+                  type="text"
+                  class="thiet-bi-quick-add-input"
+                  [ngModel]="quickAddDraft(group.parentLabel).tinhTrang"
+                  (ngModelChange)="updateQuickAddDraft(group.parentLabel, { tinhTrang: $event })"
+                  [ngModelOptions]="{ standalone: true }"
+                  placeholder="Tình trạng"
+                />
+              </td>
+              <td [class]="tableBodyCellClass">—</td>
+              <td [class]="tableBodyCellClass">
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-plus"
+                  class="p-button-text app-table-action-btn"
+                  (click)="addQuickItem(group.parentLabel)"
+                  [disabled]="saving()"
+                ></button>
+              </td>
+            </tr>
+
+            <ng-container *ngIf="isGroupExpanded(group.parentLabel)">
+              <ng-container *ngFor="let row of group.rows">
+                <tr [class]="tableRowClass">
+                  <td [class]="tableBodyCellClass">
+                    {{ resolveLoaiThietBiLabel(row.item.loaiThietBiId) }}
+                  </td>
+                  <td [class]="tableBodyCellClass">
+                    <div class="thiet-bi-name-cell">
+                      <button
+                        *ngIf="row.children.length > 0"
+                        type="button"
+                        class="thiet-bi-row-toggle"
+                        (click)="toggleRow(row.key)"
+                      >
+                        <i
+                          class="pi"
+                          [ngClass]="isRowExpanded(row.key) ? 'pi-chevron-down' : 'pi-chevron-right'"
+                          aria-hidden="true"
+                        ></i>
+                      </button>
+                      <span>{{ row.item.tenThietBi || '—' }}</span>
+                    </div>
+                  </td>
+                  <td [class]="tableBodyCellClass">
+                    {{ row.item.hangSanXuat || '—' }}
+                  </td>
+                  <td [class]="tableBodyCellClass">
+                    {{ row.item.soLuongTong }}
+                  </td>
+                  <td [class]="tableBodyCellClass">
+                    {{ row.item.soLuongHienDung }}
+                  </td>
+                  <td [class]="tableBodyCellClass">
+                    {{ row.item.soLuongHong }}
+                  </td>
+                  <td [class]="tableBodyCellClass">
+                    {{ row.item.heDieuHanh || '—' }}
+                  </td>
+                  <td [class]="tableBodyCellClass">
+                    {{ row.item.tinhTrang || '—' }}
+                  </td>
+                  <td [class]="tableBodyCellClass">
+                    {{ resolveUngDungLabels(row.item.ungDungIds) }}
+                  </td>
+                  <td [class]="tableBodyCellClass">
+                    <div class="app-table-actions">
+                      <button
+                        pButton
+                        type="button"
+                        icon="pi pi-pencil"
+                        class="p-button-text app-table-action-btn app-table-action-btn--edit"
+                        (click)="openEditDialog(row.item)"
+                      ></button>
+                      <button
+                        pButton
+                        type="button"
+                        icon="pi pi-trash"
+                        class="p-button-text p-button-danger app-table-action-btn app-table-action-btn--delete"
+                        (click)="remove(row.item)"
+                      ></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr
+                  class="thiet-bi-child-row"
+                  *ngFor="let child of row.children"
+                  [hidden]="!isRowExpanded(row.key)"
+                >
+                  <td [class]="tableBodyCellClass">
+                    {{ resolveLoaiThietBiLabel(child.loaiThietBiId) }}
+                  </td>
+                  <td [class]="tableBodyCellClass">
+                    {{ child.tenThietBi || '—' }}
+                  </td>
+                  <td [class]="tableBodyCellClass">
+                    {{ child.hangSanXuat || '—' }}
+                  </td>
+                  <td [class]="tableBodyCellClass">{{ child.soLuongTong }}</td>
+                  <td [class]="tableBodyCellClass">
+                    {{ child.soLuongHienDung }}
+                  </td>
+                  <td [class]="tableBodyCellClass">{{ child.soLuongHong }}</td>
+                  <td [class]="tableBodyCellClass">
+                    {{ child.heDieuHanh || '—' }}
+                  </td>
+                  <td [class]="tableBodyCellClass">
+                    {{ child.tinhTrang || '—' }}
+                  </td>
+                  <td [class]="tableBodyCellClass">
+                    {{ resolveUngDungLabels(child.ungDungIds) }}
+                  </td>
+                  <td [class]="tableBodyCellClass">
+                    <div class="app-table-actions">
+                      <button
+                        pButton
+                        type="button"
+                        icon="pi pi-pencil"
+                        class="p-button-text app-table-action-btn app-table-action-btn--edit"
+                        (click)="openEditDialog(child)"
+                      ></button>
+                      <button
+                        pButton
+                        type="button"
+                        icon="pi pi-trash"
+                        class="p-button-text p-button-danger app-table-action-btn app-table-action-btn--delete"
+                        (click)="remove(child)"
+                      ></button>
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+            </ng-container>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</app-section-card>

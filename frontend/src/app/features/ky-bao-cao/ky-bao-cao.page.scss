@@ -1,0 +1,198 @@
+.content-shell {
+  position: relative;
+  min-height: 140px;
+}
+
+.create-grid {
+  display: grid;
+  grid-template-columns: minmax(100px, 120px) minmax(160px, 180px) minmax(
+      0,
+      1fr
+    );
+  column-gap: var(--app-space-3);
+  row-gap: 0.9rem;
+  align-items: start;
+}
+
+.create-grid .app-field {
+  align-content: start;
+}
+
+.create-grid .app-field > label {
+  min-height: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.app-field--span2 {
+  grid-column: span 2;
+}
+
+.app-field--full {
+  grid-column: 1 / -1;
+}
+
+.app-field-hint {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--app-text-muted);
+}
+
+:host ::ng-deep .ky-card .p-card-content {
+  padding-top: 0.45rem;
+}
+
+.ky-current-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(135deg, #e8f4fd 0%, #d1eaf8 100%);
+  border: 1px solid #b3d9f0;
+  border-radius: 0.75rem;
+
+  &__label {
+    font-size: 0.75rem;
+    color: #5a8fa8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: 0.5rem;
+  }
+
+  &__code {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a3a52;
+    margin-right: 0.5rem;
+  }
+
+  &__info,
+  &__stats {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+.ky-tiendo-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  &--sm {
+    padding: 0.15rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .pi {
+    font-size: 0.7rem;
+  }
+}
+
+.ky-code {
+  font-weight: 700;
+  color: var(--app-text-strong);
+}
+
+.ky-current-icon {
+  margin-left: 0.45rem;
+  color: #f59e0b;
+  font-size: 0.8rem;
+}
+
+.ky-row--active td {
+  background: rgba(59, 130, 246, 0.06) !important;
+}
+
+:host ::ng-deep .app-admin-table tbody tr:not(.ky-row--active) td {
+  opacity: 0.96;
+}
+
+.app-inline-actions {
+  justify-content: center;
+}
+
+.mau-dropdown-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.1rem 0;
+
+  &__name {
+    font-weight: 600;
+    color: var(--app-text-strong);
+    font-size: 0.875rem;
+  }
+
+  &__meta {
+    font-size: 0.75rem;
+    color: var(--app-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  &__badge {
+    background: var(--app-surface-soft);
+    border: 1px solid var(--app-border);
+    border-radius: 4px;
+    padding: 0 0.3rem;
+    font-size: 0.7rem;
+    color: var(--app-text-secondary);
+  }
+
+  &__desc {
+    font-size: 0.75rem;
+    color: var(--app-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 480px;
+  }
+}
+
+.mau-dropdown-selected-badge {
+  margin-left: 0.4rem;
+  font-size: 0.72rem;
+  color: var(--app-text-muted);
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+  padding: 0 0.3rem;
+  vertical-align: middle;
+}
+
+:host ::ng-deep .ky-create-dialog {
+  .p-dropdown,
+  .p-calendar,
+  .p-inputtext,
+  .p-inputtextarea {
+    width: 100%;
+  }
+
+  .p-inputtextarea {
+    min-height: 5.5rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .create-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ky-current-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

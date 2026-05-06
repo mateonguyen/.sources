@@ -1,0 +1,222 @@
+2026-03-24 21:47:00.489 +07:00 [WRN] Entity 'BaoCaoSnapshot' has a global query filter defined and is the required end of a relationship with the entity 'BaoCaoFile'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-24 21:47:00.505 +07:00 [WRN] Entity 'DonVi' has a global query filter defined and is the required end of a relationship with the entity 'KyTrangThaiDonVi'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-24 21:47:00.577 +07:00 [WRN] Entity 'BaoCaoSnapshot' has a global query filter defined and is the required end of a relationship with the entity 'BaoCaoFile'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-24 21:47:00.577 +07:00 [WRN] Entity 'DonVi' has a global query filter defined and is the required end of a relationship with the entity 'KyTrangThaiDonVi'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-24 21:48:50.329 +07:00 [WRN] Entity 'BaoCaoSnapshot' has a global query filter defined and is the required end of a relationship with the entity 'BaoCaoFile'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-24 21:48:50.342 +07:00 [WRN] Entity 'DonVi' has a global query filter defined and is the required end of a relationship with the entity 'KyTrangThaiDonVi'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-24 21:48:50.412 +07:00 [WRN] Entity 'BaoCaoSnapshot' has a global query filter defined and is the required end of a relationship with the entity 'BaoCaoFile'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-24 21:48:50.412 +07:00 [WRN] Entity 'DonVi' has a global query filter defined and is the required end of a relationship with the entity 'KyTrangThaiDonVi'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-24 21:48:50.959 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 21:48:50.959 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 21:48:50.959 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 21:48:50.959 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 21:48:50.959 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 21:48:51.390 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 21:48:51.390 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 21:48:51.400 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 21:48:51.403 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 21:48:51.404 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 21:48:51.462 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-03-24 21:48:51.462 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-03-24 21:48:51.462 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-03-24 21:48:51.462 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-03-24 21:48:51.462 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-03-24 21:48:52.842 +07:00 [INF] HTTP POST /api/v1/auth/login => 401 in 1390.574 ms CorrelationId=f1c2481f17b24100a786b91cb4156157
+2026-03-24 21:48:52.845 +07:00 [INF] HTTP POST /api/v1/auth/login responded 401 in 1395.0470 ms
+2026-03-24 21:48:53.020 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 21:48:53.029 +07:00 [INF] HTTP GET /api/v1/auth/me => 401 in 6.7129 ms CorrelationId=55b41aa92e8e41ceb7103d04ab6b0e11
+2026-03-24 21:48:53.029 +07:00 [INF] HTTP GET /api/v1/auth/me responded 401 in 7.0500 ms
+2026-03-24 21:48:53.231 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 21:48:53.269 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 1818.1689 ms CorrelationId=9020019d68824cfcbaa84cbb43616c0e
+2026-03-24 21:48:53.269 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 1818.1664 ms CorrelationId=f882125a73cd46fbba9f0fae0aeddb6b
+2026-03-24 21:48:53.269 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 1820.1778 ms
+2026-03-24 21:48:53.269 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 1818.1111 ms CorrelationId=437106bbf74a4fec8000e86273acaa75
+2026-03-24 21:48:53.269 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 1818.1495 ms CorrelationId=0fc73a331c41419fa556b0e21a33351d
+2026-03-24 21:48:53.269 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 1820.2419 ms
+2026-03-24 21:48:53.269 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 1820.3067 ms
+2026-03-24 21:48:53.269 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 1820.3726 ms
+2026-03-24 21:48:53.379 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 103.5988 ms CorrelationId=f06120886b5444af888a5cda572e5d2d
+2026-03-24 21:48:53.379 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 103.5464 ms CorrelationId=3cc91e2b1b7040d287f87a0551db3236
+2026-03-24 21:48:53.379 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 103.826 ms CorrelationId=44782617154141ceae183f9efcb714cf
+2026-03-24 21:48:53.379 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 103.8680 ms
+2026-03-24 21:48:53.379 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 104.1964 ms
+2026-03-24 21:48:53.379 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 103.8484 ms CorrelationId=82784b48dc894ff3b25f0d2f43ca7ad8
+2026-03-24 21:48:53.379 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 103.8806 ms
+2026-03-24 21:48:53.380 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 104.6143 ms
+2026-03-24 21:48:53.396 +07:00 [INF] HTTP GET /api/v1/snapshot/1/pdf => 422 in 15.4889 ms CorrelationId=23350ca2654d44be9b7d5962887c537c
+2026-03-24 21:48:53.397 +07:00 [INF] HTTP GET /api/v1/snapshot/1/pdf responded 422 in 15.7952 ms
+2026-03-24 21:48:53.397 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 422 in 15.533 ms CorrelationId=689bd4a43de24d54ab99f611cae250f2
+2026-03-24 21:48:53.397 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit responded 422 in 15.7016 ms
+2026-03-24 21:48:53.437 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 200 in 55.731 ms CorrelationId=e44252860a4941a3a9169af04b4bd10a
+2026-03-24 21:48:53.437 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit responded 200 in 55.9573 ms
+2026-03-24 21:48:53.449 +07:00 [INF] HTTP PATCH /api/v1/snapshot/1 => 422 in 10.2575 ms CorrelationId=42443c5c8e4b433aa81c3b7e22eda1df
+2026-03-24 21:48:53.450 +07:00 [INF] HTTP PATCH /api/v1/snapshot/1 responded 422 in 10.7095 ms
+2026-03-24 21:48:53.484 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 252.489 ms CorrelationId=6d0b9317083b48359edb54fe386dfa2f
+2026-03-24 21:48:53.485 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 252.7803 ms
+2026-03-24 21:48:53.578 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 21:48:53.589 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 21:48:53.589 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 21:48:53.661 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 21:48:53.676 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 21:48:53.816 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 235.9814 ms CorrelationId=6025d4027f814b7b93e74e53eff027e7
+2026-03-24 21:48:53.816 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 236.2357 ms
+2026-03-24 21:48:53.819 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 403 in 1.4323 ms CorrelationId=0ecc3423afeb42618a0540f074ec0e64
+2026-03-24 21:48:53.819 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 403 in 1.5745 ms
+2026-03-24 22:08:34.573 +07:00 [WRN] Entity 'BaoCaoSnapshot' has a global query filter defined and is the required end of a relationship with the entity 'BaoCaoFile'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-24 22:08:34.587 +07:00 [WRN] Entity 'DonVi' has a global query filter defined and is the required end of a relationship with the entity 'KyTrangThaiDonVi'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-24 22:08:34.668 +07:00 [WRN] Entity 'BaoCaoSnapshot' has a global query filter defined and is the required end of a relationship with the entity 'BaoCaoFile'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-24 22:08:34.668 +07:00 [WRN] Entity 'DonVi' has a global query filter defined and is the required end of a relationship with the entity 'KyTrangThaiDonVi'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-24 22:08:35.314 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:35.314 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:35.314 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:35.314 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:35.314 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:35.314 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:35.314 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:35.314 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:35.575 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:35.579 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:35.587 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:35.587 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:35.593 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:35.594 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:35.596 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:35.599 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:35.647 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-03-24 22:08:35.647 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-03-24 22:08:35.647 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-03-24 22:08:35.647 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-03-24 22:08:35.647 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-03-24 22:08:35.647 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-03-24 22:08:35.647 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-03-24 22:08:35.647 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-03-24 22:08:35.789 +07:00 [INF] HTTP POST /api/v1/auth/login => 401 in 154.0411 ms CorrelationId=76630195aac84b769595ab830231e755 UserId=anonymous
+2026-03-24 22:08:35.793 +07:00 [INF] HTTP POST /api/v1/auth/login responded 401 in 161.2449 ms
+2026-03-24 22:08:36.052 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:36.061 +07:00 [INF] HTTP GET /api/v1/auth/me => 401 in 7.0081 ms CorrelationId=d95717ce7fd04eb39a13654bc570f95e UserId=anonymous
+2026-03-24 22:08:36.061 +07:00 [INF] HTTP GET /api/v1/auth/me responded 401 in 7.3394 ms
+2026-03-24 22:08:36.079 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 444.9143 ms CorrelationId=a28279a23ae74249b7637a574f388a26 UserId=anonymous
+2026-03-24 22:08:36.079 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 444.8846 ms CorrelationId=05fbc9c7b1f94dedb2675014b4da4523 UserId=anonymous
+2026-03-24 22:08:36.079 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 444.859 ms CorrelationId=bd574a69fae049bdaef836cebe5f6e28 UserId=anonymous
+2026-03-24 22:08:36.079 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 444.9545 ms CorrelationId=6d06949c1a0e459a88fa0fd51aca0361 UserId=anonymous
+2026-03-24 22:08:36.079 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 444.9704 ms CorrelationId=d5bbf05e65d64b3694d6048059ad16f7 UserId=anonymous
+2026-03-24 22:08:36.079 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 448.1200 ms
+2026-03-24 22:08:36.079 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 448.2544 ms
+2026-03-24 22:08:36.079 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 444.8909 ms CorrelationId=a0de95c96c844e1b98d4e525f22e73d1 UserId=anonymous
+2026-03-24 22:08:36.079 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 448.0704 ms
+2026-03-24 22:08:36.079 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 448.3592 ms
+2026-03-24 22:08:36.079 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 448.2474 ms
+2026-03-24 22:08:36.079 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 444.9295 ms CorrelationId=c3228e55852e404fa1bcec5d157293a0 UserId=anonymous
+2026-03-24 22:08:36.079 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 448.1995 ms
+2026-03-24 22:08:36.079 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 448.4245 ms
+2026-03-24 22:08:36.110 +07:00 [INF] HTTP DELETE /api/v1/nhan-luc-cntt/1 => 403 in 28.0716 ms CorrelationId=ca754fdfac4344dd8336af21d6f39dc8 UserId=5004
+2026-03-24 22:08:36.110 +07:00 [INF] HTTP DELETE /api/v1/nhan-luc-cntt/1 responded 403 in 28.2867 ms
+2026-03-24 22:08:36.141 +07:00 [INF] HTTP GET /api/v1/don-vi/tree => 200 in 58.7142 ms CorrelationId=fd2f0e43eb41487583cabe00260b5c31 UserId=5004
+2026-03-24 22:08:36.141 +07:00 [INF] HTTP GET /api/v1/don-vi/tree responded 200 in 58.9322 ms
+2026-03-24 22:08:36.147 +07:00 [INF] HTTP GET /api/v1/ky-bao-cao/current => 200 in 65.4848 ms CorrelationId=63a85a50375b4f04a5200d8559d72ed2 UserId=5003
+2026-03-24 22:08:36.147 +07:00 [INF] HTTP GET /api/v1/ky-bao-cao/current responded 200 in 65.7008 ms
+2026-03-24 22:08:36.195 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 111.4074 ms CorrelationId=5597449f3afa4a8b90e270c3e35ce394 UserId=5003
+2026-03-24 22:08:36.195 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 111.1761 ms CorrelationId=6cf2aed63849498c8d16d7c8fd115bc8 UserId=5003
+2026-03-24 22:08:36.195 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 111.6610 ms
+2026-03-24 22:08:36.195 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 111.4751 ms
+2026-03-24 22:08:36.195 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 111.6261 ms CorrelationId=97eabf385e1d4aecb1335b7b1dc19d0c UserId=5001
+2026-03-24 22:08:36.195 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 111.8424 ms CorrelationId=a6211afe57324d388612ff1d32cfb829 UserId=5003
+2026-03-24 22:08:36.195 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 111.7342 ms
+2026-03-24 22:08:36.195 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 111.9733 ms
+2026-03-24 22:08:36.211 +07:00 [INF] HTTP GET /api/v1/snapshot/1/pdf => 422 in 14.8995 ms CorrelationId=b94d02441e334a88890c7598d0cd9489 UserId=5003
+2026-03-24 22:08:36.211 +07:00 [INF] HTTP GET /api/v1/snapshot/1/pdf responded 422 in 15.0945 ms
+2026-03-24 22:08:36.211 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 422 in 15.3898 ms CorrelationId=d3a742ec282243bda8c75b7a71dfbdd5 UserId=5003
+2026-03-24 22:08:36.211 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit responded 422 in 15.5067 ms
+2026-03-24 22:08:36.248 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 200 in 52.3557 ms CorrelationId=dc2f52c97ab9419c93989a78bbe608b7 UserId=5003
+2026-03-24 22:08:36.249 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit responded 200 in 52.8109 ms
+2026-03-24 22:08:36.284 +07:00 [INF] HTTP PATCH /api/v1/snapshot/1 => 422 in 33.6986 ms CorrelationId=dd14e4ae301449d68dc57185c6288575 UserId=5003
+2026-03-24 22:08:36.285 +07:00 [INF] HTTP PATCH /api/v1/snapshot/1 responded 422 in 33.9413 ms
+2026-03-24 22:08:36.295 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:36.345 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:36.392 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:36.393 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:36.436 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:36.444 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:36.445 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:36.527 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:08:36.556 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 260.5174 ms CorrelationId=a28e0e22d836496a8a6bc6f60648dde2 UserId=anonymous
+2026-03-24 22:08:36.556 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 260.6972 ms
+2026-03-24 22:08:36.663 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 317.187 ms CorrelationId=22f9e3a3e0fc4a099f4a4219371897e8 UserId=anonymous
+2026-03-24 22:08:36.663 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 317.4838 ms
+2026-03-24 22:08:36.687 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 293.1198 ms CorrelationId=65790b4e99e84845873b01e7bcbb8455 UserId=anonymous
+2026-03-24 22:08:36.688 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 293.3000 ms
+2026-03-24 22:08:36.690 +07:00 [INF] HTTP POST /api/v1/ky-bao-cao => 403 in 0.537 ms CorrelationId=b836d376ef8f4fd98b81a1e8c6e25821 UserId=5003
+2026-03-24 22:08:36.690 +07:00 [INF] HTTP POST /api/v1/ky-bao-cao responded 403 in 0.6763 ms
+2026-03-24 22:09:24.020 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:24.020 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:24.020 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:24.020 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:24.020 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:24.020 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:24.020 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:24.020 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:24.319 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:24.324 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:24.333 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:24.337 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:24.339 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:24.339 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:24.342 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:24.352 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:24.531 +07:00 [INF] HTTP POST /api/v1/auth/login => 401 in 148.894 ms CorrelationId=4485cbb34fec44e486bfc2680d5dd03c UserId=anonymous
+2026-03-24 22:09:24.536 +07:00 [INF] HTTP POST /api/v1/auth/login responded 401 in 157.1299 ms
+2026-03-24 22:09:24.795 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:24.804 +07:00 [INF] HTTP GET /api/v1/auth/me => 401 in 6.9261 ms CorrelationId=8f9728dd6c424a8b8cc1b7e7b35a2e78 UserId=anonymous
+2026-03-24 22:09:24.804 +07:00 [INF] HTTP GET /api/v1/auth/me responded 401 in 7.2741 ms
+2026-03-24 22:09:24.830 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 449.0738 ms CorrelationId=02946529eb2a422384f7b418bba7baf3 UserId=anonymous
+2026-03-24 22:09:24.830 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 449.0859 ms CorrelationId=99d2ac1efc05489ab761477e18889330 UserId=anonymous
+2026-03-24 22:09:24.830 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 449.2065 ms CorrelationId=d96f3a1de0c746808381241a593b65c9 UserId=anonymous
+2026-03-24 22:09:24.830 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 449.1089 ms CorrelationId=432c7b05c2c5447690413f2d11777dc1 UserId=anonymous
+2026-03-24 22:09:24.830 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 452.5385 ms
+2026-03-24 22:09:24.830 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 449.1319 ms CorrelationId=24c650525368429f95e6ad73e33bcdbd UserId=anonymous
+2026-03-24 22:09:24.830 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 449.1132 ms CorrelationId=62f476e9a1054b08bc32f2004a7c4dbe UserId=anonymous
+2026-03-24 22:09:24.830 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 452.5545 ms
+2026-03-24 22:09:24.830 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 452.4748 ms
+2026-03-24 22:09:24.830 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 452.6091 ms
+2026-03-24 22:09:24.830 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 452.3415 ms
+2026-03-24 22:09:24.830 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 449.1599 ms CorrelationId=d8873e2404124b058c9d607c521fd9f5 UserId=anonymous
+2026-03-24 22:09:24.830 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 452.5482 ms
+2026-03-24 22:09:24.831 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 452.7663 ms
+2026-03-24 22:09:24.867 +07:00 [INF] HTTP DELETE /api/v1/nhan-luc-cntt/1 => 403 in 33.0998 ms CorrelationId=c577f1a7f59c4a31b4bdfee1867ec289 UserId=5004
+2026-03-24 22:09:24.867 +07:00 [INF] HTTP DELETE /api/v1/nhan-luc-cntt/1 responded 403 in 33.4303 ms
+2026-03-24 22:09:24.907 +07:00 [INF] HTTP GET /api/v1/don-vi/tree => 200 in 73.8227 ms CorrelationId=bd940d60f2e340d4a188dd1171444bb1 UserId=5004
+2026-03-24 22:09:24.907 +07:00 [INF] HTTP GET /api/v1/don-vi/tree responded 200 in 74.0710 ms
+2026-03-24 22:09:24.919 +07:00 [INF] HTTP GET /api/v1/ky-bao-cao/current => 200 in 86.2035 ms CorrelationId=3457e47932994d24bfd10543c1bb85e1 UserId=5003
+2026-03-24 22:09:24.920 +07:00 [INF] HTTP GET /api/v1/ky-bao-cao/current responded 200 in 86.4876 ms
+2026-03-24 22:09:24.966 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 130.937 ms CorrelationId=823be1d2ad5f4759aefdcd458b796cb3 UserId=5003
+2026-03-24 22:09:24.966 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 131.2288 ms
+2026-03-24 22:09:24.966 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 130.8577 ms CorrelationId=9aa9c562b4b74e8c93a8d9fe79fa7fc4 UserId=5001
+2026-03-24 22:09:24.966 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 130.8756 ms CorrelationId=ea9bea242360427da73c89a95b81b736 UserId=5003
+2026-03-24 22:09:24.966 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 131.2768 ms
+2026-03-24 22:09:24.966 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 131.0808 ms CorrelationId=4b038952801048f6ae7826026ac4740c UserId=5003
+2026-03-24 22:09:24.966 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 131.3572 ms
+2026-03-24 22:09:24.966 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 131.6270 ms
+2026-03-24 22:09:24.983 +07:00 [INF] HTTP GET /api/v1/snapshot/1/pdf => 422 in 15.995 ms CorrelationId=d7d81c81c6e241ed86f914a0698e1b0f UserId=5003
+2026-03-24 22:09:24.983 +07:00 [INF] HTTP GET /api/v1/snapshot/1/pdf responded 422 in 16.2104 ms
+2026-03-24 22:09:24.984 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 422 in 16.8059 ms CorrelationId=122a75ec5fae490b9db10df4fc2f792d UserId=5003
+2026-03-24 22:09:24.985 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit responded 422 in 17.0201 ms
+2026-03-24 22:09:25.019 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 200 in 51.3832 ms CorrelationId=5baa8a332f8c4b1eaed96168e81b710a UserId=5003
+2026-03-24 22:09:25.019 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit responded 200 in 51.5878 ms
+2026-03-24 22:09:25.029 +07:00 [INF] HTTP PATCH /api/v1/snapshot/1 => 422 in 8.3898 ms CorrelationId=3658e2a9d9b94978bbef00bb5ca96aeb UserId=5003
+2026-03-24 22:09:25.029 +07:00 [INF] HTTP PATCH /api/v1/snapshot/1 responded 422 in 8.5735 ms
+2026-03-24 22:09:25.069 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:25.118 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:25.131 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:25.168 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:25.186 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:25.219 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:25.227 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:25.279 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-03-24 22:09:25.335 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 265.3759 ms CorrelationId=20a46c18873b4d30b504e30aa6216b33 UserId=anonymous
+2026-03-24 22:09:25.335 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 265.6199 ms
+2026-03-24 22:09:25.390 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 270.8143 ms CorrelationId=0de8c23b9a4b461cb5ccd5e2844c6f7b UserId=anonymous
+2026-03-24 22:09:25.391 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 271.0069 ms
+2026-03-24 22:09:25.407 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 275.3539 ms CorrelationId=c785411dcb6b43ff85937b4508fd91b2 UserId=anonymous
+2026-03-24 22:09:25.407 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 275.5351 ms
+2026-03-24 22:09:25.410 +07:00 [INF] HTTP POST /api/v1/don-vi => 403 in 0.544 ms CorrelationId=ed5a8f0d39684f1c960d1b84ee4bff50 UserId=5004
+2026-03-24 22:09:25.411 +07:00 [INF] HTTP POST /api/v1/don-vi responded 403 in 0.6807 ms

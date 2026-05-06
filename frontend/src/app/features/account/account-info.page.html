@@ -1,0 +1,135 @@
+<app-section-card
+  title="Thông tin tài khoản"
+  subtitle="Xem và cập nhật thông tin tài khoản cá nhân"
+  styleClass="account-card"
+>
+  <div class="account-shell mt-3">
+    <div class="account-loading" *ngIf="loading">
+      <i class="pi pi-spin pi-spinner"></i>
+      <span>Đang tải thông tin...</span>
+    </div>
+
+    <small class="app-validation-error d-block mb-2" *ngIf="apiError"
+      >{{ apiError }}</small
+    >
+
+    <form
+      *ngIf="!loading"
+      class="account-form"
+      (ngSubmit)="save()"
+      #profileForm="ngForm"
+    >
+      <!-- Readonly info block -->
+      <div class="info-block">
+        <h3 class="info-block__title">Thông tin hệ thống</h3>
+        <div class="info-grid">
+          <div class="info-field">
+            <span class="info-field__label">Đơn vị</span>
+            <span class="info-field__value info-field__value--unit"
+              >{{ form.donViTen || '—' }}</span
+            >
+          </div>
+          <div class="info-field">
+            <span class="info-field__label">Tên đăng nhập</span>
+            <span class="info-field__value">{{ form.username }}</span>
+          </div>
+          <div class="info-field">
+            <span class="info-field__label">Vai trò</span>
+            <span class="info-field__value info-field__value--muted">
+              <span *ngFor="let role of form.roles; let last = last"
+                >{{ role }}<span *ngIf="!last">, </span></span
+              >
+              <span *ngIf="!form.roles.length">—</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Editable fields -->
+      <div class="edit-block">
+        <h3 class="edit-block__title">Thông tin cá nhân</h3>
+        <div class="edit-grid">
+          <!-- Họ và tên -->
+          <div class="app-field required">
+            <label for="hoTen">Họ và tên</label>
+            <input
+              pInputText
+              id="hoTen"
+              type="text"
+              [(ngModel)]="form.hoTen"
+              name="hoTen"
+              placeholder="Nhập họ và tên đầy đủ"
+              required
+              #hoTenCtrl="ngModel"
+            />
+            <small
+              class="app-validation-error"
+              *ngIf="hoTenCtrl.invalid && (hoTenCtrl.touched || submitted)"
+              >Vui lòng nhập họ và tên</small
+            >
+          </div>
+
+          <!-- Email -->
+          <div class="app-field">
+            <label for="email">Email</label>
+            <input
+              pInputText
+              id="email"
+              type="email"
+              [(ngModel)]="form.email"
+              name="email"
+              placeholder="Nhập địa chỉ email"
+              email
+              #emailCtrl="ngModel"
+            />
+            <small
+              class="app-validation-error"
+              *ngIf="emailCtrl.invalid && (emailCtrl.touched || submitted)"
+              >Địa chỉ email không hợp lệ</small
+            >
+          </div>
+
+          <!-- Số điện thoại -->
+          <div class="app-field">
+            <label for="soDienThoai">Số điện thoại</label>
+            <input
+              pInputText
+              id="soDienThoai"
+              type="tel"
+              [(ngModel)]="form.soDienThoai"
+              name="soDienThoai"
+              placeholder="Nhập số điện thoại"
+              pattern="^[0-9+\-\s]{8,15}$"
+              #sdtCtrl="ngModel"
+            />
+            <small
+              class="app-validation-error"
+              *ngIf="sdtCtrl.invalid && (sdtCtrl.touched || submitted)"
+              >Số điện thoại không hợp lệ</small
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button
+          pButton
+          type="submit"
+          icon="pi pi-check"
+          label="Lưu thay đổi"
+          [loading]="saving"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-refresh"
+          label="Làm mới"
+          class="p-button-secondary"
+          [disabled]="saving"
+          (click)="reset()"
+        ></button>
+      </div>
+    </form>
+  </div>
+</app-section-card>

@@ -1,0 +1,60 @@
+.mau-shell {
+  @apply relative;
+  min-height: 12rem;
+}
+
+.mau-bao-cao-actions {
+  @apply flex flex-wrap items-center gap-2;
+}
+
+.table-section {
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-lg);
+  background: var(--app-surface);
+  overflow: hidden;
+}
+
+.table-footer {
+  @apply mb-0;
+  margin-top: 0;
+  padding: 0.8rem 0.95rem 0.85rem;
+}
+
+.module-tag-list {
+  @apply flex flex-wrap gap-2;
+}
+
+.module-tag {
+  @apply inline-flex items-center px-3 py-1 text-xs font-medium;
+  border-radius: var(--app-radius-badge);
+  background: rgba(15, 76, 129, 0.08);
+  color: #0f4c81;
+  font-size: var(--app-font-size-ui-badge);
+}
+
+@media (max-width: 768px) {
+  .table-footer {
+    @apply gap-3;
+  }
+}
+
+@media (max-width: 640px) {
+  .filter-actions {
+    @apply w-full;
+  }
+}
+
+:host ::ng-deep .mau-bao-cao-table.p-datatable {
+  border: 0;
+  border-radius: 0;
+  overflow: hidden;
+  background: var(--app-surface);
+
+  .p-datatable-thead > tr > th {
+    background: color-mix(in srgb, var(--app-surface-soft) 78%, white 22%);
+  }
+
+  .p-datatable-tbody > tr > td {
+    padding-block: 0.78rem;
+  }
+}

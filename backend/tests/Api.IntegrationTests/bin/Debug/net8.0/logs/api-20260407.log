@@ -1,0 +1,88 @@
+2026-04-07 10:50:48.250 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:48.250 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:48.250 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:48.250 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:48.250 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:48.250 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:48.250 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:48.250 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:48.250 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:48.731 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:48.751 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:48.753 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:48.755 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:48.756 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:48.757 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:48.758 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:48.759 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:48.761 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:49.846 +07:00 [INF] HTTP GET /health => 200 in 1032.703 ms CorrelationId=8a42a668edf24d8790099345bfd64886 UserId=anonymous
+2026-04-07 10:50:49.851 +07:00 [INF] HTTP GET /health responded 200 in 1040.8713 ms
+2026-04-07 10:50:49.856 +07:00 [INF] HTTP GET /health/live => 200 in 2.0845 ms CorrelationId=6bcd3af4c59c4e1ea8deeed25d270dd9 UserId=anonymous
+2026-04-07 10:50:49.857 +07:00 [INF] HTTP GET /health/live responded 200 in 2.4117 ms
+2026-04-07 10:50:49.862 +07:00 [INF] HTTP GET /health/ready => 200 in 3.8062 ms CorrelationId=d40042acfbc94a12a557c92e6da07c90 UserId=anonymous
+2026-04-07 10:50:49.862 +07:00 [INF] HTTP GET /health/ready responded 200 in 4.0168 ms
+2026-04-07 10:50:49.952 +07:00 [INF] HTTP POST /api/v1/auth/login => 401 in 1140.2215 ms CorrelationId=e786b8f6414d45248150c24925f2b39f UserId=anonymous
+2026-04-07 10:50:49.952 +07:00 [INF] HTTP POST /api/v1/auth/login responded 401 in 1143.6523 ms
+2026-04-07 10:50:50.107 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:50.135 +07:00 [INF] HTTP GET /swagger/index.html => 200 in 28.0923 ms CorrelationId=65eee5d9fd5446a88aa74a3cddc0eec0 UserId=anonymous
+2026-04-07 10:50:50.136 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 28.3060 ms
+2026-04-07 10:50:50.190 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:50.199 +07:00 [INF] HTTP GET /api/v1/auth/me => 401 in 5.0082 ms CorrelationId=4f9603a7b47f425b9514605c21719014 UserId=anonymous
+2026-04-07 10:50:50.200 +07:00 [INF] HTTP GET /api/v1/auth/me responded 401 in 5.2481 ms
+2026-04-07 10:50:50.388 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 1576.2519 ms CorrelationId=e4a997de86fa4399833799b6b1971ea4 UserId=anonymous
+2026-04-07 10:50:50.388 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 1576.1992 ms CorrelationId=8c013ce14c7d4f89988f99720af99113 UserId=anonymous
+2026-04-07 10:50:50.388 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 1579.6399 ms
+2026-04-07 10:50:50.388 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 1576.2069 ms CorrelationId=a21ca70658f843d5912f2c49ff8f1deb UserId=anonymous
+2026-04-07 10:50:50.388 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 1576.244 ms CorrelationId=48d78d65331e47378de91ea0bc90a2ce UserId=anonymous
+2026-04-07 10:50:50.388 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 1579.6985 ms
+2026-04-07 10:50:50.388 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 1576.2148 ms CorrelationId=44edcffabfe34326a56e8e16643bfee0 UserId=anonymous
+2026-04-07 10:50:50.388 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 1576.1862 ms CorrelationId=21c9938c88e74df4b246d1b74be12b88 UserId=anonymous
+2026-04-07 10:50:50.388 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 1576.232 ms CorrelationId=8373751589c94dae8090d1ad2c603223 UserId=anonymous
+2026-04-07 10:50:50.388 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 1579.8907 ms
+2026-04-07 10:50:50.388 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 1579.9952 ms
+2026-04-07 10:50:50.388 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 1579.7633 ms
+2026-04-07 10:50:50.388 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 1579.9825 ms
+2026-04-07 10:50:50.388 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 1579.7014 ms
+2026-04-07 10:50:50.420 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:50.427 +07:00 [INF] HTTP DELETE /api/v1/nhan-luc-cntt/1 => 403 in 30.9678 ms CorrelationId=cd6e43d518364b12a768ede29039c062 UserId=5004
+2026-04-07 10:50:50.427 +07:00 [INF] HTTP DELETE /api/v1/nhan-luc-cntt/1 responded 403 in 31.2129 ms
+2026-04-07 10:50:50.433 +07:00 [INF] HTTP GET /version => 200 in 12.9088 ms CorrelationId=df8707ca92b44a35a561297dc3c41e2a UserId=anonymous
+2026-04-07 10:50:50.434 +07:00 [INF] HTTP GET /version responded 200 in 13.1528 ms
+2026-04-07 10:50:50.464 +07:00 [INF] HTTP GET /api/v1/don-vi/tree => 200 in 69.7862 ms CorrelationId=10b44c957485472184578fb0dd2a0c88 UserId=5004
+2026-04-07 10:50:50.464 +07:00 [INF] HTTP GET /api/v1/don-vi/tree responded 200 in 70.0211 ms
+2026-04-07 10:50:50.467 +07:00 [INF] HTTP GET /api/v1/ky-bao-cao/current => 200 in 71.9324 ms CorrelationId=78c3ff6fa56a49e6b726c482df3c82ea UserId=5003
+2026-04-07 10:50:50.467 +07:00 [INF] HTTP GET /api/v1/ky-bao-cao/current responded 200 in 72.1684 ms
+2026-04-07 10:50:50.492 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:50.523 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 124.0788 ms CorrelationId=e639b7776972460a9493709ba5bb8c5e UserId=5001
+2026-04-07 10:50:50.523 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 125.3349 ms CorrelationId=576306b799514377a81db65049029554 UserId=5003
+2026-04-07 10:50:50.523 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 124.5717 ms CorrelationId=a1daffe48c304a629ca7390ce1f92f18 UserId=5003
+2026-04-07 10:50:50.523 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft => 200 in 124.0676 ms CorrelationId=689585a41bea48a781249b6aeb526720 UserId=5003
+2026-04-07 10:50:50.523 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 124.2820 ms
+2026-04-07 10:50:50.523 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 124.8766 ms
+2026-04-07 10:50:50.523 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 125.6226 ms
+2026-04-07 10:50:50.523 +07:00 [INF] HTTP POST /api/v1/snapshot/create-draft responded 200 in 124.4497 ms
+2026-04-07 10:50:50.543 +07:00 [INF] HTTP GET /api/v1/snapshot/1/pdf => 422 in 18.1904 ms CorrelationId=b54c3c02e7854e44b8bd80dcbc9dc131 UserId=5003
+2026-04-07 10:50:50.543 +07:00 [INF] HTTP GET /api/v1/snapshot/1/pdf responded 422 in 18.4201 ms
+2026-04-07 10:50:50.544 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 422 in 19.094 ms CorrelationId=8677e56ec0d64be28d9439e307e1d781 UserId=5003
+2026-04-07 10:50:50.544 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit responded 422 in 19.2757 ms
+2026-04-07 10:50:50.592 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit => 200 in 67.4292 ms CorrelationId=bf7b67e79bfc4a8c92540bb614423f10 UserId=5003
+2026-04-07 10:50:50.593 +07:00 [INF] HTTP POST /api/v1/snapshot/1/submit responded 200 in 67.6209 ms
+2026-04-07 10:50:50.603 +07:00 [INF] HTTP PATCH /api/v1/snapshot/1 => 422 in 8.515 ms CorrelationId=d3be729967a14393b75718d48542bf33 UserId=5003
+2026-04-07 10:50:50.603 +07:00 [INF] HTTP PATCH /api/v1/snapshot/1 responded 422 in 8.6852 ms
+2026-04-07 10:50:50.720 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:50.723 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:50.764 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 271.7353 ms CorrelationId=ee951745f9b6450aab60a331b100f86d UserId=anonymous
+2026-04-07 10:50:50.764 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 271.9283 ms
+2026-04-07 10:50:50.769 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:50.811 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:50.834 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:50.835 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:50.891 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-07 10:50:51.001 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 276.4741 ms CorrelationId=2c6c2f319c354bf9b43d9b22c17e490e UserId=anonymous
+2026-04-07 10:50:51.001 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 276.6873 ms
+2026-04-07 10:50:51.004 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 282.873 ms CorrelationId=bad610239f424f5fa97cc8220313fbcb UserId=anonymous
+2026-04-07 10:50:51.004 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 283.0605 ms
+2026-04-07 10:50:51.030 +07:00 [INF] HTTP GET /api/v1/auth/me => 200 in 22.9332 ms CorrelationId=1a90a4f43b89496a843bc1d8f0c1f2fa UserId=5001
+2026-04-07 10:50:51.031 +07:00 [INF] HTTP GET /api/v1/auth/me responded 200 in 23.1786 ms
+2026-04-07 10:50:51.035 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 265.3629 ms CorrelationId=f86bfa5504b745bb892cf96b051c8620 UserId=anonymous

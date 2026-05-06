@@ -1,0 +1,154 @@
+<app-section-card
+  title="Nộp báo cáo"
+  subtitle="Nộp báo cáo định kỳ theo kỳ đang mở."
+>
+  <div class="relative min-h-40">
+    <app-loading-overlay
+      [active]="loading"
+      label="Đang tải..."
+    ></app-loading-overlay>
+
+    <app-empty-state
+      *ngIf="!loading && !currentKy"
+      title="Không có kỳ báo cáo đang mở"
+      message="Hiện chưa có kỳ báo cáo nào đang mở. Vui lòng liên hệ quản lý."
+      icon="pi-calendar"
+    ></app-empty-state>
+
+    <ng-container *ngIf="!loading && currentKy">
+      <div
+        class="mb-4 flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-900"
+        *ngIf="hasPendingYeuCau"
+      >
+        <i class="pi pi-exclamation-triangle mt-1 text-lg"></i>
+        <div class="space-y-1">
+          <strong
+            >Có {{ pendingYeuCau.length }} yêu cầu bổ sung đang chờ xử
+            lý</strong
+          >
+          <p class="m-0">{{ pendingYeuCau[0].lyDo }}</p>
+          <small *ngIf="pendingYeuCau[0].hanBoSung">
+            Hạn bổ sung: {{ pendingYeuCau[0].hanBoSung | date:'dd/MM/yyyy' }}
+          </small>
+        </div>
+      </div>
+
+      <div
+        class="flex flex-col gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 md:flex-row md:items-end md:justify-between"
+      >
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="flex flex-col gap-1">
+            <span class="text-sm text-slate-500">Kỳ báo cáo</span>
+            <strong class="text-lg text-slate-900"
+              >{{ currentKy.kyCode }}</strong
+            >
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <span class="text-sm text-slate-500">Trạng thái nộp</span>
+            <div>
+              <app-status-badge
+                [label]="submissionStatusLabel"
+                [tone]="submissionStatusTone"
+              ></app-status-badge>
+            </div>
+          </div>
+        </div>
+
+        <button
+          pButton
+          type="button"
+          icon="pi pi-send"
+          label="Nộp báo cáo"
+          severity="success"
+          [disabled]="!canSubmit"
+          (click)="openNopDialog()"
+        ></button>
+      </div>
+
+      <div class="mt-4" *ngIf="ownSnapshots.length > 0">
+        <h4 class="mb-3 text-base font-semibold text-slate-900">Lịch sử nộp</h4>
+        <div class="app-table-wrap">
+          <p-table
+            [value]="ownSnapshots"
+            styleClass="p-datatable-sm app-admin-table"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Phiên bản</th>
+                <th>Trạng thái</th>
+                <th>Thời gian nộp</th>
+                <th>Ghi chú</th>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-snap>
+              <tr>
+                <td>#{{ snap.phienBan }}</td>
+                <td>
+                  <app-status-badge
+                    [label]="snapshotStatusLabel(snap.trangThai)"
+                    [tone]="snapshotStatusTone(snap.trangThai)"
+                  ></app-status-badge>
+                </td>
+                <td>{{ snap.submittedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td>{{ snap.ghiChu || '—' }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</app-section-card>
+
+<p-dialog
+  [(visible)]="showNopDialog"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="!nopLoading"
+  header="Xác nhận nộp báo cáo"
+  [style]="{ width: '480px' }"
+  appendTo="body"
+>
+  <p>
+    Hệ thống sẽ tự động tổng hợp toàn bộ dữ liệu và nộp báo cáo kỳ
+    <strong>{{ currentKy?.kyCode }}</strong>. Thao tác này không thể hoàn tác.
+  </p>
+
+  <div class="app-field mt-3">
+    <label for="ghiChuNop">Ghi chú (không bắt buộc)</label>
+    <textarea
+      pInputTextarea
+      id="ghiChuNop"
+      rows="3"
+      [(ngModel)]="ghiChuNop"
+      [ngModelOptions]="{ standalone: true }"
+      placeholder="Ghi chú lần nộp..."
+      [disabled]="nopLoading"
+    ></textarea>
+  </div>
+
+  <small class="app-validation-error" *ngIf="nopError">{{ nopError }}</small>
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      type="button"
+      label="Hủy"
+      severity="secondary"
+      (click)="closeNopDialog()"
+      [disabled]="nopLoading"
+    ></button>
+    <button
+      pButton
+      type="button"
+      label="Xác nhận nộp"
+      severity="success"
+      icon="pi pi-send"
+      [loading]="nopLoading"
+      (click)="confirmNop()"
+    ></button>
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,174 @@
+-- V26: redesign BIZ_HE_THONG_THONG_TIN and create BIZ_HTTT_TIEU_CHUAN
+
+DECLARE
+    v_table_count NUMBER;
+
+    PROCEDURE drop_index_if_exists(p_index_name IN VARCHAR2) IS
+        v_count NUMBER;
+    BEGIN
+        SELECT COUNT(1)
+        INTO v_count
+        FROM USER_INDEXES
+        WHERE INDEX_NAME = UPPER(p_index_name);
+
+        IF v_count > 0 THEN
+            EXECUTE IMMEDIATE 'DROP INDEX ' || p_index_name;
+        END IF;
+    END;
+
+    PROCEDURE drop_column_if_exists(p_table_name IN VARCHAR2, p_column_name IN VARCHAR2) IS
+        v_count NUMBER;
+    BEGIN
+        SELECT COUNT(1)
+        INTO v_count
+        FROM USER_TAB_COLS
+        WHERE TABLE_NAME = UPPER(p_table_name)
+          AND COLUMN_NAME = UPPER(p_column_name);
+
+        IF v_count > 0 THEN
+            EXECUTE IMMEDIATE 'ALTER TABLE ' || p_table_name || ' DROP COLUMN ' || p_column_name;
+        END IF;
+    END;
+
+    PROCEDURE rename_column_if_needed(
+        p_table_name IN VARCHAR2,
+        p_old_name IN VARCHAR2,
+        p_new_name IN VARCHAR2
+    ) IS
+        v_old_count NUMBER;
+        v_new_count NUMBER;
+    BEGIN
+        SELECT COUNT(1)
+        INTO v_old_count
+        FROM USER_TAB_COLS
+        WHERE TABLE_NAME = UPPER(p_table_name)
+          AND COLUMN_NAME = UPPER(p_old_name);
+
+        SELECT COUNT(1)
+        INTO v_new_count
+        FROM USER_TAB_COLS
+        WHERE TABLE_NAME = UPPER(p_table_name)
+          AND COLUMN_NAME = UPPER(p_new_name);
+
+        IF v_old_count > 0 AND v_new_count = 0 THEN
+            EXECUTE IMMEDIATE 'ALTER TABLE ' || p_table_name || ' RENAME COLUMN ' || p_old_name || ' TO ' || p_new_name;
+        END IF;
+    END;
+
+    PROCEDURE add_column_if_missing(
+        p_table_name IN VARCHAR2,
+        p_column_name IN VARCHAR2,
+        p_column_ddl IN VARCHAR2
+    ) IS
+        v_count NUMBER;
+    BEGIN
+        SELECT COUNT(1)
+        INTO v_count
+        FROM USER_TAB_COLS
+        WHERE TABLE_NAME = UPPER(p_table_name)
+          AND COLUMN_NAME = UPPER(p_column_name);
+
+        IF v_count = 0 THEN
+            EXECUTE IMMEDIATE 'ALTER TABLE ' || p_table_name || ' ADD (' || p_column_ddl || ')';
+        END IF;
+    END;
+
+    PROCEDURE create_index_if_missing(p_index_name IN VARCHAR2, p_sql IN VARCHAR2) IS
+        v_count NUMBER;
+    BEGIN
+        SELECT COUNT(1)
+        INTO v_count
+        FROM USER_INDEXES
+        WHERE INDEX_NAME = UPPER(p_index_name);
+
+        IF v_count = 0 THEN
+            EXECUTE IMMEDIATE p_sql;
+        END IF;
+    END;
+
+    PROCEDURE add_fk_if_missing(p_constraint_name IN VARCHAR2, p_sql IN VARCHAR2) IS
+        v_count NUMBER;
+    BEGIN
+        SELECT COUNT(1)
+        INTO v_count
+        FROM USER_CONSTRAINTS
+        WHERE CONSTRAINT_NAME = UPPER(p_constraint_name);
+
+        IF v_count = 0 THEN
+            EXECUTE IMMEDIATE p_sql;
+        END IF;
+    END;
+
+BEGIN
+    drop_index_if_exists('IX_BIZ_HE_THONG_THONG_TIN_DV_KY');
+    drop_index_if_exists('IX_BIZ_HTTT_DV');
+    drop_index_if_exists('IX_BIZ_HTTT_LOAI');
+
+    drop_column_if_exists('BIZ_HE_THONG_THONG_TIN', 'KY_BAO_CAO_CODE');
+    drop_column_if_exists('BIZ_HE_THONG_THONG_TIN', 'TRANG_THAI');
+    drop_column_if_exists('BIZ_HE_THONG_THONG_TIN', 'SO_NGUOI_DUNG');
+    drop_column_if_exists('BIZ_HE_THONG_THONG_TIN', 'MO_TA');
+
+    rename_column_if_needed('BIZ_HE_THONG_THONG_TIN', 'TEN_HE_THONG', 'TEN_PHAN_MEM');
+    rename_column_if_needed('BIZ_HE_THONG_THONG_TIN', 'MA_HE_THONG', 'MA_PHAN_MEM');
+    rename_column_if_needed('BIZ_HE_THONG_THONG_TIN', 'LOAI_HE_THONG', 'LOAI_PHAN_MEM');
+    rename_column_if_needed('BIZ_HE_THONG_THONG_TIN', 'NAM_DUA_VAO_SU_DUNG', 'NAM_TRIEN_KHAI');
+
+    add_column_if_missing('BIZ_HE_THONG_THONG_TIN', 'LOAI_PHAN_MEM', 'LOAI_PHAN_MEM NVARCHAR2(20) DEFAULT ''DUNG_CHUNG'' NOT NULL');
+    add_column_if_missing('BIZ_HE_THONG_THONG_TIN', 'DON_VI_QUAN_LY', 'DON_VI_QUAN_LY NVARCHAR2(300) NULL');
+    add_column_if_missing('BIZ_HE_THONG_THONG_TIN', 'PHAM_VI_HOAT_DONG', 'PHAM_VI_HOAT_DONG NVARCHAR2(500) NULL');
+    add_column_if_missing('BIZ_HE_THONG_THONG_TIN', 'UNG_DUNG_CN_MOI', 'UNG_DUNG_CN_MOI NUMBER(1) DEFAULT 0 NOT NULL');
+    add_column_if_missing('BIZ_HE_THONG_THONG_TIN', 'KHA_NANG_TICH_HOP', 'KHA_NANG_TICH_HOP NUMBER(1) DEFAULT 0 NOT NULL');
+    add_column_if_missing('BIZ_HE_THONG_THONG_TIN', 'DA_CONG_NHAN_SANG_KIEN', 'DA_CONG_NHAN_SANG_KIEN NUMBER(1) DEFAULT 0 NOT NULL');
+
+    create_index_if_missing('IX_BIZ_HTTT_DV', 'CREATE INDEX IX_BIZ_HTTT_DV ON BIZ_HE_THONG_THONG_TIN (DON_VI_ID)');
+    create_index_if_missing('IX_BIZ_HTTT_LOAI', 'CREATE INDEX IX_BIZ_HTTT_LOAI ON BIZ_HE_THONG_THONG_TIN (DON_VI_ID, LOAI_PHAN_MEM)');
+
+    SELECT COUNT(1)
+    INTO v_table_count
+    FROM USER_TABLES
+    WHERE TABLE_NAME = 'BIZ_HTTT_TIEU_CHUAN';
+
+    IF v_table_count = 0 THEN
+        EXECUTE IMMEDIATE '
+            CREATE TABLE BIZ_HTTT_TIEU_CHUAN (
+                ID NUMBER(19) GENERATED BY DEFAULT ON NULL AS IDENTITY PRIMARY KEY,
+                DON_VI_ID NUMBER(19) NOT NULL,
+                MA_HE_THONG NVARCHAR2(50) NOT NULL,
+                DVT NVARCHAR2(20) NULL,
+                SO_H05 NUMBER(10) DEFAULT 0 NOT NULL,
+                SO_TINH NUMBER(10) DEFAULT 0 NOT NULL,
+                SO_XA NUMBER(10) DEFAULT 0 NOT NULL,
+                SO_DV_TRUC_THUOC_BO NUMBER(10) DEFAULT 0 NOT NULL,
+                GHI_CHU NVARCHAR2(2000) NULL,
+                DELETED_AT TIMESTAMP NULL,
+                CREATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+                CREATED_BY NUMBER(19) NULL,
+                UPDATED_BY NUMBER(19) NULL
+            )';
+    END IF;
+
+    add_column_if_missing('BIZ_HTTT_TIEU_CHUAN', 'DON_VI_ID', 'DON_VI_ID NUMBER(19) NOT NULL');
+    add_column_if_missing('BIZ_HTTT_TIEU_CHUAN', 'MA_HE_THONG', 'MA_HE_THONG NVARCHAR2(50) NOT NULL');
+    add_column_if_missing('BIZ_HTTT_TIEU_CHUAN', 'DVT', 'DVT NVARCHAR2(20) NULL');
+    add_column_if_missing('BIZ_HTTT_TIEU_CHUAN', 'SO_H05', 'SO_H05 NUMBER(10) DEFAULT 0 NOT NULL');
+    add_column_if_missing('BIZ_HTTT_TIEU_CHUAN', 'SO_TINH', 'SO_TINH NUMBER(10) DEFAULT 0 NOT NULL');
+    add_column_if_missing('BIZ_HTTT_TIEU_CHUAN', 'SO_XA', 'SO_XA NUMBER(10) DEFAULT 0 NOT NULL');
+    add_column_if_missing('BIZ_HTTT_TIEU_CHUAN', 'SO_DV_TRUC_THUOC_BO', 'SO_DV_TRUC_THUOC_BO NUMBER(10) DEFAULT 0 NOT NULL');
+    add_column_if_missing('BIZ_HTTT_TIEU_CHUAN', 'GHI_CHU', 'GHI_CHU NVARCHAR2(2000) NULL');
+    add_column_if_missing('BIZ_HTTT_TIEU_CHUAN', 'DELETED_AT', 'DELETED_AT TIMESTAMP NULL');
+    add_column_if_missing('BIZ_HTTT_TIEU_CHUAN', 'CREATED_AT', 'CREATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL');
+    add_column_if_missing('BIZ_HTTT_TIEU_CHUAN', 'UPDATED_AT', 'UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL');
+    add_column_if_missing('BIZ_HTTT_TIEU_CHUAN', 'CREATED_BY', 'CREATED_BY NUMBER(19) NULL');
+    add_column_if_missing('BIZ_HTTT_TIEU_CHUAN', 'UPDATED_BY', 'UPDATED_BY NUMBER(19) NULL');
+
+    add_fk_if_missing(
+        'FK_BIZ_HTTTTC_DON_VI',
+        'ALTER TABLE BIZ_HTTT_TIEU_CHUAN ADD CONSTRAINT FK_BIZ_HTTTTC_DON_VI FOREIGN KEY (DON_VI_ID) REFERENCES REF_DON_VI(ID)'
+    );
+
+    create_index_if_missing('IX_BIZ_HTTTTC_DV', 'CREATE INDEX IX_BIZ_HTTTTC_DV ON BIZ_HTTT_TIEU_CHUAN (DON_VI_ID)');
+    create_index_if_missing('UX_BIZ_HTTTTC_DV_MA', 'CREATE UNIQUE INDEX UX_BIZ_HTTTTC_DV_MA ON BIZ_HTTT_TIEU_CHUAN (DON_VI_ID, MA_HE_THONG)');
+END;
+/

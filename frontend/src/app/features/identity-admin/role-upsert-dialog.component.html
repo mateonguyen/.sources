@@ -1,0 +1,126 @@
+<p-dialog
+  [visible]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="false"
+  [dismissableMask]="true"
+  [style]="{ width: 'min(680px, 96vw)' }"
+  [styleClass]="dialogStyleClass"
+  [contentStyleClass]="dialogContentStyleClass"
+  [maskStyleClass]="dialogMaskStyleClass"
+  appendTo="body"
+  (onHide)="onDialogHide()"
+>
+  <ng-template pTemplate="header">
+    <div
+      class="app-dialog-header flex w-full items-center justify-between gap-3"
+    >
+      <span
+        class="app-dialog-title text-[1.05rem] font-bold leading-tight text-[var(--app-text-strong)]"
+        ><i class="pi pi-shield" aria-hidden="true"></i> {{ dialogTitle }}</span
+      >
+      <button
+        type="button"
+        class="app-dialog-close"
+        aria-label="Đóng"
+        (click)="closeDialog()"
+      >
+        <i class="pi pi-times" aria-hidden="true"></i>
+      </button>
+    </div>
+  </ng-template>
+
+  <form
+    [formGroup]="form"
+    class="app-dialog-form"
+    autocomplete="off"
+    (ngSubmit)="onSubmit()"
+  >
+    <div class="app-dialog-body-standard">
+      <div class="app-form-row two-columns">
+        <div
+          class="app-form-field"
+          [class.has-value]="form.get('roleCode')?.value"
+          [class.has-error]="isInvalid('roleCode')"
+        >
+          <label class="app-form-field__label required" for="roleCode"
+            >Mã vai trò</label
+          >
+          <input
+            id="roleCode"
+            pInputText
+            class="app-form-field__input"
+            type="text"
+            formControlName="roleCode"
+            placeholder="Ví dụ: H05_ADMIN"
+            maxlength="100"
+          />
+          <small class="app-form-field__error" *ngIf="isInvalid('roleCode')">{{
+            getError("roleCode")
+          }}</small>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="form.get('tenRole')?.value"
+          [class.has-error]="isInvalid('tenRole')"
+        >
+          <label class="app-form-field__label required" for="tenRole"
+            >Tên vai trò</label
+          >
+          <input
+            id="tenRole"
+            pInputText
+            class="app-form-field__input"
+            type="text"
+            formControlName="tenRole"
+            placeholder="Ví dụ: Quản trị H05"
+            maxlength="150"
+          />
+          <small class="app-form-field__error" *ngIf="isInvalid('tenRole')">{{
+            getError("tenRole")
+          }}</small>
+        </div>
+      </div>
+
+      <div
+        class="app-form-field app-form-field--full"
+        [class.has-value]="form.get('moTa')?.value"
+      >
+        <label class="app-form-field__label" for="moTa">Mô tả</label>
+        <textarea
+          id="moTa"
+          class="app-form-field__input p-inputtextarea"
+          rows="3"
+          formControlName="moTa"
+          placeholder="Nhập mô tả ngắn cho vai trò"
+          maxlength="500"
+        ></textarea>
+        <small class="app-form-field__error" *ngIf="isInvalid('moTa')">{{
+          getError("moTa")
+        }}</small>
+      </div>
+    </div>
+
+    <div class="app-dialog-actions">
+      <button
+        pButton
+        type="button"
+        label="Hủy"
+        icon="pi pi-times"
+        class="p-button-secondary p-button-outlined"
+        [disabled]="submitting"
+        (click)="closeDialog()"
+      ></button>
+      <button
+        pButton
+        type="submit"
+        [label]="mode === 'create' ? 'Lưu vai trò' : 'Cập nhật vai trò'"
+        [icon]="mode === 'create' ? 'pi pi-save' : 'pi pi-check'"
+        class="p-button-primary"
+        [loading]="submitting"
+      ></button>
+    </div>
+  </form>
+</p-dialog>

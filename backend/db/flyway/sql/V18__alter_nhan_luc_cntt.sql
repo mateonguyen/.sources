@@ -1,0 +1,142 @@
+-- V18: Cap nhat BIZ_NHAN_LUC_CNTT theo form thuc te
+
+BEGIN
+    DECLARE
+        v_count NUMBER := 0;
+    BEGIN
+        SELECT COUNT(1)
+          INTO v_count
+          FROM USER_TAB_COLS
+         WHERE TABLE_NAME = 'BIZ_NHAN_LUC_CNTT'
+           AND COLUMN_NAME = 'TRINH_DO';
+
+        IF v_count > 0 THEN
+            EXECUTE IMMEDIATE 'ALTER TABLE BIZ_NHAN_LUC_CNTT RENAME COLUMN TRINH_DO TO TRINH_DO_CNTT';
+        END IF;
+    END;
+END;
+/
+
+BEGIN
+    DECLARE
+        v_count NUMBER := 0;
+    BEGIN
+        SELECT COUNT(1)
+          INTO v_count
+          FROM USER_TAB_COLS
+         WHERE TABLE_NAME = 'BIZ_NHAN_LUC_CNTT'
+           AND COLUMN_NAME = 'TRINH_DO_CNTT';
+
+        IF v_count > 0 THEN
+            EXECUTE IMMEDIATE 'ALTER TABLE BIZ_NHAN_LUC_CNTT MODIFY (TRINH_DO_CNTT NVARCHAR2(50) NULL)';
+        END IF;
+    END;
+END;
+/
+
+BEGIN
+    DECLARE
+        v_count NUMBER := 0;
+    BEGIN
+        SELECT COUNT(1)
+          INTO v_count
+          FROM USER_TAB_COLS
+         WHERE TABLE_NAME = 'BIZ_NHAN_LUC_CNTT'
+           AND COLUMN_NAME = 'CHUNG_CHI';
+
+        IF v_count > 0 THEN
+            EXECUTE IMMEDIATE 'ALTER TABLE BIZ_NHAN_LUC_CNTT DROP COLUMN CHUNG_CHI';
+        END IF;
+    END;
+END;
+/
+
+BEGIN
+    DECLARE
+        v_count NUMBER := 0;
+    BEGIN
+        SELECT COUNT(1)
+          INTO v_count
+          FROM USER_TAB_COLS
+         WHERE TABLE_NAME = 'BIZ_NHAN_LUC_CNTT'
+           AND COLUMN_NAME = 'DON_VI_TRUC_THUOC_ID';
+
+        IF v_count = 0 THEN
+            EXECUTE IMMEDIATE 'ALTER TABLE BIZ_NHAN_LUC_CNTT ADD (DON_VI_TRUC_THUOC_ID NUMBER(19) NULL)';
+        END IF;
+
+        SELECT COUNT(1)
+          INTO v_count
+          FROM USER_TAB_COLS
+         WHERE TABLE_NAME = 'BIZ_NHAN_LUC_CNTT'
+           AND COLUMN_NAME = 'DIEN_THOAI';
+
+        IF v_count = 0 THEN
+            EXECUTE IMMEDIATE 'ALTER TABLE BIZ_NHAN_LUC_CNTT ADD (DIEN_THOAI NVARCHAR2(20) NULL)';
+        END IF;
+
+        SELECT COUNT(1)
+          INTO v_count
+          FROM USER_TAB_COLS
+         WHERE TABLE_NAME = 'BIZ_NHAN_LUC_CNTT'
+           AND COLUMN_NAME = 'CAP_BAC';
+
+        IF v_count = 0 THEN
+            EXECUTE IMMEDIATE 'ALTER TABLE BIZ_NHAN_LUC_CNTT ADD (CAP_BAC NVARCHAR2(50) NULL)';
+        END IF;
+
+        SELECT COUNT(1)
+          INTO v_count
+          FROM USER_TAB_COLS
+         WHERE TABLE_NAME = 'BIZ_NHAN_LUC_CNTT'
+           AND COLUMN_NAME = 'LOAI_NHAN_LUC';
+
+        IF v_count = 0 THEN
+            EXECUTE IMMEDIATE 'ALTER TABLE BIZ_NHAN_LUC_CNTT ADD (LOAI_NHAN_LUC NVARCHAR2(20) NULL)';
+        END IF;
+
+        SELECT COUNT(1)
+          INTO v_count
+          FROM USER_TAB_COLS
+         WHERE TABLE_NAME = 'BIZ_NHAN_LUC_CNTT'
+           AND COLUMN_NAME = 'TRINH_DO_LLCT';
+
+        IF v_count = 0 THEN
+            EXECUTE IMMEDIATE 'ALTER TABLE BIZ_NHAN_LUC_CNTT ADD (TRINH_DO_LLCT NVARCHAR2(50) NULL)';
+        END IF;
+    END;
+END;
+/
+
+BEGIN
+    DECLARE
+        v_count NUMBER := 0;
+    BEGIN
+        SELECT COUNT(1)
+          INTO v_count
+          FROM USER_CONSTRAINTS
+         WHERE TABLE_NAME = 'BIZ_NHAN_LUC_CNTT'
+           AND CONSTRAINT_NAME = 'FK_BIZ_NLC_DV_TRUC_THUOC';
+
+        IF v_count = 0 THEN
+            EXECUTE IMMEDIATE 'ALTER TABLE BIZ_NHAN_LUC_CNTT ADD CONSTRAINT FK_BIZ_NLC_DV_TRUC_THUOC FOREIGN KEY (DON_VI_TRUC_THUOC_ID) REFERENCES ORG_DON_VI(ID)';
+        END IF;
+    END;
+END;
+/
+
+BEGIN
+    DECLARE
+        v_count NUMBER := 0;
+    BEGIN
+        SELECT COUNT(1)
+          INTO v_count
+          FROM USER_INDEXES
+         WHERE INDEX_NAME = 'IX_BIZ_NLC_DV_TRUC_THUOC';
+
+        IF v_count = 0 THEN
+            EXECUTE IMMEDIATE 'CREATE INDEX IX_BIZ_NLC_DV_TRUC_THUOC ON BIZ_NHAN_LUC_CNTT (DON_VI_TRUC_THUOC_ID)';
+        END IF;
+    END;
+END;
+/

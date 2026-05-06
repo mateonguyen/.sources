@@ -1,0 +1,147 @@
+<p-dialog
+  [visible]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="false"
+  [dismissableMask]="true"
+  [style]="{ width: 'min(720px, 96vw)' }"
+  styleClass="app-category-upsert-dialog"
+  appendTo="body"
+  (onHide)="onDialogHide()"
+>
+  <ng-template pTemplate="header">
+    <div class="app-category-upsert-dialog__header app-dialog-header">
+      <span class="app-category-upsert-dialog__title app-dialog-title">
+        <i class="pi pi-list" aria-hidden="true"></i>
+        {{ dialogTitle }}
+      </span>
+      <button
+        type="button"
+        class="app-category-upsert-dialog__close app-dialog-close"
+        aria-label="Đóng"
+        (click)="closeDialog()"
+      >
+        <i class="pi pi-times" aria-hidden="true"></i>
+      </button>
+    </div>
+  </ng-template>
+
+  <form [formGroup]="form" class="app-dialog-form" (ngSubmit)="submit()">
+    <div class="app-dialog-body-standard">
+      <div class="app-form-row two-columns">
+        <div
+          class="app-form-field"
+          [class.has-value]="form.get('code')?.value"
+          [class.has-error]="isInvalid('code')"
+        >
+          <label class="app-form-field__label required" for="categoryCode"
+            >Mã danh mục</label
+          >
+          <input
+            id="categoryCode"
+            pInputText
+            class="app-form-field__input"
+            formControlName="code"
+            placeholder="Nhập mã danh mục"
+            maxlength="100"
+          />
+          <small class="app-form-field__error" *ngIf="isInvalid('code')">{{
+            getError("code")
+          }}</small>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="form.get('name')?.value"
+          [class.has-error]="isInvalid('name')"
+        >
+          <label class="app-form-field__label required" for="categoryName"
+            >Tên hiển thị</label
+          >
+          <input
+            id="categoryName"
+            pInputText
+            class="app-form-field__input"
+            formControlName="name"
+            placeholder="Nhập tên hiển thị"
+            maxlength="200"
+          />
+          <small class="app-form-field__error" *ngIf="isInvalid('name')">{{
+            getError("name")
+          }}</small>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="form.get('isActive')?.value != null"
+          [class.has-error]="isInvalid('isActive')"
+        >
+          <label class="app-form-field__label" for="categoryStatus"
+            >Trạng thái</label
+          >
+          <p-dropdown
+            id="categoryStatus"
+            [options]="statusOptions"
+            optionLabel="label"
+            optionValue="value"
+            formControlName="isActive"
+            placeholder="Chọn trạng thái"
+            appendTo="body"
+          ></p-dropdown>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="form.get('sortOrder')?.value != null"
+        >
+          <label class="app-form-field__label" for="categorySortOrder"
+            >Thứ tự</label
+          >
+          <p-inputNumber
+            inputId="categorySortOrder"
+            formControlName="sortOrder"
+            [useGrouping]="false"
+            placeholder="0"
+          ></p-inputNumber>
+        </div>
+
+        <div
+          class="app-form-field app-form-field--full"
+          [class.has-value]="form.get('description')?.value"
+        >
+          <label class="app-form-field__label" for="categoryDescription"
+            >Mô tả</label
+          >
+          <textarea
+            id="categoryDescription"
+            class="app-form-field__input p-inputtextarea"
+            rows="3"
+            formControlName="description"
+            placeholder="Nhập mô tả nếu cần"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-dialog-actions">
+      <button
+        pButton
+        type="button"
+        label="Hủy"
+        icon="pi pi-times"
+        class="p-button-secondary p-button-outlined"
+        [disabled]="submitting"
+        (click)="closeDialog()"
+      ></button>
+      <button
+        pButton
+        type="submit"
+        label="Lưu"
+        icon="pi pi-save"
+        class="p-button-primary"
+        [loading]="submitting"
+      ></button>
+    </div>
+  </form>
+</p-dialog>

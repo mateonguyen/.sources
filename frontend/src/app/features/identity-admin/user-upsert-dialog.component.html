@@ -1,0 +1,303 @@
+<p-dialog
+  [visible]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="false"
+  [dismissableMask]="true"
+  [style]="{ width: 'min(900px, 96vw)' }"
+  [styleClass]="dialogStyleClass"
+  [contentStyleClass]="dialogContentStyleClass"
+  [maskStyleClass]="dialogMaskStyleClass"
+  appendTo="body"
+  (onHide)="onDialogHide()"
+>
+  <ng-template pTemplate="header">
+    <div class="app-dialog-header">
+      <span
+        class="app-dialog-title grow text-[1.05rem] font-semibold leading-tight text-[var(--app-text-strong)]"
+      >
+        <i class="pi pi-user" aria-hidden="true"></i>
+        {{ dialogTitle }}
+      </span>
+      <button
+        type="button"
+        class="app-dialog-close"
+        aria-label="Đóng"
+        (click)="closeDialog()"
+      >
+        <i class="pi pi-times text-sm" aria-hidden="true"></i>
+      </button>
+    </div>
+  </ng-template>
+
+  <form
+    [formGroup]="form"
+    class="app-dialog-form"
+    autocomplete="off"
+    (ngSubmit)="onSubmit()"
+  >
+    <div class="app-dialog-body-standard">
+      <div class="app-form-row two-columns">
+        <div
+          class="app-form-field"
+          [class.has-value]="form.get('username')?.value"
+          [class.has-error]="isInvalid('username')"
+        >
+          <label class="app-form-field__label required" for="username"
+            >Tên đăng nhập</label
+          >
+          <input
+            id="username"
+            pInputText
+            class="app-form-field__input"
+            type="text"
+            name="admin-username"
+            autocomplete="new-username"
+            formControlName="username"
+            placeholder="Nhập tên đăng nhập"
+            maxlength="100"
+          />
+          <div
+            class="app-form-field__feedback"
+            [class.is-visible]="isInvalid('username')"
+            aria-live="polite"
+          >
+            <small class="app-form-field__error">{{
+              isInvalid("username") ? getError("username") : ""
+            }}</small>
+          </div>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="form.get('hoTen')?.value"
+          [class.has-error]="isInvalid('hoTen')"
+        >
+          <label class="app-form-field__label required" for="hoTen"
+            >Họ và tên</label
+          >
+          <input
+            id="hoTen"
+            pInputText
+            class="app-form-field__input"
+            type="text"
+            formControlName="hoTen"
+            placeholder="Nhập họ và tên"
+            maxlength="150"
+          />
+          <div
+            class="app-form-field__feedback"
+            [class.is-visible]="isInvalid('hoTen')"
+            aria-live="polite"
+          >
+            <small class="app-form-field__error">{{
+              isInvalid("hoTen") ? getError("hoTen") : ""
+            }}</small>
+          </div>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="form.get('donViId')?.value != null"
+          [class.has-error]="isInvalid('donViId')"
+        >
+          <label class="app-form-field__label required" for="donViId"
+            >Đơn vị</label
+          >
+          <p-dropdown
+            id="donViId"
+            [panelStyleClass]="selectPanelStyleClass"
+            [options]="donViOptions"
+            optionLabel="label"
+            optionValue="value"
+            formControlName="donViId"
+            placeholder="Chọn đơn vị"
+            appendTo="body"
+          ></p-dropdown>
+          <div
+            class="app-form-field__feedback"
+            [class.is-visible]="isInvalid('donViId')"
+            aria-live="polite"
+          >
+            <small class="app-form-field__error">{{
+              isInvalid("donViId") ? getError("donViId") : ""
+            }}</small>
+          </div>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="form.get('isActive')?.value != null"
+          [class.has-error]="isInvalid('isActive')"
+        >
+          <label class="app-form-field__label required" for="isActive"
+            >Trạng thái</label
+          >
+          <p-dropdown
+            id="isActive"
+            [panelStyleClass]="selectPanelStyleClass"
+            [options]="statusOptions"
+            optionLabel="label"
+            optionValue="value"
+            formControlName="isActive"
+            appendTo="body"
+          ></p-dropdown>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="form.get('email')?.value"
+          [class.has-error]="isInvalid('email')"
+        >
+          <label class="app-form-field__label" for="email">Email</label>
+          <input
+            id="email"
+            pInputText
+            class="app-form-field__input"
+            type="email"
+            formControlName="email"
+            placeholder="name@domain.local"
+            maxlength="255"
+          />
+          <div
+            class="app-form-field__feedback"
+            [class.is-visible]="isInvalid('email')"
+            aria-live="polite"
+          >
+            <small class="app-form-field__error">{{
+              isInvalid("email") ? getError("email") : ""
+            }}</small>
+          </div>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="form.get('soDienThoai')?.value"
+          [class.has-error]="isInvalid('soDienThoai')"
+        >
+          <label class="app-form-field__label" for="soDienThoai"
+            >Số điện thoại</label
+          >
+          <input
+            id="soDienThoai"
+            pInputText
+            class="app-form-field__input"
+            type="text"
+            formControlName="soDienThoai"
+            placeholder="Nhập số điện thoại"
+            maxlength="15"
+          />
+          <div
+            class="app-form-field__feedback"
+            [class.is-visible]="isInvalid('soDienThoai')"
+            aria-live="polite"
+          >
+            <small class="app-form-field__error">{{
+              isInvalid("soDienThoai") ? getError("soDienThoai") : ""
+            }}</small>
+          </div>
+        </div>
+
+        <div
+          class="app-form-field app-form-field--full"
+          [class.has-value]="form.get('roleId')?.value != null"
+          [class.has-error]="isInvalid('roleId')"
+        >
+          <label class="app-form-field__label" for="roleId">Vai trò</label>
+          <p-dropdown
+            id="roleId"
+            [panelStyleClass]="selectPanelStyleClass"
+            [options]="roleOptions"
+            optionLabel="label"
+            optionValue="value"
+            formControlName="roleId"
+            placeholder="Chọn vai trò (tuỳ chọn)"
+            [showClear]="true"
+            appendTo="body"
+          ></p-dropdown>
+        </div>
+
+        <ng-container *ngIf="isCreateMode">
+          <div
+            class="app-form-field"
+            [class.has-value]="form.get('password')?.value"
+            [class.has-error]="isInvalid('password')"
+          >
+            <label class="app-form-field__label required" for="password"
+              >Mật khẩu</label
+            >
+            <p-password
+              inputId="password"
+              autocomplete="new-password"
+              formControlName="password"
+              [feedback]="false"
+              [toggleMask]="true"
+              placeholder="Nhập mật khẩu"
+            ></p-password>
+            <div
+              class="app-form-field__feedback"
+              [class.is-visible]="isInvalid('password')"
+              aria-live="polite"
+            >
+              <small class="app-form-field__error">{{
+                isInvalid("password") ? getError("password") : ""
+              }}</small>
+            </div>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="form.get('confirmPassword')?.value"
+            [class.has-error]="isInvalid('confirmPassword')"
+          >
+            <label class="app-form-field__label required" for="confirmPassword"
+              >Xác nhận mật khẩu</label
+            >
+            <p-password
+              inputId="confirmPassword"
+              autocomplete="new-password"
+              formControlName="confirmPassword"
+              [feedback]="false"
+              [toggleMask]="true"
+              placeholder="Nhập lại mật khẩu"
+            ></p-password>
+            <div
+              class="app-form-field__feedback"
+              [class.is-visible]="
+                isInvalid('confirmPassword') || !!passwordMismatchError
+              "
+              aria-live="polite"
+            >
+              <small class="app-form-field__error">{{
+                isInvalid("confirmPassword")
+                  ? getError("confirmPassword")
+                  : passwordMismatchError
+              }}</small>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="app-dialog-actions">
+      <button
+        pButton
+        type="button"
+        label="Hủy"
+        icon="pi pi-times"
+        class="p-button-secondary p-button-outlined"
+        [disabled]="submitting"
+        (click)="closeDialog()"
+      ></button>
+      <button
+        pButton
+        type="submit"
+        [label]="isCreateMode ? 'Lưu người dùng' : 'Cập nhật người dùng'"
+        [icon]="isCreateMode ? 'pi pi-save' : 'pi pi-check'"
+        class="p-button-primary"
+        [loading]="submitting"
+      ></button>
+    </div>
+  </form>
+</p-dialog>

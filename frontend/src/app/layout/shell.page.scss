@@ -1,0 +1,517 @@
+.shell {
+  --shell-gap: 1rem;
+  --shell-sidebar-width: clamp(250px, 30vw, 320px);
+  min-height: 100vh;
+  display: grid;
+  gap: var(--shell-gap);
+  padding: var(--shell-gap);
+  padding-left: calc(var(--shell-sidebar-width) + (var(--shell-gap) * 2));
+  grid-template-columns: 1fr;
+}
+
+.sidebar {
+  background: linear-gradient(165deg, #163b63 0%, #1a4a7a 45%, #16517a 100%);
+  color: #f3f8ff;
+  padding: 1.05rem 0.95rem 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  max-height: calc(100vh - 2rem);
+  min-height: 0;
+  overflow: hidden;
+  position: fixed;
+  left: var(--shell-gap);
+  top: var(--shell-gap);
+  width: var(--shell-sidebar-width);
+  height: calc(100vh - (var(--shell-gap) * 2));
+}
+
+.sidebar-head {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.15rem 0.2rem 0.1rem;
+  margin-bottom: 0.65rem;
+}
+
+.brand {
+  font-size: 1.35rem;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  margin: 0;
+}
+
+.subtitle {
+  margin: 0.35rem 0 0;
+  color: rgba(244, 250, 255, 0.8);
+  font-size: 0.9rem;
+}
+
+.loading-wrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1200;
+}
+
+.sidebar-menu {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.1rem 0.1rem 0.15rem 0;
+  margin-top: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(202, 224, 248, 0.45) transparent;
+}
+
+.sidebar-menu::-webkit-scrollbar {
+  width: 7px;
+}
+
+.sidebar-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb {
+  background: rgba(202, 224, 248, 0.34);
+  border-radius: 999px;
+}
+
+.sidebar-menu:hover::-webkit-scrollbar-thumb {
+  background: rgba(216, 233, 251, 0.52);
+}
+
+.sidebar-menu-search {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 0.52rem;
+  padding: 0.08rem 0.24rem 0.3rem 0;
+  background: linear-gradient(
+    180deg,
+    rgba(22, 65, 106, 0.98) 0%,
+    rgba(22, 65, 106, 0.96) 74%,
+    rgba(22, 65, 106, 0.72) 100%
+  );
+}
+
+.sidebar-menu-search label {
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(231, 242, 253, 0.84);
+  font-weight: 600;
+}
+
+.sidebar-menu-search__field {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2rem;
+  border: 1px solid rgba(231, 242, 253, 0.28);
+  border-radius: 0.58rem;
+  padding: 0.16rem 0.24rem 0.16rem 0.42rem;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-menu-search__field .pi {
+  font-size: 0.82rem;
+  color: rgba(235, 245, 255, 0.82);
+}
+
+.sidebar-menu-search__field input {
+  border: 0;
+  background: transparent;
+  color: #f7fbff;
+  width: 100%;
+  font-size: 0.86rem;
+  min-height: 1.4rem;
+}
+
+.sidebar-menu-search__field input::placeholder {
+  color: rgba(230, 242, 252, 0.62);
+}
+
+.sidebar-menu-search__field input:focus {
+  outline: none;
+}
+
+.sidebar-menu-search__clear {
+  border: 0;
+  background: transparent;
+  color: rgba(235, 245, 255, 0.82);
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.35rem;
+  cursor: pointer;
+}
+
+.sidebar-menu-search__clear:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.nav-groups {
+  display: grid;
+  gap: 0.52rem;
+}
+
+.nav-group {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.nav-group--active {
+  position: relative;
+}
+
+.nav-group__header {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 1.65rem;
+  padding: 0.1rem 0.32rem;
+  color: rgba(232, 243, 255, 0.88);
+  cursor: pointer;
+}
+
+.nav-group__header--active {
+  color: #ffffff;
+
+  .nav-group__label {
+    font-weight: 700;
+  }
+
+  .pi {
+    color: rgba(244, 250, 255, 0.96);
+  }
+}
+
+.nav-group__header--active::before {
+  content: "";
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.12);
+  margin-right: 0.45rem;
+  flex: 0 0 auto;
+}
+
+.nav-group__header .pi {
+  font-size: 0.72rem;
+  color: rgba(225, 238, 252, 0.78);
+}
+
+.nav-group__label {
+  font-size: 0.74rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.nav-group__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 180ms ease;
+}
+
+.nav-group__panel.is-open {
+  grid-template-rows: 1fr;
+}
+
+.nav-group__panel > .nav-links {
+  overflow: hidden;
+}
+
+.nav-links {
+  display: grid;
+  gap: 0.22rem;
+  padding-right: 0.24rem;
+}
+
+:host ::ng-deep .nav-links .p-button.nav-link {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+  min-height: 2.15rem;
+  padding: 0.48rem 0.66rem;
+  border-radius: 0.62rem;
+  border: 1px solid rgba(235, 245, 255, 0.13);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f6fbff;
+  font-size: 0.92rem;
+  font-weight: 450;
+  box-shadow: none;
+  transition:
+    background-color 130ms ease,
+    border-color 130ms ease,
+    color 130ms ease,
+    box-shadow 130ms ease;
+}
+
+:host ::ng-deep .nav-links .p-button.nav-link .pi {
+  font-size: 0.88rem;
+  opacity: 0.92;
+}
+
+:host ::ng-deep .nav-links .p-button.nav-link:hover {
+  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(235, 245, 255, 0.18);
+  border-left-color: rgba(235, 245, 255, 0.18);
+}
+
+:host ::ng-deep .nav-links .p-button.nav-link.active {
+  background: rgba(245, 251, 255, 0.28);
+  border: 1px solid rgba(235, 245, 255, 0.32);
+  border-left: 4px solid rgba(255, 255, 255, 0.88);
+  color: #ffffff;
+  font-weight: 600;
+  padding-left: calc(0.66rem - 3px);
+  box-shadow: none;
+}
+
+:host ::ng-deep .nav-links .p-button.nav-link.active .pi {
+  opacity: 1;
+}
+
+:host ::ng-deep .nav-links .p-button.nav-link:focus-visible {
+  outline: none;
+  border-color: rgba(240, 248, 255, 0.52);
+}
+
+// ── Trang chủ button ──────────────────────────────────────────
+:host ::ng-deep .sidebar-home-btn.p-button {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 0.6rem;
+  min-height: 2.25rem;
+  padding: 0.5rem 0.66rem;
+  border-radius: 0.62rem;
+  border: 1px solid rgba(235, 245, 255, 0.18);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: none;
+  flex-shrink: 0;
+  transition:
+    background 130ms ease,
+    border-color 130ms ease;
+
+  .pi {
+    font-size: 0.92rem;
+    opacity: 1;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(235, 245, 255, 0.28);
+  }
+
+  &.active {
+    background: rgba(245, 251, 255, 0.28);
+    border: 1px solid rgba(235, 245, 255, 0.32);
+    border-left: 4px solid rgba(255, 255, 255, 0.88);
+    padding-left: calc(0.66rem - 3px);
+    font-weight: 700;
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: rgba(240, 248, 255, 0.52);
+  }
+}
+
+// ── Sidebar Footer ────────────────────────────────────────────
+.sidebar-footer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin-top: 0.25rem;
+}
+
+// ── User Profile Block ────────────────────────────────────────
+.sidebar-user-profile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.7rem 0.6rem;
+  border-radius: 0.62rem;
+  cursor: pointer;
+  transition: background 130ms ease;
+  user-select: none;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &:active {
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
+
+.sup-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.sup-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.04rem;
+}
+
+.sup-meta {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+}
+
+.sup-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #f6fbff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.sup-don-vi {
+  font-size: 0.72rem;
+  color: rgba(232, 243, 255, 0.78);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.sup-menu-icon {
+  font-size: 0.8rem;
+  color: rgba(220, 235, 255, 0.65);
+  flex-shrink: 0;
+  transition: color 130ms ease;
+
+  .sidebar-user-profile:hover & {
+    color: rgba(240, 250, 255, 0.9);
+  }
+}
+
+// ── User Account Popup Menu ───────────────────────────────────
+.sup-menu {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #1a3d65;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.62rem;
+  padding: 0.3rem;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  animation: sup-menu-in 120ms ease;
+}
+
+@keyframes sup-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sup-menu__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.65rem;
+  border: 0;
+  background: transparent;
+  color: rgba(235, 248, 255, 0.9);
+  font-size: 0.875rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background 120ms ease;
+
+  .pi {
+    font-size: 0.85rem;
+    opacity: 0.85;
+    width: 1rem;
+    text-align: center;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+
+  &--danger {
+    color: rgba(255, 160, 160, 0.9);
+
+    &:hover {
+      background: rgba(206, 73, 73, 0.25);
+      color: #ffaaaa;
+    }
+  }
+}
+
+.sup-menu__divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0.25rem 0.4rem;
+}
+
+.content {
+  padding: 0 0 1.2rem;
+}
+
+@media (max-width: 980px) {
+  .shell {
+    grid-template-columns: 1fr;
+    padding: 0.7rem;
+    padding-left: 0.7rem;
+  }
+
+  .sidebar {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 1rem;
+    gap: 0;
+    max-height: none;
+  }
+
+  .sidebar-menu {
+    max-height: 50vh;
+  }
+}

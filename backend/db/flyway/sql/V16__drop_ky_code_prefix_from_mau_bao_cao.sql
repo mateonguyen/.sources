@@ -1,0 +1,14 @@
+DECLARE
+    v_column_count NUMBER;
+BEGIN
+    SELECT COUNT(1)
+      INTO v_column_count
+      FROM USER_TAB_COLS
+     WHERE TABLE_NAME = 'RPT_MAU_BAO_CAO'
+       AND COLUMN_NAME = 'KY_CODE_PREFIX';
+
+    IF v_column_count > 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE RPT_MAU_BAO_CAO DROP COLUMN KY_CODE_PREFIX';
+    END IF;
+END;
+/ 

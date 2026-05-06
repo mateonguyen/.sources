@@ -1,0 +1,255 @@
+@import "@fontsource/source-sans-3/vietnamese-400.css";
+@import "@fontsource/source-sans-3/vietnamese-500.css";
+@import "@fontsource/source-sans-3/vietnamese-600.css";
+@import "@fontsource/source-sans-3/vietnamese-700.css";
+@import "@fontsource/merriweather/500.css";
+@import "@fontsource/merriweather/700.css";
+@import "@fontsource/jetbrains-mono/vietnamese-500.css";
+@import "@fontsource/jetbrains-mono/vietnamese-600.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "primeicons/primeicons.css";
+@import "primeflex/primeflex.css";
+@import "primeng/resources/themes/lara-light-blue/theme.css";
+@import "primeng/resources/primeng.css";
+
+@import "./styles/tokens/colors";
+@import "./styles/tokens/spacing";
+@import "./styles/tokens/radius";
+@import "./styles/tokens/typography";
+@import "./styles/tokens/shadow";
+
+@import "./styles/base/reset";
+@import "./styles/base/utilities";
+
+@import "./styles/components/layout";
+@import "./styles/components/buttons";
+@import "./styles/components/forms";
+@import "./styles/components/admin-shared";
+@import "./styles/components/primeng-form-fix";
+@import "./styles/components/data-entry-form";
+@import "./styles/components/feedback";
+@import "./styles/components/table";
+
+/* Permission matrix checkbox UX overrides (global scope, narrow selector) */
+.permission-matrix-table .matrix-checkbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.permission-matrix-table {
+  table-layout: fixed;
+}
+
+.permission-matrix-table th,
+.permission-matrix-table td {
+  vertical-align: middle;
+}
+
+.permission-matrix-table .col-feature {
+  width: 38%;
+}
+
+.permission-matrix-table .col-action {
+  width: 10.33%;
+}
+
+.permission-matrix-table .action-header-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 1.9rem;
+}
+
+.permission-matrix-table .action-header-cell span {
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+
+.permission-matrix-table .matrix-cell {
+  text-align: center;
+}
+
+.permission-matrix-table .matrix-cell-clickable {
+  cursor: pointer;
+}
+
+.permission-matrix-table .matrix-cell-disabled {
+  cursor: not-allowed;
+}
+
+.permission-matrix-table .matrix-empty {
+  color: var(--app-text-muted);
+  opacity: 0.68;
+}
+
+/* ── Training dialog (tfd-dialog) ──
+   All styles here because PrimeNG appendTo="body" moves the dialog
+   outside the Angular component host, so component SCSS won't apply.
+   Uses the same floating-label system as nhan-luc-cntt dialog. */
+
+/* Dialog shell */
+.tfd-dialog.p-dialog {
+  border-radius: 0.875rem;
+  box-shadow:
+    0 24px 60px -12px rgba(16, 30, 54, 0.22),
+    0 8px 20px -6px rgba(16, 30, 54, 0.1);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.tfd-dialog .p-dialog-header {
+  padding: 0;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface);
+}
+
+.tfd-dialog .p-dialog-content {
+  padding: 0;
+  background: var(--app-surface);
+}
+
+.tfd-dialog .p-dialog-footer {
+  padding: 0;
+}
+
+/* Dialog form layout */
+.tfd-dialog .app-dialog-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Dialog body */
+.tfd-dialog .app-dialog-body {
+  display: grid;
+  grid-template-rows: auto;
+  gap: 0;
+  padding: 1rem;
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+  background: var(--app-surface);
+}
+
+/* Section container – no outer frame */
+.tfd-dialog .app-dialog-section {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.tfd-dialog .app-dialog-section--basic {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Section header */
+.tfd-dialog .app-dialog-section__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.65rem;
+}
+
+.tfd-dialog .app-dialog-section__header h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--app-text-strong, #1d3148);
+}
+
+.tfd-dialog .app-dialog-section__header--compact {
+  align-items: center;
+  margin-bottom: 0.55rem;
+}
+
+/* Grid */
+.tfd-dialog .app-dialog-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 0.9rem;
+}
+
+.tfd-dialog .tfd-grid--main {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.6rem 0.8rem;
+}
+
+.tfd-dialog .tfd-grid--hocvien {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem 0.8rem;
+}
+
+/* Form field – floating label system (data-entry-form.scss handles core) */
+.tfd-dialog .app-form-field {
+  --surface-input: var(--app-surface-soft);
+  --form-label-font: var(--app-font-family-mono);
+  --form-placeholder-font: var(--app-font-family-mono);
+  --form-value-font: var(--app-font-family-heading);
+  min-width: 0;
+}
+
+.tfd-dialog .app-form-field--full {
+  grid-column: 1 / -1;
+}
+
+/* Ghi chú field spacing aligned with nhan-luc dialog */
+.tfd-dialog .tfd-field--ghichu {
+  margin-top: 0.12rem;
+}
+
+/* Keep contrast: form nền trắng -> input nền surface-soft */
+.tfd-dialog .app-form-field .app-form-field__input,
+.tfd-dialog .app-form-field .p-dropdown,
+.tfd-dialog .app-form-field .p-calendar,
+.tfd-dialog .app-form-field .p-inputnumber,
+.tfd-dialog .app-form-field .p-select {
+  background: var(--surface-input) !important;
+}
+
+/* InputNumber text baseline aligned with floating-label inputs */
+/* Footer */
+.tfd-dialog .app-dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+  padding: 0.7rem 1rem 1rem;
+  border-top: 1px solid var(--app-border);
+  background: var(--app-surface);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tfd-dialog .tfd-grid--main {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .tfd-dialog .tfd-field--ten {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 480px) {
+  .tfd-dialog .tfd-grid--main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tfd-dialog .tfd-field--ten {
+    grid-column: auto;
+  }
+  .tfd-dialog .app-dialog-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+}

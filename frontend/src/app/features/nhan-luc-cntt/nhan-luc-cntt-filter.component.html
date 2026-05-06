@@ -1,0 +1,162 @@
+<div class="filter-panel nhan-luc-filter-panel" [formGroup]="typedForm">
+  <div class="filter-container">
+    <div class="filter-row nhan-luc-filter-panel__main-row">
+      <div class="filter-group filter-group--lg nhan-luc-filter-panel__search">
+        <label class="filter-label" for="nhan-luc-tu-khoa"
+          >Tìm kiếm nhanh</label
+        >
+        <span class="nhan-luc-filter-panel__search-shell">
+          <i class="pi pi-search" aria-hidden="true"></i>
+          <input
+            id="nhan-luc-tu-khoa"
+            pInputText
+            type="text"
+            class="app-filter-input"
+            formControlName="tuKhoa"
+            placeholder="Nhập họ tên, số điện thoại hoặc đơn vị công tác"
+            [disabled]="loading"
+            (keydown.enter)="apply.emit()"
+          />
+        </span>
+      </div>
+
+      <div class="filter-group filter-group--md">
+        <label class="filter-label" for="nhan-luc-nam">Năm</label>
+        <p-dropdown
+          id="nhan-luc-nam"
+          styleClass="app-filter-select"
+          [panelStyleClass]="selectPanelStyleClass"
+          [options]="namOptions"
+          optionLabel="label"
+          optionValue="value"
+          formControlName="namBaoCao"
+          appendTo="body"
+          [disabled]="loading"
+          (onChange)="apply.emit()"
+        ></p-dropdown>
+      </div>
+
+      <div class="filter-group filter-group--md">
+        <label class="filter-label" for="nhan-luc-don-vi"
+          >Đơn vị công tác</label
+        >
+        <p-dropdown
+          id="nhan-luc-don-vi"
+          styleClass="app-filter-select"
+          [panelStyleClass]="selectPanelStyleClass"
+          [options]="donViOptions"
+          optionLabel="label"
+          optionValue="value"
+          formControlName="donViCongTacId"
+          appendTo="body"
+          [filter]="true"
+          filterBy="label"
+          [disabled]="loading"
+          (onChange)="apply.emit()"
+        ></p-dropdown>
+      </div>
+
+      <div class="filter-actions nhan-luc-filter-panel__actions">
+        <button
+          pButton
+          type="button"
+          icon="pi pi-sliders-h"
+          class="p-button-secondary p-button-outlined"
+          [label]="advancedFilterLabel"
+          [disabled]="loading"
+          (click)="toggleAdvanced.emit()"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-filter"
+          class="p-button-primary"
+          label="Lọc"
+          [disabled]="loading"
+          (click)="apply.emit()"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-times"
+          class="p-button-secondary p-button-outlined"
+          label="Xóa bộ lọc"
+          [disabled]="loading"
+          (click)="clear.emit()"
+        ></button>
+      </div>
+    </div>
+
+    <div class="nhan-luc-filter-panel__advanced" *ngIf="advancedVisible">
+      <div class="filter-row nhan-luc-filter-panel__advanced-row">
+        <div class="filter-group filter-group--md">
+          <label class="filter-label" for="nhan-luc-gioi-tinh">Giới tính</label>
+          <p-dropdown
+            id="nhan-luc-gioi-tinh"
+            styleClass="app-filter-select"
+            [panelStyleClass]="selectPanelStyleClass"
+            [options]="gioiTinhOptions"
+            optionLabel="label"
+            optionValue="value"
+            formControlName="gioiTinh"
+            appendTo="body"
+            [disabled]="loading"
+            (onChange)="apply.emit()"
+          ></p-dropdown>
+        </div>
+
+        <div class="filter-group filter-group--md">
+          <label class="filter-label" for="nhan-luc-cap-bac">Cấp bậc</label>
+          <p-dropdown
+            id="nhan-luc-cap-bac"
+            styleClass="app-filter-select"
+            [panelStyleClass]="selectPanelStyleClass"
+            [options]="capBacOptions"
+            optionLabel="label"
+            optionValue="value"
+            formControlName="capBac"
+            appendTo="body"
+            [filter]="true"
+            filterBy="label"
+            [disabled]="loading"
+            (onChange)="apply.emit()"
+          ></p-dropdown>
+        </div>
+
+        <div class="filter-group filter-group--md">
+          <label class="filter-label" for="nhan-luc-loai">Loại nhân lực</label>
+          <p-dropdown
+            id="nhan-luc-loai"
+            styleClass="app-filter-select"
+            [panelStyleClass]="selectPanelStyleClass"
+            [options]="loaiNhanLucOptions"
+            optionLabel="label"
+            optionValue="value"
+            formControlName="loaiNhanLuc"
+            appendTo="body"
+            [disabled]="loading"
+            (onChange)="apply.emit()"
+          ></p-dropdown>
+        </div>
+
+        <div class="filter-group filter-group--md">
+          <label class="filter-label" for="nhan-luc-trinh-do"
+            >Trình độ CNTT</label
+          >
+          <p-dropdown
+            id="nhan-luc-trinh-do"
+            styleClass="app-filter-select"
+            [panelStyleClass]="selectPanelStyleClass"
+            [options]="trinhDoCnttOptions"
+            optionLabel="label"
+            optionValue="value"
+            formControlName="trinhDoCntt"
+            appendTo="body"
+            [disabled]="loading"
+            (onChange)="apply.emit()"
+          ></p-dropdown>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,143 @@
+<div class="shell">
+  <div class="loading-wrap" *ngIf="loadingService.isLoading()">
+    <p-progressBar
+      mode="indeterminate"
+      [style]="{ height: '4px' }"
+    ></p-progressBar>
+  </div>
+
+  <aside class="sidebar app-page-card">
+    <!-- ── Logo / Brand ── -->
+    <div class="sidebar-head">
+      <p class="brand">THUC LUC</p>
+      <p class="subtitle">Quản trị dữ liệu nhân lực CNTT</p>
+    </div>
+
+    <!-- ── Trang chủ ── -->
+    <a
+      pButton
+      routerLink="/trang-chu"
+      routerLinkActive="active"
+      class="p-button-text sidebar-home-btn"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      <i class="pi pi-home"></i>
+      <span>Trang chủ</span>
+    </a>
+
+    <!-- ── Menu body (scrollable) ── -->
+    <div class="sidebar-menu" role="navigation" aria-label="Điều hướng chính">
+      <div class="sidebar-menu-search">
+        <label for="sidebarMenuSearch">Tìm nhanh</label>
+        <div class="sidebar-menu-search__field">
+          <i class="pi pi-search" aria-hidden="true"></i>
+          <input
+            #menuSearchInput
+            id="sidebarMenuSearch"
+            type="text"
+            [value]="menuQuery"
+            (input)="onMenuQueryChange($any($event.target).value)"
+            placeholder="Tìm màn hình... (Ctrl+K)"
+          />
+          <button
+            *ngIf="menuQuery"
+            type="button"
+            class="sidebar-menu-search__clear"
+            (click)="clearMenuQuery()"
+            aria-label="Xóa tìm kiếm"
+          >
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <nav class="nav-groups">
+        <section
+          class="nav-group"
+          [class.nav-group--active]="hasActiveItem(group)"
+          *ngFor="let group of filteredMenuGroups; trackBy: trackByGroup"
+        >
+          <button
+            type="button"
+            class="nav-group__header"
+            [class.nav-group__header--active]="hasActiveItem(group)"
+            (click)="toggleGroup(group.id)"
+            [attr.aria-expanded]="isGroupExpanded(group.id)"
+          >
+            <span class="nav-group__label">{{ group.label }}</span>
+            <i
+              class="pi"
+              [class.pi-chevron-down]="isGroupExpanded(group.id)"
+              [class.pi-chevron-right]="!isGroupExpanded(group.id)"
+            ></i>
+          </button>
+
+          <div
+            class="nav-group__panel"
+            [class.is-open]="isGroupExpanded(group.id)"
+          >
+            <div class="nav-links">
+              <a
+                *ngFor="let item of group.items; trackBy: trackByItem"
+                pButton
+                [routerLink]="item.route"
+                routerLinkActive="active"
+                [attr.aria-current]="isItemRouteActive(item.route) ? 'page' : null"
+                class="p-button-text nav-link"
+              >
+                <i [class]="item.icon + ' mr-2'"></i>{{ item.label }}
+              </a>
+            </div>
+          </div>
+        </section>
+      </nav>
+    </div>
+
+    <!-- ── Sidebar Footer ── -->
+    <div class="sidebar-footer">
+      <!-- User profile block -->
+      <div class="sidebar-user-profile" (click)="toggleUserMenu()">
+        <div class="sup-avatar">{{ userInitials }}</div>
+        <div class="sup-info">
+          <span class="sup-name">{{ userDisplayName }}</span>
+          <div class="sup-meta" *ngIf="hasUserMeta">
+            <span class="sup-don-vi" *ngIf="userDonViLabel"
+              >{{ userDonViLabel }}</span
+            >
+          </div>
+        </div>
+        <i class="pi pi-ellipsis-v sup-menu-icon"></i>
+
+        <!-- Account popup menu -->
+        <div class="sup-menu" *ngIf="userMenuOpen" role="menu">
+          <button
+            *ngFor="let item of userMenuItems"
+            type="button"
+            class="sup-menu__item"
+            role="menuitem"
+            (click)="item.action(); $event.stopPropagation()"
+          >
+            <i [class]="item.icon"></i>
+            <span>{{ item.label }}</span>
+          </button>
+          <div class="sup-menu__divider"></div>
+          <button
+            type="button"
+            class="sup-menu__item sup-menu__item--danger"
+            role="menuitem"
+            (click)="logout(); $event.stopPropagation()"
+          >
+            <i class="pi pi-sign-out"></i>
+            <span>Đăng xuất</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Logout button -->
+    </div>
+  </aside>
+
+  <main class="content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

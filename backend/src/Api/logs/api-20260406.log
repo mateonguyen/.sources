@@ -1,0 +1,1214 @@
+2026-04-06 10:54:59.632 +07:00 [WRN] The decimal property 'KinhPhi' on entity type 'AtttHtttDauTu' does not have a store type specified. This may lead to a precision loss if the values do not fit in the default precision and scale. Oracle recommends to explicitly specify the column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2026-04-06 10:54:59.660 +07:00 [WRN] The decimal property 'KinhPhi' on entity type 'DaoTaoNuocNgoai' does not have a store type specified. This may lead to a precision loss if the values do not fit in the default precision and scale. Oracle recommends to explicitly specify the column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2026-04-06 10:55:00.969 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-06 10:55:01.072 +07:00 [INF] User profile is available. Using 'C:\Users\CNTT\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-04-06 10:55:01.223 +07:00 [INF] Now listening on: http://localhost:5283
+2026-04-06 10:55:01.224 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-04-06 10:55:01.225 +07:00 [INF] Hosting environment: Development
+2026-04-06 10:55:01.225 +07:00 [INF] Content root path: D:\Projects\ThucLuc_V2\.sources\backend\src\Api
+2026-04-06 10:56:14.156 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - application/json 61
+2026-04-06 10:56:14.191 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-04-06 10:56:14.207 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-06 10:56:14.221 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Auth.AuthTokenDto]]] Login(ThucLuc.Application.Features.Auth.LoginRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.AuthController (ThucLuc.Api).
+2026-04-06 10:56:14.675 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Auth.AuthTokenDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 10:56:14.690 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api) in 464.9692ms
+2026-04-06 10:56:14.693 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-06 10:56:14.695 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 511.4113 ms CorrelationId=2192a1a91f744ffe969fc26ff7bbe6a2 UserId=anonymous
+2026-04-06 10:56:14.698 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 517.1427 ms
+2026-04-06 10:56:14.702 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - 200 null application/json; charset=utf-8 547.0973ms
+2026-04-06 10:56:43.228 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/dao-tao-hoc-vien - application/json 247
+2026-04-06 10:56:43.250 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Create (ThucLuc.Api)'
+2026-04-06 10:56:43.255 +07:00 [INF] Route matched with {action = "Create", controller = "DaoTaoHocVien"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto]]] Create(ThucLuc.Application.Features.DaoTaoHocVien.UpsertDaoTaoHocVienRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoHocVienController (ThucLuc.Api).
+2026-04-06 10:56:43.326 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 10:56:43.329 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Create (ThucLuc.Api) in 70.9507ms
+2026-04-06 10:56:43.330 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Create (ThucLuc.Api)'
+2026-04-06 10:56:43.332 +07:00 [INF] HTTP POST /api/v1/dao-tao-hoc-vien => 200 in 99.9127 ms CorrelationId=09a1b1bbe1c34c2ca8a99da71fe59e22 UserId=5001
+2026-04-06 10:56:43.335 +07:00 [INF] HTTP POST /api/v1/dao-tao-hoc-vien responded 200 in 103.2494 ms
+2026-04-06 10:56:43.338 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/dao-tao-hoc-vien - 200 null application/json; charset=utf-8 110.0639ms
+2026-04-06 10:56:43.389 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=2026Q9 - null null
+2026-04-06 10:56:43.396 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api)'
+2026-04-06 10:56:43.401 +07:00 [INF] Route matched with {action = "GetAll", controller = "DaoTaoHocVien"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto]]]] GetAll(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoHocVienController (ThucLuc.Api).
+2026-04-06 10:56:43.412 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 10:56:43.414 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api) in 11.483ms
+2026-04-06 10:56:43.416 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api)'
+2026-04-06 10:56:43.417 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien => 200 in 25.2354 ms CorrelationId=35790f5581654791807faf62dff586e7 UserId=5001
+2026-04-06 10:56:43.419 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien responded 200 in 27.1967 ms
+2026-04-06 10:56:43.421 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=2026Q9 - 200 null application/json; charset=utf-8 31.3578ms
+2026-04-06 10:56:43.443 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien/1 - null null
+2026-04-06 10:56:43.445 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetById (ThucLuc.Api)'
+2026-04-06 10:56:43.448 +07:00 [INF] Route matched with {action = "GetById", controller = "DaoTaoHocVien"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto]]] GetById(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoHocVienController (ThucLuc.Api).
+2026-04-06 10:56:43.452 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 10:56:43.454 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetById (ThucLuc.Api) in 4.6203ms
+2026-04-06 10:56:43.454 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetById (ThucLuc.Api)'
+2026-04-06 10:56:43.455 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien/1 => 200 in 11.016 ms CorrelationId=8fccda98263044829cbee2dece8e5253 UserId=5001
+2026-04-06 10:56:43.457 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien/1 responded 200 in 12.7745 ms
+2026-04-06 10:56:43.458 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien/1 - 200 null application/json; charset=utf-8 15.4051ms
+2026-04-06 10:56:43.511 +07:00 [INF] Request starting HTTP/1.1 PUT http://localhost:5283/api/v1/dao-tao-hoc-vien/1 - application/json 247
+2026-04-06 10:56:43.514 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Update (ThucLuc.Api)'
+2026-04-06 10:56:43.517 +07:00 [INF] Route matched with {action = "Update", controller = "DaoTaoHocVien"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto]]] Update(Int64, ThucLuc.Application.Features.DaoTaoHocVien.UpsertDaoTaoHocVienRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoHocVienController (ThucLuc.Api).
+2026-04-06 10:56:43.537 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 10:56:43.538 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Update (ThucLuc.Api) in 19.3821ms
+2026-04-06 10:56:43.538 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Update (ThucLuc.Api)'
+2026-04-06 10:56:43.539 +07:00 [INF] HTTP PUT /api/v1/dao-tao-hoc-vien/1 => 200 in 25.6 ms CorrelationId=fee66dd2f011441c9e59434c67bb1e41 UserId=5001
+2026-04-06 10:56:43.540 +07:00 [INF] HTTP PUT /api/v1/dao-tao-hoc-vien/1 responded 200 in 26.5982 ms
+2026-04-06 10:56:43.541 +07:00 [INF] Request finished HTTP/1.1 PUT http://localhost:5283/api/v1/dao-tao-hoc-vien/1 - 200 null application/json; charset=utf-8 29.9591ms
+2026-04-06 10:56:43.565 +07:00 [INF] Request starting HTTP/1.1 DELETE http://localhost:5283/api/v1/dao-tao-hoc-vien/1 - null 0
+2026-04-06 10:56:43.567 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Delete (ThucLuc.Api)'
+2026-04-06 10:56:43.570 +07:00 [INF] Route matched with {action = "Delete", controller = "DaoTaoHocVien"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Object]]] Delete(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoHocVienController (ThucLuc.Api).
+2026-04-06 10:56:43.587 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 10:56:43.589 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Delete (ThucLuc.Api) in 18.029ms
+2026-04-06 10:56:43.590 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Delete (ThucLuc.Api)'
+2026-04-06 10:56:43.591 +07:00 [INF] HTTP DELETE /api/v1/dao-tao-hoc-vien/1 => 200 in 24.2314 ms CorrelationId=cc398b9dc74a43b49274a452605ba425 UserId=5001
+2026-04-06 10:56:43.592 +07:00 [INF] HTTP DELETE /api/v1/dao-tao-hoc-vien/1 responded 200 in 25.4720 ms
+2026-04-06 10:56:43.594 +07:00 [INF] Request finished HTTP/1.1 DELETE http://localhost:5283/api/v1/dao-tao-hoc-vien/1 - 200 null application/json; charset=utf-8 28.6445ms
+2026-04-06 10:56:43.615 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=2026Q9 - null null
+2026-04-06 10:56:43.618 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api)'
+2026-04-06 10:56:43.620 +07:00 [INF] Route matched with {action = "GetAll", controller = "DaoTaoHocVien"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto]]]] GetAll(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoHocVienController (ThucLuc.Api).
+2026-04-06 10:56:43.623 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 10:56:43.624 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api) in 3.1306ms
+2026-04-06 10:56:43.625 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api)'
+2026-04-06 10:56:43.626 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien => 200 in 8.0491 ms CorrelationId=556c6cb6178c4baab8df145a7d55bb49 UserId=5001
+2026-04-06 10:56:43.628 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien responded 200 in 10.1061 ms
+2026-04-06 10:56:43.629 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=2026Q9 - 200 null application/json; charset=utf-8 14.4032ms
+2026-04-06 10:56:43.680 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/nang-luc-so - application/json 203
+2026-04-06 10:56:43.682 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.Create (ThucLuc.Api)'
+2026-04-06 10:56:43.684 +07:00 [INF] Route matched with {action = "Create", controller = "NangLucSo"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.NangLucSo.NangLucSoDto]]] Create(ThucLuc.Application.Features.NangLucSo.UpsertNangLucSoRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.NangLucSoController (ThucLuc.Api).
+2026-04-06 10:56:43.725 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.NangLucSo.NangLucSoDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 10:56:43.727 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.NangLucSoController.Create (ThucLuc.Api) in 41.702ms
+2026-04-06 10:56:43.729 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.Create (ThucLuc.Api)'
+2026-04-06 10:56:43.729 +07:00 [INF] HTTP POST /api/v1/nang-luc-so => 200 in 47.7604 ms CorrelationId=0976193d62074e6ca7c9150cd3c3e058 UserId=5001
+2026-04-06 10:56:43.730 +07:00 [INF] HTTP POST /api/v1/nang-luc-so responded 200 in 48.9535 ms
+2026-04-06 10:56:43.732 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/nang-luc-so - 200 null application/json; charset=utf-8 51.4423ms
+2026-04-06 10:56:43.769 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/nang-luc-so?kyCode=2026Q9 - null null
+2026-04-06 10:56:43.771 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.GetAll (ThucLuc.Api)'
+2026-04-06 10:56:43.773 +07:00 [INF] Route matched with {action = "GetAll", controller = "NangLucSo"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.NangLucSo.NangLucSoDto]]]] GetAll(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.NangLucSoController (ThucLuc.Api).
+2026-04-06 10:56:43.781 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.NangLucSo.NangLucSoDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 10:56:43.784 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.NangLucSoController.GetAll (ThucLuc.Api) in 8.9493ms
+2026-04-06 10:56:43.784 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.GetAll (ThucLuc.Api)'
+2026-04-06 10:56:43.785 +07:00 [INF] HTTP GET /api/v1/nang-luc-so => 200 in 14.4639 ms CorrelationId=f148612b50334884b7221363278ef699 UserId=5001
+2026-04-06 10:56:43.786 +07:00 [INF] HTTP GET /api/v1/nang-luc-so responded 200 in 15.6068 ms
+2026-04-06 10:56:43.787 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/nang-luc-so?kyCode=2026Q9 - 200 null application/json; charset=utf-8 17.8729ms
+2026-04-06 10:56:43.806 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/nang-luc-so/1 - null null
+2026-04-06 10:56:43.808 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.GetById (ThucLuc.Api)'
+2026-04-06 10:56:43.811 +07:00 [INF] Route matched with {action = "GetById", controller = "NangLucSo"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.NangLucSo.NangLucSoDto]]] GetById(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.NangLucSoController (ThucLuc.Api).
+2026-04-06 10:56:43.815 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.NangLucSo.NangLucSoDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 10:56:43.816 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.NangLucSoController.GetById (ThucLuc.Api) in 3.6483ms
+2026-04-06 10:56:43.817 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.GetById (ThucLuc.Api)'
+2026-04-06 10:56:43.818 +07:00 [INF] HTTP GET /api/v1/nang-luc-so/1 => 200 in 10.3514 ms CorrelationId=c7507b0bc7c74056ad74bd168be45c00 UserId=5001
+2026-04-06 10:56:43.819 +07:00 [INF] HTTP GET /api/v1/nang-luc-so/1 responded 200 in 11.3892 ms
+2026-04-06 10:56:43.820 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/nang-luc-so/1 - 200 null application/json; charset=utf-8 13.8339ms
+2026-04-06 10:56:43.866 +07:00 [INF] Request starting HTTP/1.1 PUT http://localhost:5283/api/v1/nang-luc-so/1 - application/json 203
+2026-04-06 10:56:43.868 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.Update (ThucLuc.Api)'
+2026-04-06 10:56:43.871 +07:00 [INF] Route matched with {action = "Update", controller = "NangLucSo"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.NangLucSo.NangLucSoDto]]] Update(Int64, ThucLuc.Application.Features.NangLucSo.UpsertNangLucSoRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.NangLucSoController (ThucLuc.Api).
+2026-04-06 10:56:43.889 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.NangLucSo.NangLucSoDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 10:56:43.890 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.NangLucSoController.Update (ThucLuc.Api) in 17.6352ms
+2026-04-06 10:56:43.890 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.Update (ThucLuc.Api)'
+2026-04-06 10:56:43.891 +07:00 [INF] HTTP PUT /api/v1/nang-luc-so/1 => 200 in 22.8397 ms CorrelationId=7e660ed88cab48c0854b7d6242a722ff UserId=5001
+2026-04-06 10:56:43.892 +07:00 [INF] HTTP PUT /api/v1/nang-luc-so/1 responded 200 in 23.8359 ms
+2026-04-06 10:56:43.893 +07:00 [INF] Request finished HTTP/1.1 PUT http://localhost:5283/api/v1/nang-luc-so/1 - 200 null application/json; charset=utf-8 26.5774ms
+2026-04-06 10:56:43.913 +07:00 [INF] Request starting HTTP/1.1 DELETE http://localhost:5283/api/v1/nang-luc-so/1 - null 0
+2026-04-06 10:56:43.915 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.Delete (ThucLuc.Api)'
+2026-04-06 10:56:43.918 +07:00 [INF] Route matched with {action = "Delete", controller = "NangLucSo"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Object]]] Delete(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.NangLucSoController (ThucLuc.Api).
+2026-04-06 10:56:43.935 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 10:56:43.936 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.NangLucSoController.Delete (ThucLuc.Api) in 17.0793ms
+2026-04-06 10:56:43.937 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.Delete (ThucLuc.Api)'
+2026-04-06 10:56:43.937 +07:00 [INF] HTTP DELETE /api/v1/nang-luc-so/1 => 200 in 22.7741 ms CorrelationId=f4ac89eccc4f461ebf189608226ba5cc UserId=5001
+2026-04-06 10:56:43.939 +07:00 [INF] HTTP DELETE /api/v1/nang-luc-so/1 responded 200 in 24.1167 ms
+2026-04-06 10:56:43.940 +07:00 [INF] Request finished HTTP/1.1 DELETE http://localhost:5283/api/v1/nang-luc-so/1 - 200 null application/json; charset=utf-8 27.0087ms
+2026-04-06 10:56:43.961 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/nang-luc-so?kyCode=2026Q9 - null null
+2026-04-06 10:56:43.964 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.GetAll (ThucLuc.Api)'
+2026-04-06 10:56:43.964 +07:00 [INF] Route matched with {action = "GetAll", controller = "NangLucSo"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.NangLucSo.NangLucSoDto]]]] GetAll(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.NangLucSoController (ThucLuc.Api).
+2026-04-06 10:56:43.967 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.NangLucSo.NangLucSoDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 10:56:43.968 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.NangLucSoController.GetAll (ThucLuc.Api) in 2.7263ms
+2026-04-06 10:56:43.969 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.GetAll (ThucLuc.Api)'
+2026-04-06 10:56:43.970 +07:00 [INF] HTTP GET /api/v1/nang-luc-so => 200 in 6.6081 ms CorrelationId=2f13d5850a924328b032fe415e7c988b UserId=5001
+2026-04-06 10:56:43.971 +07:00 [INF] HTTP GET /api/v1/nang-luc-so responded 200 in 8.2385 ms
+2026-04-06 10:56:43.972 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/nang-luc-so?kyCode=2026Q9 - 200 null application/json; charset=utf-8 11.4253ms
+2026-04-06 10:57:14.127 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - application/json 61
+2026-04-06 10:57:14.129 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-06 10:57:14.130 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Auth.AuthTokenDto]]] Login(ThucLuc.Application.Features.Auth.LoginRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.AuthController (ThucLuc.Api).
+2026-04-06 10:57:14.388 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Auth.AuthTokenDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 10:57:14.389 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api) in 257.0106ms
+2026-04-06 10:57:14.390 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-06 10:57:14.391 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 261.7793 ms CorrelationId=be369ca3890c40f99161146a84fccb9e UserId=anonymous
+2026-04-06 10:57:14.393 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 263.6597 ms
+2026-04-06 10:57:14.394 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - 200 null application/json; charset=utf-8 267.7664ms
+2026-04-06 10:57:14.397 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/dao-tao-hoc-vien - application/json 247
+2026-04-06 10:57:14.399 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Create (ThucLuc.Api)'
+2026-04-06 10:57:14.400 +07:00 [INF] Route matched with {action = "Create", controller = "DaoTaoHocVien"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto]]] Create(ThucLuc.Application.Features.DaoTaoHocVien.UpsertDaoTaoHocVienRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoHocVienController (ThucLuc.Api).
+2026-04-06 10:57:14.434 +07:00 [ERR] 2026-04-06 10:57:14.434265 ThreadID:21  (ERROR)   OracleRelationalCommand.ExecuteReaderAsync() :  Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-00001: unique constraint (CAND_QLCNTT.UX_BIZ_DTHV_DV_KY_ND) violated
+ORA-06512: at line 14
+https://docs.oracle.com/error-help/db/ora-00001/
+   at Oracle.ManagedDataAccess.Client.OracleCommand.<>c.<ExecuteDbDataReaderAsync>b__225_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+2026-04-06 10:57:14.439 +07:00 [ERR] Failed executing DbCommand (33ms) [Parameters=[:p0='?' (DbType = DateTime), :p1='?' (DbType = Int64), :p2='?' (DbType = DateTime), :p3='?' (DbType = Int64), :p4='?' (Size = 2000), :p5='?' (Size = 50), :p6='?' (Size = 50), :p7='?' (DbType = Int32), :p8='?' (DbType = Int32), :p9='?' (DbType = Int32), :p10='?' (DbType = Int32), :p11='?' (DbType = Int32), :p12='?' (DbType = DateTime), :p13='?' (DbType = Int64), :cur0='?' (Direction = Output) (DbType = Object)], CommandType='"Text"', CommandTimeout='0']
+DECLARE
+
+TYPE "rBIZ_DAO_TAO_HOC_VIEN_0" IS RECORD
+(
+"ID" NUMBER(19)
+);
+TYPE "tBIZ_DAO_TAO_HOC_VIEN_0" IS TABLE OF "rBIZ_DAO_TAO_HOC_VIEN_0";
+"lBIZ_DAO_TAO_HOC_VIEN_0" "tBIZ_DAO_TAO_HOC_VIEN_0";
+
+BEGIN
+
+"lBIZ_DAO_TAO_HOC_VIEN_0" := "tBIZ_DAO_TAO_HOC_VIEN_0"();
+"lBIZ_DAO_TAO_HOC_VIEN_0".extend(1);
+INSERT INTO "CAND_QLCNTT"."BIZ_DAO_TAO_HOC_VIEN" ("CREATED_AT", "CREATED_BY", "DELETED_AT", "DON_VI_ID", "GHI_CHU", "KY_BAO_CAO_CODE", "NOI_DUNG_DAO_TAO", "SO_CAO_DANG", "SO_DAI_HOC", "SO_THAC_SI", "SO_TIEN_SI", "SO_TRUNG_CAP", "UPDATED_AT", "UPDATED_BY")
+VALUES (:p0, :p1, :p2, :p3, :p4, :p5, :p6, :p7, :p8, :p9, :p10, :p11, :p12, :p13)
+RETURNING "ID" INTO "lBIZ_DAO_TAO_HOC_VIEN_0"(1)."ID";
+OPEN :cur0 FOR SELECT "lBIZ_DAO_TAO_HOC_VIEN_0"(1)."ID" FROM DUAL;
+
+END;
+2026-04-06 10:57:14.447 +07:00 [ERR] 2026-04-06 10:57:14.446974 ThreadID:21  (ERROR)   OracleExecutionStrategy.ExecuteAsync() :  Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-00001: unique constraint (CAND_QLCNTT.UX_BIZ_DTHV_DV_KY_ND) violated
+ORA-06512: at line 14
+https://docs.oracle.com/error-help/db/ora-00001/
+   at Oracle.ManagedDataAccess.Client.OracleCommand.<>c.<ExecuteDbDataReaderAsync>b__225_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Update.Internal.OracleModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+2026-04-06 10:57:14.450 +07:00 [ERR] An exception occurred in the database while saving changes for context type 'ThucLuc.Infrastructure.Persistence.AppDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-00001: unique constraint (CAND_QLCNTT.UX_BIZ_DTHV_DV_KY_ND) violated
+ORA-06512: at line 14
+https://docs.oracle.com/error-help/db/ora-00001/
+   at Oracle.ManagedDataAccess.Client.OracleCommand.<>c.<ExecuteDbDataReaderAsync>b__225_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Update.Internal.OracleModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-00001: unique constraint (CAND_QLCNTT.UX_BIZ_DTHV_DV_KY_ND) violated
+ORA-06512: at line 14
+https://docs.oracle.com/error-help/db/ora-00001/
+   at Oracle.ManagedDataAccess.Client.OracleCommand.<>c.<ExecuteDbDataReaderAsync>b__225_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Update.Internal.OracleModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-04-06 10:57:14.457 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Create (ThucLuc.Api) in 55.7154ms
+2026-04-06 10:57:14.459 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Create (ThucLuc.Api)'
+2026-04-06 10:57:14.461 +07:00 [ERR] Unhandled exception. CorrelationId=6e3976a6f27144efa1da7a3b203d23c8
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-00001: unique constraint (CAND_QLCNTT.UX_BIZ_DTHV_DV_KY_ND) violated
+ORA-06512: at line 14
+https://docs.oracle.com/error-help/db/ora-00001/
+   at Oracle.ManagedDataAccess.Client.OracleCommand.<>c.<ExecuteDbDataReaderAsync>b__225_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Update.Internal.OracleModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienService.UpsertAsync(Nullable`1 id, UpsertDaoTaoHocVienRequest request, CancellationToken cancellationToken) in D:\Projects\ThucLuc_V2\.sources\backend\src\Application\Features\DaoTaoHocVien\DaoTaoHocVienService.cs:line 84
+   at ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Create(UpsertDaoTaoHocVienRequest request, CancellationToken cancellationToken) in D:\Projects\ThucLuc_V2\.sources\backend\src\Api\Controllers\V1\DaoTaoHocVienController.cs:line 46
+   at lambda_method1381(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at ThucLuc.Api.Common.Middleware.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in D:\Projects\ThucLuc_V2\.sources\backend\src\Api\Common\Middleware\GlobalExceptionMiddleware.cs:line 23
+2026-04-06 10:57:14.484 +07:00 [INF] HTTP POST /api/v1/dao-tao-hoc-vien => 500 in 85.3811 ms CorrelationId=6e3976a6f27144efa1da7a3b203d23c8 UserId=5001
+2026-04-06 10:57:14.485 +07:00 [ERR] HTTP POST /api/v1/dao-tao-hoc-vien responded 500 in 86.6669 ms
+2026-04-06 10:57:14.487 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/dao-tao-hoc-vien - 500 null application/json 89.5664ms
+2026-04-06 10:57:32.858 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - application/json 61
+2026-04-06 10:57:32.860 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-06 10:57:32.861 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Auth.AuthTokenDto]]] Login(ThucLuc.Application.Features.Auth.LoginRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.AuthController (ThucLuc.Api).
+2026-04-06 10:57:33.013 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Auth.AuthTokenDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 10:57:33.014 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api) in 152.2026ms
+2026-04-06 10:57:33.015 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-06 10:57:33.016 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 155.8911 ms CorrelationId=eb0e183b9d2c4ee2b838e9277fa4e844 UserId=anonymous
+2026-04-06 10:57:33.017 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 157.1309 ms
+2026-04-06 10:57:33.018 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - 200 null application/json; charset=utf-8 159.5614ms
+2026-04-06 10:57:33.020 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/dao-tao-hoc-vien - application/json 243
+2026-04-06 10:57:33.021 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Create (ThucLuc.Api)'
+2026-04-06 10:57:33.022 +07:00 [INF] Route matched with {action = "Create", controller = "DaoTaoHocVien"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto]]] Create(ThucLuc.Application.Features.DaoTaoHocVien.UpsertDaoTaoHocVienRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoHocVienController (ThucLuc.Api).
+2026-04-06 10:57:33.029 +07:00 [ERR] 2026-04-06 10:57:33.029875 ThreadID:21  (ERROR)   OracleRelationalCommand.ExecuteReaderAsync() :  Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-00001: unique constraint (CAND_QLCNTT.UX_BIZ_DTHV_DV_KY_ND) violated
+ORA-06512: at line 14
+https://docs.oracle.com/error-help/db/ora-00001/
+   at Oracle.ManagedDataAccess.Client.OracleCommand.<>c.<ExecuteDbDataReaderAsync>b__225_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+2026-04-06 10:57:33.030 +07:00 [ERR] Failed executing DbCommand (5ms) [Parameters=[:p0='?' (DbType = DateTime), :p1='?' (DbType = Int64), :p2='?' (DbType = DateTime), :p3='?' (DbType = Int64), :p4='?' (Size = 2000), :p5='?' (Size = 50), :p6='?' (Size = 50), :p7='?' (DbType = Int32), :p8='?' (DbType = Int32), :p9='?' (DbType = Int32), :p10='?' (DbType = Int32), :p11='?' (DbType = Int32), :p12='?' (DbType = DateTime), :p13='?' (DbType = Int64), :cur0='?' (Direction = Output) (DbType = Object)], CommandType='"Text"', CommandTimeout='0']
+DECLARE
+
+TYPE "rBIZ_DAO_TAO_HOC_VIEN_0" IS RECORD
+(
+"ID" NUMBER(19)
+);
+TYPE "tBIZ_DAO_TAO_HOC_VIEN_0" IS TABLE OF "rBIZ_DAO_TAO_HOC_VIEN_0";
+"lBIZ_DAO_TAO_HOC_VIEN_0" "tBIZ_DAO_TAO_HOC_VIEN_0";
+
+BEGIN
+
+"lBIZ_DAO_TAO_HOC_VIEN_0" := "tBIZ_DAO_TAO_HOC_VIEN_0"();
+"lBIZ_DAO_TAO_HOC_VIEN_0".extend(1);
+INSERT INTO "CAND_QLCNTT"."BIZ_DAO_TAO_HOC_VIEN" ("CREATED_AT", "CREATED_BY", "DELETED_AT", "DON_VI_ID", "GHI_CHU", "KY_BAO_CAO_CODE", "NOI_DUNG_DAO_TAO", "SO_CAO_DANG", "SO_DAI_HOC", "SO_THAC_SI", "SO_TIEN_SI", "SO_TRUNG_CAP", "UPDATED_AT", "UPDATED_BY")
+VALUES (:p0, :p1, :p2, :p3, :p4, :p5, :p6, :p7, :p8, :p9, :p10, :p11, :p12, :p13)
+RETURNING "ID" INTO "lBIZ_DAO_TAO_HOC_VIEN_0"(1)."ID";
+OPEN :cur0 FOR SELECT "lBIZ_DAO_TAO_HOC_VIEN_0"(1)."ID" FROM DUAL;
+
+END;
+2026-04-06 10:57:33.034 +07:00 [ERR] 2026-04-06 10:57:33.034111 ThreadID:21  (ERROR)   OracleExecutionStrategy.ExecuteAsync() :  Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-00001: unique constraint (CAND_QLCNTT.UX_BIZ_DTHV_DV_KY_ND) violated
+ORA-06512: at line 14
+https://docs.oracle.com/error-help/db/ora-00001/
+   at Oracle.ManagedDataAccess.Client.OracleCommand.<>c.<ExecuteDbDataReaderAsync>b__225_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Update.Internal.OracleModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+2026-04-06 10:57:33.036 +07:00 [ERR] An exception occurred in the database while saving changes for context type 'ThucLuc.Infrastructure.Persistence.AppDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-00001: unique constraint (CAND_QLCNTT.UX_BIZ_DTHV_DV_KY_ND) violated
+ORA-06512: at line 14
+https://docs.oracle.com/error-help/db/ora-00001/
+   at Oracle.ManagedDataAccess.Client.OracleCommand.<>c.<ExecuteDbDataReaderAsync>b__225_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Update.Internal.OracleModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-00001: unique constraint (CAND_QLCNTT.UX_BIZ_DTHV_DV_KY_ND) violated
+ORA-06512: at line 14
+https://docs.oracle.com/error-help/db/ora-00001/
+   at Oracle.ManagedDataAccess.Client.OracleCommand.<>c.<ExecuteDbDataReaderAsync>b__225_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Update.Internal.OracleModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-04-06 10:57:33.043 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Create (ThucLuc.Api) in 20.2078ms
+2026-04-06 10:57:33.043 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Create (ThucLuc.Api)'
+2026-04-06 10:57:33.044 +07:00 [ERR] Unhandled exception. CorrelationId=4906bcb62aef41819cb5a8342f8ef0fb
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-00001: unique constraint (CAND_QLCNTT.UX_BIZ_DTHV_DV_KY_ND) violated
+ORA-06512: at line 14
+https://docs.oracle.com/error-help/db/ora-00001/
+   at Oracle.ManagedDataAccess.Client.OracleCommand.<>c.<ExecuteDbDataReaderAsync>b__225_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Update.Internal.OracleModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienService.UpsertAsync(Nullable`1 id, UpsertDaoTaoHocVienRequest request, CancellationToken cancellationToken) in D:\Projects\ThucLuc_V2\.sources\backend\src\Application\Features\DaoTaoHocVien\DaoTaoHocVienService.cs:line 84
+   at ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Create(UpsertDaoTaoHocVienRequest request, CancellationToken cancellationToken) in D:\Projects\ThucLuc_V2\.sources\backend\src\Api\Controllers\V1\DaoTaoHocVienController.cs:line 46
+   at lambda_method1381(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at ThucLuc.Api.Common.Middleware.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in D:\Projects\ThucLuc_V2\.sources\backend\src\Api\Common\Middleware\GlobalExceptionMiddleware.cs:line 23
+2026-04-06 10:57:33.055 +07:00 [INF] HTTP POST /api/v1/dao-tao-hoc-vien => 500 in 33.7431 ms CorrelationId=4906bcb62aef41819cb5a8342f8ef0fb UserId=5001
+2026-04-06 10:57:33.057 +07:00 [ERR] HTTP POST /api/v1/dao-tao-hoc-vien responded 500 in 36.2473 ms
+2026-04-06 10:57:33.058 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/dao-tao-hoc-vien - 500 null application/json 38.4369ms
+2026-04-06 10:59:18.317 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - application/json 61
+2026-04-06 10:59:18.319 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-06 10:59:18.320 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Auth.AuthTokenDto]]] Login(ThucLuc.Application.Features.Auth.LoginRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.AuthController (ThucLuc.Api).
+2026-04-06 10:59:18.526 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Auth.AuthTokenDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 10:59:18.528 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api) in 207.0387ms
+2026-04-06 10:59:18.530 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-06 10:59:18.531 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 211.9166 ms CorrelationId=58fa5216c8244fe3b2ed9f9b997b991e UserId=anonymous
+2026-04-06 10:59:18.534 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 214.8511 ms
+2026-04-06 10:59:18.536 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - 200 null application/json; charset=utf-8 218.4768ms
+2026-04-06 10:59:18.540 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/dao-tao-hoc-vien - application/json 253
+2026-04-06 10:59:18.544 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Create (ThucLuc.Api)'
+2026-04-06 10:59:18.544 +07:00 [INF] Route matched with {action = "Create", controller = "DaoTaoHocVien"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto]]] Create(ThucLuc.Application.Features.DaoTaoHocVien.UpsertDaoTaoHocVienRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoHocVienController (ThucLuc.Api).
+2026-04-06 10:59:18.560 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 10:59:18.561 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Create (ThucLuc.Api) in 14.2935ms
+2026-04-06 10:59:18.563 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Create (ThucLuc.Api)'
+2026-04-06 10:59:18.564 +07:00 [INF] HTTP POST /api/v1/dao-tao-hoc-vien => 200 in 20.6454 ms CorrelationId=a88d5debb02c4b12b5d5342c5455cd61 UserId=5001
+2026-04-06 10:59:18.567 +07:00 [INF] HTTP POST /api/v1/dao-tao-hoc-vien responded 200 in 23.4402 ms
+2026-04-06 10:59:18.569 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/dao-tao-hoc-vien - 200 null application/json; charset=utf-8 28.7823ms
+2026-04-06 10:59:18.573 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=API20260406A - null null
+2026-04-06 10:59:18.577 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api)'
+2026-04-06 10:59:18.579 +07:00 [INF] Route matched with {action = "GetAll", controller = "DaoTaoHocVien"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto]]]] GetAll(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoHocVienController (ThucLuc.Api).
+2026-04-06 10:59:18.584 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 10:59:18.586 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api) in 4.4612ms
+2026-04-06 10:59:18.588 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api)'
+2026-04-06 10:59:18.589 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien => 200 in 11.6298 ms CorrelationId=1e285bc803eb46838e63ec2c4aae71ff UserId=5001
+2026-04-06 10:59:18.590 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien responded 200 in 13.3726 ms
+2026-04-06 10:59:18.592 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=API20260406A - 200 null application/json; charset=utf-8 18.7054ms
+2026-04-06 10:59:18.596 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien/4 - null null
+2026-04-06 10:59:18.599 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetById (ThucLuc.Api)'
+2026-04-06 10:59:18.600 +07:00 [INF] Route matched with {action = "GetById", controller = "DaoTaoHocVien"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto]]] GetById(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoHocVienController (ThucLuc.Api).
+2026-04-06 10:59:18.604 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 10:59:18.606 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetById (ThucLuc.Api) in 4.2204ms
+2026-04-06 10:59:18.608 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetById (ThucLuc.Api)'
+2026-04-06 10:59:18.609 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien/4 => 200 in 10.0681 ms CorrelationId=60f351375db047e5be6646286154bcee UserId=5001
+2026-04-06 10:59:18.612 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien/4 responded 200 in 12.9238 ms
+2026-04-06 10:59:18.613 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien/4 - 200 null application/json; charset=utf-8 17.056ms
+2026-04-06 10:59:18.615 +07:00 [INF] Request starting HTTP/1.1 PUT http://localhost:5283/api/v1/dao-tao-hoc-vien/4 - application/json 253
+2026-04-06 10:59:18.617 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Update (ThucLuc.Api)'
+2026-04-06 10:59:18.618 +07:00 [INF] Route matched with {action = "Update", controller = "DaoTaoHocVien"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto]]] Update(Int64, ThucLuc.Application.Features.DaoTaoHocVien.UpsertDaoTaoHocVienRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoHocVienController (ThucLuc.Api).
+2026-04-06 10:59:18.630 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 10:59:18.631 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Update (ThucLuc.Api) in 12.0357ms
+2026-04-06 10:59:18.632 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Update (ThucLuc.Api)'
+2026-04-06 10:59:18.632 +07:00 [INF] HTTP PUT /api/v1/dao-tao-hoc-vien/4 => 200 in 15.8889 ms CorrelationId=8c52d3adcd824cd6815a26ee7d170007 UserId=5001
+2026-04-06 10:59:18.634 +07:00 [INF] HTTP PUT /api/v1/dao-tao-hoc-vien/4 responded 200 in 17.0366 ms
+2026-04-06 10:59:18.635 +07:00 [INF] Request finished HTTP/1.1 PUT http://localhost:5283/api/v1/dao-tao-hoc-vien/4 - 200 null application/json; charset=utf-8 19.6675ms
+2026-04-06 10:59:18.637 +07:00 [INF] Request starting HTTP/1.1 DELETE http://localhost:5283/api/v1/dao-tao-hoc-vien/4 - null 0
+2026-04-06 10:59:18.639 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Delete (ThucLuc.Api)'
+2026-04-06 10:59:18.640 +07:00 [INF] Route matched with {action = "Delete", controller = "DaoTaoHocVien"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Object]]] Delete(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoHocVienController (ThucLuc.Api).
+2026-04-06 10:59:18.649 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 10:59:18.650 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Delete (ThucLuc.Api) in 8.5242ms
+2026-04-06 10:59:18.651 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.Delete (ThucLuc.Api)'
+2026-04-06 10:59:18.651 +07:00 [INF] HTTP DELETE /api/v1/dao-tao-hoc-vien/4 => 200 in 12.2321 ms CorrelationId=bacfd0d9fe684623a93ac968db304dd4 UserId=5001
+2026-04-06 10:59:18.653 +07:00 [INF] HTTP DELETE /api/v1/dao-tao-hoc-vien/4 responded 200 in 13.9103 ms
+2026-04-06 10:59:18.654 +07:00 [INF] Request finished HTTP/1.1 DELETE http://localhost:5283/api/v1/dao-tao-hoc-vien/4 - 200 null application/json; charset=utf-8 16.9169ms
+2026-04-06 10:59:18.657 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=API20260406A - null null
+2026-04-06 10:59:18.659 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api)'
+2026-04-06 10:59:18.659 +07:00 [INF] Route matched with {action = "GetAll", controller = "DaoTaoHocVien"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto]]]] GetAll(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoHocVienController (ThucLuc.Api).
+2026-04-06 10:59:18.662 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 10:59:18.662 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api) in 2.2871ms
+2026-04-06 10:59:18.663 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api)'
+2026-04-06 10:59:18.664 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien => 200 in 5.5905 ms CorrelationId=3a810c3e972342a1ab721e3206bace49 UserId=5001
+2026-04-06 10:59:18.665 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien responded 200 in 6.5969 ms
+2026-04-06 10:59:18.666 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=API20260406A - 200 null application/json; charset=utf-8 8.8813ms
+2026-04-06 10:59:18.667 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/nang-luc-so - application/json 209
+2026-04-06 10:59:18.669 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.Create (ThucLuc.Api)'
+2026-04-06 10:59:18.670 +07:00 [INF] Route matched with {action = "Create", controller = "NangLucSo"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.NangLucSo.NangLucSoDto]]] Create(ThucLuc.Application.Features.NangLucSo.UpsertNangLucSoRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.NangLucSoController (ThucLuc.Api).
+2026-04-06 10:59:18.681 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.NangLucSo.NangLucSoDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 10:59:18.682 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.NangLucSoController.Create (ThucLuc.Api) in 11.0388ms
+2026-04-06 10:59:18.683 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.Create (ThucLuc.Api)'
+2026-04-06 10:59:18.683 +07:00 [INF] HTTP POST /api/v1/nang-luc-so => 200 in 14.807 ms CorrelationId=c90fbc76e713465ea54c689476fcd9b1 UserId=5001
+2026-04-06 10:59:18.684 +07:00 [INF] HTTP POST /api/v1/nang-luc-so responded 200 in 15.7890 ms
+2026-04-06 10:59:18.685 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/nang-luc-so - 200 null application/json; charset=utf-8 17.8255ms
+2026-04-06 10:59:18.688 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/nang-luc-so?kyCode=API20260406A - null null
+2026-04-06 10:59:18.690 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.GetAll (ThucLuc.Api)'
+2026-04-06 10:59:18.691 +07:00 [INF] Route matched with {action = "GetAll", controller = "NangLucSo"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.NangLucSo.NangLucSoDto]]]] GetAll(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.NangLucSoController (ThucLuc.Api).
+2026-04-06 10:59:18.693 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.NangLucSo.NangLucSoDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 10:59:18.694 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.NangLucSoController.GetAll (ThucLuc.Api) in 2.4965ms
+2026-04-06 10:59:18.695 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.GetAll (ThucLuc.Api)'
+2026-04-06 10:59:18.695 +07:00 [INF] HTTP GET /api/v1/nang-luc-so => 200 in 5.9528 ms CorrelationId=a8676f0e383444b997fc026480ba0ea6 UserId=5001
+2026-04-06 10:59:18.696 +07:00 [INF] HTTP GET /api/v1/nang-luc-so responded 200 in 6.9594 ms
+2026-04-06 10:59:18.697 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/nang-luc-so?kyCode=API20260406A - 200 null application/json; charset=utf-8 9.5583ms
+2026-04-06 10:59:18.699 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/nang-luc-so/2 - null null
+2026-04-06 10:59:18.702 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.GetById (ThucLuc.Api)'
+2026-04-06 10:59:18.704 +07:00 [INF] Route matched with {action = "GetById", controller = "NangLucSo"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.NangLucSo.NangLucSoDto]]] GetById(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.NangLucSoController (ThucLuc.Api).
+2026-04-06 10:59:18.708 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.NangLucSo.NangLucSoDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 10:59:18.709 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.NangLucSoController.GetById (ThucLuc.Api) in 2.6985ms
+2026-04-06 10:59:18.709 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.GetById (ThucLuc.Api)'
+2026-04-06 10:59:18.710 +07:00 [INF] HTTP GET /api/v1/nang-luc-so/2 => 200 in 8.6057 ms CorrelationId=1c7cfdcdd45a4f69af5f9023b7a23f0f UserId=5001
+2026-04-06 10:59:18.711 +07:00 [INF] HTTP GET /api/v1/nang-luc-so/2 responded 200 in 9.6980 ms
+2026-04-06 10:59:18.712 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/nang-luc-so/2 - 200 null application/json; charset=utf-8 12.9001ms
+2026-04-06 10:59:18.713 +07:00 [INF] Request starting HTTP/1.1 PUT http://localhost:5283/api/v1/nang-luc-so/2 - application/json 209
+2026-04-06 10:59:18.715 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.Update (ThucLuc.Api)'
+2026-04-06 10:59:18.716 +07:00 [INF] Route matched with {action = "Update", controller = "NangLucSo"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.NangLucSo.NangLucSoDto]]] Update(Int64, ThucLuc.Application.Features.NangLucSo.UpsertNangLucSoRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.NangLucSoController (ThucLuc.Api).
+2026-04-06 10:59:18.725 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.NangLucSo.NangLucSoDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 10:59:18.727 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.NangLucSoController.Update (ThucLuc.Api) in 10.1563ms
+2026-04-06 10:59:18.727 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.Update (ThucLuc.Api)'
+2026-04-06 10:59:18.728 +07:00 [INF] HTTP PUT /api/v1/nang-luc-so/2 => 200 in 13.5894 ms CorrelationId=59e9b40f8f5a4de7a24aef920d2df3ee UserId=5001
+2026-04-06 10:59:18.729 +07:00 [INF] HTTP PUT /api/v1/nang-luc-so/2 responded 200 in 14.7011 ms
+2026-04-06 10:59:18.730 +07:00 [INF] Request finished HTTP/1.1 PUT http://localhost:5283/api/v1/nang-luc-so/2 - 200 null application/json; charset=utf-8 16.7635ms
+2026-04-06 10:59:18.732 +07:00 [INF] Request starting HTTP/1.1 DELETE http://localhost:5283/api/v1/nang-luc-so/2 - null 0
+2026-04-06 10:59:18.733 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.Delete (ThucLuc.Api)'
+2026-04-06 10:59:18.734 +07:00 [INF] Route matched with {action = "Delete", controller = "NangLucSo"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Object]]] Delete(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.NangLucSoController (ThucLuc.Api).
+2026-04-06 10:59:18.742 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 10:59:18.743 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.NangLucSoController.Delete (ThucLuc.Api) in 8.3321ms
+2026-04-06 10:59:18.744 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.Delete (ThucLuc.Api)'
+2026-04-06 10:59:18.744 +07:00 [INF] HTTP DELETE /api/v1/nang-luc-so/2 => 200 in 11.4587 ms CorrelationId=f2a5a77f4eae40fc8c692602134377b4 UserId=5001
+2026-04-06 10:59:18.745 +07:00 [INF] HTTP DELETE /api/v1/nang-luc-so/2 responded 200 in 12.5117 ms
+2026-04-06 10:59:18.746 +07:00 [INF] Request finished HTTP/1.1 DELETE http://localhost:5283/api/v1/nang-luc-so/2 - 200 null application/json; charset=utf-8 14.7478ms
+2026-04-06 10:59:18.748 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/nang-luc-so?kyCode=API20260406A - null null
+2026-04-06 10:59:18.751 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.GetAll (ThucLuc.Api)'
+2026-04-06 10:59:18.752 +07:00 [INF] Route matched with {action = "GetAll", controller = "NangLucSo"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.NangLucSo.NangLucSoDto]]]] GetAll(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.NangLucSoController (ThucLuc.Api).
+2026-04-06 10:59:18.755 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.NangLucSo.NangLucSoDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 10:59:18.756 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.NangLucSoController.GetAll (ThucLuc.Api) in 3.2296ms
+2026-04-06 10:59:18.757 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.NangLucSoController.GetAll (ThucLuc.Api)'
+2026-04-06 10:59:18.758 +07:00 [INF] HTTP GET /api/v1/nang-luc-so => 200 in 6.8374 ms CorrelationId=80a4ef1b658b4cb88c5c8ed568f70ca5 UserId=5001
+2026-04-06 10:59:18.759 +07:00 [INF] HTTP GET /api/v1/nang-luc-so responded 200 in 8.1065 ms
+2026-04-06 10:59:18.760 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/nang-luc-so?kyCode=API20260406A - 200 null application/json; charset=utf-8 11.8391ms
+2026-04-06 12:38:29.634 +07:00 [WRN] The decimal property 'KinhPhi' on entity type 'AtttHtttDauTu' does not have a store type specified. This may lead to a precision loss if the values do not fit in the default precision and scale. Oracle recommends to explicitly specify the column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2026-04-06 12:38:29.660 +07:00 [WRN] The decimal property 'KinhPhi' on entity type 'DaoTaoNuocNgoai' does not have a store type specified. This may lead to a precision loss if the values do not fit in the default precision and scale. Oracle recommends to explicitly specify the column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2026-04-06 12:38:30.640 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-06 12:38:30.699 +07:00 [INF] User profile is available. Using 'C:\Users\CNTT\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-04-06 12:38:30.741 +07:00 [INF] Now listening on: http://localhost:5283
+2026-04-06 12:38:30.743 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-04-06 12:38:30.744 +07:00 [INF] Hosting environment: Development
+2026-04-06 12:38:30.744 +07:00 [INF] Content root path: D:\Projects\ThucLuc_V2\.sources\backend\src\Api
+2026-04-06 12:40:55.405 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - application/json 61
+2026-04-06 12:40:55.432 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-04-06 12:40:55.445 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-06 12:40:55.457 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Auth.AuthTokenDto]]] Login(ThucLuc.Application.Features.Auth.LoginRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.AuthController (ThucLuc.Api).
+2026-04-06 12:40:55.858 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Auth.AuthTokenDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 12:40:55.874 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api) in 413.5099ms
+2026-04-06 12:40:55.877 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-06 12:40:55.879 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 452.4626 ms CorrelationId=171c4abcbba341f5929f86975f9b085d UserId=anonymous
+2026-04-06 12:40:55.882 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 458.0031 ms
+2026-04-06 12:40:55.888 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - 200 null application/json; charset=utf-8 483.2397ms
+2026-04-06 12:40:55.892 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/dm-loai-thiet-bi/tree - null null
+2026-04-06 12:40:55.916 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DmLoaiThietBiController.GetTree (ThucLuc.Api)'
+2026-04-06 12:40:55.920 +07:00 [INF] Route matched with {action = "GetTree", controller = "DmLoaiThietBi"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.DmLoaiThietBi.DmLoaiThietBiDto]]]] GetTree(System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DmLoaiThietBiController (ThucLuc.Api).
+2026-04-06 12:40:55.948 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.DmLoaiThietBi.DmLoaiThietBiDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 12:40:55.954 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DmLoaiThietBiController.GetTree (ThucLuc.Api) in 32.5176ms
+2026-04-06 12:40:55.955 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DmLoaiThietBiController.GetTree (ThucLuc.Api)'
+2026-04-06 12:40:55.956 +07:00 [INF] HTTP GET /api/v1/dm-loai-thiet-bi/tree => 200 in 59.6562 ms CorrelationId=da08ed8253204fa98b58a3a395117255 UserId=5001
+2026-04-06 12:40:55.958 +07:00 [INF] HTTP GET /api/v1/dm-loai-thiet-bi/tree responded 200 in 61.7298 ms
+2026-04-06 12:40:55.960 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/dm-loai-thiet-bi/tree - 200 null application/json; charset=utf-8 68.266ms
+2026-04-06 12:40:55.988 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/he-thong-thong-tin - application/json 167
+2026-04-06 12:40:55.994 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.HeThongThongTinController.Create (ThucLuc.Api)'
+2026-04-06 12:40:55.998 +07:00 [INF] Route matched with {action = "Create", controller = "HeThongThongTin"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.HeThongThongTin.HeThongThongTinDto]]] Create(ThucLuc.Application.Features.HeThongThongTin.UpsertHeThongThongTinRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.HeThongThongTinController (ThucLuc.Api).
+2026-04-06 12:40:56.075 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.HeThongThongTin.HeThongThongTinDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 12:40:56.077 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.HeThongThongTinController.Create (ThucLuc.Api) in 77.379ms
+2026-04-06 12:40:56.078 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.HeThongThongTinController.Create (ThucLuc.Api)'
+2026-04-06 12:40:56.078 +07:00 [INF] HTTP POST /api/v1/he-thong-thong-tin => 200 in 87.7353 ms CorrelationId=6e364b61956e4f77b70a572eee55a8f7 UserId=5001
+2026-04-06 12:40:56.079 +07:00 [INF] HTTP POST /api/v1/he-thong-thong-tin responded 200 in 88.7886 ms
+2026-04-06 12:40:56.080 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/he-thong-thong-tin - 200 null application/json; charset=utf-8 92.4894ms
+2026-04-06 12:40:56.084 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/thiet-bi-cntt - application/json 477
+2026-04-06 12:40:56.086 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.Create (ThucLuc.Api)'
+2026-04-06 12:40:56.090 +07:00 [INF] Route matched with {action = "Create", controller = "ThietBiCntt"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.ThietBiCntt.ThietBiCnttDto]]] Create(ThucLuc.Application.Features.ThietBiCntt.UpsertThietBiCnttRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.ThietBiCnttController (ThucLuc.Api).
+2026-04-06 12:40:56.215 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.ThietBiCntt.ThietBiCnttDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 12:40:56.218 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.ThietBiCnttController.Create (ThucLuc.Api) in 126.6507ms
+2026-04-06 12:40:56.219 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.Create (ThucLuc.Api)'
+2026-04-06 12:40:56.220 +07:00 [INF] HTTP POST /api/v1/thiet-bi-cntt => 200 in 134.1264 ms CorrelationId=7430bdeffc33400abc67710bfee2deea UserId=5001
+2026-04-06 12:40:56.221 +07:00 [INF] HTTP POST /api/v1/thiet-bi-cntt responded 200 in 135.4757 ms
+2026-04-06 12:40:56.222 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/thiet-bi-cntt - 200 null application/json; charset=utf-8 137.7855ms
+2026-04-06 12:40:56.223 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/thiet-bi-cntt/1 - null null
+2026-04-06 12:40:56.225 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.GetById (ThucLuc.Api)'
+2026-04-06 12:40:56.228 +07:00 [INF] Route matched with {action = "GetById", controller = "ThietBiCntt"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.ThietBiCntt.ThietBiCnttDto]]] GetById(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.ThietBiCnttController (ThucLuc.Api).
+2026-04-06 12:40:56.232 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.ThietBiCntt.ThietBiCnttDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 12:40:56.233 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.ThietBiCnttController.GetById (ThucLuc.Api) in 3.9558ms
+2026-04-06 12:40:56.233 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.GetById (ThucLuc.Api)'
+2026-04-06 12:40:56.234 +07:00 [INF] HTTP GET /api/v1/thiet-bi-cntt/1 => 200 in 9.387 ms CorrelationId=f352ca4fd0934c01bdd1b47115353385 UserId=5001
+2026-04-06 12:40:56.235 +07:00 [INF] HTTP GET /api/v1/thiet-bi-cntt/1 responded 200 in 10.4300 ms
+2026-04-06 12:40:56.237 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/thiet-bi-cntt/1 - 200 null application/json; charset=utf-8 13.4653ms
+2026-04-06 12:40:56.239 +07:00 [INF] Request starting HTTP/1.1 PUT http://localhost:5283/api/v1/thiet-bi-cntt/1 - application/json 477
+2026-04-06 12:40:56.240 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.Update (ThucLuc.Api)'
+2026-04-06 12:40:56.243 +07:00 [INF] Route matched with {action = "Update", controller = "ThietBiCntt"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.ThietBiCntt.ThietBiCnttDto]]] Update(Int64, ThucLuc.Application.Features.ThietBiCntt.UpsertThietBiCnttRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.ThietBiCnttController (ThucLuc.Api).
+2026-04-06 12:40:56.278 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.ThietBiCntt.ThietBiCnttDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 12:40:56.279 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.ThietBiCnttController.Update (ThucLuc.Api) in 34.3915ms
+2026-04-06 12:40:56.280 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.Update (ThucLuc.Api)'
+2026-04-06 12:40:56.280 +07:00 [INF] HTTP PUT /api/v1/thiet-bi-cntt/1 => 200 in 40.228 ms CorrelationId=84440dd69ab547e9bc584a3adcbffbb2 UserId=5001
+2026-04-06 12:40:56.281 +07:00 [INF] HTTP PUT /api/v1/thiet-bi-cntt/1 responded 200 in 41.2094 ms
+2026-04-06 12:40:56.282 +07:00 [INF] Request finished HTTP/1.1 PUT http://localhost:5283/api/v1/thiet-bi-cntt/1 - 200 null application/json; charset=utf-8 42.9072ms
+2026-04-06 12:40:56.284 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/thiet-bi-cntt - application/json 398
+2026-04-06 12:40:56.285 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.Create (ThucLuc.Api)'
+2026-04-06 12:40:56.287 +07:00 [INF] Route matched with {action = "Create", controller = "ThietBiCntt"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.ThietBiCntt.ThietBiCnttDto]]] Create(ThucLuc.Application.Features.ThietBiCntt.UpsertThietBiCnttRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.ThietBiCnttController (ThucLuc.Api).
+2026-04-06 12:40:56.302 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.ThietBiCntt.ThietBiCnttDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 12:40:56.303 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.ThietBiCnttController.Create (ThucLuc.Api) in 15.6676ms
+2026-04-06 12:40:56.304 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.Create (ThucLuc.Api)'
+2026-04-06 12:40:56.305 +07:00 [INF] HTTP POST /api/v1/thiet-bi-cntt => 200 in 20.0487 ms CorrelationId=17a12a094b9d4896b97f3f1ed0df9201 UserId=5001
+2026-04-06 12:40:56.306 +07:00 [INF] HTTP POST /api/v1/thiet-bi-cntt responded 200 in 21.1388 ms
+2026-04-06 12:40:56.308 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/thiet-bi-cntt - 200 null application/json; charset=utf-8 23.913ms
+2026-04-06 12:40:56.310 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/thiet-bi-cntt - null null
+2026-04-06 12:40:56.311 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.GetAll (ThucLuc.Api)'
+2026-04-06 12:40:56.314 +07:00 [INF] Route matched with {action = "GetAll", controller = "ThietBiCntt"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.ThietBiCntt.ThietBiCnttDto]]]] GetAll(System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.ThietBiCnttController (ThucLuc.Api).
+2026-04-06 12:40:56.326 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.ThietBiCntt.ThietBiCnttDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 12:40:56.328 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.ThietBiCnttController.GetAll (ThucLuc.Api) in 12.5114ms
+2026-04-06 12:40:56.329 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.GetAll (ThucLuc.Api)'
+2026-04-06 12:40:56.330 +07:00 [INF] HTTP GET /api/v1/thiet-bi-cntt => 200 in 18.9474 ms CorrelationId=76f48cda7cea4552a32b3b020ee83857 UserId=5001
+2026-04-06 12:40:56.331 +07:00 [INF] HTTP GET /api/v1/thiet-bi-cntt responded 200 in 20.5620 ms
+2026-04-06 12:40:56.333 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/thiet-bi-cntt - 200 null application/json; charset=utf-8 23.113ms
+2026-04-06 12:40:56.334 +07:00 [INF] Request starting HTTP/1.1 DELETE http://localhost:5283/api/v1/thiet-bi-cntt/2 - null 0
+2026-04-06 12:40:56.336 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.Delete (ThucLuc.Api)'
+2026-04-06 12:40:56.339 +07:00 [INF] Route matched with {action = "Delete", controller = "ThietBiCntt"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Object]]] Delete(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.ThietBiCnttController (ThucLuc.Api).
+2026-04-06 12:40:56.357 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 12:40:56.358 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.ThietBiCnttController.Delete (ThucLuc.Api) in 17.3665ms
+2026-04-06 12:40:56.359 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.Delete (ThucLuc.Api)'
+2026-04-06 12:40:56.359 +07:00 [INF] HTTP DELETE /api/v1/thiet-bi-cntt/2 => 200 in 23.3049 ms CorrelationId=9761c044628d4b8bad3985e74a18c00a UserId=5001
+2026-04-06 12:40:56.360 +07:00 [INF] HTTP DELETE /api/v1/thiet-bi-cntt/2 responded 200 in 24.4213 ms
+2026-04-06 12:40:56.361 +07:00 [INF] Request finished HTTP/1.1 DELETE http://localhost:5283/api/v1/thiet-bi-cntt/2 - 200 null application/json; charset=utf-8 26.8414ms
+2026-04-06 12:40:56.363 +07:00 [INF] Request starting HTTP/1.1 DELETE http://localhost:5283/api/v1/thiet-bi-cntt/1 - null 0
+2026-04-06 12:40:56.364 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.Delete (ThucLuc.Api)'
+2026-04-06 12:40:56.365 +07:00 [INF] Route matched with {action = "Delete", controller = "ThietBiCntt"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Object]]] Delete(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.ThietBiCnttController (ThucLuc.Api).
+2026-04-06 12:40:56.374 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 12:40:56.375 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.ThietBiCnttController.Delete (ThucLuc.Api) in 9.1922ms
+2026-04-06 12:40:56.376 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.Delete (ThucLuc.Api)'
+2026-04-06 12:40:56.377 +07:00 [INF] HTTP DELETE /api/v1/thiet-bi-cntt/1 => 200 in 12.5845 ms CorrelationId=aca7754e5b6a48a8847412bc7d90f80b UserId=5001
+2026-04-06 12:40:56.378 +07:00 [INF] HTTP DELETE /api/v1/thiet-bi-cntt/1 responded 200 in 13.6104 ms
+2026-04-06 12:40:56.379 +07:00 [INF] Request finished HTTP/1.1 DELETE http://localhost:5283/api/v1/thiet-bi-cntt/1 - 200 null application/json; charset=utf-8 15.7768ms
+2026-04-06 12:40:56.380 +07:00 [INF] Request starting HTTP/1.1 DELETE http://localhost:5283/api/v1/he-thong-thong-tin/1 - null 0
+2026-04-06 12:40:56.381 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.HeThongThongTinController.Delete (ThucLuc.Api)'
+2026-04-06 12:40:56.384 +07:00 [INF] Route matched with {action = "Delete", controller = "HeThongThongTin"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Object]]] Delete(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.HeThongThongTinController (ThucLuc.Api).
+2026-04-06 12:40:56.404 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 12:40:56.404 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.HeThongThongTinController.Delete (ThucLuc.Api) in 19.3529ms
+2026-04-06 12:40:56.406 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.HeThongThongTinController.Delete (ThucLuc.Api)'
+2026-04-06 12:40:56.406 +07:00 [INF] HTTP DELETE /api/v1/he-thong-thong-tin/1 => 200 in 25.1442 ms CorrelationId=5497bbec91004829814711e93d229220 UserId=5001
+2026-04-06 12:40:56.407 +07:00 [INF] HTTP DELETE /api/v1/he-thong-thong-tin/1 responded 200 in 26.2956 ms
+2026-04-06 12:40:56.408 +07:00 [INF] Request finished HTTP/1.1 DELETE http://localhost:5283/api/v1/he-thong-thong-tin/1 - 200 null application/json; charset=utf-8 28.4295ms
+2026-04-06 14:13:21.758 +07:00 [WRN] The decimal property 'KinhPhi' on entity type 'AtttHtttDauTu' does not have a store type specified. This may lead to a precision loss if the values do not fit in the default precision and scale. Oracle recommends to explicitly specify the column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2026-04-06 14:13:21.778 +07:00 [WRN] The decimal property 'KinhPhi' on entity type 'DaoTaoNuocNgoai' does not have a store type specified. This may lead to a precision loss if the values do not fit in the default precision and scale. Oracle recommends to explicitly specify the column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2026-04-06 14:13:22.755 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-06 14:13:22.818 +07:00 [INF] User profile is available. Using 'C:\Users\CNTT\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-04-06 14:13:22.859 +07:00 [INF] Now listening on: http://localhost:5283
+2026-04-06 14:13:22.860 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-04-06 14:13:22.861 +07:00 [INF] Hosting environment: Development
+2026-04-06 14:13:22.862 +07:00 [INF] Content root path: D:\Projects\ThucLuc_V2\.sources\backend\src\Api
+2026-04-06 14:14:54.820 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - application/json 61
+2026-04-06 14:14:54.851 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-04-06 14:14:54.864 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-06 14:14:54.873 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Auth.AuthTokenDto]]] Login(ThucLuc.Application.Features.Auth.LoginRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.AuthController (ThucLuc.Api).
+2026-04-06 14:14:55.264 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Auth.AuthTokenDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 14:14:55.277 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api) in 401.1257ms
+2026-04-06 14:14:55.282 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-06 14:14:55.284 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 439.0699 ms CorrelationId=b146a53b6e4a4251ace9f870d00f3825 UserId=anonymous
+2026-04-06 14:14:55.287 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 444.2472 ms
+2026-04-06 14:14:55.291 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - 200 null application/json; charset=utf-8 470.788ms
+2026-04-06 14:14:55.293 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/don-vi/tree - null null
+2026-04-06 14:14:55.315 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DonViController.GetTree (ThucLuc.Api)'
+2026-04-06 14:14:55.319 +07:00 [INF] Route matched with {action = "GetTree", controller = "DonVi"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.DonVi.DonViDto]]]] GetTree(System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DonViController (ThucLuc.Api).
+2026-04-06 14:14:55.341 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.DonVi.DonViDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 14:14:55.346 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DonViController.GetTree (ThucLuc.Api) in 26.8254ms
+2026-04-06 14:14:55.348 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DonViController.GetTree (ThucLuc.Api)'
+2026-04-06 14:14:55.349 +07:00 [INF] HTTP GET /api/v1/don-vi/tree => 200 in 51.6914 ms CorrelationId=ee83e5eb32574f7da7a56bc6536cfd45 UserId=5001
+2026-04-06 14:14:55.350 +07:00 [INF] HTTP GET /api/v1/don-vi/tree responded 200 in 53.7118 ms
+2026-04-06 14:14:55.352 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/don-vi/tree - 200 null application/json; charset=utf-8 58.1995ms
+2026-04-06 14:14:55.354 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/don-vi/2002 - null null
+2026-04-06 14:14:55.359 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DonViController.GetById (ThucLuc.Api)'
+2026-04-06 14:14:55.364 +07:00 [INF] Route matched with {action = "GetById", controller = "DonVi"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.DonVi.DonViDto]]] GetById(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DonViController (ThucLuc.Api).
+2026-04-06 14:14:55.386 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.DonVi.DonViDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 14:14:55.388 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DonViController.GetById (ThucLuc.Api) in 23.731ms
+2026-04-06 14:14:55.390 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DonViController.GetById (ThucLuc.Api)'
+2026-04-06 14:14:55.390 +07:00 [INF] HTTP GET /api/v1/don-vi/2002 => 200 in 34.375 ms CorrelationId=b8bc359ce8cd4b95b5b24581c50e6274 UserId=5001
+2026-04-06 14:14:55.392 +07:00 [INF] HTTP GET /api/v1/don-vi/2002 responded 200 in 35.9374 ms
+2026-04-06 14:14:55.393 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/don-vi/2002 - 200 null application/json; charset=utf-8 38.963ms
+2026-04-06 14:14:55.395 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/LOAI_DV_THONG_KE_MANG - null null
+2026-04-06 14:14:55.398 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-06 14:14:55.401 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-06 14:14:55.456 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 14:14:55.460 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 57.0565ms
+2026-04-06 14:14:55.461 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-06 14:14:55.461 +07:00 [INF] HTTP GET /api/v1/codes/by-code/LOAI_DV_THONG_KE_MANG => 200 in 64.2947 ms CorrelationId=496b3745069e42ee9930bf83fa5d305c UserId=5001
+2026-04-06 14:14:55.463 +07:00 [INF] HTTP GET /api/v1/codes/by-code/LOAI_DV_THONG_KE_MANG responded 200 in 65.7238 ms
+2026-04-06 14:14:55.465 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/LOAI_DV_THONG_KE_MANG - 200 null application/json; charset=utf-8 69.6988ms
+2026-04-06 14:14:55.466 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/ref-loai-thiet-bi/tree - null null
+2026-04-06 14:14:55.468 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.RefLoaiThietBiController.GetTree (ThucLuc.Api)'
+2026-04-06 14:14:55.471 +07:00 [INF] Route matched with {action = "GetTree", controller = "RefLoaiThietBi"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.RefLoaiThietBi.RefLoaiThietBiDto]]]] GetTree(System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.RefLoaiThietBiController (ThucLuc.Api).
+2026-04-06 14:14:55.485 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.RefLoaiThietBi.RefLoaiThietBiDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 14:14:55.488 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.RefLoaiThietBiController.GetTree (ThucLuc.Api) in 14.5956ms
+2026-04-06 14:14:55.488 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.RefLoaiThietBiController.GetTree (ThucLuc.Api)'
+2026-04-06 14:14:55.489 +07:00 [INF] HTTP GET /api/v1/ref-loai-thiet-bi/tree => 200 in 21.4458 ms CorrelationId=eba53d1cda7745398343d4d87aa077bf UserId=5001
+2026-04-06 14:14:55.490 +07:00 [INF] HTTP GET /api/v1/ref-loai-thiet-bi/tree responded 200 in 22.8890 ms
+2026-04-06 14:14:55.491 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/ref-loai-thiet-bi/tree - 200 null application/json; charset=utf-8 25.1569ms
+2026-04-06 14:14:55.493 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/ha-tang-mang - application/json 246
+2026-04-06 14:14:55.495 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.HaTangMangController.Create (ThucLuc.Api)'
+2026-04-06 14:14:55.498 +07:00 [INF] Route matched with {action = "Create", controller = "HaTangMang"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.HaTangMang.HaTangMangDto]]] Create(ThucLuc.Application.Features.HaTangMang.UpsertHaTangMangRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.HaTangMangController (ThucLuc.Api).
+2026-04-06 14:14:55.556 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.HaTangMang.HaTangMangDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 14:14:55.559 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.HaTangMangController.Create (ThucLuc.Api) in 60.0358ms
+2026-04-06 14:14:55.560 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.HaTangMangController.Create (ThucLuc.Api)'
+2026-04-06 14:14:55.560 +07:00 [INF] HTTP POST /api/v1/ha-tang-mang => 200 in 65.5375 ms CorrelationId=b27328b6ed674b14b94cf75d1678e1d7 UserId=5001
+2026-04-06 14:14:55.562 +07:00 [INF] HTTP POST /api/v1/ha-tang-mang responded 200 in 67.0569 ms
+2026-04-06 14:14:55.563 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/ha-tang-mang - 200 null application/json; charset=utf-8 69.3221ms
+2026-04-06 14:14:55.564 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/ha-tang-mang/1 - null null
+2026-04-06 14:14:55.566 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.HaTangMangController.GetById (ThucLuc.Api)'
+2026-04-06 14:14:55.569 +07:00 [INF] Route matched with {action = "GetById", controller = "HaTangMang"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.HaTangMang.HaTangMangDto]]] GetById(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.HaTangMangController (ThucLuc.Api).
+2026-04-06 14:14:55.573 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.HaTangMang.HaTangMangDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 14:14:55.574 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.HaTangMangController.GetById (ThucLuc.Api) in 4.0344ms
+2026-04-06 14:14:55.575 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.HaTangMangController.GetById (ThucLuc.Api)'
+2026-04-06 14:14:55.576 +07:00 [INF] HTTP GET /api/v1/ha-tang-mang/1 => 200 in 10.1313 ms CorrelationId=62cc3ab500a6498b945c286b9249a75a UserId=5001
+2026-04-06 14:14:55.577 +07:00 [INF] HTTP GET /api/v1/ha-tang-mang/1 responded 200 in 11.6115 ms
+2026-04-06 14:14:55.578 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/ha-tang-mang/1 - 200 null application/json; charset=utf-8 13.8154ms
+2026-04-06 14:14:55.580 +07:00 [INF] Request starting HTTP/1.1 PUT http://localhost:5283/api/v1/ha-tang-mang/1 - application/json 253
+2026-04-06 14:14:55.582 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.HaTangMangController.Update (ThucLuc.Api)'
+2026-04-06 14:14:55.584 +07:00 [INF] Route matched with {action = "Update", controller = "HaTangMang"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.HaTangMang.HaTangMangDto]]] Update(Int64, ThucLuc.Application.Features.HaTangMang.UpsertHaTangMangRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.HaTangMangController (ThucLuc.Api).
+2026-04-06 14:14:55.605 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.HaTangMang.HaTangMangDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 14:14:55.605 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.HaTangMangController.Update (ThucLuc.Api) in 19.9926ms
+2026-04-06 14:14:55.606 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.HaTangMangController.Update (ThucLuc.Api)'
+2026-04-06 14:14:55.606 +07:00 [INF] HTTP PUT /api/v1/ha-tang-mang/1 => 200 in 25.2223 ms CorrelationId=39b1bb77a6ec4d10a5b5588c539837fb UserId=5001
+2026-04-06 14:14:55.608 +07:00 [INF] HTTP PUT /api/v1/ha-tang-mang/1 responded 200 in 26.4558 ms
+2026-04-06 14:14:55.609 +07:00 [INF] Request finished HTTP/1.1 PUT http://localhost:5283/api/v1/ha-tang-mang/1 - 200 null application/json; charset=utf-8 29.1831ms
+2026-04-06 14:14:55.611 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/ha-tang-mang - null null
+2026-04-06 14:14:55.612 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.HaTangMangController.GetAll (ThucLuc.Api)'
+2026-04-06 14:14:55.615 +07:00 [INF] Route matched with {action = "GetAll", controller = "HaTangMang"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.HaTangMang.HaTangMangDto]]]] GetAll(System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.HaTangMangController (ThucLuc.Api).
+2026-04-06 14:14:55.622 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.HaTangMang.HaTangMangDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 14:14:55.624 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.HaTangMangController.GetAll (ThucLuc.Api) in 7.8545ms
+2026-04-06 14:14:55.625 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.HaTangMangController.GetAll (ThucLuc.Api)'
+2026-04-06 14:14:55.625 +07:00 [INF] HTTP GET /api/v1/ha-tang-mang => 200 in 13.4347 ms CorrelationId=a9c4462fe48b4cc688907f4a8e6caab2 UserId=5001
+2026-04-06 14:14:55.626 +07:00 [INF] HTTP GET /api/v1/ha-tang-mang responded 200 in 14.5247 ms
+2026-04-06 14:14:55.627 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/ha-tang-mang - 200 null application/json; charset=utf-8 16.6866ms
+2026-04-06 14:14:55.630 +07:00 [INF] Request starting HTTP/1.1 DELETE http://localhost:5283/api/v1/ha-tang-mang/1 - null 0
+2026-04-06 14:14:55.631 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.HaTangMangController.Delete (ThucLuc.Api)'
+2026-04-06 14:14:55.634 +07:00 [INF] Route matched with {action = "Delete", controller = "HaTangMang"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Object]]] Delete(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.HaTangMangController (ThucLuc.Api).
+2026-04-06 14:14:55.652 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 14:14:55.654 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.HaTangMangController.Delete (ThucLuc.Api) in 18.095ms
+2026-04-06 14:14:55.654 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.HaTangMangController.Delete (ThucLuc.Api)'
+2026-04-06 14:14:55.655 +07:00 [INF] HTTP DELETE /api/v1/ha-tang-mang/1 => 200 in 24.0508 ms CorrelationId=87143ff040b64b4aa3cf9d3d71ce0f44 UserId=5001
+2026-04-06 14:14:55.656 +07:00 [INF] HTTP DELETE /api/v1/ha-tang-mang/1 responded 200 in 25.4866 ms
+2026-04-06 14:14:55.658 +07:00 [INF] Request finished HTTP/1.1 DELETE http://localhost:5283/api/v1/ha-tang-mang/1 - 200 null application/json; charset=utf-8 28.0251ms
+2026-04-06 14:15:22.647 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - application/json 61
+2026-04-06 14:15:22.650 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-06 14:15:22.651 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Auth.AuthTokenDto]]] Login(ThucLuc.Application.Features.Auth.LoginRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.AuthController (ThucLuc.Api).
+2026-04-06 14:15:22.864 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Auth.AuthTokenDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 14:15:22.865 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api) in 213.6346ms
+2026-04-06 14:15:22.866 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-06 14:15:22.867 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 217.0317 ms CorrelationId=5a121dc0b183408ab7f82bb2f788d32b UserId=anonymous
+2026-04-06 14:15:22.868 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 218.1697 ms
+2026-04-06 14:15:22.869 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - 200 null application/json; charset=utf-8 221.1437ms
+2026-04-06 14:15:22.870 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/ref-loai-thiet-bi/tree - null null
+2026-04-06 14:15:22.872 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.RefLoaiThietBiController.GetTree (ThucLuc.Api)'
+2026-04-06 14:15:22.873 +07:00 [INF] Route matched with {action = "GetTree", controller = "RefLoaiThietBi"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.RefLoaiThietBi.RefLoaiThietBiDto]]]] GetTree(System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.RefLoaiThietBiController (ThucLuc.Api).
+2026-04-06 14:15:22.877 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.RefLoaiThietBi.RefLoaiThietBiDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 14:15:22.878 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.RefLoaiThietBiController.GetTree (ThucLuc.Api) in 3.8285ms
+2026-04-06 14:15:22.878 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.RefLoaiThietBiController.GetTree (ThucLuc.Api)'
+2026-04-06 14:15:22.879 +07:00 [INF] HTTP GET /api/v1/ref-loai-thiet-bi/tree => 200 in 7.64 ms CorrelationId=651816a9a98845b9915670f244589b36 UserId=5001
+2026-04-06 14:15:22.880 +07:00 [INF] HTTP GET /api/v1/ref-loai-thiet-bi/tree responded 200 in 8.6528 ms
+2026-04-06 14:15:22.881 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/ref-loai-thiet-bi/tree - 200 null application/json; charset=utf-8 10.7444ms
+2026-04-06 14:15:22.883 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/he-thong-thong-tin - application/json 166
+2026-04-06 14:15:22.885 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.HeThongThongTinController.Create (ThucLuc.Api)'
+2026-04-06 14:15:22.888 +07:00 [INF] Route matched with {action = "Create", controller = "HeThongThongTin"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.HeThongThongTin.HeThongThongTinDto]]] Create(ThucLuc.Application.Features.HeThongThongTin.UpsertHeThongThongTinRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.HeThongThongTinController (ThucLuc.Api).
+2026-04-06 14:15:22.963 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.HeThongThongTin.HeThongThongTinDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 14:15:22.966 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.HeThongThongTinController.Create (ThucLuc.Api) in 76.9415ms
+2026-04-06 14:15:22.968 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.HeThongThongTinController.Create (ThucLuc.Api)'
+2026-04-06 14:15:22.969 +07:00 [INF] HTTP POST /api/v1/he-thong-thong-tin => 200 in 84.2256 ms CorrelationId=33352ddc944449c2a59e1007f1a9a2cc UserId=5001
+2026-04-06 14:15:22.972 +07:00 [INF] HTTP POST /api/v1/he-thong-thong-tin responded 200 in 87.3475 ms
+2026-04-06 14:15:22.973 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/he-thong-thong-tin - 200 null application/json; charset=utf-8 90.0874ms
+2026-04-06 14:15:22.979 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/thiet-bi-cntt - application/json 476
+2026-04-06 14:15:22.983 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.Create (ThucLuc.Api)'
+2026-04-06 14:15:22.988 +07:00 [INF] Route matched with {action = "Create", controller = "ThietBiCntt"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.ThietBiCntt.ThietBiCnttDto]]] Create(ThucLuc.Application.Features.ThietBiCntt.UpsertThietBiCnttRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.ThietBiCnttController (ThucLuc.Api).
+2026-04-06 14:15:23.095 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.ThietBiCntt.ThietBiCnttDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 14:15:23.100 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.ThietBiCnttController.Create (ThucLuc.Api) in 110.0184ms
+2026-04-06 14:15:23.102 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.Create (ThucLuc.Api)'
+2026-04-06 14:15:23.104 +07:00 [INF] HTTP POST /api/v1/thiet-bi-cntt => 200 in 121.0234 ms CorrelationId=6ba0b499aa1c414e80a37a1a13dfb130 UserId=5001
+2026-04-06 14:15:23.109 +07:00 [INF] HTTP POST /api/v1/thiet-bi-cntt responded 200 in 125.8295 ms
+2026-04-06 14:15:23.112 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/thiet-bi-cntt - 200 null application/json; charset=utf-8 133.3883ms
+2026-04-06 14:15:23.117 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/thiet-bi-cntt/3 - null null
+2026-04-06 14:15:23.119 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.GetById (ThucLuc.Api)'
+2026-04-06 14:15:23.123 +07:00 [INF] Route matched with {action = "GetById", controller = "ThietBiCntt"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.ThietBiCntt.ThietBiCnttDto]]] GetById(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.ThietBiCnttController (ThucLuc.Api).
+2026-04-06 14:15:23.128 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.ThietBiCntt.ThietBiCnttDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 14:15:23.130 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.ThietBiCnttController.GetById (ThucLuc.Api) in 4.63ms
+2026-04-06 14:15:23.132 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.GetById (ThucLuc.Api)'
+2026-04-06 14:15:23.133 +07:00 [INF] HTTP GET /api/v1/thiet-bi-cntt/3 => 200 in 14.5388 ms CorrelationId=4a1d44e6d09045bf9137656ccc6e7363 UserId=5001
+2026-04-06 14:15:23.136 +07:00 [INF] HTTP GET /api/v1/thiet-bi-cntt/3 responded 200 in 16.8789 ms
+2026-04-06 14:15:23.139 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/thiet-bi-cntt/3 - 200 null application/json; charset=utf-8 21.2464ms
+2026-04-06 14:15:23.141 +07:00 [INF] Request starting HTTP/1.1 DELETE http://localhost:5283/api/v1/thiet-bi-cntt/3 - null 0
+2026-04-06 14:15:23.143 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.Delete (ThucLuc.Api)'
+2026-04-06 14:15:23.146 +07:00 [INF] Route matched with {action = "Delete", controller = "ThietBiCntt"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Object]]] Delete(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.ThietBiCnttController (ThucLuc.Api).
+2026-04-06 14:15:23.165 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 14:15:23.166 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.ThietBiCnttController.Delete (ThucLuc.Api) in 18.8352ms
+2026-04-06 14:15:23.167 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.ThietBiCnttController.Delete (ThucLuc.Api)'
+2026-04-06 14:15:23.168 +07:00 [INF] HTTP DELETE /api/v1/thiet-bi-cntt/3 => 200 in 25.5379 ms CorrelationId=df013678a2344b62abfa2e2262fb00c0 UserId=5001
+2026-04-06 14:15:23.171 +07:00 [INF] HTTP DELETE /api/v1/thiet-bi-cntt/3 responded 200 in 28.1107 ms
+2026-04-06 14:15:23.173 +07:00 [INF] Request finished HTTP/1.1 DELETE http://localhost:5283/api/v1/thiet-bi-cntt/3 - 200 null application/json; charset=utf-8 31.899ms
+2026-04-06 14:15:23.176 +07:00 [INF] Request starting HTTP/1.1 DELETE http://localhost:5283/api/v1/he-thong-thong-tin/2 - null 0
+2026-04-06 14:15:23.179 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.HeThongThongTinController.Delete (ThucLuc.Api)'
+2026-04-06 14:15:23.182 +07:00 [INF] Route matched with {action = "Delete", controller = "HeThongThongTin"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Object]]] Delete(Int64, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.HeThongThongTinController (ThucLuc.Api).
+2026-04-06 14:15:23.199 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 14:15:23.200 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.HeThongThongTinController.Delete (ThucLuc.Api) in 16.236ms
+2026-04-06 14:15:23.201 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.HeThongThongTinController.Delete (ThucLuc.Api)'
+2026-04-06 14:15:23.202 +07:00 [INF] HTTP DELETE /api/v1/he-thong-thong-tin/2 => 200 in 23.6068 ms CorrelationId=57dc661776be4535bdf5ff510f583a89 UserId=5001
+2026-04-06 14:15:23.203 +07:00 [INF] HTTP DELETE /api/v1/he-thong-thong-tin/2 responded 200 in 24.8113 ms
+2026-04-06 14:15:23.205 +07:00 [INF] Request finished HTTP/1.1 DELETE http://localhost:5283/api/v1/he-thong-thong-tin/2 - 200 null application/json; charset=utf-8 29.0964ms
+2026-04-06 14:55:02.410 +07:00 [WRN] The decimal property 'KinhPhi' on entity type 'AtttHtttDauTu' does not have a store type specified. This may lead to a precision loss if the values do not fit in the default precision and scale. Oracle recommends to explicitly specify the column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2026-04-06 14:55:02.431 +07:00 [WRN] The decimal property 'KinhPhi' on entity type 'DaoTaoNuocNgoai' does not have a store type specified. This may lead to a precision loss if the values do not fit in the default precision and scale. Oracle recommends to explicitly specify the column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2026-04-06 14:55:03.525 +07:00 [INF] Baseline seed data has been applied successfully.
+2026-04-06 14:55:03.586 +07:00 [INF] User profile is available. Using 'C:\Users\CNTT\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-04-06 14:55:03.629 +07:00 [INF] Now listening on: http://localhost:5283
+2026-04-06 14:55:03.629 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-04-06 14:55:03.630 +07:00 [INF] Hosting environment: Development
+2026-04-06 14:55:03.631 +07:00 [INF] Content root path: D:\Projects\ThucLuc_V2\.sources\backend\src\api
+2026-04-06 15:10:27.279 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - null null
+2026-04-06 15:10:27.279 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - null null
+2026-04-06 15:10:27.279 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - null null
+2026-04-06 15:10:27.279 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - null null
+2026-04-06 15:10:27.279 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/nhan-luc-cntt - null null
+2026-04-06 15:10:27.279 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - null null
+2026-04-06 15:10:27.316 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-04-06 15:10:27.318 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:27.318 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:27.318 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:27.318 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:27.318 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:27.318 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:27.319 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/LOAI_NHAN_LUC => 204 in 10.573 ms CorrelationId=9d733dac04094b92b0926f7ee66fdc9f UserId=anonymous
+2026-04-06 15:10:27.319 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/GIOI_TINH => 204 in 11.1936 ms CorrelationId=7959eea4c22d4100b39a8652c4f7f62d UserId=anonymous
+2026-04-06 15:10:27.319 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/CAP_BAC_CONG_AN => 204 in 10.4395 ms CorrelationId=f356641a424c44468702c9cd19c1c3b2 UserId=anonymous
+2026-04-06 15:10:27.320 +07:00 [INF] HTTP OPTIONS /api/v1/nhan-luc-cntt => 204 in 12.146 ms CorrelationId=d944d31949164ed2972742259922ad9b UserId=anonymous
+2026-04-06 15:10:27.321 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_CNTT => 204 in 12.6976 ms CorrelationId=e73ae38dda5a4904bea404b16b3df7c0 UserId=anonymous
+2026-04-06 15:10:27.321 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_LLCT => 204 in 13.1955 ms CorrelationId=76fd47805fce41819aefcdb74c528c02 UserId=anonymous
+2026-04-06 15:10:27.326 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/LOAI_NHAN_LUC responded 204 in 19.1668 ms
+2026-04-06 15:10:27.326 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/GIOI_TINH responded 204 in 20.7277 ms
+2026-04-06 15:10:27.328 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/CAP_BAC_CONG_AN responded 204 in 22.4947 ms
+2026-04-06 15:10:27.330 +07:00 [INF] HTTP OPTIONS /api/v1/nhan-luc-cntt responded 204 in 24.3889 ms
+2026-04-06 15:10:27.331 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_CNTT responded 204 in 25.8400 ms
+2026-04-06 15:10:27.333 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_LLCT responded 204 in 27.4134 ms
+2026-04-06 15:10:27.337 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - 204 null null 59.4626ms
+2026-04-06 15:10:27.337 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - 204 null null 59.3853ms
+2026-04-06 15:10:27.338 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - 204 null null 60.0533ms
+2026-04-06 15:10:27.340 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/nhan-luc-cntt - 204 null null 62.4147ms
+2026-04-06 15:10:27.342 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - 204 null null 64.094ms
+2026-04-06 15:10:27.343 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - 204 null null 65.1323ms
+2026-04-06 15:10:27.346 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - null null
+2026-04-06 15:10:27.347 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/don-vi/tree - null null
+2026-04-06 15:10:27.349 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - null null
+2026-04-06 15:10:27.351 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - null null
+2026-04-06 15:10:27.354 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/nhan-luc-cntt - null null
+2026-04-06 15:10:27.356 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - null null
+2026-04-06 15:10:27.360 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:27.360 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:27.362 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:27.363 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:27.365 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:27.368 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:27.368 +07:00 [INF] HTTP OPTIONS /api/v1/don-vi/tree => 204 in 8.5042 ms CorrelationId=7f6b6efd5e02423a85e3188c80ea43eb UserId=anonymous
+2026-04-06 15:10:27.374 +07:00 [INF] HTTP OPTIONS /api/v1/don-vi/tree responded 204 in 14.2544 ms
+2026-04-06 15:10:27.375 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/don-vi/tree - 204 null null 27.9399ms
+2026-04-06 15:10:27.377 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - null null
+2026-04-06 15:10:27.379 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:27.404 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '4/5/2026 7:51:36 AM', Current time (UTC): '4/6/2026 8:10:27 AM'.
+   at Microsoft.IdentityModel.Tokens.ValidatorUtilities.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-04-06 15:10:27.404 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '4/5/2026 7:51:36 AM', Current time (UTC): '4/6/2026 8:10:27 AM'.
+   at Microsoft.IdentityModel.Tokens.ValidatorUtilities.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-04-06 15:10:27.404 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '4/5/2026 7:51:36 AM', Current time (UTC): '4/6/2026 8:10:27 AM'.
+   at Microsoft.IdentityModel.Tokens.ValidatorUtilities.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-04-06 15:10:27.404 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '4/5/2026 7:51:36 AM', Current time (UTC): '4/6/2026 8:10:27 AM'.
+   at Microsoft.IdentityModel.Tokens.ValidatorUtilities.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-04-06 15:10:27.404 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '4/5/2026 7:51:36 AM', Current time (UTC): '4/6/2026 8:10:27 AM'.
+   at Microsoft.IdentityModel.Tokens.ValidatorUtilities.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-04-06 15:10:27.404 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '4/5/2026 7:51:36 AM', Current time (UTC): '4/6/2026 8:10:27 AM'.
+   at Microsoft.IdentityModel.Tokens.ValidatorUtilities.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-04-06 15:10:27.410 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '4/5/2026 7:51:36 AM', Current time (UTC): '4/6/2026 8:10:27 AM'.
+2026-04-06 15:10:27.412 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '4/5/2026 7:51:36 AM', Current time (UTC): '4/6/2026 8:10:27 AM'.
+2026-04-06 15:10:27.414 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '4/5/2026 7:51:36 AM', Current time (UTC): '4/6/2026 8:10:27 AM'.
+2026-04-06 15:10:27.416 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '4/5/2026 7:51:36 AM', Current time (UTC): '4/6/2026 8:10:27 AM'.
+2026-04-06 15:10:27.418 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '4/5/2026 7:51:36 AM', Current time (UTC): '4/6/2026 8:10:27 AM'.
+2026-04-06 15:10:27.419 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '4/5/2026 7:51:36 AM', Current time (UTC): '4/6/2026 8:10:27 AM'.
+2026-04-06 15:10:27.424 +07:00 [INF] Authorization failed. These requirements were not met:
+ThucLuc.Api.Common.Authorization.PermissionRequirement
+2026-04-06 15:10:27.424 +07:00 [INF] Authorization failed. These requirements were not met:
+ThucLuc.Api.Common.Authorization.PermissionRequirement
+2026-04-06 15:10:27.424 +07:00 [INF] Authorization failed. These requirements were not met:
+ThucLuc.Api.Common.Authorization.PermissionRequirement
+2026-04-06 15:10:27.424 +07:00 [INF] Authorization failed. These requirements were not met:
+ThucLuc.Api.Common.Authorization.PermissionRequirement
+2026-04-06 15:10:27.425 +07:00 [INF] Authorization failed. These requirements were not met:
+ThucLuc.Api.Common.Authorization.PermissionRequirement
+2026-04-06 15:10:27.425 +07:00 [INF] Authorization failed. These requirements were not met:
+ThucLuc.Api.Common.Authorization.PermissionRequirement
+2026-04-06 15:10:27.428 +07:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-04-06 15:10:27.428 +07:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-04-06 15:10:27.428 +07:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-04-06 15:10:27.428 +07:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-04-06 15:10:27.429 +07:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-04-06 15:10:27.430 +07:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-04-06 15:10:27.431 +07:00 [INF] HTTP GET /api/v1/codes/by-code/LOAI_NHAN_LUC => 401 in 71.051 ms CorrelationId=73b2fc81854d430ba2caa20eaae2d273 UserId=anonymous
+2026-04-06 15:10:27.432 +07:00 [INF] HTTP GET /api/v1/codes/by-code/CAP_BAC_CONG_AN => 401 in 69.082 ms CorrelationId=be46f673562e4dfd85b02c6008f399db UserId=anonymous
+2026-04-06 15:10:27.432 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_LLCT => 401 in 53.0178 ms CorrelationId=ecdd494c3ea74e179271518708694f56 UserId=anonymous
+2026-04-06 15:10:27.433 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt => 401 in 67.7953 ms CorrelationId=f22fff887562445ca5cdff76686dbd92 UserId=anonymous
+2026-04-06 15:10:27.434 +07:00 [INF] HTTP GET /api/v1/codes/by-code/GIOI_TINH => 401 in 72.4588 ms CorrelationId=d1a00a55f962403498abf5da741d924c UserId=anonymous
+2026-04-06 15:10:27.435 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_CNTT => 401 in 67.3003 ms CorrelationId=e15ca36ed66e4d34a81db52718e4d039 UserId=anonymous
+2026-04-06 15:10:27.437 +07:00 [INF] HTTP GET /api/v1/codes/by-code/LOAI_NHAN_LUC responded 401 in 77.1474 ms
+2026-04-06 15:10:27.438 +07:00 [INF] HTTP GET /api/v1/codes/by-code/CAP_BAC_CONG_AN responded 401 in 75.6454 ms
+2026-04-06 15:10:27.440 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_LLCT responded 401 in 61.3491 ms
+2026-04-06 15:10:27.443 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt responded 401 in 77.5540 ms
+2026-04-06 15:10:27.444 +07:00 [INF] HTTP GET /api/v1/codes/by-code/GIOI_TINH responded 401 in 82.6445 ms
+2026-04-06 15:10:27.445 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_CNTT responded 401 in 77.4975 ms
+2026-04-06 15:10:27.447 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - 401 0 null 100.3829ms
+2026-04-06 15:10:27.447 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - 401 0 null 96.3006ms
+2026-04-06 15:10:27.449 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - 401 0 null 71.5859ms
+2026-04-06 15:10:27.450 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/nhan-luc-cntt - 401 0 null 96.3242ms
+2026-04-06 15:10:27.451 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - 401 0 null 102.3235ms
+2026-04-06 15:10:27.453 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - 401 0 null 96.6465ms
+2026-04-06 15:10:27.456 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/don-vi/tree - null null
+2026-04-06 15:10:27.468 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:27.470 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '4/5/2026 7:51:36 AM', Current time (UTC): '4/6/2026 8:10:27 AM'.
+   at Microsoft.IdentityModel.Tokens.ValidatorUtilities.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-04-06 15:10:27.472 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '4/5/2026 7:51:36 AM', Current time (UTC): '4/6/2026 8:10:27 AM'.
+2026-04-06 15:10:27.474 +07:00 [INF] Authorization failed. These requirements were not met:
+ThucLuc.Api.Common.Authorization.PermissionRequirement
+2026-04-06 15:10:27.474 +07:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-04-06 15:10:27.475 +07:00 [INF] HTTP GET /api/v1/don-vi/tree => 401 in 7.2304 ms CorrelationId=c9f6c22aa145436293fda39d13be4eb4 UserId=anonymous
+2026-04-06 15:10:27.477 +07:00 [INF] HTTP GET /api/v1/don-vi/tree responded 401 in 8.9321 ms
+2026-04-06 15:10:27.478 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/don-vi/tree - 401 0 null 21.9533ms
+2026-04-06 15:10:30.945 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/auth/login - null null
+2026-04-06 15:10:30.948 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:30.949 +07:00 [INF] HTTP OPTIONS /api/v1/auth/login => 204 in 1.126 ms CorrelationId=7b03b7e931c946cd877e890712a823e7 UserId=anonymous
+2026-04-06 15:10:30.952 +07:00 [INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 3.5475 ms
+2026-04-06 15:10:30.955 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/auth/login - 204 null null 10.1177ms
+2026-04-06 15:10:30.959 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - application/json 43
+2026-04-06 15:10:30.962 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:30.965 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-06 15:10:30.977 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Auth.AuthTokenDto]]] Login(ThucLuc.Application.Features.Auth.LoginRequest, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.AuthController (ThucLuc.Api).
+2026-04-06 15:10:31.383 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Auth.AuthTokenDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 15:10:31.396 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api) in 416.1715ms
+2026-04-06 15:10:31.398 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Login (ThucLuc.Api)'
+2026-04-06 15:10:31.399 +07:00 [INF] HTTP POST /api/v1/auth/login => 200 in 437.8061 ms CorrelationId=d0f4ff5afa3847e99fbe6ccfcd73174c UserId=anonymous
+2026-04-06 15:10:31.401 +07:00 [INF] HTTP POST /api/v1/auth/login responded 200 in 439.1314 ms
+2026-04-06 15:10:31.404 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5283/api/v1/auth/login - 200 null application/json; charset=utf-8 445.1373ms
+2026-04-06 15:10:31.408 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/auth/me - null null
+2026-04-06 15:10:31.410 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:31.411 +07:00 [INF] HTTP OPTIONS /api/v1/auth/me => 204 in 0.817 ms CorrelationId=84a06ad04f5842488ed6e0b5bba67c18 UserId=anonymous
+2026-04-06 15:10:31.413 +07:00 [INF] HTTP OPTIONS /api/v1/auth/me responded 204 in 3.0381 ms
+2026-04-06 15:10:31.415 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/auth/me - 204 null null 7.416ms
+2026-04-06 15:10:31.418 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/auth/me - null null
+2026-04-06 15:10:31.420 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:31.425 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Me (ThucLuc.Api)'
+2026-04-06 15:10:31.429 +07:00 [INF] Route matched with {action = "Me", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Auth.UserProfileDto]]] Me(System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.AuthController (ThucLuc.Api).
+2026-04-06 15:10:31.451 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Auth.UserProfileDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 15:10:31.453 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.AuthController.Me (ThucLuc.Api) in 23.2693ms
+2026-04-06 15:10:31.455 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.AuthController.Me (ThucLuc.Api)'
+2026-04-06 15:10:31.456 +07:00 [INF] HTTP GET /api/v1/auth/me => 200 in 35.9337 ms CorrelationId=de7798908264432e82792e58f39daba8 UserId=5001
+2026-04-06 15:10:31.457 +07:00 [INF] HTTP GET /api/v1/auth/me responded 200 in 37.5999 ms
+2026-04-06 15:10:31.459 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/auth/me - 200 null application/json; charset=utf-8 41.3172ms
+2026-04-06 15:10:36.481 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/nhan-luc-cntt - null null
+2026-04-06 15:10:36.481 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - null null
+2026-04-06 15:10:36.481 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - null null
+2026-04-06 15:10:36.481 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - null null
+2026-04-06 15:10:36.481 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - null null
+2026-04-06 15:10:36.481 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - null null
+2026-04-06 15:10:36.482 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:36.483 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:36.485 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:36.486 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:36.487 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:36.489 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:36.489 +07:00 [INF] HTTP OPTIONS /api/v1/nhan-luc-cntt => 204 in 6.7676 ms CorrelationId=e4b44a76e20e4338a37f63cc0eef71e2 UserId=anonymous
+2026-04-06 15:10:36.489 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/GIOI_TINH => 204 in 5.9949 ms CorrelationId=c33b9494041f486eae91d09c1ba3c3c5 UserId=anonymous
+2026-04-06 15:10:36.490 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/CAP_BAC_CONG_AN => 204 in 5.1199 ms CorrelationId=f8feaaf6e56443ca833893c4b9bc739f UserId=anonymous
+2026-04-06 15:10:36.490 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/LOAI_NHAN_LUC => 204 in 4.3638 ms CorrelationId=637adce4d372457fa3c83329d036b9b0 UserId=anonymous
+2026-04-06 15:10:36.491 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_CNTT => 204 in 3.5668 ms CorrelationId=4da9e7fcde184b9a9749bea7eb3a4e5e UserId=anonymous
+2026-04-06 15:10:36.491 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_LLCT => 204 in 2.7054 ms CorrelationId=c30b1c2db7654078bf3765a1a4f14aee UserId=anonymous
+2026-04-06 15:10:36.492 +07:00 [INF] HTTP OPTIONS /api/v1/nhan-luc-cntt responded 204 in 10.1264 ms
+2026-04-06 15:10:36.494 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/GIOI_TINH responded 204 in 10.3272 ms
+2026-04-06 15:10:36.495 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/CAP_BAC_CONG_AN responded 204 in 10.2778 ms
+2026-04-06 15:10:36.496 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/LOAI_NHAN_LUC responded 204 in 10.1453 ms
+2026-04-06 15:10:36.497 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_CNTT responded 204 in 9.8702 ms
+2026-04-06 15:10:36.498 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/TRINH_DO_LLCT responded 204 in 9.7304 ms
+2026-04-06 15:10:36.499 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/nhan-luc-cntt - 204 null null 18.6421ms
+2026-04-06 15:10:36.500 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - 204 null null 19.3325ms
+2026-04-06 15:10:36.501 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - 204 null null 20.1354ms
+2026-04-06 15:10:36.503 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - 204 null null 21.9205ms
+2026-04-06 15:10:36.504 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - 204 null null 23.4424ms
+2026-04-06 15:10:36.505 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - 204 null null 24.5782ms
+2026-04-06 15:10:36.507 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/don-vi/tree - null null
+2026-04-06 15:10:36.508 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/nhan-luc-cntt - null null
+2026-04-06 15:10:36.510 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - null null
+2026-04-06 15:10:36.511 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - null null
+2026-04-06 15:10:36.512 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - null null
+2026-04-06 15:10:36.514 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - null null
+2026-04-06 15:10:36.515 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:36.516 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:36.517 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:36.519 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:36.521 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:36.522 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:36.523 +07:00 [INF] HTTP OPTIONS /api/v1/don-vi/tree => 204 in 7.9257 ms CorrelationId=c0cfea884f5b41ccb4863b292202426f UserId=anonymous
+2026-04-06 15:10:36.524 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.NhanLucCnttController.GetAll (ThucLuc.Api)'
+2026-04-06 15:10:36.524 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-06 15:10:36.525 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-06 15:10:36.526 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-06 15:10:36.526 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-06 15:10:36.528 +07:00 [INF] HTTP OPTIONS /api/v1/don-vi/tree responded 204 in 12.7196 ms
+2026-04-06 15:10:36.533 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/don-vi/tree - 204 null null 25.4798ms
+2026-04-06 15:10:36.533 +07:00 [INF] Route matched with {action = "GetAll", controller = "NhanLucCntt"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.NhanLucCntt.NhanLucCnttDto]]]] GetAll(System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.NhanLucCnttController (ThucLuc.Api).
+2026-04-06 15:10:36.533 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-06 15:10:36.533 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-06 15:10:36.533 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-06 15:10:36.534 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-06 15:10:36.535 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - null null
+2026-04-06 15:10:36.545 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:36.547 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-06 15:10:36.548 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-06 15:10:36.563 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.NhanLucCntt.NhanLucCnttDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 15:10:36.572 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.NhanLucCnttController.GetAll (ThucLuc.Api) in 34.863ms
+2026-04-06 15:10:36.573 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.NhanLucCnttController.GetAll (ThucLuc.Api)'
+2026-04-06 15:10:36.574 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt => 200 in 58.3526 ms CorrelationId=531c8e9a76ff43e49eb9daba2b1d693d UserId=5001
+2026-04-06 15:10:36.577 +07:00 [INF] HTTP GET /api/v1/nhan-luc-cntt responded 200 in 60.5387 ms
+2026-04-06 15:10:36.579 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/nhan-luc-cntt - 200 null application/json; charset=utf-8 70.2989ms
+2026-04-06 15:10:36.582 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/don-vi/tree - null null
+2026-04-06 15:10:36.585 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:36.587 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DonViController.GetTree (ThucLuc.Api)'
+2026-04-06 15:10:36.591 +07:00 [INF] Route matched with {action = "GetTree", controller = "DonVi"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.DonVi.DonViDto]]]] GetTree(System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DonViController (ThucLuc.Api).
+2026-04-06 15:10:36.614 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 15:10:36.618 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 75.1694ms
+2026-04-06 15:10:36.622 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-06 15:10:36.624 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_CNTT => 200 in 101.6896 ms CorrelationId=d02773b5189b475c9804622ca26c7d86 UserId=5001
+2026-04-06 15:10:36.626 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_CNTT responded 200 in 103.4586 ms
+2026-04-06 15:10:36.627 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_CNTT - 200 null application/json; charset=utf-8 113.2425ms
+2026-04-06 15:10:36.661 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 15:10:36.663 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 113.2938ms
+2026-04-06 15:10:36.664 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-06 15:10:36.665 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_LLCT => 200 in 119.7613 ms CorrelationId=112bb239b9ec462491cde4e9ed91567f UserId=5001
+2026-04-06 15:10:36.667 +07:00 [INF] HTTP GET /api/v1/codes/by-code/TRINH_DO_LLCT responded 200 in 122.0650 ms
+2026-04-06 15:10:36.670 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/TRINH_DO_LLCT - 200 null application/json; charset=utf-8 135.0436ms
+2026-04-06 15:10:36.682 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 15:10:36.682 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 15:10:36.683 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 15:10:36.683 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 143.4277ms
+2026-04-06 15:10:36.685 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 146.9378ms
+2026-04-06 15:10:36.687 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 145.1698ms
+2026-04-06 15:10:36.688 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.DonVi.DonViDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 15:10:36.688 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-06 15:10:36.689 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-06 15:10:36.690 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-06 15:10:36.693 +07:00 [INF] HTTP GET /api/v1/codes/by-code/GIOI_TINH => 200 in 175.6559 ms CorrelationId=a0fa32027ae848e5bb3cc23533ce50a4 UserId=5001
+2026-04-06 15:10:36.694 +07:00 [INF] HTTP GET /api/v1/codes/by-code/LOAI_NHAN_LUC => 200 in 172.462 ms CorrelationId=2ec12e4590d140749bb98ce19b4f3864 UserId=5001
+2026-04-06 15:10:36.694 +07:00 [INF] HTTP GET /api/v1/codes/by-code/CAP_BAC_CONG_AN => 200 in 175.079 ms CorrelationId=8726f7811e3a42a9b22f9ffe3b6e5843 UserId=5001
+2026-04-06 15:10:36.695 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DonViController.GetTree (ThucLuc.Api) in 103.0365ms
+2026-04-06 15:10:36.696 +07:00 [INF] HTTP GET /api/v1/codes/by-code/GIOI_TINH responded 200 in 178.9678 ms
+2026-04-06 15:10:36.698 +07:00 [INF] HTTP GET /api/v1/codes/by-code/LOAI_NHAN_LUC responded 200 in 176.7292 ms
+2026-04-06 15:10:36.699 +07:00 [INF] HTTP GET /api/v1/codes/by-code/CAP_BAC_CONG_AN responded 200 in 180.1528 ms
+2026-04-06 15:10:36.700 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DonViController.GetTree (ThucLuc.Api)'
+2026-04-06 15:10:36.703 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/GIOI_TINH - 200 null application/json; charset=utf-8 192.7124ms
+2026-04-06 15:10:36.705 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/LOAI_NHAN_LUC - 200 null application/json; charset=utf-8 192.2143ms
+2026-04-06 15:10:36.706 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/CAP_BAC_CONG_AN - 200 null application/json; charset=utf-8 195.2772ms
+2026-04-06 15:10:36.707 +07:00 [INF] HTTP GET /api/v1/don-vi/tree => 200 in 121.8386 ms CorrelationId=da691902250b49308a51ab990dd524ca UserId=5001
+2026-04-06 15:10:36.719 +07:00 [INF] HTTP GET /api/v1/don-vi/tree responded 200 in 133.4187 ms
+2026-04-06 15:10:36.721 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/don-vi/tree - 200 null application/json; charset=utf-8 138.6176ms
+2026-04-06 15:10:37.873 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/dao-tao-boi-duong?kyCode=2026Q1 - null null
+2026-04-06 15:10:37.875 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:37.876 +07:00 [INF] HTTP OPTIONS /api/v1/dao-tao-boi-duong => 204 in 0.8217 ms CorrelationId=58fc4ecbd6b54ae88882eb6ab16623f0 UserId=anonymous
+2026-04-06 15:10:37.877 +07:00 [INF] HTTP OPTIONS /api/v1/dao-tao-boi-duong responded 204 in 2.0358 ms
+2026-04-06 15:10:37.878 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/dao-tao-boi-duong?kyCode=2026Q1 - 204 null null 4.978ms
+2026-04-06 15:10:37.880 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-boi-duong?kyCode=2026Q1 - null null
+2026-04-06 15:10:37.882 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:37.883 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoBoiDuongController.GetAll (ThucLuc.Api)'
+2026-04-06 15:10:37.886 +07:00 [INF] Route matched with {action = "GetAll", controller = "DaoTaoBoiDuong"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.DaoTaoBoiDuong.DaoTaoBoiDuongDto]]]] GetAll(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoBoiDuongController (ThucLuc.Api).
+2026-04-06 15:10:37.901 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.DaoTaoBoiDuong.DaoTaoBoiDuongDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 15:10:37.906 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoBoiDuongController.GetAll (ThucLuc.Api) in 17.514ms
+2026-04-06 15:10:37.907 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoBoiDuongController.GetAll (ThucLuc.Api)'
+2026-04-06 15:10:37.907 +07:00 [INF] HTTP GET /api/v1/dao-tao-boi-duong => 200 in 25.6288 ms CorrelationId=ce99b65acd534fe5885d204d6baddde8 UserId=5001
+2026-04-06 15:10:37.908 +07:00 [INF] HTTP GET /api/v1/dao-tao-boi-duong responded 200 in 26.6891 ms
+2026-04-06 15:10:37.909 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-boi-duong?kyCode=2026Q1 - 200 null application/json; charset=utf-8 29.0065ms
+2026-04-06 15:10:39.168 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/NOI_DUNG_DAO_TAO_HV - null null
+2026-04-06 15:10:39.171 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:39.172 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/NOI_DUNG_DAO_TAO_HV => 204 in 0.643 ms CorrelationId=0fc592b5af984c6dbc1c30eddd4a0c36 UserId=anonymous
+2026-04-06 15:10:39.173 +07:00 [INF] HTTP OPTIONS /api/v1/codes/by-code/NOI_DUNG_DAO_TAO_HV responded 204 in 1.8784 ms
+2026-04-06 15:10:39.175 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/codes/by-code/NOI_DUNG_DAO_TAO_HV - 204 null null 6.9747ms
+2026-04-06 15:10:39.179 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/NOI_DUNG_DAO_TAO_HV - null null
+2026-04-06 15:10:39.182 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:39.183 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-06 15:10:39.184 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-06 15:10:39.189 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 15:10:39.193 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 7.2324ms
+2026-04-06 15:10:39.194 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-06 15:10:39.195 +07:00 [INF] HTTP GET /api/v1/codes/by-code/NOI_DUNG_DAO_TAO_HV => 200 in 13.3291 ms CorrelationId=4ef4cdd5997a4f11be026fece2ad81bf UserId=5001
+2026-04-06 15:10:39.197 +07:00 [INF] HTTP GET /api/v1/codes/by-code/NOI_DUNG_DAO_TAO_HV responded 200 in 15.0248 ms
+2026-04-06 15:10:39.198 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/NOI_DUNG_DAO_TAO_HV - 200 null application/json; charset=utf-8 19.0057ms
+2026-04-06 15:10:39.200 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=2026Q1 - null null
+2026-04-06 15:10:39.203 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:39.203 +07:00 [INF] HTTP OPTIONS /api/v1/dao-tao-hoc-vien => 204 in 0.5182 ms CorrelationId=e47f72ce65de40a3b477c6220bc783f2 UserId=anonymous
+2026-04-06 15:10:39.205 +07:00 [INF] HTTP OPTIONS /api/v1/dao-tao-hoc-vien responded 204 in 2.1334 ms
+2026-04-06 15:10:39.206 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=2026Q1 - 204 null null 5.9544ms
+2026-04-06 15:10:39.209 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=2026Q1 - null null
+2026-04-06 15:10:39.211 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:39.212 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api)'
+2026-04-06 15:10:39.216 +07:00 [INF] Route matched with {action = "GetAll", controller = "DaoTaoHocVien"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto]]]] GetAll(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoHocVienController (ThucLuc.Api).
+2026-04-06 15:10:39.225 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 15:10:39.227 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api) in 9.6917ms
+2026-04-06 15:10:39.228 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api)'
+2026-04-06 15:10:39.229 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien => 200 in 18.3616 ms CorrelationId=8f8acef6cadc4e88b7eb21deb217bc22 UserId=5001
+2026-04-06 15:10:39.231 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien responded 200 in 19.8375 ms
+2026-04-06 15:10:39.232 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=2026Q1 - 200 null application/json; charset=utf-8 22.8425ms
+2026-04-06 15:10:39.761 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5283/api/v1/dao-tao-nuoc-ngoai?kyCode=2026Q1 - null null
+2026-04-06 15:10:39.763 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:39.763 +07:00 [INF] HTTP OPTIONS /api/v1/dao-tao-nuoc-ngoai => 204 in 0.3878 ms CorrelationId=379a3ec30a594c8a82c6deec7a231d20 UserId=anonymous
+2026-04-06 15:10:39.764 +07:00 [INF] HTTP OPTIONS /api/v1/dao-tao-nuoc-ngoai responded 204 in 1.2956 ms
+2026-04-06 15:10:39.765 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5283/api/v1/dao-tao-nuoc-ngoai?kyCode=2026Q1 - 204 null null 3.8554ms
+2026-04-06 15:10:39.767 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-nuoc-ngoai?kyCode=2026Q1 - null null
+2026-04-06 15:10:39.769 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:39.769 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoNuocNgoaiController.GetAll (ThucLuc.Api)'
+2026-04-06 15:10:39.772 +07:00 [INF] Route matched with {action = "GetAll", controller = "DaoTaoNuocNgoai"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.DaoTaoNuocNgoai.DaoTaoNuocNgoaiDto]]]] GetAll(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoNuocNgoaiController (ThucLuc.Api).
+2026-04-06 15:10:39.788 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.DaoTaoNuocNgoai.DaoTaoNuocNgoaiDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 15:10:39.793 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoNuocNgoaiController.GetAll (ThucLuc.Api) in 19.553ms
+2026-04-06 15:10:39.794 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoNuocNgoaiController.GetAll (ThucLuc.Api)'
+2026-04-06 15:10:39.795 +07:00 [INF] HTTP GET /api/v1/dao-tao-nuoc-ngoai => 200 in 26.5735 ms CorrelationId=337f9a02c5c14beebf8efde4b73dadf8 UserId=5001
+2026-04-06 15:10:39.797 +07:00 [INF] HTTP GET /api/v1/dao-tao-nuoc-ngoai responded 200 in 28.6311 ms
+2026-04-06 15:10:39.799 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-nuoc-ngoai?kyCode=2026Q1 - 200 null application/json; charset=utf-8 32.1061ms
+2026-04-06 15:10:40.696 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/NOI_DUNG_DAO_TAO_HV - null null
+2026-04-06 15:10:40.699 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:40.700 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-06 15:10:40.701 +07:00 [INF] Route matched with {action = "GetByCode", controller = "Codes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[ThucLuc.Application.Features.Codes.CodeDto]]] GetByCode(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.CodesController (ThucLuc.Api).
+2026-04-06 15:10:40.705 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[ThucLuc.Application.Features.Codes.CodeDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-06 15:10:40.707 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api) in 4.7922ms
+2026-04-06 15:10:40.708 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.CodesController.GetByCode (ThucLuc.Api)'
+2026-04-06 15:10:40.709 +07:00 [INF] HTTP GET /api/v1/codes/by-code/NOI_DUNG_DAO_TAO_HV => 200 in 9.6627 ms CorrelationId=dc17d784f7bd447183836072dc40edfd UserId=5001
+2026-04-06 15:10:40.710 +07:00 [INF] HTTP GET /api/v1/codes/by-code/NOI_DUNG_DAO_TAO_HV responded 200 in 10.8192 ms
+2026-04-06 15:10:40.711 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/codes/by-code/NOI_DUNG_DAO_TAO_HV - 200 null application/json; charset=utf-8 14.4857ms
+2026-04-06 15:10:40.713 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=2026Q1 - null null
+2026-04-06 15:10:40.715 +07:00 [INF] CORS policy execution successful.
+2026-04-06 15:10:40.716 +07:00 [INF] Executing endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api)'
+2026-04-06 15:10:40.716 +07:00 [INF] Route matched with {action = "GetAll", controller = "DaoTaoHocVien"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ThucLuc.Api.Common.Models.ApiResponse`1[System.Collections.Generic.IReadOnlyCollection`1[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto]]]] GetAll(System.String, System.Threading.CancellationToken) on controller ThucLuc.Api.Controllers.V1.DaoTaoHocVienController (ThucLuc.Api).
+2026-04-06 15:10:40.721 +07:00 [INF] Executing OkObjectResult, writing value of type 'ThucLuc.Api.Common.Models.ApiResponse`1[[System.Collections.Generic.IReadOnlyCollection`1[[ThucLuc.Application.Features.DaoTaoHocVien.DaoTaoHocVienDto, ThucLuc.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-04-06 15:10:40.721 +07:00 [INF] Executed action ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api) in 4.1382ms
+2026-04-06 15:10:40.722 +07:00 [INF] Executed endpoint 'ThucLuc.Api.Controllers.V1.DaoTaoHocVienController.GetAll (ThucLuc.Api)'
+2026-04-06 15:10:40.723 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien => 200 in 8.2313 ms CorrelationId=ade357bbae3a446bbb27c1f508cf5364 UserId=5001
+2026-04-06 15:10:40.725 +07:00 [INF] HTTP GET /api/v1/dao-tao-hoc-vien responded 200 in 9.9126 ms
+2026-04-06 15:10:40.726 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5283/api/v1/dao-tao-hoc-vien?kyCode=2026Q1 - 200 null application/json; charset=utf-8 13.0149ms
+2026-04-06 15:29:36.256 +07:00 [INF] Application is shutting down...

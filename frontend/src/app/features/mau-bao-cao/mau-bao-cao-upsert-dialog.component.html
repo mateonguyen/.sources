@@ -1,0 +1,305 @@
+<p-dialog
+  [visible]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="false"
+  [dismissableMask]="true"
+  [style]="{ width: 'min(900px, 96vw)' }"
+  [maskStyleClass]="dialogMaskStyleClass"
+  styleClass="app-mau-bao-cao-dialog"
+  appendTo="body"
+  (onHide)="onDialogHide()"
+>
+  <ng-template pTemplate="header">
+    <div class="app-mau-bao-cao-dialog__header app-dialog-header">
+      <div>
+        <span class="app-mau-bao-cao-dialog__title app-dialog-title">
+          <i class="pi pi-file" aria-hidden="true"></i>
+          {{ dialogTitle }}
+        </span>
+      </div>
+      <button
+        type="button"
+        class="app-mau-bao-cao-dialog__close app-dialog-close"
+        aria-label="Đóng"
+        (click)="closeDialog()"
+      >
+        <i class="pi pi-times" aria-hidden="true"></i>
+      </button>
+    </div>
+  </ng-template>
+
+  <form
+    [formGroup]="form"
+    class="app-dialog-form app-dialog-form--layout"
+    (ngSubmit)="submit()"
+  >
+    <div class="app-dialog-body app-dialog-body--scroll">
+      <section class="app-dialog-section app-dialog-section--basic">
+        <div
+          class="app-dialog-section__header app-dialog-section__header--compact"
+        >
+          <div>
+            <h3>Thông tin cơ bản</h3>
+          </div>
+          <label class="app-inline-status" for="isActive">
+            <p-checkbox
+              inputId="isActive"
+              binary="true"
+              formControlName="isActive"
+            ></p-checkbox>
+            <span>Đang hoạt động</span>
+          </label>
+        </div>
+
+        <div class="app-dialog-grid app-dialog-grid--basic">
+          <div
+            class="app-form-field app-form-field--ma-mau"
+            [class.has-value]="form.get('maMau')?.value"
+            [class.has-error]="isInvalid('maMau')"
+          >
+            <label class="app-form-field__label required" for="maMau"
+              >Mã mẫu</label
+            >
+            <input
+              id="maMau"
+              pInputText
+              class="app-form-field__input"
+              formControlName="maMau"
+              maxlength="50"
+              placeholder="Nhập mã mẫu"
+            />
+            <small class="app-form-field__error" *ngIf="isInvalid('maMau')">
+              {{ getError("maMau") }}
+            </small>
+          </div>
+
+          <div
+            class="app-form-field app-form-field--ten-mau"
+            [class.has-value]="form.get('tenMau')?.value"
+            [class.has-error]="isInvalid('tenMau')"
+          >
+            <label class="app-form-field__label required" for="tenMau"
+              >Tên mẫu</label
+            >
+            <input
+              id="tenMau"
+              pInputText
+              class="app-form-field__input"
+              formControlName="tenMau"
+              maxlength="200"
+              placeholder="Nhập tên mẫu"
+            />
+            <small class="app-form-field__error" *ngIf="isInvalid('tenMau')">
+              {{ getError("tenMau") }}
+            </small>
+          </div>
+
+          <div
+            class="app-form-field app-form-field--tan-suat"
+            [class.has-value]="form.get('tanSuat')?.value"
+            [class.has-error]="isInvalid('tanSuat')"
+          >
+            <label class="app-form-field__label" for="tanSuat">Tần suất</label>
+            <p-dropdown
+              inputId="tanSuat"
+              [panelStyleClass]="selectPanelStyleClass"
+              [options]="tanSuatOptions"
+              optionLabel="label"
+              optionValue="value"
+              formControlName="tanSuat"
+              placeholder="Chọn tần suất"
+              appendTo="body"
+            ></p-dropdown>
+          </div>
+
+          <div
+            class="app-form-field app-form-field--full"
+            [class.has-value]="form.get('moTa')?.value"
+            [class.has-error]="isInvalid('moTa')"
+          >
+            <label class="app-form-field__label" for="moTa">Mô tả</label>
+            <textarea
+              id="moTa"
+              class="app-form-field__input p-inputtextarea"
+              rows="2"
+              autoResize="true"
+              formControlName="moTa"
+              maxlength="1000"
+              placeholder="Mô tả ngắn gọn về mục đích sử dụng mẫu"
+            ></textarea>
+            <small class="app-form-hint">
+              Mã kỳ sẽ tự sinh theo dạng năm hoặc kỳ kết hợp với Mã mẫu, ví dụ:
+              2025Q1_NHAN_LUC.
+            </small>
+          </div>
+        </div>
+      </section>
+
+      <section class="app-dialog-section app-dialog-section--modules">
+        <div
+          class="app-dialog-section__header app-dialog-section__header--tight"
+        >
+          <h3>Danh sách module</h3>
+        </div>
+
+        <div class="app-module-panel">
+          <div class="app-module-panel__toolbar">
+            <div class="app-module-panel__search-wrap">
+              <span
+                class="app-module-panel__search-icon pi pi-search"
+                aria-hidden="true"
+              ></span>
+              <input
+                pInputText
+                type="text"
+                class="app-module-panel__search"
+                [formControl]="moduleSearchControl"
+                placeholder="Tìm module..."
+              />
+            </div>
+            <div class="app-module-summary app-module-summary--inline">
+              <span class="app-module-summary__value"
+                >{{ totalSelectedModuleCount }} /
+                {{ moduleSelectionSummary }}</span
+              >
+            </div>
+          </div>
+
+          <div
+            class="app-module-panel__content"
+            *ngIf="hasModuleSearchResult; else emptyModuleResult"
+          >
+            <div class="app-module-tree">
+              <section
+                class="app-module-group"
+                *ngFor="let group of filteredModuleGroups; trackBy: trackGroup"
+              >
+                <div
+                  class="app-module-group__header"
+                  [class.app-module-group__header--partial]="
+                    isGroupIndeterminate(group)
+                  "
+                >
+                  <button
+                    type="button"
+                    class="app-module-group__toggle"
+                    (click)="toggleGroupExpanded(group.groupKey)"
+                  >
+                    <i
+                      class="pi app-module-group__icon"
+                      [ngClass]="
+                        isGroupExpanded(group.groupKey)
+                          ? 'pi-chevron-down'
+                          : 'pi-chevron-right'
+                      "
+                      aria-hidden="true"
+                    ></i>
+                    <span class="app-module-group__title">{{
+                      group.groupLabel
+                    }}</span>
+                    <span class="app-module-group__count"
+                      >({{ group.totalCount }} module)</span
+                    >
+                  </button>
+                  <div class="app-module-group__header-actions">
+                    <span class="app-module-group__badge"
+                      >{{ group.selectedCount }}/{{ group.totalCount }}</span
+                    >
+                    <label
+                      class="app-module-group__select-all"
+                      (click)="$event.stopPropagation()"
+                    >
+                      <input
+                        #groupCheckbox
+                        class="app-tree-checkbox"
+                        type="checkbox"
+                        [checked]="isGroupChecked(group)"
+                        [indeterminate]="isGroupIndeterminate(group)"
+                        (click)="$event.stopPropagation()"
+                        (change)="
+                          onGroupSelectionChangeByKey(
+                            group.groupKey,
+                            groupCheckbox.checked
+                          )
+                        "
+                      />
+                      <span>Chọn tất cả</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div
+                  class="app-module-group__body"
+                  *ngIf="isGroupExpanded(group.groupKey)"
+                >
+                  <div class="app-module-group__items">
+                    <label
+                      class="app-module-item"
+                      *ngFor="let item of group.items; trackBy: trackModule"
+                      for="module-{{ item.code }}"
+                    >
+                      <span class="app-module-item__left">
+                        <input
+                          #moduleCheckbox
+                          class="app-tree-checkbox"
+                          type="checkbox"
+                          [checked]="isModuleSelected(item.code)"
+                          (change)="
+                            onModuleSelectionChange(
+                              item.code,
+                              moduleCheckbox.checked
+                            )
+                          "
+                          id="module-{{ item.code }}"
+                        />
+                        <span class="app-module-item__label">{{
+                          item.label
+                        }}</span>
+                      </span>
+                      <span class="app-module-item__code">{{ item.code }}</span>
+                    </label>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <ng-template #emptyModuleResult>
+            <div class="app-module-panel__empty">
+              Không tìm thấy module phù hợp với từ khóa hiện tại.
+            </div>
+          </ng-template>
+        </div>
+
+        <div class="app-form-error app-form-error--module">
+          <span *ngIf="isInvalid('moduleCodes')">{{
+            getError("moduleCodes")
+          }}</span>
+        </div>
+      </section>
+    </div>
+
+    <div class="app-dialog-footer app-dialog-footer--sticky">
+      <button
+        pButton
+        type="button"
+        icon="pi pi-times"
+        label="Hủy"
+        class="p-button-secondary p-button-outlined app-mau-bao-cao-dialog__cancel"
+        [disabled]="submitting"
+        (click)="closeDialog()"
+      ></button>
+      <button
+        pButton
+        type="submit"
+        icon="pi pi-save"
+        [label]="submitLabel"
+        [loading]="submitting"
+        [disabled]="submitting"
+        class="p-button-primary app-mau-bao-cao-dialog__save"
+      ></button>
+    </div>
+  </form>
+</p-dialog>

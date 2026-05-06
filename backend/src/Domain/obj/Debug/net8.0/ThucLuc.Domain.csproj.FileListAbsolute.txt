@@ -1,0 +1,17 @@
+D:\Projects\ThucLuc_V2\.sources\backend\artifacts\verify-mau-bao-cao\ThucLuc.Domain.deps.json
+D:\Projects\ThucLuc_V2\.sources\backend\artifacts\verify-mau-bao-cao\ThucLuc.Domain.dll
+D:\Projects\ThucLuc_V2\.sources\backend\artifacts\verify-mau-bao-cao\ThucLuc.Domain.pdb
+D:\Projects\ThucLuc_V2\.sources\backend\artifacts\verify-ky-refactor\ThucLuc.Domain.deps.json
+D:\Projects\ThucLuc_V2\.sources\backend\artifacts\verify-ky-refactor\ThucLuc.Domain.dll
+D:\Projects\ThucLuc_V2\.sources\backend\artifacts\verify-ky-refactor\ThucLuc.Domain.pdb
+D:\Projects\ThucLuc_V2\.sources\backend\src\Domain\bin\Debug\net8.0\ThucLuc.Domain.deps.json
+D:\Projects\ThucLuc_V2\.sources\backend\src\Domain\bin\Debug\net8.0\ThucLuc.Domain.dll
+D:\Projects\ThucLuc_V2\.sources\backend\src\Domain\bin\Debug\net8.0\ThucLuc.Domain.pdb
+D:\Projects\ThucLuc_V2\.sources\backend\src\Domain\obj\Debug\net8.0\ThucLuc.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\Projects\ThucLuc_V2\.sources\backend\src\Domain\obj\Debug\net8.0\ThucLuc.Domain.AssemblyInfoInputs.cache
+D:\Projects\ThucLuc_V2\.sources\backend\src\Domain\obj\Debug\net8.0\ThucLuc.Domain.AssemblyInfo.cs
+D:\Projects\ThucLuc_V2\.sources\backend\src\Domain\obj\Debug\net8.0\ThucLuc.Domain.csproj.CoreCompileInputs.cache
+D:\Projects\ThucLuc_V2\.sources\backend\src\Domain\obj\Debug\net8.0\ThucLuc.Domain.dll
+D:\Projects\ThucLuc_V2\.sources\backend\src\Domain\obj\Debug\net8.0\refint\ThucLuc.Domain.dll
+D:\Projects\ThucLuc_V2\.sources\backend\src\Domain\obj\Debug\net8.0\ThucLuc.Domain.pdb
+D:\Projects\ThucLuc_V2\.sources\backend\src\Domain\obj\Debug\net8.0\ref\ThucLuc.Domain.dll

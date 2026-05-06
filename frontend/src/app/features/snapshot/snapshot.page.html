@@ -1,0 +1,215 @@
+<app-section-card
+  title="Tra cứu báo cáo"
+  subtitle="Tạo bản nháp từ dữ liệu đã nhập, rà soát phiên bản và nộp báo cáo định kỳ theo đúng kỳ báo cáo."
+  styleClass="snapshot-card"
+>
+  <div class="snapshot-body">
+    <app-loading-overlay
+      [active]="loading || working"
+      label="Đang xử lý snapshot..."
+    ></app-loading-overlay>
+
+    <div class="snapshot-toolbar mt-4">
+      <div class="app-field snapshot-toolbar__field">
+        <label for="snapshotKy">Kỳ báo cáo</label>
+        <p-dropdown
+          inputId="snapshotKy"
+          [options]="kyOptions"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="selectedKyBaoCaoId"
+          (ngModelChange)="onKyBaoCaoChange($event)"
+          placeholder="Chọn kỳ báo cáo"
+        ></p-dropdown>
+      </div>
+
+      <div class="snapshot-toolbar__meta">
+        <div>
+          <span class="snapshot-toolbar__label">Đơn vị tài khoản</span>
+          <strong>#{{ currentDonViId || '-' }}</strong>
+        </div>
+        <div *ngIf="selectedKyBaoCao">
+          <span class="snapshot-toolbar__label">Trạng thái kỳ</span>
+          <strong>{{ kyStatusText(selectedKyBaoCao.trangThai) }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="snapshot-actions mt-3">
+      <button
+        pButton
+        type="button"
+        icon="pi pi-refresh"
+        label="Tự động gom dữ liệu"
+        severity="secondary"
+        (click)="buildAutoFill()"
+        [disabled]="!selectedKyBaoCaoId || !currentDonViId"
+      ></button>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-plus"
+        label="Tạo bản nháp"
+        (click)="createDraft()"
+        [disabled]="!canCreateDraft"
+      ></button>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-save"
+        label="Lưu cập nhật"
+        severity="secondary"
+        (click)="updateDraft()"
+        [disabled]="!canEditDraft"
+      ></button>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-check"
+        label="Nộp báo cáo"
+        severity="success"
+        (click)="submit()"
+        [disabled]="!canEditDraft"
+      ></button>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-file-pdf"
+        label="Mở PDF"
+        severity="info"
+        (click)="getPdf()"
+        [disabled]="!snapshot || snapshot.trangThai === 1"
+      ></button>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-exclamation-circle"
+        label="Sang Yêu cầu bổ sung"
+        severity="warning"
+        (click)="openYeuCauBoSung()"
+        [disabled]="!selectedKyBaoCaoId"
+      ></button>
+    </div>
+
+    <div class="snapshot-layout mt-3">
+      <div class="snapshot-main">
+        <div class="snapshot-state" *ngIf="snapshot; else noSnapshotSelected">
+          <div class="snapshot-state__item">
+            <span>Snapshot hiện tại</span>
+            <strong>#{{ snapshot.id }}</strong>
+          </div>
+          <div class="snapshot-state__item">
+            <span>Phiên bản</span>
+            <strong>v{{ snapshot.phienBan }}</strong>
+          </div>
+          <div class="snapshot-state__item">
+            <span>Trạng thái</span>
+            <app-status-badge
+              [label]="snapshotStatusText(snapshot.trangThai)"
+              [status]="snapshotStatusText(snapshot.trangThai)"
+            ></app-status-badge>
+          </div>
+        </div>
+
+        <ng-template #noSnapshotSelected>
+          <app-empty-state
+            title="Chưa chọn snapshot"
+            message="Chọn kỳ báo cáo, tự động gom dữ liệu rồi tạo bản nháp đầu tiên cho đơn vị của bạn."
+            icon="pi-file"
+          ></app-empty-state>
+        </ng-template>
+
+        <div class="snapshot-preview-grid" *ngIf="previewMetrics.length > 0">
+          <article
+            class="snapshot-preview-card"
+            *ngFor="let metric of previewMetrics"
+          >
+            <span>{{ metric.module }}</span>
+            <strong>{{ metric.count }}</strong>
+          </article>
+        </div>
+
+        <form [formGroup]="form" class="snapshot-form mt-3">
+          <div class="app-field wide">
+            <label for="snapshotJson">Dữ liệu tổng hợp (JSON)</label>
+            <textarea
+              pInputTextarea
+              id="snapshotJson"
+              rows="16"
+              formControlName="snapshotJson"
+            ></textarea>
+          </div>
+
+          <div class="app-field wide">
+            <label for="summaryJson">Tóm tắt bổ sung</label>
+            <textarea
+              pInputTextarea
+              id="summaryJson"
+              rows="4"
+              formControlName="summaryJson"
+            ></textarea>
+          </div>
+
+          <div class="app-field wide">
+            <label for="ghiChu">Ghi chú lần nộp</label>
+            <textarea
+              pInputTextarea
+              id="ghiChu"
+              rows="3"
+              formControlName="ghiChu"
+            ></textarea>
+          </div>
+        </form>
+      </div>
+
+      <aside class="snapshot-sidebar">
+        <div class="snapshot-sidebar__header">
+          <h3>Phiên bản đã tạo</h3>
+          <span>{{ snapshots.length }} bản ghi</span>
+        </div>
+
+        <ng-container *ngIf="snapshots.length > 0; else noSnapshotsYet">
+          <p-table [value]="snapshots" [tableStyle]="{ 'min-width': '100%' }">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Phiên bản</th>
+                <th>Trạng thái</th>
+                <th>Thời điểm</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-row>
+              <tr
+                class="snapshot-row"
+                [class.snapshot-row--active]="snapshot?.id === row.id"
+                (click)="selectSnapshot(row)"
+              >
+                <td>v{{ row.phienBan }}</td>
+                <td>
+                  <app-status-badge
+                    [label]="snapshotStatusText(row.trangThai)"
+                    [status]="snapshotStatusText(row.trangThai)"
+                  ></app-status-badge>
+                </td>
+                <td>{{ row.lockedAt || row.submittedAt || '-' }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </ng-container>
+
+        <ng-template #noSnapshotsYet>
+          <app-empty-state
+            title="Chưa có phiên bản"
+            message="Kỳ báo cáo này chưa có snapshot nào cho đơn vị của bạn."
+            icon="pi-history"
+          ></app-empty-state>
+        </ng-template>
+
+        <p class="app-inline-status mt-2" *ngIf="pdfUrl">
+          PDF sẵn sàng:
+          <a [href]="pdfUrl" target="_blank" rel="noopener">Mở file</a>
+        </p>
+        <p class="app-inline-status mt-2" *ngIf="status">{{ status }}</p>
+      </aside>
+    </div>
+  </div>
+</app-section-card>

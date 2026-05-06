@@ -1,0 +1,380 @@
+.codes-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.codes-header-actions__btn {
+  white-space: nowrap;
+}
+
+.codes-shell {
+  position: relative;
+  min-height: 10rem;
+  display: grid;
+  gap: 1rem;
+}
+
+/* Top control bar: aligned with user-management filter panel */
+.filter-panel {
+  background: var(--surface-ground);
+  border: 1px solid var(--surface-border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1.8fr;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+
+  &--lg {
+    min-width: 0;
+  }
+}
+
+.filter-label {
+  font-size: var(--app-font-size-ui-table-head);
+  font-weight: 600;
+  color: var(--text-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+}
+
+.app-filter-input,
+.app-filter-select {
+  width: 100%;
+}
+
+.filter-search-field {
+  position: relative;
+
+  .pi {
+    position: absolute;
+    left: 0.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-color-secondary);
+    font-size: var(--app-font-size-ui-meta);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  input {
+    width: 100%;
+    padding-left: 2.2rem;
+    padding-right: 2.2rem;
+
+    &::placeholder {
+      color: color-mix(
+        in srgb,
+        var(--text-color-secondary) 72%,
+        transparent 28%
+      );
+    }
+  }
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 0.45rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.65rem;
+  height: 1.65rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-color-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    background: color-mix(in srgb, var(--surface-200) 70%, white 30%);
+    color: var(--text-color);
+  }
+}
+
+/* Category dropdown grouped options */
+:host ::ng-deep .category-select-dropdown {
+  .p-dropdown-label {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .p-dropdown-filter-container {
+    .p-dropdown-filter {
+      padding-left: 2rem;
+    }
+
+    .p-icon-wrapper {
+      left: 0.7rem;
+      right: auto;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-color-secondary);
+    }
+  }
+}
+
+/* Values section remains primary content */
+.code-values-panel {
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-lg);
+  background: var(--app-surface);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.values-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  padding: 0.9rem 0.95rem 0.75rem;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--app-border) 70%, transparent 30%);
+}
+
+.values-toolbar__left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.values-toolbar__heading {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+
+  h3 {
+    margin: 0;
+    font-size: 0.96rem;
+    font-weight: var(--app-font-weight-semibold);
+    color: var(--app-text-strong);
+    letter-spacing: 0.02em;
+  }
+}
+
+.values-toolbar__count {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--app-radius-badge);
+  background: color-mix(in srgb, var(--app-primary-50) 74%, white 26%);
+  color: var(--app-primary-700);
+  font-weight: 700;
+  font-size: var(--app-font-size-ui-badge);
+}
+
+.values-toolbar__add-btn {
+  flex-shrink: 0;
+  height: 2.2rem;
+}
+
+.panel-empty {
+  border: 1px dashed var(--app-border-strong);
+  border-radius: var(--app-radius-md);
+  background: color-mix(in srgb, var(--app-surface-soft) 78%, white 22%);
+  color: var(--app-text-muted);
+  padding: 0.85rem 0.95rem;
+  margin: 0.95rem;
+  line-height: 1.45;
+}
+
+.values-table-wrap {
+  overflow: hidden;
+}
+
+:host ::ng-deep .app-codes-values-table {
+  .p-datatable {
+    border: 0;
+    border-radius: 0;
+    overflow: hidden;
+    background: var(--app-surface);
+  }
+
+  .p-datatable-thead > tr > th {
+    background: color-mix(in srgb, var(--app-surface-soft) 78%, white 22%);
+  }
+
+  .p-datatable-tbody > tr > td {
+    padding-block: 0.78rem;
+  }
+
+  .col-stt {
+    width: 7%;
+    text-align: center;
+  }
+
+  .col-value {
+    width: 14%;
+  }
+
+  .col-name {
+    width: 18%;
+  }
+
+  .col-description {
+    width: 30%;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.45;
+  }
+
+  .col-order {
+    width: 10%;
+  }
+
+  .col-status {
+    width: 16%;
+    text-align: center;
+  }
+
+  .col-actions {
+    width: 12%;
+    text-align: center;
+  }
+}
+
+.values-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 0;
+  padding: 0.8rem 0.95rem 0.85rem;
+  border-top: 1px solid color-mix(in srgb, var(--app-border) 82%, white 18%);
+}
+
+.values-footer__summary {
+  color: var(--app-text-muted);
+  font-size: var(--app-font-size-ui-control);
+}
+
+:host ::ng-deep .code-values-panel .p-paginator {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.values-footer__rpp {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.values-footer__label {
+  color: var(--app-text-muted);
+  font-size: var(--app-font-size-ui-table-head);
+  white-space: nowrap;
+}
+
+:host ::ng-deep .values-footer__select {
+  width: 80px;
+  min-width: 80px;
+
+  .p-dropdown {
+    height: 32px;
+    min-height: 32px;
+    font-size: var(--app-font-size-ui-control);
+  }
+
+  .p-dropdown-label {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 0.5rem;
+    font-size: var(--app-font-size-ui-control);
+  }
+
+  .p-dropdown-trigger {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Paginator visuals moved to shared `admin-shared.scss` (.footer-paginator) */
+
+@media (max-width: 1080px) {
+  .filter-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .filter-group--lg {
+    grid-column: span 2;
+  }
+
+  .values-footer {
+    grid-template-columns: 1fr;
+  }
+
+  :host ::ng-deep .values-footer__paginator {
+    justify-self: stretch;
+
+    .p-paginator {
+      justify-content: flex-start;
+    }
+  }
+
+  .values-footer__rpp {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .filter-panel {
+    padding: 0.8rem;
+  }
+
+  .filter-row {
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+  }
+
+  .filter-group--lg {
+    grid-column: span 1;
+  }
+
+  .values-toolbar__left {
+    width: 100%;
+  }
+
+  .values-footer__summary {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 640px) {
+  .codes-shell {
+    gap: 0.75rem;
+  }
+
+  .code-values-panel {
+    padding: 0.8rem;
+  }
+
+  .values-toolbar {
+    align-items: flex-start;
+  }
+
+  .values-toolbar__add-btn {
+    width: 100%;
+  }
+}

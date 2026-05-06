@@ -1,0 +1,112 @@
+<app-section-card
+  title="Tiến độ tổng hợp"
+  subtitle="Theo dõi trạng thái khai báo của các đơn vị cấp dưới theo kỳ báo cáo (số liệu live)."
+>
+  <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+    <div class="app-field min-w-0 md:min-w-80">
+      <label>Kỳ báo cáo</label>
+      <p-dropdown
+        [options]="kyOptions"
+        optionLabel="label"
+        optionValue="value"
+        [(ngModel)]="selectedKyCode"
+        [ngModelOptions]="{ standalone: true }"
+        appendTo="body"
+        placeholder="Chọn kỳ báo cáo"
+        (onChange)="loadData()"
+      ></p-dropdown>
+    </div>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-refresh"
+      label="Làm mới"
+      class="p-button-secondary"
+      (click)="loadData()"
+    ></button>
+  </div>
+
+  <div class="relative min-h-40 mt-3">
+    <app-loading-overlay
+      [active]="loading || loadingData"
+      label="Đang tải tiến độ..."
+    ></app-loading-overlay>
+
+    <app-empty-state
+      *ngIf="!loading && !loadingData && rows.length === 0 && selectedKyCode"
+      title="Chưa có dữ liệu"
+      message="Không có đơn vị cấp dưới nào trong phạm vi của bạn."
+      icon="pi-chart-bar"
+    ></app-empty-state>
+
+    <ng-container *ngIf="!loading && !loadingData && rows.length > 0">
+      <!-- Tóm tắt -->
+      <div class="grid gap-3 sm:grid-cols-3 mb-4">
+        <article class="rounded-xl border border-sky-200 bg-sky-50 p-4">
+          <strong class="block text-2xl font-semibold text-sky-700"
+            >{{ rows.length }}</strong
+          >
+          <span class="text-sm text-slate-600">Tổng đơn vị</span>
+        </article>
+        <article class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+          <strong class="block text-2xl font-semibold text-emerald-700"
+            >{{ soXacNhan }}</strong
+          >
+          <span class="text-sm text-slate-600">Đã xác nhận</span>
+        </article>
+        <article class="rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <strong class="block text-2xl font-semibold text-amber-700"
+            >{{ rows.length - soXacNhan }}</strong
+          >
+          <span class="text-sm text-slate-600">Chưa xác nhận</span>
+        </article>
+      </div>
+
+      <!-- Bảng chi tiết -->
+      <p-table
+        [value]="rows"
+        [paginator]="rows.length > 15"
+        [rows]="15"
+        styleClass="p-datatable-sm"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Đơn vị</th>
+            <th class="text-center w-32">Trạng thái</th>
+            <th class="text-center w-24">Nhân lực</th>
+            <th class="text-center w-24">Thiết bị</th>
+            <th class="text-center w-24">HTTT</th>
+            <th class="text-center w-24">Hạ tầng</th>
+            <th class="text-center w-24">Đào tạo</th>
+            <th class="text-center w-24">Dự án</th>
+            <th class="text-center w-44">Cập nhật lần cuối</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-row>
+          <tr>
+            <td>
+              <div class="font-medium">{{ row.tenDonVi }}</div>
+              <div class="text-xs text-slate-500">{{ row.capDonVi }}</div>
+            </td>
+            <td class="text-center">
+              <p-tag
+                [value]="row.daXacNhan ? 'Đã xác nhận' : 'Chưa xác nhận'"
+                [severity]="row.daXacNhan ? 'success' : 'warning'"
+              ></p-tag>
+            </td>
+            <td class="text-center">{{ row.soNhanLuc }}</td>
+            <td class="text-center">{{ row.soThietBi }}</td>
+            <td class="text-center">{{ row.soHeThongThongTin }}</td>
+            <td class="text-center">{{ row.soHaTangMang }}</td>
+            <td class="text-center">{{ row.soDaoTao }}</td>
+            <td class="text-center">{{ row.soDuAn }}</td>
+            <td class="text-center text-sm text-slate-500">
+              {{ row.capNhatLanCuoi ? (row.capNhatLanCuoi | date:'dd/MM/yyyy
+              HH:mm') : '—' }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </ng-container>
+  </div>
+</app-section-card>

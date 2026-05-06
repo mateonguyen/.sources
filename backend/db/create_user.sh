@@ -1,0 +1,14 @@
+#!/bin/bash
+# Connect to XEPDB1 as sysdba - password contains @ so must be quoted
+sqlplus -S 'sys/"12345678@"@XEPDB1 as sysdba' <<-SQL
+-- Create user/schema
+CREATE USER CAND_QLCNTT IDENTIFIED BY "123456"
+  DEFAULT TABLESPACE USERS
+  TEMPORARY TABLESPACE TEMP;
+
+GRANT CONNECT, RESOURCE TO CAND_QLCNTT;
+GRANT UNLIMITED TABLESPACE TO CAND_QLCNTT;
+
+COMMIT;
+EXIT;
+SQL

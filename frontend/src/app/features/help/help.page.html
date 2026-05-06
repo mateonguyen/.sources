@@ -1,0 +1,184 @@
+<app-section-card
+  title="Trợ giúp"
+  subtitle="Hướng dẫn sử dụng và thông tin hỗ trợ"
+  styleClass="help-card"
+>
+  <div class="help-shell mt-3">
+    <p-accordion [multiple]="true">
+      <!-- Giới thiệu hệ thống -->
+      <p-accordionTab>
+        <ng-template pTemplate="header">
+          <span class="acc-header">
+            <i class="pi pi-info-circle acc-header__icon"></i>
+            <span>Giới thiệu hệ thống</span>
+          </span>
+        </ng-template>
+        <div class="acc-content">
+          <p>
+            <strong>Hệ thống Thực Lực</strong> là nền tảng quản trị dữ liệu nhân
+            lực CNTT nội bộ, được thiết kế để hỗ trợ các cơ quan, đơn vị trong
+            việc tổng hợp, theo dõi và báo cáo tình hình nhân lực công nghệ
+            thông tin.
+          </p>
+          <p class="mt-2">Hệ thống cung cấp các phân hệ chính:</p>
+          <ul class="help-list">
+            <li>
+              <i class="pi pi-users"></i
+              ><span>Quản lý người dùng và phân quyền truy cập</span>
+            </li>
+            <li>
+              <i class="pi pi-building"></i
+              ><span>Quản lý đơn vị trực thuộc</span>
+            </li>
+            <li>
+              <i class="pi pi-id-card"></i
+              ><span>Quản lý hồ sơ nhân lực CNTT</span>
+            </li>
+            <li>
+              <i class="pi pi-chart-bar"></i
+              ><span>Tổng hợp báo cáo và kỳ báo cáo</span>
+            </li>
+            <li>
+              <i class="pi pi-list"></i><span>Quản lý danh mục dùng chung</span>
+            </li>
+          </ul>
+        </div>
+      </p-accordionTab>
+
+      <!-- Hướng dẫn nhanh -->
+      <p-accordionTab>
+        <ng-template pTemplate="header">
+          <span class="acc-header">
+            <i class="pi pi-book acc-header__icon"></i>
+            <span>Hướng dẫn sử dụng nhanh</span>
+          </span>
+        </ng-template>
+        <div class="acc-content">
+          <div class="guide-steps">
+            <div class="guide-step">
+              <div class="guide-step__num">1</div>
+              <div class="guide-step__content">
+                <strong>Đăng nhập</strong>
+                <p>
+                  Sử dụng tên đăng nhập và mật khẩu được cấp bởi quản trị viên
+                  hệ thống.
+                </p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step__num">2</div>
+              <div class="guide-step__content">
+                <strong>Điều hướng</strong>
+                <p>
+                  Sử dụng thanh menu bên trái để chuyển giữa các phân hệ. Có thể
+                  tìm nhanh màn hình bằng ô tìm kiếm trên menu.
+                </p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step__num">3</div>
+              <div class="guide-step__content">
+                <strong>Thao tác dữ liệu</strong>
+                <p>
+                  Mỗi màn hình có các nút Thêm, Sửa, Xóa ở vị trí quy chuẩn. Hệ
+                  thống sẽ xác nhận trước khi thực hiện các thao tác không thể
+                  hoàn tác.
+                </p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step__num">4</div>
+              <div class="guide-step__content">
+                <strong>Tài khoản cá nhân</strong>
+                <p>
+                  Nhấn vào avatar ở góc dưới trái thanh menu để truy cập thông
+                  tin tài khoản, đổi mật khẩu hoặc đăng xuất.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-accordionTab>
+
+      <!-- Câu hỏi thường gặp -->
+      <p-accordionTab>
+        <ng-template pTemplate="header">
+          <span class="acc-header">
+            <i class="pi pi-question-circle acc-header__icon"></i>
+            <span>Câu hỏi thường gặp</span>
+          </span>
+        </ng-template>
+        <div class="acc-content">
+          <div class="faq-list">
+            <div class="faq-item" *ngFor="let item of faqItems">
+              <button
+                type="button"
+                class="faq-item__question"
+                (click)="toggleFaq(item)"
+                [class.is-open]="item.open"
+              >
+                <i
+                  class="pi"
+                  [class.pi-chevron-down]="item.open"
+                  [class.pi-chevron-right]="!item.open"
+                ></i>
+                <span>{{ item.q }}</span>
+              </button>
+              <div class="faq-item__answer" *ngIf="item.open">{{ item.a }}</div>
+            </div>
+          </div>
+        </div>
+      </p-accordionTab>
+
+      <!-- Liên hệ hỗ trợ -->
+      <p-accordionTab>
+        <ng-template pTemplate="header">
+          <span class="acc-header">
+            <i class="pi pi-phone acc-header__icon"></i>
+            <span>Liên hệ hỗ trợ kỹ thuật</span>
+          </span>
+        </ng-template>
+        <div class="acc-content">
+          <div class="contact-grid">
+            <div class="contact-card">
+              <i class="pi pi-envelope contact-card__icon"></i>
+              <div class="contact-card__info">
+                <span class="contact-card__label">Email hỗ trợ</span>
+                <a href="mailto:hotro@thuc-luc.vn" class="contact-card__value"
+                  >hotro&#64;thuc-luc.vn</a
+                >
+              </div>
+            </div>
+            <div class="contact-card">
+              <i class="pi pi-phone contact-card__icon"></i>
+              <div class="contact-card__info">
+                <span class="contact-card__label">Điện thoại hỗ trợ</span>
+                <span class="contact-card__value"
+                  >024.XXXX.XXXX (Giờ hành chính)</span
+                >
+              </div>
+            </div>
+            <div class="contact-card">
+              <i class="pi pi-clock contact-card__icon"></i>
+              <div class="contact-card__info">
+                <span class="contact-card__label">Giờ làm việc</span>
+                <span class="contact-card__value"
+                  >Thứ Hai – Thứ Sáu, 8:00 – 17:00</span
+                >
+              </div>
+            </div>
+            <div class="contact-card">
+              <i class="pi pi-map-marker contact-card__icon"></i>
+              <div class="contact-card__info">
+                <span class="contact-card__label">Bộ phận kỹ thuật</span>
+                <span class="contact-card__value"
+                  >Phòng Công nghệ thông tin</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-accordionTab>
+    </p-accordion>
+  </div>
+</app-section-card>

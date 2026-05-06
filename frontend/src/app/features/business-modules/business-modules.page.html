@@ -1,0 +1,1626 @@
+<app-section-card
+  [title]="isCustomModule ? '' : moduleConfig.title"
+  [subtitle]="isCustomModule ? '' : moduleConfig.subtitle"
+  styleClass="biz-module-card"
+>
+  <ng-container *ngIf="isCustomModule; else genericModuleTemplate">
+    <div class="training-page">
+      <header class="training-page-header">
+        <h1>{{ moduleConfig.title }}</h1>
+        <p>{{ moduleConfig.subtitle }}</p>
+      </header>
+
+      <div class="relative mt-3 min-h-40">
+        <app-loading-overlay
+          [active]="loading"
+          [label]="customLoadingLabel"
+        ></app-loading-overlay>
+
+        <!-- Summary cards: Bồi dưỡng -->
+        <div
+          class="training-summary"
+          *ngIf="!loading && isDaoTaoBoiDuongModule"
+        >
+          <article class="training-summary__card training-summary__card--blue">
+            <i class="pi pi-book"></i>
+            <strong>{{ totalCourses }}</strong>
+            <span>Tổng khóa học</span>
+          </article>
+          <article class="training-summary__card training-summary__card--green">
+            <i class="pi pi-users"></i>
+            <strong>{{ totalStudents }}</strong>
+            <span>Tổng học viên</span>
+          </article>
+          <article
+            class="training-summary__card training-summary__card--orange"
+          >
+            <i class="pi pi-clock"></i>
+            <strong>{{ totalHours | number: '1.0-1' }}</strong>
+            <span>Tổng thời gian (giờ)</span>
+          </article>
+        </div>
+
+        <!-- Summary cards: Học viên -->
+        <div class="training-summary" *ngIf="!loading && isDaoTaoHocVienModule">
+          <article class="training-summary__card training-summary__card--green">
+            <i class="pi pi-star"></i>
+            <strong>{{ hvTotalTienSi }}</strong>
+            <span>Tiến sĩ</span>
+          </article>
+          <article
+            class="training-summary__card training-summary__card--orange"
+          >
+            <i class="pi pi-bookmark"></i>
+            <strong>{{ hvTotalThacSi }}</strong>
+            <span>Thạc sĩ</span>
+          </article>
+          <article class="training-summary__card training-summary__card--red">
+            <i class="pi pi-graduation-cap"></i>
+            <strong>{{ hvTotalDaiHoc }}</strong>
+            <span>Đại học</span>
+          </article>
+          <article
+            class="training-summary__card training-summary__card--purple"
+          >
+            <i class="pi pi-briefcase"></i>
+            <strong>{{ hvTotalCaoDang }}</strong>
+            <span>Cao đẳng</span>
+          </article>
+          <article class="training-summary__card training-summary__card--slate">
+            <i class="pi pi-building-columns"></i>
+            <strong>{{ hvTotalTrungCap }}</strong>
+            <span>Trung cấp</span>
+          </article>
+        </div>
+
+        <div class="training-summary" *ngIf="!loading && isNangLucSoModule">
+          <article class="training-summary__card training-summary__card--blue">
+            <i class="pi pi-sitemap"></i>
+            <strong>{{ nlsTotalGroups }}</strong>
+            <span>Tổng nhóm vị trí</span>
+          </article>
+          <article class="training-summary__card training-summary__card--green">
+            <i class="pi pi-users"></i>
+            <strong>{{ nlsTotalAssessed }}</strong>
+            <span>Tổng số diện đánh giá</span>
+          </article>
+          <article
+            class="training-summary__card training-summary__card--orange"
+          >
+            <i class="pi pi-check-circle"></i>
+            <strong>{{ nlsTotalPassed }}</strong>
+            <span>Tổng số đạt</span>
+          </article>
+          <article class="training-summary__card training-summary__card--red">
+            <i class="pi pi-exclamation-circle"></i>
+            <strong>{{ nlsTotalNotPassed }}</strong>
+            <span>Tổng số chưa đạt</span>
+          </article>
+        </div>
+
+        <!-- Toolbar: Bồi dưỡng -->
+        <div
+          class="training-toolbar"
+          *ngIf="!loading && isDaoTaoBoiDuongModule"
+        >
+          <div class="training-toolbar__left">
+            <div class="training-search-wrap">
+              <i class="pi pi-search training-search-icon"></i>
+              <input
+                pInputText
+                class="training-search-input"
+                type="text"
+                placeholder="Tìm tên khóa học..."
+                [(ngModel)]="searchTerm"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </div>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-filter"
+              class="training-btn p-button-outlined app-button-secondary"
+              [label]="showFilterPanel ? 'Ẩn bộ lọc' : 'Bộ lọc'"
+              (click)="toggleFilterPanel()"
+            ></button>
+          </div>
+
+          <div class="training-toolbar__right">
+            <button
+              pButton
+              type="button"
+              icon="pi pi-plus"
+              class="training-btn training-btn--primary"
+              label="Thêm khóa học"
+              (click)="openTrainingCreateDialog()"
+              *ngIf="canSaveCurrentMode()"
+            ></button>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-download"
+              class="training-btn app-button-success"
+              label="Xuất Excel"
+              (click)="exportTrainingCsv()"
+              [disabled]="filteredItems.length === 0"
+            ></button>
+          </div>
+        </div>
+
+        <!-- Toolbar: Học viên -->
+        <div
+          class="training-toolbar training-toolbar--simple"
+          *ngIf="!loading && isDaoTaoHocVienModule"
+        >
+          <div class="training-toolbar__right">
+            <button
+              pButton
+              type="button"
+              icon="pi pi-save"
+              class="training-btn training-btn--primary"
+              label="Lưu dữ liệu"
+              [loading]="saving"
+              (click)="saveHocVienGrid()"
+              [disabled]="!isHocVienDirty || !canSaveCurrentMode()"
+            ></button>
+          </div>
+        </div>
+
+        <div
+          class="training-toolbar training-toolbar--simple"
+          *ngIf="!loading && isNangLucSoModule"
+        >
+          <div class="training-toolbar__right">
+            <button
+              pButton
+              type="button"
+              icon="pi pi-save"
+              class="training-btn training-btn--primary"
+              label="Lưu dữ liệu"
+              [loading]="saving"
+              (click)="saveNangLucSoGrid()"
+              [disabled]="!isNangLucSoDirty || !canSaveCurrentMode()"
+            ></button>
+          </div>
+        </div>
+
+        <section
+          class="training-status-banner training-status-banner--warning"
+          *ngIf="!loading && isDaoTaoHocVienModule && isHocVienDirty"
+        >
+          <i class="pi pi-exclamation-circle"></i>
+          <div>
+            <strong>Dữ liệu đã thay đổi và chưa được lưu.</strong>
+            <p>
+              Vui lòng lưu dữ liệu trước khi rời trang. Có {{
+              hocVienDirtyCellCount }} ô đã chỉnh sửa.
+            </p>
+          </div>
+        </section>
+
+        <section
+          class="training-status-banner training-status-banner--warning"
+          *ngIf="!loading && isNangLucSoModule && isNangLucSoDirty"
+        >
+          <i class="pi pi-exclamation-circle"></i>
+          <div>
+            <strong>Dữ liệu đã thay đổi và chưa được lưu.</strong>
+            <p>
+              Vui lòng lưu trước khi rời trang. Có {{ nangLucSoDirtyCellCount }}
+              ô đã chỉnh sửa.
+            </p>
+          </div>
+        </section>
+
+        <section
+          class="training-filter-panel mt-2"
+          *ngIf="showFilterPanel && isDaoTaoBoiDuongModule"
+        >
+          <div class="training-filter-grid">
+            <div class="app-field">
+              <label for="filterDonVi">Đơn vị tổ chức</label>
+              <input
+                pInputText
+                id="filterDonVi"
+                type="text"
+                [(ngModel)]="filterDraft.donViToChuc"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </div>
+
+            <div class="app-field">
+              <label for="filterHinhThuc">Hình thức</label>
+              <p-dropdown
+                inputId="filterHinhThuc"
+                [options]="hinhThucFilterOptions"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="filterDraft.hinhThuc"
+                [ngModelOptions]="{ standalone: true }"
+                class="app-filter-select"
+                [panelStyleClass]="selectPanelStyleClass"
+                appendTo="body"
+                placeholder="Tất cả"
+              ></p-dropdown>
+            </div>
+
+            <div class="app-field">
+              <label for="filterTu">Thời gian từ</label>
+              <p-calendar
+                inputId="filterTu"
+                [(ngModel)]="filterDraft.thoiGianTu"
+                [ngModelOptions]="{ standalone: true }"
+                dateFormat="dd/mm/yy"
+                [showIcon]="true"
+                [showButtonBar]="true"
+                appendTo="body"
+                styleClass="w-full"
+              ></p-calendar>
+            </div>
+
+            <div class="app-field">
+              [locale]="calendarLocaleVi"
+              <label for="filterDen">Thời gian đến</label>
+              <p-calendar
+                inputId="filterDen"
+                [(ngModel)]="filterDraft.thoiGianDen"
+                [ngModelOptions]="{ standalone: true }"
+                dateFormat="dd/mm/yy"
+                [showIcon]="true"
+                [showButtonBar]="true"
+                appendTo="body"
+                styleClass="w-full"
+              ></p-calendar>
+            </div>
+
+            <div class="training-filter-actions">
+              [locale]="calendarLocaleVi"
+              <button
+                pButton
+                type="button"
+                class="training-btn training-btn--sm app-button-info"
+                label="Áp dụng"
+                (click)="applyTrainingFilters()"
+              ></button>
+              <button
+                type="button"
+                class="training-filter-clear"
+                (click)="clearTrainingFilters()"
+              >
+                Xóa bộ lọc
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             DIALOG: Thêm / Chỉnh sửa khóa học (redesigned)
+             ═══════════════════════════════════════════════ -->
+        <p-dialog
+          [visible]="showCreatePanel"
+          [modal]="true"
+          [draggable]="false"
+          [resizable]="false"
+          [closable]="false"
+          [dismissableMask]="true"
+          [style]="{ width: 'min(800px, 96vw)' }"
+          styleClass="tfd-dialog"
+          [maskStyleClass]="dialogMaskStyleClass"
+          appendTo="body"
+          (onHide)="closeTrainingDialog()"
+        >
+          <!-- Header – same pattern as mau-bao-cao -->
+          <ng-template pTemplate="header">
+            <div class="app-mau-bao-cao-dialog__header">
+              <div>
+                <span class="app-mau-bao-cao-dialog__title">
+                  <i
+                    [class]="isDaoTaoBoiDuongModule ? 'pi pi-book' : 'pi pi-user-edit'"
+                    aria-hidden="true"
+                  ></i>
+                  {{ selectedId ? 'Chỉnh sửa' : 'Thêm mới' }} {{
+                  isDaoTaoBoiDuongModule ? 'khóa học' : 'dữ liệu' }}
+                </span>
+              </div>
+              <button
+                type="button"
+                class="app-mau-bao-cao-dialog__close"
+                aria-label="Đóng"
+                (click)="closeTrainingDialog()"
+              >
+                <i class="pi pi-times" aria-hidden="true"></i>
+              </button>
+            </div>
+          </ng-template>
+
+          <!-- Body -->
+          <form
+            [formGroup]="form"
+            class="app-dialog-form app-dialog-form--layout"
+            autocomplete="off"
+          >
+            <!-- ══ Bồi dưỡng form ══ -->
+            <div class="app-dialog-body" *ngIf="isDaoTaoBoiDuongModule">
+              <section class="app-dialog-section app-dialog-section--basic">
+                <div class="app-dialog-grid tfd-grid--main">
+                  <!-- Tên khóa học -->
+                  <div
+                    class="app-form-field tfd-field--ten"
+                    [class.has-value]="form.get('tenKhoaHoc')?.value"
+                    [class.has-error]="isFieldInvalidByKey('tenKhoaHoc')"
+                  >
+                    <label
+                      class="app-form-field__label required"
+                      for="tenKhoaHoc"
+                      >Tên khóa học</label
+                    >
+                    <input
+                      pInputText
+                      id="tenKhoaHoc"
+                      class="app-form-field__input"
+                      formControlName="tenKhoaHoc"
+                      placeholder="Nhập tên khóa học..."
+                      autofocus
+                      (blur)="onFieldBlur('tenKhoaHoc')"
+                    />
+                    <div
+                      class="app-form-field__feedback"
+                      [class.is-visible]="isFieldInvalidByKey('tenKhoaHoc')"
+                      aria-live="polite"
+                    >
+                      <small class="app-form-field__error"
+                        >{{ getFieldErrorMessage('tenKhoaHoc') }}</small
+                      >
+                    </div>
+                  </div>
+
+                  <!-- Thời gian từ -->
+                  <div
+                    class="app-form-field tfd-field--tu tfd-field--date"
+                    [class.has-value]="form.get('thoiGianTu')?.value"
+                    [class.has-error]="isFieldInvalidByKey('thoiGianTu')"
+                  >
+                    <label class="app-form-field__label" for="thoiGianTu"
+                      >Thời gian từ</label
+                    >
+                    <p-calendar
+                      inputId="thoiGianTu"
+                      formControlName="thoiGianTu"
+                      [locale]="calendarLocaleVi"
+                      dateFormat="dd/mm/yy"
+                      [showIcon]="true"
+                      [showButtonBar]="true"
+                      appendTo="body"
+                      styleClass="w-full"
+                      (onBlur)="onFieldBlur('thoiGianTu')"
+                    ></p-calendar>
+                    <div
+                      class="app-form-field__feedback"
+                      [class.is-visible]="isFieldInvalidByKey('thoiGianTu')"
+                      aria-live="polite"
+                    >
+                      <small class="app-form-field__error"
+                        >{{ getFieldErrorMessage('thoiGianTu') }}</small
+                      >
+                    </div>
+                  </div>
+
+                  <!-- Thời gian đến -->
+                  <div
+                    class="app-form-field tfd-field--den tfd-field--date"
+                    [class.has-value]="form.get('thoiGianDen')?.value"
+                    [class.has-error]="isFieldInvalidByKey('thoiGianDen')"
+                  >
+                    <label class="app-form-field__label" for="thoiGianDen"
+                      >Thời gian đến</label
+                    >
+                    <p-calendar
+                      inputId="thoiGianDen"
+                      formControlName="thoiGianDen"
+                      [locale]="calendarLocaleVi"
+                      dateFormat="dd/mm/yy"
+                      [showIcon]="true"
+                      [showButtonBar]="true"
+                      appendTo="body"
+                      styleClass="w-full"
+                      (onBlur)="onFieldBlur('thoiGianDen')"
+                    ></p-calendar>
+                    <div
+                      class="app-form-field__feedback"
+                      [class.is-visible]="isFieldInvalidByKey('thoiGianDen')"
+                      aria-live="polite"
+                    >
+                      <small class="app-form-field__error"
+                        >{{ getFieldErrorMessage('thoiGianDen') }}</small
+                      >
+                    </div>
+                  </div>
+
+                  <!-- Đơn vị tổ chức -->
+                  <div
+                    class="app-form-field tfd-field--donvi"
+                    [class.has-value]="form.get('donViToChuc')?.value"
+                    [class.has-error]="isFieldInvalidByKey('donViToChuc')"
+                  >
+                    <label
+                      class="app-form-field__label required"
+                      for="donViToChuc"
+                      >Đơn vị tổ chức</label
+                    >
+                    <input
+                      pInputText
+                      id="donViToChuc"
+                      class="app-form-field__input"
+                      formControlName="donViToChuc"
+                      placeholder="Tên đơn vị..."
+                      (blur)="onFieldBlur('donViToChuc')"
+                    />
+                    <div
+                      class="app-form-field__feedback"
+                      [class.is-visible]="isFieldInvalidByKey('donViToChuc')"
+                      aria-live="polite"
+                    >
+                      <small class="app-form-field__error"
+                        >{{ getFieldErrorMessage('donViToChuc') }}</small
+                      >
+                    </div>
+                  </div>
+
+                  <!-- Hình thức -->
+                  <div
+                    class="app-form-field tfd-field--hinhthuc"
+                    [class.has-value]="form.get('hinhThuc')?.value"
+                  >
+                    <label class="app-form-field__label" for="hinhThuc"
+                      >Hình thức</label
+                    >
+                    <p-dropdown
+                      inputId="hinhThuc"
+                      [options]="hinhThucOptions"
+                      optionLabel="label"
+                      optionValue="value"
+                      formControlName="hinhThuc"
+                      [panelStyleClass]="selectPanelStyleClass"
+                      appendTo="body"
+                      placeholder="Chọn hình thức"
+                    ></p-dropdown>
+                  </div>
+
+                  <!-- Số lượng học viên -->
+                  <div
+                    class="app-form-field tfd-field--soluong"
+                    [class.has-value]="form.get('soLuongHv')?.value != null"
+                  >
+                    <label class="app-form-field__label" for="soLuongHv"
+                      >Số lượng học viên</label
+                    >
+                    <p-inputNumber
+                      inputId="soLuongHv"
+                      formControlName="soLuongHv"
+                      styleClass="w-full"
+                      inputStyleClass="w-full text-right"
+                      mode="decimal"
+                      [useGrouping]="true"
+                      [minFractionDigits]="0"
+                      [maxFractionDigits]="0"
+                      [min]="0"
+                      placeholder="0"
+                      (onBlur)="onFieldBlur('soLuongHv')"
+                    ></p-inputNumber>
+                  </div>
+
+                  <!-- Ghi chú (full width) -->
+                  <div
+                    class="app-form-field app-form-field--full tfd-field--ghichu"
+                    [class.has-value]="form.get('ghiChu')?.value"
+                  >
+                    <label class="app-form-field__label" for="ghiChu"
+                      >Ghi chú</label
+                    >
+                    <textarea
+                      pInputTextarea
+                      id="ghiChu"
+                      class="app-form-field__input"
+                      rows="3"
+                      autoResize="true"
+                      formControlName="ghiChu"
+                      placeholder="Ghi chú thêm về khóa học (không bắt buộc)..."
+                    ></textarea>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <!-- ══ Học viên form ══ -->
+            <div class="app-dialog-body" *ngIf="isDaoTaoHocVienModule">
+              <section class="app-dialog-section app-dialog-section--basic">
+                <div
+                  class="app-dialog-section__header app-dialog-section__header--compact"
+                >
+                  <div><h3>Thông tin đào tạo</h3></div>
+                </div>
+
+                <div class="app-dialog-grid tfd-grid--hocvien">
+                  <!-- Nội dung đào tạo (full width) -->
+                  <div
+                    class="app-form-field app-form-field--full"
+                    [class.has-value]="form.get('noiDungDaoTao')?.value"
+                    [class.has-error]="isFieldInvalidByKey('noiDungDaoTao')"
+                  >
+                    <label
+                      class="app-form-field__label required"
+                      for="hvNoiDungDaoTao"
+                      >Nội dung đào tạo</label
+                    >
+                    <p-dropdown
+                      inputId="hvNoiDungDaoTao"
+                      [options]="getSelectOptions(getField('noiDungDaoTao')!)"
+                      optionLabel="label"
+                      optionValue="value"
+                      formControlName="noiDungDaoTao"
+                      [panelStyleClass]="selectPanelStyleClass"
+                      appendTo="body"
+                      placeholder="Chọn nội dung đào tạo"
+                      (onBlur)="onFieldBlur('noiDungDaoTao')"
+                    ></p-dropdown>
+                    <div
+                      class="app-form-field__feedback"
+                      [class.is-visible]="isFieldInvalidByKey('noiDungDaoTao')"
+                      aria-live="polite"
+                    >
+                      <small class="app-form-field__error"
+                        >{{ getFieldErrorMessage('noiDungDaoTao') }}</small
+                      >
+                    </div>
+                  </div>
+
+                  <!-- Tiến sĩ -->
+                  <div
+                    class="app-form-field"
+                    [class.has-value]="form.get('soTienSi')?.value != null"
+                  >
+                    <label class="app-form-field__label" for="hvSoTienSi"
+                      >Tiến sĩ</label
+                    >
+                    <p-inputNumber
+                      inputId="hvSoTienSi"
+                      formControlName="soTienSi"
+                      styleClass="w-full"
+                      inputStyleClass="w-full text-right"
+                      mode="decimal"
+                      [useGrouping]="true"
+                      [minFractionDigits]="0"
+                      [maxFractionDigits]="0"
+                      [min]="0"
+                      placeholder="0"
+                    ></p-inputNumber>
+                  </div>
+
+                  <!-- Thạc sĩ -->
+                  <div
+                    class="app-form-field"
+                    [class.has-value]="form.get('soThacSi')?.value != null"
+                  >
+                    <label class="app-form-field__label" for="hvSoThacSi"
+                      >Thạc sĩ</label
+                    >
+                    <p-inputNumber
+                      inputId="hvSoThacSi"
+                      formControlName="soThacSi"
+                      styleClass="w-full"
+                      inputStyleClass="w-full text-right"
+                      mode="decimal"
+                      [useGrouping]="true"
+                      [minFractionDigits]="0"
+                      [maxFractionDigits]="0"
+                      [min]="0"
+                      placeholder="0"
+                    ></p-inputNumber>
+                  </div>
+
+                  <!-- Đại học -->
+                  <div
+                    class="app-form-field"
+                    [class.has-value]="form.get('soDaiHoc')?.value != null"
+                  >
+                    <label class="app-form-field__label" for="hvSoDaiHoc"
+                      >Đại học</label
+                    >
+                    <p-inputNumber
+                      inputId="hvSoDaiHoc"
+                      formControlName="soDaiHoc"
+                      styleClass="w-full"
+                      inputStyleClass="w-full text-right"
+                      mode="decimal"
+                      [useGrouping]="true"
+                      [minFractionDigits]="0"
+                      [maxFractionDigits]="0"
+                      [min]="0"
+                      placeholder="0"
+                    ></p-inputNumber>
+                  </div>
+
+                  <!-- Cao đẳng -->
+                  <div
+                    class="app-form-field"
+                    [class.has-value]="form.get('soCaoDang')?.value != null"
+                  >
+                    <label class="app-form-field__label" for="hvSoCaoDang"
+                      >Cao đẳng</label
+                    >
+                    <p-inputNumber
+                      inputId="hvSoCaoDang"
+                      formControlName="soCaoDang"
+                      styleClass="w-full"
+                      inputStyleClass="w-full text-right"
+                      mode="decimal"
+                      [useGrouping]="true"
+                      [minFractionDigits]="0"
+                      [maxFractionDigits]="0"
+                      [min]="0"
+                      placeholder="0"
+                    ></p-inputNumber>
+                  </div>
+
+                  <!-- Trung cấp -->
+                  <div
+                    class="app-form-field"
+                    [class.has-value]="form.get('soTrungCap')?.value != null"
+                  >
+                    <label class="app-form-field__label" for="hvSoTrungCap"
+                      >Trung cấp</label
+                    >
+                    <p-inputNumber
+                      inputId="hvSoTrungCap"
+                      formControlName="soTrungCap"
+                      styleClass="w-full"
+                      inputStyleClass="w-full text-right"
+                      mode="decimal"
+                      [useGrouping]="true"
+                      [minFractionDigits]="0"
+                      [maxFractionDigits]="0"
+                      [min]="0"
+                      placeholder="0"
+                    ></p-inputNumber>
+                  </div>
+
+                  <!-- Ghi chú (full width) -->
+                  <div
+                    class="app-form-field app-form-field--full tfd-field--ghichu"
+                    [class.has-value]="form.get('ghiChu')?.value"
+                  >
+                    <label class="app-form-field__label" for="hvGhiChu"
+                      >Ghi chú</label
+                    >
+                    <textarea
+                      pInputTextarea
+                      id="hvGhiChu"
+                      class="app-form-field__input"
+                      rows="3"
+                      autoResize="true"
+                      formControlName="ghiChu"
+                      placeholder="Ghi chú thêm (không bắt buộc)..."
+                    ></textarea>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <!-- Footer – same pattern as mau-bao-cao -->
+            <div class="app-dialog-footer app-dialog-footer--sticky">
+              <button
+                pButton
+                type="button"
+                icon="pi pi-times"
+                label="Hủy"
+                class="p-button-secondary p-button-outlined"
+                (click)="closeTrainingDialog()"
+              ></button>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-check"
+                label="Lưu thay đổi"
+                [loading]="saving"
+                class="p-button-primary"
+                (click)="save()"
+                *ngIf="canSaveCurrentMode()"
+              ></button>
+            </div>
+          </form>
+        </p-dialog>
+
+        <small class="app-validation-error" *ngIf="apiError"
+          >{{ apiError }}</small
+        >
+
+        <!-- ══ Bồi dưỡng table ══ -->
+        <div
+          class="training-table-zone mt-3"
+          *ngIf="isDaoTaoBoiDuongModule && !loading && filteredItems.length > 0"
+        >
+          <div class="app-table-wrap app-table-wrap--spacious">
+            <p-table
+              [value]="pagedTrainingItems"
+              styleClass="p-datatable-sm app-admin-table training-table"
+              [tableStyleClass]="tableStyleClass"
+              [tableStyle]="{ 'min-width': '76rem' }"
+              sortMode="single"
+              [paginator]="false"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th
+                    [class]="tableHeaderCellClass"
+                    style="width: 56px; text-align: center"
+                  >
+                    STT
+                  </th>
+                  <th
+                    [class]="tableHeaderCellClass"
+                    pSortableColumn="tenKhoaHoc"
+                  >
+                    <div class="header-cell">
+                      <span>Tên khóa học</span>
+                      <p-sortIcon field="tenKhoaHoc"></p-sortIcon>
+                    </div>
+                  </th>
+                  <th [class]="tableHeaderCellClass" style="width: 160px">
+                    Đơn vị tổ chức
+                  </th>
+                  <th [class]="tableHeaderCellClass" style="width: 110px">
+                    Hình thức
+                  </th>
+                  <th
+                    [class]="tableHeaderCellClass"
+                    pSortableColumn="soLuongHv"
+                    style="width: 90px"
+                  >
+                    <div class="header-cell">
+                      <span>Học viên</span>
+                      <p-sortIcon field="soLuongHv"></p-sortIcon>
+                    </div>
+                  </th>
+                  <th
+                    [class]="tableHeaderCellClass"
+                    pSortableColumn="thoiGianTu"
+                    style="width: 180px"
+                  >
+                    <div class="header-cell">
+                      <span>Thời gian</span>
+                      <p-sortIcon field="thoiGianTu"></p-sortIcon>
+                    </div>
+                  </th>
+                  <th [class]="tableHeaderCellClass" style="width: 140px">
+                    Ghi chú
+                  </th>
+                  <th
+                    [class]="tableHeaderCellClass"
+                    style="width: 90px; text-align: center"
+                  >
+                    Thao tác
+                  </th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+                <tr [class]="tableRowClass">
+                  <td [class]="tableBodyCellClass" style="text-align: center">
+                    <span class="app-table-stt"
+                      >{{ rowNumber(rowIndex, trainingTableFirst) }}</span
+                    >
+                  </td>
+                  <td [class]="tableBodyCellClass" class="training-td-ellipsis">
+                    {{ item.tenKhoaHoc || '—' }}
+                  </td>
+                  <td [class]="tableBodyCellClass" class="training-td-ellipsis">
+                    {{ item.donViToChuc || '—' }}
+                  </td>
+                  <td [class]="tableBodyCellClass">
+                    {{ item.hinhThuc || '—' }}
+                  </td>
+                  <td [class]="tableBodyCellClass" style="text-align: right">
+                    {{ item.soLuongHv != null ? item.soLuongHv : '—' }}
+                  </td>
+                  <td [class]="tableBodyCellClass">
+                    {{ trainingTimeRange(item) }}
+                  </td>
+                  <td [class]="tableBodyCellClass" class="training-td-ellipsis">
+                    {{ item.ghiChu || '—' }}
+                  </td>
+                  <td [class]="tableBodyCellClass" style="text-align: center">
+                    <div class="app-inline-actions">
+                      <ng-container
+                        *hasPermission="moduleConfig.permissions.update"
+                      >
+                        <button
+                          pButton
+                          type="button"
+                          icon="pi pi-pencil"
+                          class="p-button-text p-button-sm app-icon-action-btn app-icon-action-btn--edit"
+                          pTooltip="Chỉnh sửa"
+                          tooltipPosition="top"
+                          aria-label="Chỉnh sửa"
+                          (click)="selectTraining(item)"
+                        ></button>
+                      </ng-container>
+                      <ng-container
+                        *hasPermission="moduleConfig.permissions.delete"
+                      >
+                        <button
+                          pButton
+                          type="button"
+                          icon="pi pi-trash"
+                          class="p-button-text p-button-sm app-icon-action-btn app-icon-action-btn--delete"
+                          pTooltip="Xóa"
+                          tooltipPosition="top"
+                          aria-label="Xóa"
+                          (click)="remove(item)"
+                        ></button>
+                      </ng-container>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          <div class="table-footer" *ngIf="filteredItems.length > 0">
+            <span class="footer-info"
+              >Hiển thị {{ trainingShowFrom }}–{{ trainingShowTo }} trong tổng
+              số {{ filteredItems.length }} bản ghi</span
+            >
+
+            <p-paginator
+              [first]="trainingTableFirst"
+              [rows]="trainingPageSize"
+              [totalRecords]="filteredItems.length"
+              (onPageChange)="onTrainingPageChange($event)"
+              styleClass="footer-paginator"
+            ></p-paginator>
+
+            <div class="footer-rpp">
+              <span class="rpp-label">Dòng/trang</span>
+              <p-dropdown
+                [options]="trainingPageSizeOptions"
+                [(ngModel)]="trainingPageSize"
+                optionLabel="label"
+                optionValue="value"
+                (onChange)="onTrainingPageSizeChange(trainingPageSize)"
+                class="app-filter-select footer-rpp-select"
+                appendTo="body"
+              ></p-dropdown>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ Học viên table ══ -->
+        <div
+          class="training-table-zone mt-3"
+          *ngIf="isDaoTaoHocVienModule && !loading && hocVienRows.length > 0"
+        >
+          <div class="app-table-wrap app-table-wrap--spacious">
+            <p-table
+              [value]="hocVienRows"
+              styleClass="p-datatable-sm app-admin-table training-table hv-matrix-table"
+              [tableStyleClass]="tableStyleClass"
+              [tableStyle]="{ 'min-width': '64rem' }"
+              [paginator]="false"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th
+                    [class]="tableHeaderCellClass"
+                    style="width: 48px; text-align: center"
+                  >
+                    STT
+                  </th>
+                  <th [class]="tableHeaderCellClass" style="min-width: 240px">
+                    Nội dung đào tạo
+                  </th>
+                  <th
+                    [class]="tableHeaderCellClass"
+                    style="width: 88px; text-align: center"
+                  >
+                    Tiến sĩ
+                  </th>
+                  <th
+                    [class]="tableHeaderCellClass"
+                    style="width: 88px; text-align: center"
+                  >
+                    Thạc sĩ
+                  </th>
+                  <th
+                    [class]="tableHeaderCellClass"
+                    style="width: 88px; text-align: center"
+                  >
+                    Đại học
+                  </th>
+                  <th
+                    [class]="tableHeaderCellClass"
+                    style="width: 88px; text-align: center"
+                  >
+                    Cao đẳng
+                  </th>
+                  <th
+                    [class]="tableHeaderCellClass"
+                    style="width: 88px; text-align: center"
+                  >
+                    Trung cấp
+                  </th>
+                  <th [class]="tableHeaderCellClass" style="min-width: 140px">
+                    Ghi chú
+                  </th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-row let-rowIndex="rowIndex">
+                <tr [class]="tableRowClass">
+                  <td [class]="tableBodyCellClass" class="hv-cell-stt">
+                    <span class="app-table-stt">{{ rowIndex + 1 }}</span>
+                  </td>
+                  <td
+                    [class]="tableBodyCellClass"
+                    class="training-grid-cell training-grid-cell--readonly"
+                  >
+                    <div class="training-cell-text">
+                      {{ row.noiDungDaoTao }}
+                    </div>
+                  </td>
+                  <td
+                    [class]="tableBodyCellClass"
+                    class="training-grid-cell training-grid-cell--number"
+                    [class.training-grid-cell--dirty]="hasHocVienDirtyCell(row, 'soTienSi')"
+                  >
+                    <div
+                      class="training-cell-wrap"
+                      [class.training-cell-wrap--error]="hasHocVienError(row, 'soTienSi')"
+                    >
+                      <p-inputNumber
+                        [inputId]="getHocVienCellId(rowIndex, 'soTienSi')"
+                        styleClass="w-full"
+                        inputStyleClass="training-cell-input training-cell-input--number training-cell-input--compact"
+                        [ngModel]="row.soTienSi"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="onHocVienNumberChange(row, 'soTienSi', $event)"
+                        (onFocus)="captureHocVienCellFocus(row, 'soTienSi')"
+                        (onBlur)="commitHocVienCellEdit(row, 'soTienSi')"
+                        (keydown.enter)="handleHocVienEnter($event, row, rowIndex, 'soTienSi')"
+                        [useGrouping]="false"
+                        mode="decimal"
+                        [min]="0"
+                        [minFractionDigits]="0"
+                        [maxFractionDigits]="0"
+                        [pTooltip]="getHocVienError(row, 'soTienSi')"
+                        [tooltipDisabled]="!hasHocVienError(row, 'soTienSi')"
+                        tooltipPosition="top"
+                      ></p-inputNumber>
+                    </div>
+                  </td>
+                  <td
+                    [class]="tableBodyCellClass"
+                    class="training-grid-cell training-grid-cell--number"
+                    [class.training-grid-cell--dirty]="hasHocVienDirtyCell(row, 'soThacSi')"
+                  >
+                    <div
+                      class="training-cell-wrap"
+                      [class.training-cell-wrap--error]="hasHocVienError(row, 'soThacSi')"
+                    >
+                      <p-inputNumber
+                        [inputId]="getHocVienCellId(rowIndex, 'soThacSi')"
+                        styleClass="w-full"
+                        inputStyleClass="training-cell-input training-cell-input--number training-cell-input--compact"
+                        [ngModel]="row.soThacSi"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="onHocVienNumberChange(row, 'soThacSi', $event)"
+                        (onFocus)="captureHocVienCellFocus(row, 'soThacSi')"
+                        (onBlur)="commitHocVienCellEdit(row, 'soThacSi')"
+                        (keydown.enter)="handleHocVienEnter($event, row, rowIndex, 'soThacSi')"
+                        [useGrouping]="false"
+                        mode="decimal"
+                        [min]="0"
+                        [minFractionDigits]="0"
+                        [maxFractionDigits]="0"
+                        [pTooltip]="getHocVienError(row, 'soThacSi')"
+                        [tooltipDisabled]="!hasHocVienError(row, 'soThacSi')"
+                        tooltipPosition="top"
+                      ></p-inputNumber>
+                    </div>
+                  </td>
+                  <td
+                    [class]="tableBodyCellClass"
+                    class="training-grid-cell training-grid-cell--number"
+                    [class.training-grid-cell--dirty]="hasHocVienDirtyCell(row, 'soDaiHoc')"
+                  >
+                    <div
+                      class="training-cell-wrap"
+                      [class.training-cell-wrap--error]="hasHocVienError(row, 'soDaiHoc')"
+                    >
+                      <p-inputNumber
+                        [inputId]="getHocVienCellId(rowIndex, 'soDaiHoc')"
+                        styleClass="w-full"
+                        inputStyleClass="training-cell-input training-cell-input--number training-cell-input--compact"
+                        [ngModel]="row.soDaiHoc"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="onHocVienNumberChange(row, 'soDaiHoc', $event)"
+                        (onFocus)="captureHocVienCellFocus(row, 'soDaiHoc')"
+                        (onBlur)="commitHocVienCellEdit(row, 'soDaiHoc')"
+                        (keydown.enter)="handleHocVienEnter($event, row, rowIndex, 'soDaiHoc')"
+                        [useGrouping]="false"
+                        mode="decimal"
+                        [min]="0"
+                        [minFractionDigits]="0"
+                        [maxFractionDigits]="0"
+                        [pTooltip]="getHocVienError(row, 'soDaiHoc')"
+                        [tooltipDisabled]="!hasHocVienError(row, 'soDaiHoc')"
+                        tooltipPosition="top"
+                      ></p-inputNumber>
+                    </div>
+                  </td>
+                  <td
+                    [class]="tableBodyCellClass"
+                    class="training-grid-cell training-grid-cell--number"
+                    [class.training-grid-cell--dirty]="hasHocVienDirtyCell(row, 'soCaoDang')"
+                  >
+                    <div
+                      class="training-cell-wrap"
+                      [class.training-cell-wrap--error]="hasHocVienError(row, 'soCaoDang')"
+                    >
+                      <p-inputNumber
+                        [inputId]="getHocVienCellId(rowIndex, 'soCaoDang')"
+                        styleClass="w-full"
+                        inputStyleClass="training-cell-input training-cell-input--number training-cell-input--compact"
+                        [ngModel]="row.soCaoDang"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="onHocVienNumberChange(row, 'soCaoDang', $event)"
+                        (onFocus)="captureHocVienCellFocus(row, 'soCaoDang')"
+                        (onBlur)="commitHocVienCellEdit(row, 'soCaoDang')"
+                        (keydown.enter)="handleHocVienEnter($event, row, rowIndex, 'soCaoDang')"
+                        [useGrouping]="false"
+                        mode="decimal"
+                        [min]="0"
+                        [minFractionDigits]="0"
+                        [maxFractionDigits]="0"
+                        [pTooltip]="getHocVienError(row, 'soCaoDang')"
+                        [tooltipDisabled]="!hasHocVienError(row, 'soCaoDang')"
+                        tooltipPosition="top"
+                      ></p-inputNumber>
+                    </div>
+                  </td>
+                  <td
+                    [class]="tableBodyCellClass"
+                    class="training-grid-cell training-grid-cell--number"
+                    [class.training-grid-cell--dirty]="hasHocVienDirtyCell(row, 'soTrungCap')"
+                  >
+                    <div
+                      class="training-cell-wrap"
+                      [class.training-cell-wrap--error]="hasHocVienError(row, 'soTrungCap')"
+                    >
+                      <p-inputNumber
+                        [inputId]="getHocVienCellId(rowIndex, 'soTrungCap')"
+                        styleClass="w-full"
+                        inputStyleClass="training-cell-input training-cell-input--number training-cell-input--compact"
+                        [ngModel]="row.soTrungCap"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="onHocVienNumberChange(row, 'soTrungCap', $event)"
+                        (onFocus)="captureHocVienCellFocus(row, 'soTrungCap')"
+                        (onBlur)="commitHocVienCellEdit(row, 'soTrungCap')"
+                        (keydown.enter)="handleHocVienEnter($event, row, rowIndex, 'soTrungCap')"
+                        [useGrouping]="false"
+                        mode="decimal"
+                        [min]="0"
+                        [minFractionDigits]="0"
+                        [maxFractionDigits]="0"
+                        [pTooltip]="getHocVienError(row, 'soTrungCap')"
+                        [tooltipDisabled]="!hasHocVienError(row, 'soTrungCap')"
+                        tooltipPosition="top"
+                      ></p-inputNumber>
+                    </div>
+                  </td>
+                  <td
+                    [class]="tableBodyCellClass"
+                    class="training-grid-cell training-grid-cell--note"
+                    [class.training-grid-cell--dirty]="hasHocVienDirtyCell(row, 'ghiChu')"
+                  >
+                    <input
+                      pInputText
+                      [id]="getHocVienCellId(rowIndex, 'ghiChu')"
+                      type="text"
+                      class="training-cell-input training-cell-input--compact training-cell-input--note"
+                      [ngModel]="row.ghiChu"
+                      [ngModelOptions]="{ standalone: true }"
+                      (ngModelChange)="onHocVienNoteChange(row, $event)"
+                      (focus)="captureHocVienCellFocus(row, 'ghiChu')"
+                      (blur)="commitHocVienCellEdit(row, 'ghiChu')"
+                      (keydown.enter)="handleHocVienEnter($event, row, rowIndex, 'ghiChu')"
+                      placeholder="Ghi chú"
+                    />
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="footer">
+                <tr class="hv-total-row">
+                  <td [class]="tableBodyCellClass" colspan="2">Tổng cộng</td>
+                  <td [class]="tableBodyCellClass" style="text-align: center">
+                    {{ hvTotalTienSi }}
+                  </td>
+                  <td [class]="tableBodyCellClass" style="text-align: center">
+                    {{ hvTotalThacSi }}
+                  </td>
+                  <td [class]="tableBodyCellClass" style="text-align: center">
+                    {{ hvTotalDaiHoc }}
+                  </td>
+                  <td [class]="tableBodyCellClass" style="text-align: center">
+                    {{ hvTotalCaoDang }}
+                  </td>
+                  <td [class]="tableBodyCellClass" style="text-align: center">
+                    {{ hvTotalTrungCap }}
+                  </td>
+                  <td [class]="tableBodyCellClass"></td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+
+        <div
+          class="training-table-zone mt-3"
+          *ngIf="isNangLucSoModule && !loading && nangLucSoRows.length > 0"
+        >
+          <div class="app-table-wrap app-table-wrap--spacious">
+            <p-table
+              [value]="nangLucSoRows"
+              styleClass="p-datatable-sm app-admin-table training-table hv-matrix-table"
+              [tableStyleClass]="tableStyleClass"
+              [tableStyle]="{ 'min-width': '60rem' }"
+              [paginator]="false"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th
+                    [class]="tableHeaderCellClass"
+                    style="width: 48px; text-align: center"
+                  >
+                    STT
+                  </th>
+                  <th [class]="tableHeaderCellClass" style="min-width: 240px">
+                    Nhóm vị trí
+                  </th>
+                  <th
+                    [class]="tableHeaderCellClass"
+                    style="width: 100px; text-align: center"
+                  >
+                    Tổng số diện đánh giá
+                  </th>
+                  <th
+                    [class]="tableHeaderCellClass"
+                    style="width: 100px; text-align: center"
+                  >
+                    Tổng số đạt
+                  </th>
+                  <th
+                    [class]="tableHeaderCellClass"
+                    style="width: 100px; text-align: center"
+                  >
+                    Tổng số chưa đạt
+                  </th>
+                  <th [class]="tableHeaderCellClass" style="min-width: 220px">
+                    Ghi chú
+                  </th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-row let-rowIndex="rowIndex">
+                <tr [class]="tableRowClass">
+                  <td [class]="tableBodyCellClass" class="hv-cell-stt">
+                    <span class="app-table-stt">{{ rowIndex + 1 }}</span>
+                  </td>
+                  <td
+                    [class]="tableBodyCellClass"
+                    class="training-grid-cell training-grid-cell--readonly training-grid-cell--wrap"
+                  >
+                    <div class="training-group-display">
+                      <span class="training-group-display__title">
+                        {{ getNangLucSoGroupTitle(row.nhomViTri) }}
+                      </span>
+                      <span
+                        class="training-group-display__desc"
+                        *ngIf="getNangLucSoGroupDescription(row.nhomViTri) as description"
+                      >
+                        {{ description }}
+                      </span>
+                    </div>
+                  </td>
+                  <td
+                    [class]="tableBodyCellClass"
+                    class="training-grid-cell training-grid-cell--number"
+                    [class.training-grid-cell--dirty]="hasNangLucSoDirtyCell(row, 'tongSoDienDanhGia')"
+                  >
+                    <div
+                      class="training-cell-wrap"
+                      [class.training-cell-wrap--error]="hasNangLucSoError(row, 'tongSoDienDanhGia')"
+                    >
+                      <p-inputNumber
+                        [inputId]="getNangLucSoCellId(rowIndex, 'tongSoDienDanhGia')"
+                        styleClass="w-full"
+                        inputStyleClass="training-cell-input training-cell-input--number training-cell-input--compact"
+                        [ngModel]="row.tongSoDienDanhGia"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="onNangLucSoNumberChange(row, 'tongSoDienDanhGia', $event)"
+                        (onFocus)="captureNangLucSoCellFocus(row, 'tongSoDienDanhGia')"
+                        (onBlur)="commitNangLucSoCellEdit(row, 'tongSoDienDanhGia')"
+                        (keydown.enter)="handleNangLucSoEnter($event, row, rowIndex, 'tongSoDienDanhGia')"
+                        [useGrouping]="false"
+                        mode="decimal"
+                        [min]="0"
+                        [minFractionDigits]="0"
+                        [maxFractionDigits]="0"
+                        [pTooltip]="getNangLucSoError(row, 'tongSoDienDanhGia')"
+                        [tooltipDisabled]="!hasNangLucSoError(row, 'tongSoDienDanhGia')"
+                        tooltipPosition="top"
+                      ></p-inputNumber>
+                    </div>
+                  </td>
+                  <td
+                    [class]="tableBodyCellClass"
+                    class="training-grid-cell training-grid-cell--number"
+                    [class.training-grid-cell--dirty]="hasNangLucSoDirtyCell(row, 'tongSoDat')"
+                  >
+                    <div
+                      class="training-cell-wrap"
+                      [class.training-cell-wrap--error]="hasNangLucSoError(row, 'tongSoDat')"
+                    >
+                      <p-inputNumber
+                        [inputId]="getNangLucSoCellId(rowIndex, 'tongSoDat')"
+                        styleClass="w-full"
+                        inputStyleClass="training-cell-input training-cell-input--number training-cell-input--compact"
+                        [ngModel]="row.tongSoDat"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="onNangLucSoNumberChange(row, 'tongSoDat', $event)"
+                        (onFocus)="captureNangLucSoCellFocus(row, 'tongSoDat')"
+                        (onBlur)="commitNangLucSoCellEdit(row, 'tongSoDat')"
+                        (keydown.enter)="handleNangLucSoEnter($event, row, rowIndex, 'tongSoDat')"
+                        [useGrouping]="false"
+                        mode="decimal"
+                        [min]="0"
+                        [minFractionDigits]="0"
+                        [maxFractionDigits]="0"
+                        [pTooltip]="getNangLucSoError(row, 'tongSoDat')"
+                        [tooltipDisabled]="!hasNangLucSoError(row, 'tongSoDat')"
+                        tooltipPosition="top"
+                      ></p-inputNumber>
+                    </div>
+                  </td>
+                  <td
+                    [class]="tableBodyCellClass"
+                    class="training-grid-cell training-grid-cell--number"
+                    [class.training-grid-cell--dirty]="hasNangLucSoDirtyCell(row, 'tongSoChuaDat')"
+                  >
+                    <div
+                      class="training-cell-wrap"
+                      [class.training-cell-wrap--error]="hasNangLucSoError(row, 'tongSoChuaDat')"
+                    >
+                      <p-inputNumber
+                        [inputId]="getNangLucSoCellId(rowIndex, 'tongSoChuaDat')"
+                        styleClass="w-full"
+                        inputStyleClass="training-cell-input training-cell-input--number training-cell-input--compact"
+                        [ngModel]="row.tongSoChuaDat"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="onNangLucSoNumberChange(row, 'tongSoChuaDat', $event)"
+                        (onFocus)="captureNangLucSoCellFocus(row, 'tongSoChuaDat')"
+                        (onBlur)="commitNangLucSoCellEdit(row, 'tongSoChuaDat')"
+                        (keydown.enter)="handleNangLucSoEnter($event, row, rowIndex, 'tongSoChuaDat')"
+                        [useGrouping]="false"
+                        mode="decimal"
+                        [min]="0"
+                        [minFractionDigits]="0"
+                        [maxFractionDigits]="0"
+                        [pTooltip]="getNangLucSoError(row, 'tongSoChuaDat')"
+                        [tooltipDisabled]="!hasNangLucSoError(row, 'tongSoChuaDat')"
+                        tooltipPosition="top"
+                      ></p-inputNumber>
+                    </div>
+                  </td>
+                  <td
+                    [class]="tableBodyCellClass"
+                    class="training-grid-cell training-grid-cell--note"
+                    [class.training-grid-cell--dirty]="hasNangLucSoDirtyCell(row, 'ghiChu')"
+                  >
+                    <input
+                      pInputText
+                      [id]="getNangLucSoCellId(rowIndex, 'ghiChu')"
+                      type="text"
+                      class="training-cell-input training-cell-input--compact training-cell-input--note"
+                      [ngModel]="row.ghiChu"
+                      [ngModelOptions]="{ standalone: true }"
+                      (ngModelChange)="onNangLucSoNoteChange(row, $event)"
+                      (focus)="captureNangLucSoCellFocus(row, 'ghiChu')"
+                      (blur)="commitNangLucSoCellEdit(row, 'ghiChu')"
+                      (keydown.enter)="handleNangLucSoEnter($event, row, rowIndex, 'ghiChu')"
+                      placeholder="Ghi chú"
+                    />
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="footer">
+                <tr class="hv-total-row">
+                  <td [class]="tableBodyCellClass" colspan="2">Tổng cộng</td>
+                  <td [class]="tableBodyCellClass" style="text-align: center">
+                    {{ nlsTotalAssessed }}
+                  </td>
+                  <td [class]="tableBodyCellClass" style="text-align: center">
+                    {{ nlsTotalPassed }}
+                  </td>
+                  <td [class]="tableBodyCellClass" style="text-align: center">
+                    {{ nlsTotalNotPassed }}
+                  </td>
+                  <td [class]="tableBodyCellClass"></td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+
+        <!-- Empty state: Bồi dưỡng -->
+        <app-empty-state
+          class="mt-3"
+          *ngIf="isDaoTaoBoiDuongModule && !loading && filteredItems.length === 0"
+          title="Chưa có khóa học nào"
+          message="Bắt đầu bằng cách thêm khóa học đầu tiên vào kho dữ liệu."
+          icon="pi-inbox"
+          actionLabel="Thêm khóa học đầu tiên"
+          actionIcon="pi pi-plus"
+          (action)="openTrainingCreateDialog()"
+        ></app-empty-state>
+
+        <!-- Empty state: Học viên -->
+        <app-empty-state
+          class="mt-3"
+          *ngIf="isDaoTaoHocVienModule && !loading && hocVienRows.length === 0"
+          title="Chưa có danh mục đào tạo"
+          message="Danh mục nội dung đào tạo chưa được cấu hình để hiển thị dữ liệu nhập liệu."
+          icon="pi-inbox"
+        ></app-empty-state>
+
+        <app-empty-state
+          class="mt-3"
+          *ngIf="isNangLucSoModule && !loading && nangLucSoRows.length === 0"
+          title="Chưa có nhóm năng lực số"
+          message="Danh mục nhóm vị trí chưa được cấu hình để hiển thị dữ liệu nhập liệu."
+          icon="pi-inbox"
+        ></app-empty-state>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #genericModuleTemplate>
+    <app-filter-bar class="mt-3">
+      <form
+        class="grid items-end gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]"
+        [formGroup]="filter"
+      >
+        <div class="app-field">
+          <label for="viewMode">Chế độ dữ liệu</label>
+          <p-dropdown
+            inputId="viewMode"
+            [options]="viewModeOptions"
+            optionLabel="label"
+            optionValue="value"
+            [panelStyleClass]="selectPanelStyleClass"
+            appendTo="body"
+            formControlName="viewMode"
+            (onChange)="onFilterChanged()"
+          ></p-dropdown>
+        </div>
+
+        <div class="app-field" *ngIf="requiresKyBaoCaoCode || isHistoryMode">
+          <label for="kyCode">Kỳ báo cáo</label>
+          <p-dropdown
+            id="kyCode"
+            [options]="hocVienPeriodOptions"
+            optionLabel="label"
+            optionValue="value"
+            [panelStyleClass]="selectPanelStyleClass"
+            appendTo="body"
+            formControlName="kyCode"
+            (onChange)="onFilterChanged()"
+          ></p-dropdown>
+        </div>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-search"
+          class="p-button-info"
+          label="Tải dữ liệu"
+          (click)="load(true)"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-lock"
+          class="app-button-success"
+          label="Chốt kỳ"
+          [loading]="saving"
+          [disabled]="isDaoTaoBoiDuongModule || !canSaveCurrentMode()"
+          (click)="finalizeCurrentModule()"
+        ></button>
+      </form>
+    </app-filter-bar>
+
+    <div class="relative mt-3 min-h-40">
+      <app-loading-overlay
+        [active]="loading"
+        label="Dang tai du lieu..."
+      ></app-loading-overlay>
+
+      <form
+        class="grid items-end gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]"
+        [formGroup]="form"
+      >
+        <ng-container *ngFor="let field of formFields">
+          <div
+            class="app-field"
+            *ngIf="field.type === 'text' || field.type === 'date'"
+          >
+            <label [for]="field.key">{{ field.label }}</label>
+            <input
+              pInputText
+              class="w-full"
+              [id]="field.key"
+              [type]="field.type === 'date' ? 'date' : 'text'"
+              [formControlName]="field.key"
+              [placeholder]="field.label"
+            />
+          </div>
+
+          <div class="app-field" *ngIf="field.type === 'select'">
+            <label [for]="field.key">{{ field.label }}</label>
+            <p-dropdown
+              styleClass="w-full"
+              [panelStyleClass]="selectPanelStyleClass"
+              [inputId]="field.key"
+              [options]="getSelectOptions(field)"
+              optionLabel="label"
+              optionValue="value"
+              [formControlName]="field.key"
+              [placeholder]="field.label"
+            ></p-dropdown>
+          </div>
+
+          <div
+            class="app-field"
+            *ngIf="field.type === 'number' || field.type === 'decimal'"
+          >
+            <label [for]="field.key">{{ field.label }}</label>
+            <p-inputNumber
+              styleClass="w-full"
+              inputStyleClass="w-full"
+              [inputId]="field.key"
+              [mode]="field.type === 'decimal' ? 'decimal' : 'decimal'"
+              [useGrouping]="false"
+              [minFractionDigits]="field.type === 'decimal' ? 2 : 0"
+              [maxFractionDigits]="field.type === 'decimal' ? 2 : 0"
+              [formControlName]="field.key"
+              [placeholder]="field.label"
+            ></p-inputNumber>
+          </div>
+
+          <div
+            class="app-field flex min-h-[58px] flex-col justify-end"
+            *ngIf="field.type === 'checkbox'"
+          >
+            <label [for]="field.key">{{ field.label }}</label>
+            <p-checkbox
+              [inputId]="field.key"
+              [binary]="true"
+              [formControlName]="field.key"
+            ></p-checkbox>
+          </div>
+        </ng-container>
+
+        <app-form-action-bar>
+          <button
+            pButton
+            type="button"
+            [loading]="saving"
+            [label]="selectedId ? 'Cập nhật' : 'Thêm mới'"
+            (click)="save()"
+            *ngIf="canSaveCurrentMode()"
+          ></button>
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            label="Hủy"
+            (click)="resetForm()"
+          ></button>
+        </app-form-action-bar>
+      </form>
+
+      <small
+        class="app-validation-error"
+        *ngFor="let field of fields"
+        [class.hidden]="!isFieldInvalid(field)"
+      >
+        Trường {{ field.label }} không hợp lệ.
+      </small>
+
+      <small class="app-validation-error" *ngIf="apiError"
+        >{{ apiError }}</small
+      >
+
+      <app-empty-state
+        class="mt-3"
+        *ngIf="!loading && items.length === 0"
+        title="Chưa có dữ liệu"
+        [message]="requiresKyBaoCaoCode ? 'Không có bản ghi nào cho module này trong kỳ hiện tại.' : 'Không có bản ghi nào cho module này trong đơn vị hiện tại.'"
+        icon="pi-inbox"
+        actionLabel="Tải lại"
+        actionIcon="pi pi-refresh"
+        (action)="load()"
+      ></app-empty-state>
+
+      <div
+        class="app-table-wrap app-table-wrap--spacious mt-3"
+        *ngIf="!loading && items.length > 0"
+      >
+        <p-table
+          [value]="items"
+          styleClass="p-datatable-sm app-admin-table"
+          [tableStyleClass]="tableStyleClass"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th [class]="tableHeaderCellClass">ID</th>
+              <th
+                [class]="tableHeaderCellClass"
+                *ngFor="let field of tableFields"
+              >
+                {{ field.label }}
+              </th>
+              <th [class]="tableHeaderCellClass">Tác vụ</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item>
+            <tr [class]="tableRowClass">
+              <td [class]="tableBodyCellClass">{{ item.id }}</td>
+              <td
+                [class]="tableBodyCellClass"
+                *ngFor="let field of tableFields"
+              >
+                {{ displayValue(item, field) }}
+              </td>
+              <td [class]="tableBodyCellClass">
+                <div class="app-table-actions">
+                  <ng-container
+                    *hasPermission="moduleConfig.permissions.update"
+                  >
+                    <button
+                      pButton
+                      type="button"
+                      icon="pi pi-pencil"
+                      class="p-button-text app-table-action-btn app-table-action-btn--edit"
+                      (click)="select(item)"
+                    ></button>
+                  </ng-container>
+                  <ng-container
+                    *hasPermission="moduleConfig.permissions.delete"
+                  >
+                    <button
+                      pButton
+                      type="button"
+                      icon="pi pi-trash"
+                      class="p-button-text p-button-danger app-table-action-btn app-table-action-btn--delete"
+                      (click)="remove(item)"
+                    ></button>
+                  </ng-container>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </ng-template>
+</app-section-card>

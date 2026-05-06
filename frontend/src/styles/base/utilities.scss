@@ -1,0 +1,36 @@
+.app-page-title {
+  font-family: var(--app-font-family-heading);
+  color: var(--app-primary-600);
+  font-size: var(--app-font-size-title);
+  font-weight: var(--app-font-weight-bold);
+  line-height: var(--app-line-height-title);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.app-page-subtitle {
+  margin: var(--app-space-2) 0 0;
+  color: var(--app-text-muted);
+  font-size: var(--app-font-size-label);
+}
+
+.app-inline-status {
+  color: var(--app-text);
+  font-weight: var(--app-font-weight-semibold);
+  font-size: var(--app-font-size-label);
+}
+
+.app-validation-error {
+  color: var(--app-danger-500);
+  font-size: var(--app-font-size-xs);
+}
+
+.app-surface-muted {
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-md);
+}
+
+.p-component {
+  font-family: var(--app-font-family-base);
+}

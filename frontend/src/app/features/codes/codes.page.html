@@ -1,0 +1,245 @@
+<app-section-card
+  title="Quản lý danh mục"
+  subtitle="Quản lý danh mục dùng chung của toàn hệ thống"
+  styleClass="codes-card"
+>
+  <div sectionActions class="codes-header-actions">
+    <button
+      pButton
+      type="button"
+      icon="pi pi-plus"
+      label="Thêm danh mục"
+      size="small"
+      class="p-button-primary codes-header-actions__btn"
+      (click)="openCreateCategoryDialog()"
+    ></button>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-pencil"
+      label="Sửa danh mục"
+      size="small"
+      class="p-button-secondary codes-header-actions__btn"
+      [disabled]="!selectedCode"
+      (click)="openEditCategoryDialog()"
+    ></button>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-trash"
+      label="Xóa danh mục"
+      size="small"
+      class="p-button-outlined p-button-danger codes-header-actions__btn"
+      [disabled]="!selectedCode"
+      (click)="deleteCode()"
+    ></button>
+  </div>
+
+  <div class="codes-shell mt-3">
+    <app-loading-overlay
+      [active]="loading"
+      label="Đang tải dữ liệu danh mục..."
+    ></app-loading-overlay>
+
+    <small class="app-validation-error" *ngIf="apiError">{{ apiError }}</small>
+
+    <app-empty-state
+      *ngIf="!loading && data.length === 0"
+      title="Chưa có danh mục"
+      message="Tạo danh mục đầu tiên để bắt đầu quản lý dữ liệu dùng chung."
+      icon="pi-list"
+      actionLabel="Thêm danh mục"
+      actionIcon="pi pi-plus"
+      actionSeverity="primary"
+      (action)="openCreateCategoryDialog()"
+    ></app-empty-state>
+
+    <ng-container *ngIf="!loading && data.length > 0">
+      <div class="filter-panel">
+        <div class="filter-row">
+          <div class="filter-group filter-group--md">
+            <label class="filter-label" for="categorySelect"
+              >Chọn danh mục</label
+            >
+            <p-dropdown
+              id="categorySelect"
+              [options]="categorySelectorOptions"
+              optionLabel="label"
+              optionValue="value"
+              [filter]="true"
+              filterBy="label"
+              filterPlaceholder="Tìm danh mục"
+              [ngModel]="categorySelectorValue"
+              (ngModelChange)="onCategorySelectionChange($event)"
+              appendTo="body"
+              placeholder="Chọn danh mục"
+              styleClass="app-filter-select category-select-dropdown"
+            ></p-dropdown>
+          </div>
+
+          <div class="filter-group filter-group--lg">
+            <label class="filter-label" for="value-search-input"
+              >Tìm kiếm giá trị</label
+            >
+            <div class="filter-search-field">
+              <i class="pi pi-search"></i>
+              <input
+                id="value-search-input"
+                pInputText
+                type="text"
+                [(ngModel)]="valueSearchTerm"
+                (ngModelChange)="onValueSearchChange()"
+                [disabled]="!selectedCode"
+                placeholder="Tìm theo giá trị, tên hiển thị hoặc mô tả"
+                class="app-filter-input"
+              />
+              <button
+                *ngIf="valueSearchTerm"
+                type="button"
+                class="search-clear-btn"
+                aria-label="Xóa từ khóa tìm kiếm"
+                (click)="clearValueSearch()"
+              >
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section class="code-values-panel">
+        <div class="values-toolbar">
+          <div class="values-toolbar__left">
+            <div class="values-toolbar__heading">
+              <h3>GIÁ TRỊ DANH MỤC</h3>
+              <span class="values-toolbar__count" *ngIf="selectedCode"
+                >{{ valueToolbarCount }}</span
+              >
+            </div>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-plus"
+              label="Thêm giá trị"
+              size="small"
+              class="p-button-primary values-toolbar__add-btn"
+              [disabled]="!selectedCode"
+              (click)="openCreateValueDialog()"
+            ></button>
+          </div>
+        </div>
+
+        <div class="panel-empty" *ngIf="!selectedCode">
+          Vui lòng chọn một danh mục ở trên để quản lý các giá trị tương ứng.
+        </div>
+
+        <ng-container *ngIf="selectedCode">
+          <div class="panel-empty" *ngIf="filteredValues.length === 0">
+            Chưa có giá trị danh mục nào. Hãy thêm giá trị đầu tiên để bắt đầu.
+          </div>
+
+          <div class="values-table-wrap" *ngIf="filteredValues.length > 0">
+            <p-table
+              [value]="pagedValues"
+              styleClass="p-datatable-sm app-admin-table app-codes-values-table"
+              responsiveLayout="scroll"
+              [tableStyle]="{ 'min-width': '48rem' }"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th class="col-stt">STT</th>
+                  <th class="col-value">Giá trị</th>
+                  <th class="col-name">Tên hiển thị</th>
+                  <th class="col-description">Mô tả</th>
+                  <th class="col-order">Thứ tự</th>
+                  <th class="col-status">Trạng thái</th>
+                  <th class="col-actions">Thao tác</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-row let-rowIndex="rowIndex">
+                <tr>
+                  <td class="col-stt">
+                    <span class="app-table-stt"
+                      >{{ calculateValueStt(rowIndex) }}</span
+                    >
+                  </td>
+                  <td class="col-value">{{ row.value }}</td>
+                  <td class="col-name">{{ row.name }}</td>
+                  <td class="col-description">{{ row.description || '—' }}</td>
+                  <td class="col-order">{{ row.sortOrder }}</td>
+                  <td class="col-status">
+                    <p-tag
+                      [severity]="row.isActive ? 'success' : 'danger'"
+                      [value]="row.isActive ? 'Đang hoạt động' : 'Ngừng hoạt động'"
+                      styleClass="app-status-badge"
+                    ></p-tag>
+                  </td>
+                  <td class="col-actions">
+                    <div class="app-table-actions">
+                      <button
+                        pButton
+                        type="button"
+                        icon="pi pi-pencil"
+                        class="p-button-text app-table-action-btn app-table-action-btn--edit"
+                        (click)="openEditValueDialog(row)"
+                      ></button>
+                      <button
+                        pButton
+                        type="button"
+                        icon="pi pi-trash"
+                        class="p-button-text p-button-danger app-table-action-btn app-table-action-btn--delete"
+                        (click)="deleteValue(row)"
+                      ></button>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          <div class="values-footer">
+            <span class="values-footer__summary">{{ valueSummary }}</span>
+            <p-paginator
+              [first]="valueFirst"
+              [rows]="valueRows"
+              [totalRecords]="filteredValues.length"
+              (onPageChange)="onValuePageChange($event)"
+              styleClass="footer-paginator"
+            ></p-paginator>
+            <div class="values-footer__rpp">
+              <span class="values-footer__label">Dòng/trang</span>
+              <p-dropdown
+                [options]="valuePageSizeDropdownOptions"
+                [(ngModel)]="valueRows"
+                optionLabel="label"
+                optionValue="value"
+                appendTo="body"
+                styleClass="values-footer__select"
+                (onChange)="onValueRowsChange()"
+              ></p-dropdown>
+            </div>
+          </div>
+        </ng-container>
+      </section>
+    </ng-container>
+
+    <app-category-upsert-dialog
+      [visible]="categoryDialogVisible"
+      [submitting]="categoryDialogSubmitting"
+      [mode]="categoryDialogMode"
+      [initialData]="categoryDialogInitialData"
+      (visibleChange)="onCategoryDialogVisibleChange($event)"
+      (save)="onCategoryDialogSave($event)"
+    ></app-category-upsert-dialog>
+
+    <app-code-value-dialog
+      [visible]="valueDialogVisible"
+      [submitting]="savingValue"
+      [mode]="valueDialogMode"
+      [initialData]="valueDialogInitialData"
+      (visibleChange)="onValueDialogVisibleChange($event)"
+      (save)="onValueDialogSave($event)"
+    ></app-code-value-dialog>
+  </div>
+</app-section-card>

@@ -1,0 +1,365 @@
+:root {
+  --app-control-height: 34px;
+  --app-ctl-height: 34px;
+  --app-ctl-radius: var(--app-radius-control);
+  --app-ctl-padding-x: 0.625rem;
+  --app-ctl-trigger-width: 34px;
+  /* Strong profile: navy borders, light navy background */
+  --app-ctl-bg: #eef4ff;
+  --app-ctl-bg-hover: #dbe2eb;
+  --app-ctl-border-color: var(--app-primary-500);
+  --app-ctl-border-hover: var(--app-primary-600);
+  --app-ctl-focus-color: var(--app-primary-700);
+  --app-ctl-focus-ring: color-mix(
+    in srgb,
+    var(--app-primary-500) 30%,
+    transparent
+  );
+  --app-ctl-invalid-color: var(--app-danger-500);
+  --app-check-size: 1.05rem;
+  --app-check-radius: 0.2rem;
+  /* Strong profile: navy checkbox borders */
+  --app-check-border: var(--app-primary-500);
+  --app-check-border-hover: var(--app-primary-600);
+  --app-check-bg: #ffffff;
+  --app-check-bg-hover: #eef4ff;
+  --app-check-active: var(--app-primary-700);
+  --app-check-focus-ring: color-mix(
+    in srgb,
+    var(--app-primary-500) 28%,
+    transparent
+  );
+  --app-check-disabled-bg: #dce5ee;
+  --app-check-disabled-border: var(--app-primary-500);
+}
+
+:root {
+  --app-ctl-height: var(--app-control-height);
+  --app-ctl-trigger-width: var(--app-control-height);
+}
+
+.p-inputwrapper {
+  display: block;
+  width: 100%;
+  font-size: var(--app-font-size-ui-control);
+}
+
+input.p-inputtext,
+.p-inputnumber,
+.p-dropdown,
+.p-select,
+.p-multiselect,
+.p-password,
+textarea.p-inputtextarea {
+  width: 100%;
+  font-size: var(--app-font-size-ui-control);
+}
+
+input.p-inputtext,
+.p-inputnumber .p-inputtext,
+.p-password .p-inputtext,
+.p-password .p-password-input,
+.p-calendar .p-inputtext,
+.p-datepicker .p-inputtext,
+textarea.p-inputtextarea {
+  min-height: var(--app-ctl-height);
+  height: var(--app-ctl-height);
+  border: 1px solid var(--app-ctl-border-color);
+  border-radius: var(--app-ctl-radius);
+  padding-inline: var(--app-ctl-padding-x);
+  color: var(--app-text);
+  background: var(--app-ctl-bg);
+  font-size: var(--app-font-size-ui-control);
+  line-height: calc(var(--app-ctl-height) - 2px);
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    background-color 140ms ease;
+}
+
+.p-inputtextarea {
+  min-height: 5.5rem;
+  height: auto;
+  line-height: 1.45;
+  padding-block: 0.625rem;
+  resize: vertical;
+}
+
+.p-inputnumber,
+.p-password,
+.p-calendar,
+.p-dropdown,
+.p-select,
+.p-multiselect {
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  min-height: var(--app-ctl-height);
+  height: var(--app-ctl-height);
+  border: 1px solid var(--app-ctl-border-color);
+  border-radius: var(--app-ctl-radius);
+  background: var(--app-ctl-bg);
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    background-color 140ms ease;
+}
+
+.p-dropdown .p-dropdown-label,
+.p-select .p-select-label,
+.p-multiselect .p-multiselect-label,
+.p-password .p-password-input,
+.p-calendar .p-inputtext,
+.p-inputnumber .p-inputtext {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  min-height: calc(var(--app-ctl-height) - 2px);
+  height: calc(var(--app-ctl-height) - 2px);
+  padding: 0 var(--app-ctl-padding-x);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--app-text);
+  font-size: var(--app-font-size-ui-control);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.p-dropdown .p-dropdown-label.p-inputtext,
+.p-select .p-select-label.p-inputtext,
+.p-multiselect .p-multiselect-label.p-inputtext {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.p-dropdown .p-dropdown-label.p-placeholder,
+.p-select .p-select-label.p-placeholder,
+.p-multiselect .p-multiselect-label.p-placeholder {
+  color: var(--app-text-muted);
+}
+
+.p-dropdown .p-dropdown-trigger,
+.p-select .p-select-trigger,
+.p-multiselect .p-multiselect-trigger,
+.p-password .p-password-toggle-mask-icon,
+.p-calendar .p-datepicker-trigger,
+.p-inputnumber .p-inputnumber-button {
+  flex-shrink: 0;
+  min-height: calc(var(--app-ctl-height) - 2px);
+  width: var(--app-ctl-trigger-width);
+  min-width: var(--app-ctl-trigger-width);
+  border: 0;
+  background: transparent;
+  color: var(--app-primary-600);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.p-dropdown .p-dropdown-trigger-icon,
+.p-select .p-select-trigger-icon,
+.p-multiselect .p-multiselect-trigger-icon,
+.p-dropdown .p-dropdown-clear-icon,
+.p-select .p-select-clear-icon,
+.p-multiselect .p-multiselect-clear-icon,
+.p-password .p-password-toggle-mask-icon,
+.p-calendar .p-datepicker-trigger-icon,
+.p-inputnumber .p-inputnumber-button-icon {
+  color: inherit;
+}
+
+input.p-inputtext:hover,
+.p-inputnumber .p-inputtext:hover,
+.p-password .p-inputtext:hover,
+textarea.p-inputtextarea:hover,
+.p-inputnumber:hover,
+.p-password:hover,
+.p-calendar:hover,
+.p-dropdown:hover,
+.p-select:hover,
+.p-multiselect:hover {
+  border-color: var(--app-ctl-border-hover);
+  background: var(--app-ctl-bg-hover);
+}
+
+input.p-inputtext:focus,
+.p-inputnumber .p-inputtext:focus,
+.p-password .p-inputtext:focus,
+textarea.p-inputtextarea:focus,
+.p-password.p-focus,
+.p-calendar.p-focus,
+.p-inputnumber:focus-within,
+.p-dropdown.p-focus,
+.p-select.p-focus,
+.p-multiselect.p-focus {
+  border-color: var(--app-ctl-focus-color);
+  box-shadow: 0 0 0 3px var(--app-ctl-focus-ring);
+  outline: none;
+}
+
+.ng-invalid.ng-touched.p-inputtext,
+.ng-invalid.ng-touched.p-inputnumber .p-inputtext,
+.ng-invalid.ng-touched.p-password .p-inputtext,
+.ng-invalid.ng-touched.p-dropdown,
+.ng-invalid.ng-touched .p-dropdown,
+.ng-invalid.ng-touched.p-select,
+.ng-invalid.ng-touched .p-select,
+.ng-invalid.ng-touched.p-multiselect,
+.ng-invalid.ng-touched .p-multiselect,
+.ng-invalid.ng-touched.p-inputtextarea {
+  border-color: var(--app-ctl-invalid-color);
+}
+
+.p-disabled input.p-inputtext,
+input.p-inputtext:disabled,
+textarea.p-inputtextarea:disabled,
+.p-calendar.p-disabled,
+.p-dropdown.p-disabled,
+.p-select.p-disabled,
+.p-multiselect.p-disabled,
+.p-inputnumber.p-disabled .p-inputtext,
+.p-password.p-disabled .p-inputtext {
+  opacity: 1;
+  background: var(--app-surface-soft);
+  color: var(--app-text-disabled);
+}
+
+.p-dropdown-panel,
+.p-select-panel,
+.p-multiselect-panel {
+  margin-top: 0.25rem;
+  border: 1px solid var(--app-ctl-border-color);
+  border-radius: var(--app-ctl-radius);
+  box-shadow: var(--app-shadow-2);
+  overflow: hidden;
+  z-index: 1300;
+}
+
+.p-dropdown-panel .p-dropdown-items-wrapper,
+.p-select-panel .p-select-items-wrapper,
+.p-multiselect-panel .p-multiselect-items-wrapper {
+  padding: 0.375rem;
+}
+
+.p-dropdown-panel .p-dropdown-item,
+.p-select-panel .p-select-option,
+.p-multiselect-panel .p-multiselect-item {
+  border-radius: 0.4rem;
+  padding: 0.52rem 0.7rem;
+  color: var(--app-text);
+  font-size: var(--app-font-size-ui-control);
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.p-dropdown-panel .p-dropdown-item:hover,
+.p-dropdown-panel .p-dropdown-item.p-focus,
+.p-select-panel .p-select-option:hover,
+.p-select-panel .p-select-option.p-focus,
+.p-multiselect-panel .p-multiselect-item:hover,
+.p-multiselect-panel .p-multiselect-item.p-focus {
+  background: #eef4ff;
+  color: var(--app-primary-600);
+}
+
+.p-dropdown-panel .p-dropdown-item.p-highlight,
+.p-select-panel .p-select-option.p-selected,
+.p-multiselect-panel .p-multiselect-item.p-highlight {
+  background: #dbe2eb;
+  color: var(--app-primary-700);
+  font-weight: 600;
+}
+
+.app-select-form,
+.app-select-duty {
+  --app-control-height: 36px;
+}
+
+.app-select-compact {
+  --app-control-height: 34px;
+}
+
+.p-checkbox {
+  width: var(--app-check-size);
+  height: var(--app-check-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.p-checkbox .p-checkbox-box {
+  width: var(--app-check-size);
+  height: var(--app-check-size);
+  border: 1.5px solid var(--app-check-border);
+  border-radius: var(--app-check-radius);
+  background: var(--app-check-bg);
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.p-checkbox:not(.p-checkbox-disabled):hover .p-checkbox-box {
+  border-color: var(--app-check-border-hover);
+  background: var(--app-check-bg-hover);
+  box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.18);
+}
+
+.p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box.p-focus {
+  border-color: var(--app-check-active);
+  box-shadow: 0 0 0 3px var(--app-check-focus-ring);
+}
+
+.p-checkbox .p-checkbox-box.p-highlight {
+  border-color: var(--app-check-active);
+  background: var(--app-check-active);
+}
+
+.p-checkbox .p-checkbox-box.p-indeterminate {
+  border-color: var(--app-check-active);
+  background: var(--app-check-active);
+  position: relative;
+}
+
+.p-checkbox .p-checkbox-box.p-indeterminate::before {
+  content: "";
+  width: 0.58rem;
+  height: 0.12rem;
+  border-radius: 99px;
+  background: #ffffff;
+}
+
+.p-checkbox .p-checkbox-box.p-indeterminate .p-checkbox-icon {
+  display: none;
+}
+
+.p-checkbox .p-checkbox-box.p-highlight .p-checkbox-icon {
+  color: #ffffff;
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.p-checkbox .p-checkbox-box .p-checkbox-icon.pi-minus {
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.p-checkbox.p-checkbox-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.p-checkbox.p-checkbox-disabled .p-checkbox-box {
+  border-color: var(--app-check-disabled-border);
+  background: var(--app-check-disabled-bg);
+}
+

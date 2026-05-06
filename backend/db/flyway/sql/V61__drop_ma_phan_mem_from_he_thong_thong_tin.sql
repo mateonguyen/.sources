@@ -1,0 +1,5 @@
+-- V61: Drop MA_PHAN_MEM column from BIZ_HE_THONG_THONG_TIN and BIZ_HE_THONG_THONG_TIN_HIS
+-- The field has no business purpose and is removed from the domain model.
+
+ALTER TABLE BIZ_HE_THONG_THONG_TIN DROP COLUMN MA_PHAN_MEM;
+ALTER TABLE BIZ_HE_THONG_THONG_TIN_HIS DROP COLUMN MA_PHAN_MEM;
