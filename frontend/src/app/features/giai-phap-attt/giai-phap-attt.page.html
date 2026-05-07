@@ -1,226 +1,341 @@
 <app-section-card
-  title="Giai Phap ATTT"
-  subtitle="Ma tran giai phap ATTT theo tung nhom tai san va don vi."
+  title="Giải pháp ATTT"
+  subtitle="Ma trận giải pháp ATTT theo từng nhóm tài sản của đơn vị"
   styleClass="gpattt-card"
 >
-  <app-filter-bar class="mt-3">
-    <form class="scope-filter" [formGroup]="filterForm">
-      <p-inputNumber
-        inputId="gpatttDonViId"
-        [useGrouping]="false"
-        formControlName="donViId"
-        placeholder="Don vi id"
-      ></p-inputNumber>
-
-      <button
-        pButton
-        type="button"
-        icon="pi pi-search"
-        class="p-button-info"
-        label="Tai du lieu"
-        (click)="load()"
-      ></button>
-    </form>
-  </app-filter-bar>
-
-  <div class="matrix-shell mt-3">
+  <div class="gpattt-shell">
     <app-loading-overlay
       [active]="loading()"
-      label="Dang tai ma tran giai phap ATTT..."
+      label="Đang tải ma trận giải pháp ATTT..."
     ></app-loading-overlay>
 
-    <p class="matrix-hint">
-      Ty le hien thi tai frontend, khong luu vao co so du lieu.
-    </p>
+    <div class="gpattt-action-bar">
+      <div class="gpattt-action-group gpattt-action-group--left">
+        <p-dropdown
+          styleClass="gpattt-add-select gpattt-control"
+          [options]="availableGiaiPhapOptions()"
+          [ngModel]="selectedGiaiPhapToAdd()"
+          (onChange)="onSelectedGiaiPhapToAddChange($event.value)"
+          optionLabel="label"
+          optionValue="value"
+          [filter]="true"
+          filterBy="label"
+          [showClear]="true"
+          appendTo="body"
+          placeholder="Chọn giải pháp để thêm"
+        ></p-dropdown>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-plus"
+          label="Thêm"
+          severity="secondary"
+          styleClass="gpattt-btn gpattt-btn--add"
+          [disabled]="!hasAvailableGiaiPhapToAdd()"
+          (click)="addRowFromCatalog()"
+        ></button>
+      </div>
 
-    <div class="app-table-wrap app-table-wrap--spacious">
-      <p-table
-        [value]="rows()"
-        styleClass="p-datatable-sm app-admin-table gpattt-matrix-table"
-      >
-        <ng-template pTemplate="header">
-          <tr>
-            <th rowspan="2">Giai phap</th>
-            <th colspan="3">May tinh BCANet</th>
-            <th colspan="3">May tinh Internet</th>
-            <th colspan="3">May tinh Local</th>
-            <th colspan="3">May chu BCANet</th>
-            <th colspan="3">May chu Internet</th>
-            <th colspan="3">May chu Local</th>
-            <th rowspan="2">Ghi chu</th>
-          </tr>
-          <tr>
-            <th>SL</th>
-            <th>TS</th>
-            <th>%</th>
-            <th>SL</th>
-            <th>TS</th>
-            <th>%</th>
-            <th>SL</th>
-            <th>TS</th>
-            <th>%</th>
-            <th>SL</th>
-            <th>TS</th>
-            <th>%</th>
-            <th>SL</th>
-            <th>TS</th>
-            <th>%</th>
-            <th>SL</th>
-            <th>TS</th>
-            <th>%</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-row>
-          <tr>
-            <td class="solution-cell">
-              {{ resolveGiaiPhapLabel(row.tenGiaiPhap) }}
-            </td>
-            <td>
-              <p-inputNumber
-                [useGrouping]="false"
-                [ngModel]="row.mayTinhBcanetSl"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.mayTinhBcanetSl = $event"
-              ></p-inputNumber>
-            </td>
-            <td>
-              <p-inputNumber
-                [useGrouping]="false"
-                [ngModel]="row.mayTinhBcanetTs"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.mayTinhBcanetTs = $event"
-              ></p-inputNumber>
-            </td>
-            <td class="ratio-cell">
-              {{ formatPercent(row.mayTinhBcanetSl, row.mayTinhBcanetTs) }}
-            </td>
-            <td>
-              <p-inputNumber
-                [useGrouping]="false"
-                [ngModel]="row.mayTinhInternetSl"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.mayTinhInternetSl = $event"
-              ></p-inputNumber>
-            </td>
-            <td>
-              <p-inputNumber
-                [useGrouping]="false"
-                [ngModel]="row.mayTinhInternetTs"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.mayTinhInternetTs = $event"
-              ></p-inputNumber>
-            </td>
-            <td class="ratio-cell">
-              {{ formatPercent(row.mayTinhInternetSl, row.mayTinhInternetTs) }}
-            </td>
-            <td>
-              <p-inputNumber
-                [useGrouping]="false"
-                [ngModel]="row.mayTinhLocalSl"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.mayTinhLocalSl = $event"
-              ></p-inputNumber>
-            </td>
-            <td>
-              <p-inputNumber
-                [useGrouping]="false"
-                [ngModel]="row.mayTinhLocalTs"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.mayTinhLocalTs = $event"
-              ></p-inputNumber>
-            </td>
-            <td class="ratio-cell">
-              {{ formatPercent(row.mayTinhLocalSl, row.mayTinhLocalTs) }}
-            </td>
-            <td>
-              <p-inputNumber
-                [useGrouping]="false"
-                [ngModel]="row.mayChuBcanetSl"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.mayChuBcanetSl = $event"
-              ></p-inputNumber>
-            </td>
-            <td>
-              <p-inputNumber
-                [useGrouping]="false"
-                [ngModel]="row.mayChuBcanetTs"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.mayChuBcanetTs = $event"
-              ></p-inputNumber>
-            </td>
-            <td class="ratio-cell">
-              {{ formatPercent(row.mayChuBcanetSl, row.mayChuBcanetTs) }}
-            </td>
-            <td>
-              <p-inputNumber
-                [useGrouping]="false"
-                [ngModel]="row.mayChuInternetSl"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.mayChuInternetSl = $event"
-              ></p-inputNumber>
-            </td>
-            <td>
-              <p-inputNumber
-                [useGrouping]="false"
-                [ngModel]="row.mayChuInternetTs"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.mayChuInternetTs = $event"
-              ></p-inputNumber>
-            </td>
-            <td class="ratio-cell">
-              {{ formatPercent(row.mayChuInternetSl, row.mayChuInternetTs) }}
-            </td>
-            <td>
-              <p-inputNumber
-                [useGrouping]="false"
-                [ngModel]="row.mayChuLocalSl"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.mayChuLocalSl = $event"
-              ></p-inputNumber>
-            </td>
-            <td>
-              <p-inputNumber
-                [useGrouping]="false"
-                [ngModel]="row.mayChuLocalTs"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.mayChuLocalTs = $event"
-              ></p-inputNumber>
-            </td>
-            <td class="ratio-cell">
-              {{ formatPercent(row.mayChuLocalSl, row.mayChuLocalTs) }}
-            </td>
-            <td>
-              <input
-                pInputText
-                type="text"
-                [ngModel]="row.ghiChu"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.ghiChu = $event"
-                placeholder="Ghi chu"
-              />
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+      <div class="gpattt-action-group gpattt-action-group--right">
+        <button
+          pButton
+          type="button"
+          icon="pi pi-refresh"
+          label="Tải dữ liệu"
+          severity="secondary"
+          styleClass="gpattt-btn gpattt-btn--secondary"
+          [loading]="loading()"
+          (click)="load()"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-save"
+          label="Lưu thay đổi"
+          styleClass="gpattt-btn gpattt-btn--primary"
+          [loading]="saving()"
+          [disabled]="saving() || !hasDirtyRows"
+          (click)="save()"
+        ></button>
+      </div>
     </div>
 
-    <app-form-action-bar class="mt-3">
+    <div class="gpattt-dirty-banner" *ngIf="hasDirtyRows && !saving()">
+      <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+      Có thay đổi chưa lưu. Nhấn <strong>Lưu thay đổi</strong> để cập nhật dữ
+      liệu.
+    </div>
+
+    <div class="gpattt-empty" *ngIf="!loading() && rows().length === 0">
+      <i class="pi pi-inbox" aria-hidden="true"></i>
+      <p>Chưa có dữ liệu giải pháp ATTT.</p>
+      <small
+        >Bắt đầu nhanh bằng cách thêm giải pháp đầu tiên từ danh mục.</small
+      >
       <button
         pButton
         type="button"
-        label="Luu ma tran"
-        [loading]="saving()"
-        icon="pi pi-save"
-        (click)="save()"
+        icon="pi pi-plus"
+        label="Thêm giải pháp đầu tiên"
+        styleClass="gpattt-btn gpattt-btn--primary"
+        [disabled]="!hasAvailableGiaiPhapToAdd()"
+        (click)="addFirstAvailableRow()"
       ></button>
-      <button
-        pButton
-        type="button"
-        severity="secondary"
-        label="Tai lai"
-        icon="pi pi-refresh"
-        (click)="load()"
-      ></button>
-    </app-form-action-bar>
+    </div>
+
+    <div class="gpattt-table-wrap" *ngIf="!loading() && rows().length > 0">
+      <table class="gpattt-table">
+        <thead>
+          <tr>
+            <th rowspan="2" class="th-stt">STT</th>
+            <th rowspan="2" class="th-name">Tên giải pháp</th>
+            <th colspan="3" class="th-group th-group--computer">MÁY TÍNH</th>
+            <th colspan="3" class="th-group th-group--server th-group--divider">
+              MÁY CHỦ
+            </th>
+            <th rowspan="2" class="th-note">Ghi chú</th>
+            <th rowspan="2" class="th-action">Thao tác</th>
+          </tr>
+          <tr>
+            <th class="th-sub th-sub--computer">BCANet</th>
+            <th class="th-sub th-sub--computer">Internet</th>
+            <th class="th-sub th-sub--computer">Local/Độc lập</th>
+            <th class="th-sub th-sub--server th-group--divider">BCANet</th>
+            <th class="th-sub th-sub--server">Internet</th>
+            <th class="th-sub th-sub--server">Local</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr
+            *ngFor="let row of rows(); let idx = index; trackBy: trackByRow"
+            [class.row-dirty]="row.dirty"
+          >
+            <td class="td-stt">{{ idx + 1 }}</td>
+            <td class="td-name">
+              <p-dropdown
+                styleClass="gpattt-name-select gpattt-control"
+                [options]="getTenGiaiPhapOptions(row)"
+                [ngModel]="row.tenGiaiPhap"
+                (onChange)="onTenGiaiPhapChange(row, $event.value)"
+                optionLabel="label"
+                optionValue="value"
+                optionDisabled="disabled"
+                [filter]="true"
+                filterBy="label"
+                appendTo="body"
+                [showClear]="false"
+              ></p-dropdown>
+              <span
+                class="dirty-mark"
+                *ngIf="row.dirty"
+                title="Có thay đổi chưa lưu"
+              ></span>
+            </td>
+
+            <td class="td-metric td-metric--computer">
+              <div class="metric-editor">
+                <div class="metric-inputs">
+                  <input
+                    type="number"
+                    min="0"
+                    [id]="'gp-' + idx + '-0'"
+                    [value]="row.mayTinhBcanetSl"
+                    (input)="onMetricChange(row, 'mayTinhBcanet', 'Sl', $any($event.target).value)"
+                    (keydown.enter)="onInputEnter($event, idx, 0)"
+                    aria-label="Máy tính BCANet SL"
+                  />
+                  <span>/</span>
+                  <input
+                    type="number"
+                    min="0"
+                    [id]="'gp-' + idx + '-1'"
+                    [value]="row.mayTinhBcanetTs"
+                    (input)="onMetricChange(row, 'mayTinhBcanet', 'Ts', $any($event.target).value)"
+                    (keydown.enter)="onInputEnter($event, idx, 1)"
+                    aria-label="Máy tính BCANet TS"
+                  />
+                </div>
+                <span
+                  [class]="'metric-percent ' + getPercentClass(row, 'mayTinhBcanet')"
+                  >{{ getPercent(row, 'mayTinhBcanet') }}</span
+                >
+              </div>
+            </td>
+
+            <td class="td-metric td-metric--computer">
+              <div class="metric-editor">
+                <div class="metric-inputs">
+                  <input
+                    type="number"
+                    min="0"
+                    [id]="'gp-' + idx + '-2'"
+                    [value]="row.mayTinhInternetSl"
+                    (input)="onMetricChange(row, 'mayTinhInternet', 'Sl', $any($event.target).value)"
+                    (keydown.enter)="onInputEnter($event, idx, 2)"
+                    aria-label="Máy tính Internet SL"
+                  />
+                  <span>/</span>
+                  <input
+                    type="number"
+                    min="0"
+                    [id]="'gp-' + idx + '-3'"
+                    [value]="row.mayTinhInternetTs"
+                    (input)="onMetricChange(row, 'mayTinhInternet', 'Ts', $any($event.target).value)"
+                    (keydown.enter)="onInputEnter($event, idx, 3)"
+                    aria-label="Máy tính Internet TS"
+                  />
+                </div>
+                <span
+                  [class]="'metric-percent ' + getPercentClass(row, 'mayTinhInternet')"
+                  >{{ getPercent(row, 'mayTinhInternet') }}</span
+                >
+              </div>
+            </td>
+
+            <td class="td-metric td-metric--computer">
+              <div class="metric-editor">
+                <div class="metric-inputs">
+                  <input
+                    type="number"
+                    min="0"
+                    [id]="'gp-' + idx + '-4'"
+                    [value]="row.mayTinhLocalSl"
+                    (input)="onMetricChange(row, 'mayTinhLocal', 'Sl', $any($event.target).value)"
+                    (keydown.enter)="onInputEnter($event, idx, 4)"
+                    aria-label="Máy tính Local hoặc độc lập SL"
+                  />
+                  <span>/</span>
+                  <input
+                    type="number"
+                    min="0"
+                    [id]="'gp-' + idx + '-5'"
+                    [value]="row.mayTinhLocalTs"
+                    (input)="onMetricChange(row, 'mayTinhLocal', 'Ts', $any($event.target).value)"
+                    (keydown.enter)="onInputEnter($event, idx, 5)"
+                    aria-label="Máy tính Local hoặc độc lập TS"
+                  />
+                </div>
+                <span
+                  [class]="'metric-percent ' + getPercentClass(row, 'mayTinhLocal')"
+                  >{{ getPercent(row, 'mayTinhLocal') }}</span
+                >
+              </div>
+            </td>
+
+            <td class="td-metric td-metric--server td-divider">
+              <div class="metric-editor">
+                <div class="metric-inputs">
+                  <input
+                    type="number"
+                    min="0"
+                    [id]="'gp-' + idx + '-6'"
+                    [value]="row.mayChuBcanetSl"
+                    (input)="onMetricChange(row, 'mayChuBcanet', 'Sl', $any($event.target).value)"
+                    (keydown.enter)="onInputEnter($event, idx, 6)"
+                    aria-label="Máy chủ BCANet SL"
+                  />
+                  <span>/</span>
+                  <input
+                    type="number"
+                    min="0"
+                    [id]="'gp-' + idx + '-7'"
+                    [value]="row.mayChuBcanetTs"
+                    (input)="onMetricChange(row, 'mayChuBcanet', 'Ts', $any($event.target).value)"
+                    (keydown.enter)="onInputEnter($event, idx, 7)"
+                    aria-label="Máy chủ BCANet TS"
+                  />
+                </div>
+                <span
+                  [class]="'metric-percent ' + getPercentClass(row, 'mayChuBcanet')"
+                  >{{ getPercent(row, 'mayChuBcanet') }}</span
+                >
+              </div>
+            </td>
+
+            <td class="td-metric td-metric--server">
+              <div class="metric-editor">
+                <div class="metric-inputs">
+                  <input
+                    type="number"
+                    min="0"
+                    [id]="'gp-' + idx + '-8'"
+                    [value]="row.mayChuInternetSl"
+                    (input)="onMetricChange(row, 'mayChuInternet', 'Sl', $any($event.target).value)"
+                    (keydown.enter)="onInputEnter($event, idx, 8)"
+                    aria-label="Máy chủ Internet SL"
+                  />
+                  <span>/</span>
+                  <input
+                    type="number"
+                    min="0"
+                    [id]="'gp-' + idx + '-9'"
+                    [value]="row.mayChuInternetTs"
+                    (input)="onMetricChange(row, 'mayChuInternet', 'Ts', $any($event.target).value)"
+                    (keydown.enter)="onInputEnter($event, idx, 9)"
+                    aria-label="Máy chủ Internet TS"
+                  />
+                </div>
+                <span
+                  [class]="'metric-percent ' + getPercentClass(row, 'mayChuInternet')"
+                  >{{ getPercent(row, 'mayChuInternet') }}</span
+                >
+              </div>
+            </td>
+
+            <td class="td-metric td-metric--server">
+              <div class="metric-editor">
+                <div class="metric-inputs">
+                  <input
+                    type="number"
+                    min="0"
+                    [id]="'gp-' + idx + '-10'"
+                    [value]="row.mayChuLocalSl"
+                    (input)="onMetricChange(row, 'mayChuLocal', 'Sl', $any($event.target).value)"
+                    (keydown.enter)="onInputEnter($event, idx, 10)"
+                    aria-label="Máy chủ Local SL"
+                  />
+                  <span>/</span>
+                  <input
+                    type="number"
+                    min="0"
+                    [id]="'gp-' + idx + '-11'"
+                    [value]="row.mayChuLocalTs"
+                    (input)="onMetricChange(row, 'mayChuLocal', 'Ts', $any($event.target).value)"
+                    (keydown.enter)="onInputEnter($event, idx, 11)"
+                    aria-label="Máy chủ Local TS"
+                  />
+                </div>
+                <span
+                  [class]="'metric-percent ' + getPercentClass(row, 'mayChuLocal')"
+                  >{{ getPercent(row, 'mayChuLocal') }}</span
+                >
+              </div>
+            </td>
+
+            <td class="td-note">
+              <textarea
+                rows="2"
+                [value]="row.ghiChu"
+                (input)="onNoteInput(row, $any($event.target).value, $event)"
+                placeholder="Ghi chú"
+                aria-label="Ghi chú"
+              ></textarea>
+            </td>
+
+            <td class="td-action">
+              <button
+                pButton
+                type="button"
+                icon="pi pi-trash"
+                class="gpattt-btn gpattt-btn--danger-icon p-button-text"
+                (click)="removeRow(row)"
+                aria-label="Xóa dòng"
+              ></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </app-section-card>

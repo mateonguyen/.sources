@@ -19,3 +19,4 @@ D:\Projects\ThucLuc_V2\.sources\backend\src\Application\obj\Debug\net8.0\ThucLuc
 D:\Projects\ThucLuc_V2\.sources\backend\src\Application\obj\Debug\net8.0\refint\ThucLuc.Application.dll
 D:\Projects\ThucLuc_V2\.sources\backend\src\Application\obj\Debug\net8.0\ThucLuc.Application.pdb
 D:\Projects\ThucLuc_V2\.sources\backend\src\Application\obj\Debug\net8.0\ref\ThucLuc.Application.dll
+D:\Projects\ThucLuc_V2\.sources\backend\src\Application\obj\Debug\net8.0\ThucLuc.Application.sourcelink.json

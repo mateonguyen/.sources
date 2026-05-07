@@ -11,7 +11,6 @@ interface ApiResponse<T> {
 export interface HaTangMangDto {
   id: number;
   donViId: number;
-  loaiDvThongKe: string;
   soDonViTrucThuoc: number;
   soDaKetNoiBcanet: number;
   soDuongTruyenVnpt: number;
@@ -22,7 +21,6 @@ export interface HaTangMangDto {
 
 export interface UpsertHaTangMangRequest {
   donViId: number;
-  loaiDvThongKe: string;
   soDonViTrucThuoc: number;
   soDaKetNoiBcanet: number;
   soDuongTruyenVnpt: number;

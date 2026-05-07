@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ThucLuc.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f204f84a4fa6e6c371c920efb67f3ce9fbe78992")]
 [assembly: System.Reflection.AssemblyProductAttribute("ThucLuc.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ThucLuc.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

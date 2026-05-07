@@ -1,21 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
-import {
-  FormsModule,
-  ReactiveFormsModule,
-  FormBuilder,
-  Validators,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
+import { AuthService } from '../../core/auth/auth.service';
 import { CodesApi, CodeValueDto } from '../codes/codes.api';
 import { NotificationService } from '../../core/ui/notification.service';
 import { FilterBarComponent } from '../../shared/ui/filter-bar.component';
-import { FormActionBarComponent } from '../../shared/ui/form-action-bar.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
 import { SectionCardComponent } from '../../shared/ui/section-card.component';
 import {
@@ -33,16 +28,25 @@ interface SelectOption {
 interface GiamSatSocRow {
   localId: string;
   id: number | null;
-  donViId: number;
   loaiMang: string;
   lopGiamSat: string;
+  lopGiamSatLabel: string;
   coHeThong: boolean;
   thucTrang: string | null;
-  namThanhLap: number | null;
-  soNhanSu: number | null;
-  congCuSuDung: string;
-  soCanhBaoThang: number | null;
+  tongSoDoiTuong: number;
+  soGiamSatMotPhan: number;
+  soGiamSatCoBan: number;
+  soGiamSatDayDu: number;
+  soSuCo: number;
+  soSuCoDaKhacPhuc: number;
+  lucLuongUngCuu: string;
   ghiChu: string;
+}
+
+interface LoaiMangGroup {
+  value: string;
+  label: string;
+  rows: GiamSatSocRow[];
 }
 
 @Component({
@@ -51,25 +55,21 @@ interface GiamSatSocRow {
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule,
     SectionCardComponent,
     FilterBarComponent,
-    FormActionBarComponent,
     LoadingOverlayComponent,
     DropdownModule,
-    CheckboxModule,
     InputNumberModule,
+    InputSwitchModule,
     InputTextModule,
     ButtonModule,
-    TableModule,
+    TooltipModule,
   ],
   templateUrl: './giam-sat-soc.page.html',
   styleUrl: './giam-sat-soc.page.scss',
 })
 export class GiamSatSocPage {
-  readonly filterForm = this.formBuilder.group({
-    donViId: [2002, [Validators.required]],
-  });
+  readonly donViId = computed(() => this.authService.profile()?.donViId ?? 0);
 
   readonly loaiMangValues = signal<CodeValueDto[]>([]);
   readonly lopGiamSatValues = signal<CodeValueDto[]>([]);
@@ -78,20 +78,6 @@ export class GiamSatSocPage {
   readonly loading = signal(false);
   readonly saving = signal(false);
 
-  readonly loaiMangOptions = computed<SelectOption[]>(() =>
-    this.loaiMangValues().map((item) => ({
-      label: item.name,
-      value: item.value,
-    })),
-  );
-
-  readonly lopGiamSatOptions = computed<SelectOption[]>(() =>
-    this.lopGiamSatValues().map((item) => ({
-      label: item.name,
-      value: item.value,
-    })),
-  );
-
   readonly thucTrangOptions = computed<SelectOption[]>(() =>
     this.thucTrangValues().map((item) => ({
       label: item.name,
@@ -99,8 +85,25 @@ export class GiamSatSocPage {
     })),
   );
 
+  readonly loaiMangGroups = computed<LoaiMangGroup[]>(() => {
+    const allRows = this.rows();
+    return this.loaiMangValues().map((lm) => ({
+      value: lm.value,
+      label: lm.name,
+      rows: allRows.filter((r) => r.loaiMang === lm.value),
+    }));
+  });
+
+  readonly hasValidationError = computed(() =>
+    this.rows().some(
+      (r) =>
+        r.soGiamSatMotPhan + r.soGiamSatCoBan + r.soGiamSatDayDu >
+          r.tongSoDoiTuong || r.soSuCoDaKhacPhuc > r.soSuCo,
+    ),
+  );
+
   constructor(
-    private readonly formBuilder: FormBuilder,
+    private readonly authService: AuthService,
     private readonly giamSatSocApi: GiamSatSocApi,
     private readonly codesApi: CodesApi,
     private readonly notificationService: NotificationService,
@@ -116,7 +119,6 @@ export class GiamSatSocPage {
         this.codesApi.getByCode('LOP_GIAM_SAT'),
         this.codesApi.getByCode('THUC_TRANG_GIAM_SAT'),
       ]);
-
       this.loaiMangValues.set(loaiMangCode.values);
       this.lopGiamSatValues.set(lopGiamSatCode.values);
       this.thucTrangValues.set(thucTrangCode.values);
@@ -127,45 +129,40 @@ export class GiamSatSocPage {
   }
 
   async load(): Promise<void> {
-    if (this.filterForm.invalid) {
-      this.filterForm.markAllAsTouched();
-      return;
-    }
-
-    const donViId = Number(this.filterForm.controls.donViId.value ?? 0);
-
+    const donViId = this.donViId();
+    if (!donViId) return;
     this.loading.set(true);
     try {
       const items = await this.giamSatSocApi.getAll({ donViId });
-      this.rows.set(this.buildRows(donViId, items));
+      this.rows.set(this.buildRows(items));
     } finally {
       this.loading.set(false);
     }
   }
 
   async save(): Promise<void> {
-    if (this.filterForm.invalid || this.saving()) {
-      this.filterForm.markAllAsTouched();
+    if (this.saving()) return;
+    const donViId = this.donViId();
+    if (!donViId) {
+      this.notificationService.show('error', 'Không xác định được đơn vị hiện tại.');
       return;
     }
-
-    const donViId = Number(this.filterForm.controls.donViId.value ?? 0);
     const payload: SaveGiamSatSocMatrixRequest = {
       donViId,
       items: this.rows().map((row) => this.toRequest(row, donViId)),
     };
-
     this.saving.set(true);
     try {
       const savedItems = await this.giamSatSocApi.saveMatrix(payload);
-      this.rows.set(this.buildRows(donViId, savedItems));
-      this.notificationService.show(
-        'success',
-        'Luu ma tran giam sat SOC thanh cong.',
-      );
+      this.rows.set(this.buildRows(savedItems));
+      this.notificationService.show('success', 'Lưu ma trận giám sát SOC thành công.');
     } finally {
       this.saving.set(false);
     }
+  }
+
+  getCoHeThong(loaiMang: string): boolean {
+    return this.rows().find((r) => r.loaiMang === loaiMang)?.coHeThong ?? false;
   }
 
   onCoHeThongChange(loaiMang: string, checked: boolean): void {
@@ -176,77 +173,73 @@ export class GiamSatSocPage {
     );
   }
 
-  resolveLoaiMangLabel(value: string): string {
+  hasGiamSatError(row: GiamSatSocRow): boolean {
     return (
-      this.loaiMangOptions().find((item) => item.value === value)?.label ??
-      value
+      row.soGiamSatMotPhan + row.soGiamSatCoBan + row.soGiamSatDayDu >
+      row.tongSoDoiTuong
     );
   }
 
-  resolveLopGiamSatLabel(value: string): string {
-    return (
-      this.lopGiamSatOptions().find((item) => item.value === value)?.label ??
-      value
-    );
+  hasSuCoError(row: GiamSatSocRow): boolean {
+    return row.soSuCoDaKhacPhuc > row.soSuCo;
   }
 
-  trackByRow(index: number, row: GiamSatSocRow): string {
-    return row.localId || `${index}`;
+  hasRowError(row: GiamSatSocRow): boolean {
+    return this.hasGiamSatError(row) || this.hasSuCoError(row);
   }
 
-  private buildRows(donViId: number, items: GiamSatSocDto[]): GiamSatSocRow[] {
+  trackByGroup(_: number, group: LoaiMangGroup): string {
+    return group.value;
+  }
+
+  trackByRow(_: number, row: GiamSatSocRow): string {
+    return row.localId;
+  }
+
+  private buildRows(items: GiamSatSocDto[]): GiamSatSocRow[] {
     const result: GiamSatSocRow[] = [];
-
     for (const loaiMang of this.loaiMangValues()) {
-      const groupItems = items.filter(
-        (item) => item.loaiMang === loaiMang.value,
-      );
+      const groupItems = items.filter((item) => item.loaiMang === loaiMang.value);
       const coHeThong = groupItems[0]?.coHeThong ?? false;
-
       for (const lopGiamSat of this.lopGiamSatValues()) {
-        const matched = groupItems.find(
-          (item) => item.lopGiamSat === lopGiamSat.value,
-        );
+        const matched = groupItems.find((item) => item.lopGiamSat === lopGiamSat.value);
         result.push({
           localId: `${loaiMang.value}-${lopGiamSat.value}`,
           id: matched?.id ?? null,
-          donViId,
           loaiMang: loaiMang.value,
           lopGiamSat: lopGiamSat.value,
+          lopGiamSatLabel: lopGiamSat.name,
           coHeThong,
           thucTrang: matched?.thucTrang ?? null,
-          namThanhLap: matched?.namThanhLap ?? null,
-          soNhanSu: matched?.soNhanSu ?? null,
-          congCuSuDung: matched?.congCuSuDung ?? '',
-          soCanhBaoThang: matched?.soCanhBaoThang ?? null,
+          tongSoDoiTuong: matched?.tongSoDoiTuong ?? 0,
+          soGiamSatMotPhan: matched?.soGiamSatMotPhan ?? 0,
+          soGiamSatCoBan: matched?.soGiamSatCoBan ?? 0,
+          soGiamSatDayDu: matched?.soGiamSatDayDu ?? 0,
+          soSuCo: matched?.soSuCo ?? 0,
+          soSuCoDaKhacPhuc: matched?.soSuCoDaKhacPhuc ?? 0,
+          lucLuongUngCuu: matched?.lucLuongUngCuu ?? '',
           ghiChu: matched?.ghiChu ?? '',
         });
       }
     }
-
     return result;
   }
 
-  private toRequest(
-    row: GiamSatSocRow,
-    donViId: number,
-  ): UpsertGiamSatSocRequest {
+  private toRequest(row: GiamSatSocRow, donViId: number): UpsertGiamSatSocRequest {
     return {
       donViId,
       loaiMang: row.loaiMang,
       lopGiamSat: row.lopGiamSat,
       coHeThong: row.coHeThong,
       thucTrang: row.thucTrang,
-      namThanhLap: row.namThanhLap,
-      soNhanSu: row.soNhanSu,
-      congCuSuDung: this.normalizeText(row.congCuSuDung),
-      soCanhBaoThang: row.soCanhBaoThang,
-      ghiChu: this.normalizeText(row.ghiChu),
+      tongSoDoiTuong: row.tongSoDoiTuong,
+      soGiamSatMotPhan: row.soGiamSatMotPhan,
+      soGiamSatCoBan: row.soGiamSatCoBan,
+      soGiamSatDayDu: row.soGiamSatDayDu,
+      soSuCo: row.soSuCo,
+      soSuCoDaKhacPhuc: row.soSuCoDaKhacPhuc,
+      lucLuongUngCuu: row.lucLuongUngCuu.trim() || null,
+      ghiChu: row.ghiChu.trim() || null,
     };
-  }
-
-  private normalizeText(value: string | null | undefined): string | null {
-    const normalized = value?.trim();
-    return normalized ? normalized : null;
   }
 }

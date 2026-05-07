@@ -10,7 +10,7 @@ namespace ThucLuc.Application.Features.HeThongThongTin;
 
 public interface IHeThongThongTinService
 {
-    Task<IReadOnlyCollection<HeThongThongTinDto>> GetAllAsync(string? loaiPhanMem = null, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<HeThongThongTinDto>> GetAllAsync(CancellationToken cancellationToken = default);
 
     Task<HeThongThongTinDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
@@ -32,10 +32,9 @@ public sealed class HeThongThongTinService : IHeThongThongTinService
         _dateTimeProvider = dateTimeProvider;
     }
 
-    public async Task<IReadOnlyCollection<HeThongThongTinDto>> GetAllAsync(string? loaiPhanMem = null, CancellationToken cancellationToken = default)
-        => await ApplyLoaiPhanMemFilter(ApplyReadScope(_dbContext.HeThongThongTins), loaiPhanMem)
-            .OrderBy(x => x.LoaiPhanMem)
-            .ThenBy(x => x.TenPhanMem)
+    public async Task<IReadOnlyCollection<HeThongThongTinDto>> GetAllAsync(CancellationToken cancellationToken = default)
+        => await ApplyReadScope(_dbContext.HeThongThongTins)
+            .OrderBy(x => x.TenPhanMem)
             .Select(MapToDto())
             .ToListAsync(cancellationToken);
 
@@ -63,12 +62,11 @@ public sealed class HeThongThongTinService : IHeThongThongTinService
             await _dbContext.HeThongThongTins.AddAsync(entity, cancellationToken);
         }
 
-        var normalizedLoaiPhanMem = NormalizeUpper(request.LoaiPhanMem);
         var normalizedPhamViHoatDong = NormalizeText(request.PhamViHoatDong);
         var normalizedPhamViHoatDongKyThuat = NormalizeText(request.PhamViHoatDongKyThuat);
         var normalizedUngDungCnMoi = NormalizeText(request.UngDungCnMoi);
         var normalizedKhaNangTichHop = NormalizeText(request.KhaNangTichHop);
-        var newDaCongNhanSangKien = normalizedLoaiPhanMem == "TU_PHAT_TRIEN" && request.DaCongNhanSangKien;
+        var newDaCongNhanSangKien = request.DaCongNhanSangKien;
 
         if (!isNew)
         {
@@ -86,7 +84,6 @@ public sealed class HeThongThongTinService : IHeThongThongTinService
                 {
                     SourceId = entity.Id,
                     DonViId = entity.DonViId,
-                    LoaiPhanMem = entity.LoaiPhanMem,
                     TenPhanMem = entity.TenPhanMem,
                     DonViPhatTrien = entity.DonViPhatTrien,
                     DonViQuanLy = entity.DonViQuanLy,
@@ -107,7 +104,6 @@ public sealed class HeThongThongTinService : IHeThongThongTinService
         }
 
         entity.DonViId = request.DonViId;
-        entity.LoaiPhanMem = normalizedLoaiPhanMem;
         entity.TenPhanMem = NormalizeRequired(request.TenPhanMem);
         entity.DonViPhatTrien = NormalizeText(request.DonViPhatTrien);
         entity.DonViQuanLy = NormalizeText(request.DonViQuanLy);
@@ -162,20 +158,11 @@ public sealed class HeThongThongTinService : IHeThongThongTinService
     private static bool HasCrossDonViPermission(CurrentUserProfile currentUser)
         => currentUser.HasPermission(Permissions.SystemAdmin) || currentUser.HasPermission(Permissions.KyBaoCao.Approve);
 
-    private static IQueryable<HeThongThongTinEntity> ApplyLoaiPhanMemFilter(IQueryable<HeThongThongTinEntity> query, string? loaiPhanMem)
-    {
-        var normalized = NormalizeText(loaiPhanMem)?.ToUpperInvariant();
-        return string.IsNullOrWhiteSpace(normalized)
-            ? query
-            : query.Where(x => x.LoaiPhanMem == normalized);
-    }
-
     private static System.Linq.Expressions.Expression<Func<HeThongThongTinEntity, HeThongThongTinDto>> MapToDto()
         => x => new HeThongThongTinDto
         {
             Id = x.Id,
             DonViId = x.DonViId,
-            LoaiPhanMem = x.LoaiPhanMem,
             TenPhanMem = x.TenPhanMem,
             DonViPhatTrien = x.DonViPhatTrien,
             DonViQuanLy = x.DonViQuanLy,
@@ -187,8 +174,6 @@ public sealed class HeThongThongTinService : IHeThongThongTinService
             DaCongNhanSangKien = x.DaCongNhanSangKien,
             GhiChu = x.GhiChu
         };
-
-    private static string NormalizeUpper(string value) => value.Trim().ToUpperInvariant();
 
     private static string NormalizeRequired(string value) => value.Trim();
 

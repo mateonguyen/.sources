@@ -164,10 +164,13 @@ public sealed class GiamSatSocService : IGiamSatSocService
                 LopGiamSat = item.LopGiamSat,
                 CoHeThong = coHeThongByLoaiMang[item.LoaiMang],
                 ThucTrang = item.ThucTrang,
-                NamThanhLap = item.NamThanhLap,
-                SoNhanSu = item.SoNhanSu,
-                CongCuSuDung = item.CongCuSuDung,
-                SoCanhBaoThang = item.SoCanhBaoThang,
+                TongSoDoiTuong = item.TongSoDoiTuong,
+                SoGiamSatMotPhan = item.SoGiamSatMotPhan,
+                SoGiamSatCoBan = item.SoGiamSatCoBan,
+                SoGiamSatDayDu = item.SoGiamSatDayDu,
+                SoSuCo = item.SoSuCo,
+                SoSuCoDaKhacPhuc = item.SoSuCoDaKhacPhuc,
+                LucLuongUngCuu = item.LucLuongUngCuu,
                 GhiChu = item.GhiChu
             });
             entity.DeletedAt = null;
@@ -242,10 +245,13 @@ public sealed class GiamSatSocService : IGiamSatSocService
             LopGiamSat = x.LopGiamSat,
             CoHeThong = x.CoHeThong,
             ThucTrang = x.ThucTrang,
-            NamThanhLap = x.NamThanhLap,
-            SoNhanSu = x.SoNhanSu,
-            CongCuSuDung = x.CongCuSuDung,
-            SoCanhBaoThang = x.SoCanhBaoThang,
+            TongSoDoiTuong = x.TongSoDoiTuong,
+            SoGiamSatMotPhan = x.SoGiamSatMotPhan,
+            SoGiamSatCoBan = x.SoGiamSatCoBan,
+            SoGiamSatDayDu = x.SoGiamSatDayDu,
+            SoSuCo = x.SoSuCo,
+            SoSuCoDaKhacPhuc = x.SoSuCoDaKhacPhuc,
+            LucLuongUngCuu = x.LucLuongUngCuu,
             GhiChu = x.GhiChu
         };
 
@@ -259,10 +265,13 @@ public sealed class GiamSatSocService : IGiamSatSocService
             LopGiamSat = x.LopGiamSat,
             CoHeThong = x.CoHeThong,
             ThucTrang = x.ThucTrang,
-            NamThanhLap = x.NamThanhLap,
-            SoNhanSu = x.SoNhanSu,
-            CongCuSuDung = x.CongCuSuDung,
-            SoCanhBaoThang = x.SoCanhBaoThang,
+            TongSoDoiTuong = x.TongSoDoiTuong,
+            SoGiamSatMotPhan = x.SoGiamSatMotPhan,
+            SoGiamSatCoBan = x.SoGiamSatCoBan,
+            SoGiamSatDayDu = x.SoGiamSatDayDu,
+            SoSuCo = x.SoSuCo,
+            SoSuCoDaKhacPhuc = x.SoSuCoDaKhacPhuc,
+            LucLuongUngCuu = x.LucLuongUngCuu,
             GhiChu = x.GhiChu
         };
 
@@ -273,10 +282,13 @@ public sealed class GiamSatSocService : IGiamSatSocService
         entity.LopGiamSat = request.LopGiamSat;
         entity.CoHeThong = request.CoHeThong;
         entity.ThucTrang = request.ThucTrang;
-        entity.NamThanhLap = request.NamThanhLap;
-        entity.SoNhanSu = request.SoNhanSu;
-        entity.CongCuSuDung = request.CongCuSuDung;
-        entity.SoCanhBaoThang = request.SoCanhBaoThang;
+        entity.TongSoDoiTuong = request.TongSoDoiTuong;
+        entity.SoGiamSatMotPhan = request.SoGiamSatMotPhan;
+        entity.SoGiamSatCoBan = request.SoGiamSatCoBan;
+        entity.SoGiamSatDayDu = request.SoGiamSatDayDu;
+        entity.SoSuCo = request.SoSuCo;
+        entity.SoSuCoDaKhacPhuc = request.SoSuCoDaKhacPhuc;
+        entity.LucLuongUngCuu = request.LucLuongUngCuu;
         entity.GhiChu = request.GhiChu;
     }
 
@@ -297,10 +309,13 @@ public sealed class GiamSatSocService : IGiamSatSocService
             LopGiamSat = NormalizeRequiredCode(request.LopGiamSat, nameof(request.LopGiamSat)),
             CoHeThong = request.CoHeThong,
             ThucTrang = NormalizeCode(request.ThucTrang),
-            NamThanhLap = request.NamThanhLap,
-            SoNhanSu = request.SoNhanSu,
-            CongCuSuDung = NormalizeText(request.CongCuSuDung),
-            SoCanhBaoThang = request.SoCanhBaoThang,
+            TongSoDoiTuong = request.TongSoDoiTuong,
+            SoGiamSatMotPhan = request.SoGiamSatMotPhan,
+            SoGiamSatCoBan = request.SoGiamSatCoBan,
+            SoGiamSatDayDu = request.SoGiamSatDayDu,
+            SoSuCo = request.SoSuCo,
+            SoSuCoDaKhacPhuc = request.SoSuCoDaKhacPhuc,
+            LucLuongUngCuu = NormalizeText(request.LucLuongUngCuu),
             GhiChu = NormalizeText(request.GhiChu)
         };
 

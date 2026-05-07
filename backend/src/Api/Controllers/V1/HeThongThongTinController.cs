@@ -21,9 +21,9 @@ public sealed class HeThongThongTinController : ControllerBase
     [HttpGet]
     [HasPermission(Permissions.HeThongThongTin.Read)]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyCollection<HeThongThongTinDto>>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse<IReadOnlyCollection<HeThongThongTinDto>>>> GetAll([FromQuery] string? loaiPhanMem, CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<IReadOnlyCollection<HeThongThongTinDto>>>> GetAll(CancellationToken cancellationToken)
     {
-        var result = await _service.GetAllAsync(loaiPhanMem, cancellationToken);
+        var result = await _service.GetAllAsync(cancellationToken);
         return Ok(ApiResponseFactory.Success(result));
     }
 

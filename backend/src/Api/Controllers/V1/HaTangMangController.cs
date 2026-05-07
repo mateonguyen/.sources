@@ -56,6 +56,16 @@ public sealed class HaTangMangController : ControllerBase
         return Ok(ApiResponseFactory.Success(result));
     }
 
+    [HttpPut("matrix")]
+    [HasPermission(Permissions.HaTangMang.Update)]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyCollection<HaTangMangDto>>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<IReadOnlyCollection<HaTangMangDto>>>> SaveMatrix(
+        [FromBody] SaveHaTangMangMatrixRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _service.SaveMatrixAsync(request, cancellationToken);
+        return Ok(ApiResponseFactory.Success(result));
+    }
+
     [HttpDelete("{id:long}")]
     [HasPermission(Permissions.HaTangMang.Delete)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]

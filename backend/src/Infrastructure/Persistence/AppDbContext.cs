@@ -238,7 +238,6 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, Applicatio
         {
             entity.ToTable("BIZ_HE_THONG_THONG_TIN");
             entity.HasKey(x => x.Id);
-            entity.Property(x => x.LoaiPhanMem).HasMaxLength(20).IsRequired();
             entity.Property(x => x.TenPhanMem).HasMaxLength(200).IsRequired();
             entity.Property(x => x.DonViPhatTrien).HasMaxLength(200);
             entity.Property(x => x.DonViQuanLy).HasMaxLength(300);
@@ -252,7 +251,6 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, Applicatio
         {
             entity.ToTable("BIZ_HE_THONG_THONG_TIN_HIS");
             entity.HasKey(x => x.Id);
-            entity.Property(x => x.LoaiPhanMem).HasMaxLength(20).IsRequired();
             entity.Property(x => x.TenPhanMem).HasMaxLength(200).IsRequired();
             entity.Property(x => x.DonViPhatTrien).HasMaxLength(200);
             entity.Property(x => x.DonViQuanLy).HasMaxLength(300);
@@ -478,7 +476,6 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, Applicatio
         {
             entity.ToTable("BIZ_HA_TANG_MANG");
             entity.HasKey(x => x.Id);
-            entity.Property(x => x.LoaiDvThongKe).HasMaxLength(30).IsRequired();
             entity.Property(x => x.GhiChu).HasMaxLength(2000);
         });
 
@@ -486,7 +483,6 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, Applicatio
         {
             entity.ToTable("BIZ_HA_TANG_MANG_HIS");
             entity.HasKey(x => x.Id);
-            entity.Property(x => x.LoaiDvThongKe).HasMaxLength(30).IsRequired();
             entity.Property(x => x.KyBaoCaoCode).HasMaxLength(50).IsRequired();
             entity.Property(x => x.GhiChu).HasMaxLength(2000);
             entity.HasIndex(x => new { x.DonViId, x.KyBaoCaoCode });
@@ -500,7 +496,7 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, Applicatio
             entity.Property(x => x.LoaiMang).HasMaxLength(50).IsRequired();
             entity.Property(x => x.LopGiamSat).HasMaxLength(50).IsRequired();
             entity.Property(x => x.ThucTrang).HasMaxLength(50);
-            entity.Property(x => x.CongCuSuDung).HasMaxLength(500);
+            entity.Property(x => x.LucLuongUngCuu).HasMaxLength(500);
             entity.Property(x => x.GhiChu).HasMaxLength(2000);
         });
 
@@ -512,7 +508,7 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, Applicatio
             entity.Property(x => x.LoaiMang).HasMaxLength(50).IsRequired();
             entity.Property(x => x.LopGiamSat).HasMaxLength(50).IsRequired();
             entity.Property(x => x.ThucTrang).HasMaxLength(50);
-            entity.Property(x => x.CongCuSuDung).HasMaxLength(500);
+            entity.Property(x => x.LucLuongUngCuu).HasMaxLength(500);
             entity.Property(x => x.GhiChu).HasMaxLength(2000);
             entity.HasIndex(x => new { x.DonViId, x.KyBaoCaoCode });
         });

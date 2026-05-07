@@ -1,274 +1,161 @@
-<app-section-card
+﻿<app-section-card
   title="Hạ Tầng Mạng"
-  subtitle="Thông tin hạ tầng kết nối mạng theo từng loại đơn vị thống kê."
-  styleClass="htmang-card"
+  subtitle="Thống kê hạ tầng kết nối mạng của đơn vị. Nhấn vào chỉ số để chỉnh sửa, sau đó nhấn Lưu."
 >
-  <div class="htmang-toolbar mt-4">
-    <div class="htmang-info-chip">
-      <i class="pi pi-building"></i>
-      <span class="htmang-chip-label">Đơn vị ID</span>
-      <strong>{{ donViId() }}</strong>
-    </div>
-    <div class="htmang-info-chip htmang-info-chip--right">
-      <i class="pi pi-sitemap"></i>
-      <span class="htmang-chip-label">Đơn vị trực thuộc</span>
-      <strong>{{ donViTrucThuocCount() }}</strong>
-    </div>
-  </div>
-
-  <div class="htmang-shell mt-5" style="position: relative">
+  <div class="relative">
     <app-loading-overlay
       [active]="loading()"
-      label="Đang tải dữ liệu hạ tầng mạng..."
+      label="Đang tải dữ liệu..."
     ></app-loading-overlay>
-
-    <div class="training-grid-hint mt-1">
-      <i class="pi pi-info-circle training-grid-hint__icon"></i>
-      <span>
-        Nhập số liệu trực tiếp vào ô. Cột "Số ĐV trực thuộc" tự động đếm từ danh
-        mục đơn vị và không chỉnh sửa được.
-      </span>
-    </div>
-
-    <div class="training-toolbar training-toolbar--simple mt-3">
-      <div class="training-toolbar__right">
-        <button
-          pButton
-          type="button"
-          icon="pi pi-save"
-          class="training-btn training-btn--primary"
-          label="Lưu dữ liệu"
-          [loading]="saving()"
-          [disabled]="saving()"
-          (click)="save()"
-        ></button>
-        <button
-          pButton
-          type="button"
-          icon="pi pi-refresh"
-          class="training-btn training-btn--outline"
-          label="Tải lại"
-          [loading]="loading()"
-          [disabled]="saving()"
-          (click)="load()"
-        ></button>
-      </div>
-    </div>
-
-    <div class="training-table-zone mt-4">
-      <div class="app-table-wrap app-table-wrap--spacious">
-        <p-table
-          [value]="rows()"
-          styleClass="p-datatable-sm app-admin-table training-table"
-        >
-          <ng-template pTemplate="colgroup">
-            <colgroup>
-              <col class="htmang-col-stt" />
-              <col class="htmang-col-loai" />
-              <col class="htmang-col-num" />
-              <col class="htmang-col-num" />
-              <col class="htmang-col-num" />
-              <col class="htmang-col-num" />
-              <col class="htmang-col-num" />
-              <col class="htmang-col-note" />
-            </colgroup>
-          </ng-template>
-
-          <ng-template pTemplate="header">
-            <tr>
-              <th class="htmang-th-stt">STT</th>
-              <th class="htmang-th-loai">Loại đơn vị thống kê</th>
-              <th class="htmang-th-num">Số ĐV trực thuộc</th>
-              <th class="htmang-th-num">
-                Đã kết nối BCANet
-                <i
-                  class="pi pi-question-circle htmang-header-help"
-                  pTooltip="Số đơn vị đã kết nối vào mạng BCANet"
-                  tooltipPosition="top"
-                ></i>
-              </th>
-              <th class="htmang-th-num">
-                Đường truyền VNPT
-                <i
-                  class="pi pi-question-circle htmang-header-help"
-                  pTooltip="Số đường truyền mạng do VNPT cung cấp"
-                  tooltipPosition="top"
-                ></i>
-              </th>
-              <th class="htmang-th-num">Đường truyền khác</th>
-              <th class="htmang-th-num">Kết nối Internet</th>
-              <th class="htmang-th-note">Ghi chú</th>
-            </tr>
-          </ng-template>
-
-          <ng-template pTemplate="body" let-row let-i="rowIndex">
-            <tr class="htmang-row">
-              <td class="hv-cell-stt">{{ i + 1 }}</td>
-
-              <td>
-                <span class="training-cell-text"
-                  >{{ row.loaiDvThongKeLabel }}</span
-                >
-              </td>
-
-              <td
-                class="training-grid-cell--number htmang-readonly-cell"
-                [ngClass]="{
-                'metric-zero': row.soDonViTrucThuoc === 0,
-                'metric-positive': row.soDonViTrucThuoc > 0,
-              }"
-              >
-                <div class="training-cell-wrap" style="justify-content: center">
-                  <span class="htmang-readonly-value"
-                    >{{ row.soDonViTrucThuoc }}</span
-                  >
-                </div>
-              </td>
-
-              <td
-                class="training-grid-cell training-grid-cell--number htmang-editable-cell"
-                [ngClass]="{
-                'metric-zero': row.soDaKetNoiBcanet === 0,
-                'metric-positive': row.soDaKetNoiBcanet > 0,
-              }"
-              >
-                <div class="training-cell-wrap">
-                  <p-inputNumber
-                    [useGrouping]="false"
-                    [min]="0"
-                    [ngModel]="row.soDaKetNoiBcanet"
-                    [ngModelOptions]="{ standalone: true }"
-                    (ngModelChange)="row.soDaKetNoiBcanet = $event ?? 0"
-                  ></p-inputNumber>
-                  <i
-                    class="pi pi-pencil htmang-edit-hint"
-                    aria-hidden="true"
-                  ></i>
-                </div>
-              </td>
-
-              <td
-                class="training-grid-cell training-grid-cell--number htmang-editable-cell"
-                [ngClass]="{
-                'metric-zero': row.soDuongTruyenVnpt === 0,
-                'metric-positive': row.soDuongTruyenVnpt > 0,
-              }"
-              >
-                <div class="training-cell-wrap">
-                  <p-inputNumber
-                    [useGrouping]="false"
-                    [min]="0"
-                    [ngModel]="row.soDuongTruyenVnpt"
-                    [ngModelOptions]="{ standalone: true }"
-                    (ngModelChange)="row.soDuongTruyenVnpt = $event ?? 0"
-                  ></p-inputNumber>
-                  <i
-                    class="pi pi-pencil htmang-edit-hint"
-                    aria-hidden="true"
-                  ></i>
-                </div>
-              </td>
-
-              <td
-                class="training-grid-cell training-grid-cell--number htmang-editable-cell"
-                [ngClass]="{
-                'metric-zero': row.soDuongTruyenKhac === 0,
-                'metric-positive': row.soDuongTruyenKhac > 0,
-              }"
-              >
-                <div class="training-cell-wrap">
-                  <p-inputNumber
-                    [useGrouping]="false"
-                    [min]="0"
-                    [ngModel]="row.soDuongTruyenKhac"
-                    [ngModelOptions]="{ standalone: true }"
-                    (ngModelChange)="row.soDuongTruyenKhac = $event ?? 0"
-                  ></p-inputNumber>
-                  <i
-                    class="pi pi-pencil htmang-edit-hint"
-                    aria-hidden="true"
-                  ></i>
-                </div>
-              </td>
-
-              <td
-                class="training-grid-cell training-grid-cell--number htmang-editable-cell"
-                [ngClass]="{
-                'metric-zero': row.soKetNoiInternet === 0,
-                'metric-positive': row.soKetNoiInternet > 0,
-              }"
-              >
-                <div class="training-cell-wrap">
-                  <p-inputNumber
-                    [useGrouping]="false"
-                    [min]="0"
-                    [ngModel]="row.soKetNoiInternet"
-                    [ngModelOptions]="{ standalone: true }"
-                    (ngModelChange)="row.soKetNoiInternet = $event ?? 0"
-                  ></p-inputNumber>
-                  <i
-                    class="pi pi-pencil htmang-edit-hint"
-                    aria-hidden="true"
-                  ></i>
-                </div>
-              </td>
-
-              <td
-                class="training-grid-cell training-grid-cell--wrap htmang-editable-cell"
-              >
-                <div class="training-cell-wrap">
-                  <input
-                    pInputText
-                    type="text"
-                    [ngModel]="row.ghiChu"
-                    [ngModelOptions]="{ standalone: true }"
-                    (ngModelChange)="row.ghiChu = $event"
-                    placeholder="Ghi chú"
-                    class="training-cell-input training-cell-input--compact"
-                  />
-                  <i
-                    class="pi pi-pencil htmang-edit-hint"
-                    aria-hidden="true"
-                  ></i>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-
-          <ng-template pTemplate="footer">
-            <tr class="hv-total-row">
-              <td colspan="2" class="hv-total-label">
-                <strong>Tổng cộng</strong>
-              </td>
-              <td class="training-grid-cell--number">
-                <strong>{{ totalSoDonViTrucThuoc() }}</strong>
-              </td>
-              <td class="training-grid-cell--number">
-                <strong>{{ totalSoDaKetNoiBcanet() }}</strong>
-              </td>
-              <td class="training-grid-cell--number">
-                <strong>{{ totalSoDuongTruyenVnpt() }}</strong>
-              </td>
-              <td class="training-grid-cell--number">
-                <strong>{{ totalSoDuongTruyenKhac() }}</strong>
-              </td>
-              <td class="training-grid-cell--number">
-                <strong>{{ totalSoKetNoiInternet() }}</strong>
-              </td>
-              <td></td>
-            </tr>
-          </ng-template>
-
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td colspan="8" class="htmang-empty-state">
-                <i class="pi pi-inbox" aria-hidden="true"></i>
-                <div>Không có dữ liệu. Vui lòng nhấn "Tải lại".</div>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </div>
-    </div>
   </div>
+
+  <ng-container *ngIf="row() as r">
+    <!-- ── Metric section ── -->
+    <div class="htmang-section htmang-section--metrics">
+      <div class="htmang-section__head">
+        <span class="htmang-section__title">Chỉ số hạ tầng</span>
+        <span class="htmang-section__desc"
+          >Nhập số liệu kết nối mạng của đơn vị</span
+        >
+      </div>
+
+      <div class="htmang-metric-grid">
+        <div class="htmang-metric-card htmang-metric-card--readonly">
+          <span class="htmang-metric-card__label">Số ĐV trực thuộc</span>
+          <p-inputNumber
+            inputId="htmang-so-don-vi"
+            [(ngModel)]="r.soDonViTrucThuoc"
+            [useGrouping]="false"
+            [min]="0"
+            [allowEmpty]="false"
+            [readonly]="true"
+            [showButtons]="false"
+            (ngModelChange)="updateReadonlyChildCount()"
+          ></p-inputNumber>
+        </div>
+
+        <div
+          class="htmang-metric-card"
+          [class.htmang-metric-card--error]="isMetricExceeded('soDaKetNoiBcanet')"
+        >
+          <span class="htmang-metric-card__label">Đã kết nối BCANet</span>
+          <p-inputNumber
+            inputId="htmang-bcanet"
+            [ngModel]="r.soDaKetNoiBcanet"
+            [useGrouping]="false"
+            [min]="0"
+            [allowEmpty]="false"
+            (ngModelChange)="updateMetricValue('soDaKetNoiBcanet', $event)"
+          ></p-inputNumber>
+          <span
+            *ngIf="isMetricExceeded('soDaKetNoiBcanet')"
+            class="htmang-metric-card__hint"
+            >Vượt quá ĐV trực thuộc</span
+          >
+        </div>
+
+        <div
+          class="htmang-metric-card"
+          [class.htmang-metric-card--error]="isMetricExceeded('soDuongTruyenVnpt')"
+        >
+          <span class="htmang-metric-card__label">Đường truyền VNPT</span>
+          <p-inputNumber
+            inputId="htmang-vnpt"
+            [ngModel]="r.soDuongTruyenVnpt"
+            [useGrouping]="false"
+            [min]="0"
+            [allowEmpty]="false"
+            (ngModelChange)="updateMetricValue('soDuongTruyenVnpt', $event)"
+          ></p-inputNumber>
+          <span
+            *ngIf="isMetricExceeded('soDuongTruyenVnpt')"
+            class="htmang-metric-card__hint"
+            >Vượt quá ĐV trực thuộc</span
+          >
+        </div>
+
+        <div
+          class="htmang-metric-card"
+          [class.htmang-metric-card--error]="isMetricExceeded('soDuongTruyenKhac')"
+        >
+          <span class="htmang-metric-card__label">Đường truyền khác</span>
+          <p-inputNumber
+            inputId="htmang-khac"
+            [ngModel]="r.soDuongTruyenKhac"
+            [useGrouping]="false"
+            [min]="0"
+            [allowEmpty]="false"
+            (ngModelChange)="updateMetricValue('soDuongTruyenKhac', $event)"
+          ></p-inputNumber>
+          <span
+            *ngIf="isMetricExceeded('soDuongTruyenKhac')"
+            class="htmang-metric-card__hint"
+            >Vượt quá ĐV trực thuộc</span
+          >
+        </div>
+
+        <div
+          class="htmang-metric-card"
+          [class.htmang-metric-card--error]="isMetricExceeded('soKetNoiInternet')"
+        >
+          <span class="htmang-metric-card__label">Kết nối Internet</span>
+          <p-inputNumber
+            inputId="htmang-internet"
+            [ngModel]="r.soKetNoiInternet"
+            [useGrouping]="false"
+            [min]="0"
+            [allowEmpty]="false"
+            (ngModelChange)="updateMetricValue('soKetNoiInternet', $event)"
+          ></p-inputNumber>
+          <span
+            *ngIf="isMetricExceeded('soKetNoiInternet')"
+            class="htmang-metric-card__hint"
+            >Vượt quá ĐV trực thuộc</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Ghi chú section ── -->
+    <div class="htmang-section htmang-section--note">
+      <div class="htmang-section__head">
+        <span class="htmang-section__title">Ghi chú</span>
+        <span class="htmang-section__desc">Thông tin bổ sung (nếu có)</span>
+      </div>
+      <label
+        class="app-form-field app-form-field--textarea htmang-note-field"
+        [class.has-value]="!!r.ghiChu.trim()"
+      >
+        <span class="app-form-field__label">Ghi chú</span>
+        <textarea
+          class="app-form-field__input htmang-note-input"
+          [(ngModel)]="r.ghiChu"
+          placeholder="Nhập ghi chú..."
+          rows="4"
+        ></textarea>
+      </label>
+    </div>
+
+    <!-- ── Action bar ── -->
+    <div class="htmang-actions">
+      <button
+        pButton
+        type="button"
+        icon="pi pi-refresh"
+        label="Tải lại"
+        severity="secondary"
+        [loading]="loading()"
+        (click)="load()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-save"
+        label="Lưu dữ liệu"
+        [loading]="saving()"
+        [disabled]="saving() || hasValidationError()"
+        (click)="save()"
+      ></button>
+    </div>
+  </ng-container>
 </app-section-card>

@@ -119,3 +119,4 @@ D:\Projects\ThucLuc_V2\.sources\backend\tests\Application.Tests\obj\Debug\net8.0
 D:\Projects\ThucLuc_V2\.sources\backend\tests\Application.Tests\obj\Debug\net8.0\ThucLuc.Application.Tests.pdb
 D:\Projects\ThucLuc_V2\.sources\backend\tests\Application.Tests\obj\Debug\net8.0\ThucLuc.Application.Tests.genruntimeconfig.cache
 D:\Projects\ThucLuc_V2\.sources\backend\tests\Application.Tests\obj\Debug\net8.0\ref\ThucLuc.Application.Tests.dll
+D:\Projects\ThucLuc_V2\.sources\backend\tests\Application.Tests\obj\Debug\net8.0\ThucLuc.Application.Tests.sourcelink.json

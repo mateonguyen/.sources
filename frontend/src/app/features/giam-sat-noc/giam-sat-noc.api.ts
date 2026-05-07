@@ -14,8 +14,8 @@ export interface GiamSatNocDto {
   lopGiamSat: string;
   coNoc: boolean;
   thucTrang?: string | null;
-  namThanhLap?: number | null;
-  soNhanSu?: number | null;
+  tongSoDoiTuong: number;
+  soDaGiamSat: number;
   ghiChu?: string | null;
 }
 
@@ -28,8 +28,8 @@ export interface UpsertGiamSatNocRequest {
   lopGiamSat: string;
   coNoc: boolean;
   thucTrang?: string | null;
-  namThanhLap?: number | null;
-  soNhanSu?: number | null;
+  tongSoDoiTuong: number;
+  soDaGiamSat: number;
   ghiChu?: string | null;
 }
 
@@ -47,7 +47,6 @@ export class GiamSatNocApi {
     if (query.donViId != null) {
       params = params.set('donViId', String(query.donViId));
     }
-
     return firstValueFrom(
       this.httpClient.get<ApiResponse<GiamSatNocDto[]>>(
         `${API_BASE_URL}/giam-sat-noc`,

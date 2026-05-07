@@ -8,7 +8,7 @@ public sealed class GiamSatNoc : AuditableSoftDeleteEntityBase
     public string LopGiamSat { get; set; } = null!;
     public bool CoNoc { get; set; }
     public string? ThucTrang { get; set; }
-    public int? NamThanhLap { get; set; }
-    public int? SoNhanSu { get; set; }
+    public int TongSoDoiTuong { get; set; }
+    public int SoDaGiamSat { get; set; }
     public string? GhiChu { get; set; }
 }

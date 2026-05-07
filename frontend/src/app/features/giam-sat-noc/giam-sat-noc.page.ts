@@ -1,21 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
-import {
-  FormsModule,
-  ReactiveFormsModule,
-  FormBuilder,
-  Validators,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
+import { AuthService } from '../../core/auth/auth.service';
 import { CodesApi, CodeValueDto } from '../codes/codes.api';
 import { NotificationService } from '../../core/ui/notification.service';
 import { FilterBarComponent } from '../../shared/ui/filter-bar.component';
-import { FormActionBarComponent } from '../../shared/ui/form-action-bar.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
 import { SectionCardComponent } from '../../shared/ui/section-card.component';
 import {
@@ -33,12 +28,12 @@ interface SelectOption {
 interface GiamSatNocRow {
   localId: string;
   id: number | null;
-  donViId: number;
   lopGiamSat: string;
+  lopGiamSatLabel: string;
   coNoc: boolean;
   thucTrang: string | null;
-  namThanhLap: number | null;
-  soNhanSu: number | null;
+  tongSoDoiTuong: number;
+  soDaGiamSat: number;
   ghiChu: string;
 }
 
@@ -48,25 +43,21 @@ interface GiamSatNocRow {
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule,
     SectionCardComponent,
     FilterBarComponent,
-    FormActionBarComponent,
     LoadingOverlayComponent,
     DropdownModule,
-    CheckboxModule,
     InputNumberModule,
+    InputSwitchModule,
     InputTextModule,
     ButtonModule,
-    TableModule,
+    TooltipModule,
   ],
   templateUrl: './giam-sat-noc.page.html',
   styleUrl: './giam-sat-noc.page.scss',
 })
 export class GiamSatNocPage {
-  readonly filterForm = this.formBuilder.group({
-    donViId: [2002, [Validators.required]],
-  });
+  readonly donViId = computed(() => this.authService.profile()?.donViId ?? 0);
 
   readonly lopGiamSatValues = signal<CodeValueDto[]>([]);
   readonly thucTrangValues = signal<CodeValueDto[]>([]);
@@ -74,12 +65,7 @@ export class GiamSatNocPage {
   readonly loading = signal(false);
   readonly saving = signal(false);
 
-  readonly lopGiamSatOptions = computed<SelectOption[]>(() =>
-    this.lopGiamSatValues().map((item) => ({
-      label: item.name,
-      value: item.value,
-    })),
-  );
+  readonly coNoc = computed(() => this.rows()[0]?.coNoc ?? false);
 
   readonly thucTrangOptions = computed<SelectOption[]>(() =>
     this.thucTrangValues().map((item) => ({
@@ -88,8 +74,20 @@ export class GiamSatNocPage {
     })),
   );
 
+  readonly hasValidationError = computed(() =>
+    this.rows().some((r) => r.soDaGiamSat > r.tongSoDoiTuong),
+  );
+
+  readonly totalTongSoDoiTuong = computed(() =>
+    this.rows().reduce((sum, r) => sum + r.tongSoDoiTuong, 0),
+  );
+
+  readonly totalSoDaGiamSat = computed(() =>
+    this.rows().reduce((sum, r) => sum + r.soDaGiamSat, 0),
+  );
+
   constructor(
-    private readonly formBuilder: FormBuilder,
+    private readonly authService: AuthService,
     private readonly giamSatNocApi: GiamSatNocApi,
     private readonly codesApi: CodesApi,
     private readonly notificationService: NotificationService,
@@ -104,7 +102,6 @@ export class GiamSatNocPage {
         this.codesApi.getByCode('LOP_GIAM_SAT'),
         this.codesApi.getByCode('THUC_TRANG_GIAM_SAT'),
       ]);
-
       this.lopGiamSatValues.set(lopGiamSatCode.values);
       this.thucTrangValues.set(thucTrangCode.values);
       await this.load();
@@ -114,102 +111,77 @@ export class GiamSatNocPage {
   }
 
   async load(): Promise<void> {
-    if (this.filterForm.invalid) {
-      this.filterForm.markAllAsTouched();
-      return;
-    }
-
-    const donViId = Number(this.filterForm.controls.donViId.value ?? 0);
-
+    const donViId = this.donViId();
+    if (!donViId) return;
     this.loading.set(true);
     try {
       const items = await this.giamSatNocApi.getAll({ donViId });
-      this.rows.set(this.buildRows(donViId, items));
+      this.rows.set(this.buildRows(items));
     } finally {
       this.loading.set(false);
     }
   }
 
   async save(): Promise<void> {
-    if (this.filterForm.invalid || this.saving()) {
-      this.filterForm.markAllAsTouched();
+    if (this.saving()) return;
+    const donViId = this.donViId();
+    if (!donViId) {
+      this.notificationService.show('error', 'Không xác định được đơn vị hiện tại.');
       return;
     }
-
-    const donViId = Number(this.filterForm.controls.donViId.value ?? 0);
     const payload: SaveGiamSatNocMatrixRequest = {
       donViId,
       items: this.rows().map((row) => this.toRequest(row, donViId)),
     };
-
     this.saving.set(true);
     try {
       const savedItems = await this.giamSatNocApi.saveMatrix(payload);
-      this.rows.set(this.buildRows(donViId, savedItems));
-      this.notificationService.show(
-        'success',
-        'Luu ma tran giam sat NOC thanh cong.',
-      );
+      this.rows.set(this.buildRows(savedItems));
+      this.notificationService.show('success', 'Lưu ma trận giám sát NOC thành công.');
     } finally {
       this.saving.set(false);
     }
   }
 
   onCoNocChange(checked: boolean): void {
-    this.rows.update((items) =>
-      items.map((item) => ({ ...item, coNoc: checked })),
-    );
+    this.rows.update((items) => items.map((item) => ({ ...item, coNoc: checked })));
   }
 
-  resolveLopGiamSatLabel(value: string): string {
-    return (
-      this.lopGiamSatOptions().find((item) => item.value === value)?.label ??
-      value
-    );
+  hasRowError(row: GiamSatNocRow): boolean {
+    return row.soDaGiamSat > row.tongSoDoiTuong;
   }
 
-  trackByRow(index: number, row: GiamSatNocRow): string {
-    return row.localId || `${index}`;
+  trackByRow(_: number, row: GiamSatNocRow): string {
+    return row.localId;
   }
 
-  private buildRows(donViId: number, items: GiamSatNocDto[]): GiamSatNocRow[] {
+  private buildRows(items: GiamSatNocDto[]): GiamSatNocRow[] {
     const coNoc = items[0]?.coNoc ?? false;
-
-    return this.lopGiamSatValues().map((lopGiamSat) => {
-      const matched = items.find(
-        (item) => item.lopGiamSat === lopGiamSat.value,
-      );
+    return this.lopGiamSatValues().map((lop) => {
+      const matched = items.find((item) => item.lopGiamSat === lop.value);
       return {
-        localId: lopGiamSat.value,
+        localId: lop.value,
         id: matched?.id ?? null,
-        donViId,
-        lopGiamSat: lopGiamSat.value,
+        lopGiamSat: lop.value,
+        lopGiamSatLabel: lop.name,
         coNoc,
         thucTrang: matched?.thucTrang ?? null,
-        namThanhLap: matched?.namThanhLap ?? null,
-        soNhanSu: matched?.soNhanSu ?? null,
+        tongSoDoiTuong: matched?.tongSoDoiTuong ?? 0,
+        soDaGiamSat: matched?.soDaGiamSat ?? 0,
         ghiChu: matched?.ghiChu ?? '',
       };
     });
   }
 
-  private toRequest(
-    row: GiamSatNocRow,
-    donViId: number,
-  ): UpsertGiamSatNocRequest {
+  private toRequest(row: GiamSatNocRow, donViId: number): UpsertGiamSatNocRequest {
     return {
       donViId,
       lopGiamSat: row.lopGiamSat,
       coNoc: row.coNoc,
       thucTrang: row.thucTrang,
-      namThanhLap: row.namThanhLap,
-      soNhanSu: row.soNhanSu,
-      ghiChu: this.normalizeText(row.ghiChu),
+      tongSoDoiTuong: row.tongSoDoiTuong,
+      soDaGiamSat: row.soDaGiamSat,
+      ghiChu: row.ghiChu.trim() || null,
     };
-  }
-
-  private normalizeText(value: string | null | undefined): string | null {
-    const normalized = value?.trim();
-    return normalized ? normalized : null;
   }
 }

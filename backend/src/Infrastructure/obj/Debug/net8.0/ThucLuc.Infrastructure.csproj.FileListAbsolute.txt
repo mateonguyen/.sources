@@ -21,3 +21,4 @@ D:\Projects\ThucLuc_V2\.sources\backend\src\Infrastructure\obj\Debug\net8.0\Thuc
 D:\Projects\ThucLuc_V2\.sources\backend\src\Infrastructure\obj\Debug\net8.0\refint\ThucLuc.Infrastructure.dll
 D:\Projects\ThucLuc_V2\.sources\backend\src\Infrastructure\obj\Debug\net8.0\ThucLuc.Infrastructure.pdb
 D:\Projects\ThucLuc_V2\.sources\backend\src\Infrastructure\obj\Debug\net8.0\ref\ThucLuc.Infrastructure.dll
+D:\Projects\ThucLuc_V2\.sources\backend\src\Infrastructure\obj\Debug\net8.0\ThucLuc.Infrastructure.sourcelink.json

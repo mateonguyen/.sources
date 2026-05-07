@@ -1,21 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
-import {
-  FormBuilder,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
-import { CodesApi, CodeValueDto } from '../codes/codes.api';
+import { DropdownModule } from 'primeng/dropdown';
+import { AuthService } from '../../core/auth/auth.service';
 import { NotificationService } from '../../core/ui/notification.service';
-import { FilterBarComponent } from '../../shared/ui/filter-bar.component';
-import { FormActionBarComponent } from '../../shared/ui/form-action-bar.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
 import { SectionCardComponent } from '../../shared/ui/section-card.component';
+import { CodesApi, CodeValueDto } from '../codes/codes.api';
 import {
   GiaiPhapAtttApi,
   GiaiPhapAtttDto,
@@ -23,29 +15,48 @@ import {
   UpsertGiaiPhapAtttRequest,
 } from './giai-phap-attt.api';
 
-interface GiaiPhapOption {
-  label: string;
-  value: string;
-}
+type MetricField =
+  | 'mayTinhBcanet'
+  | 'mayTinhInternet'
+  | 'mayTinhLocal'
+  | 'mayChuBcanet'
+  | 'mayChuInternet'
+  | 'mayChuLocal';
+
+type MetricPart = 'Sl' | 'Ts';
+
+type NumericField =
+  | 'mayTinhBcanetSl'
+  | 'mayTinhBcanetTs'
+  | 'mayTinhInternetSl'
+  | 'mayTinhInternetTs'
+  | 'mayTinhLocalSl'
+  | 'mayTinhLocalTs'
+  | 'mayChuBcanetSl'
+  | 'mayChuBcanetTs'
+  | 'mayChuInternetSl'
+  | 'mayChuInternetTs'
+  | 'mayChuLocalSl'
+  | 'mayChuLocalTs';
 
 interface GiaiPhapAtttRow {
   localId: string;
   id: number | null;
-  donViId: number;
   tenGiaiPhap: string;
-  mayTinhBcanetSl: number | null;
-  mayTinhBcanetTs: number | null;
-  mayTinhInternetSl: number | null;
-  mayTinhInternetTs: number | null;
-  mayTinhLocalSl: number | null;
-  mayTinhLocalTs: number | null;
-  mayChuBcanetSl: number | null;
-  mayChuBcanetTs: number | null;
-  mayChuInternetSl: number | null;
-  mayChuInternetTs: number | null;
-  mayChuLocalSl: number | null;
-  mayChuLocalTs: number | null;
+  mayTinhBcanetSl: number;
+  mayTinhBcanetTs: number;
+  mayTinhInternetSl: number;
+  mayTinhInternetTs: number;
+  mayTinhLocalSl: number;
+  mayTinhLocalTs: number;
+  mayChuBcanetSl: number;
+  mayChuBcanetTs: number;
+  mayChuInternetSl: number;
+  mayChuInternetTs: number;
+  mayChuLocalSl: number;
+  mayChuLocalTs: number;
   ghiChu: string;
+  dirty?: boolean;
 }
 
 @Component({
@@ -54,38 +65,69 @@ interface GiaiPhapAtttRow {
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule,
     SectionCardComponent,
-    FilterBarComponent,
-    FormActionBarComponent,
     LoadingOverlayComponent,
-    InputNumberModule,
-    InputTextModule,
     ButtonModule,
-    TableModule,
+    DropdownModule,
   ],
   templateUrl: './giai-phap-attt.page.html',
   styleUrl: './giai-phap-attt.page.scss',
 })
 export class GiaiPhapAtttPage {
-  readonly filterForm = this.formBuilder.group({
-    donViId: [2002, [Validators.required]],
-  });
-
+  readonly donViId = computed(() => this.authService.profile()?.donViId ?? 0);
   readonly giaiPhapValues = signal<CodeValueDto[]>([]);
   readonly rows = signal<GiaiPhapAtttRow[]>([]);
+  readonly selectedGiaiPhapToAdd = signal<string | null>(null);
   readonly loading = signal(false);
   readonly saving = signal(false);
+  readonly matrixDirty = signal(false);
+  private rowSeed = 0;
 
-  readonly giaiPhapOptions = computed<GiaiPhapOption[]>(() =>
-    this.giaiPhapValues().map((item) => ({
-      label: item.name,
-      value: item.value,
-    })),
+  readonly metricGroups: ReadonlyArray<{
+    group: 'MÁY TÍNH' | 'MÁY CHỦ';
+    tone: 'computer' | 'server';
+    items: ReadonlyArray<{ label: string; field: MetricField }>;
+  }> = [
+    {
+      group: 'MÁY TÍNH',
+      tone: 'computer',
+      items: [
+        { label: 'BCANet', field: 'mayTinhBcanet' },
+        { label: 'Internet', field: 'mayTinhInternet' },
+        { label: 'Local/Độc lập', field: 'mayTinhLocal' },
+      ],
+    },
+    {
+      group: 'MÁY CHỦ',
+      tone: 'server',
+      items: [
+        { label: 'BCANet', field: 'mayChuBcanet' },
+        { label: 'Internet', field: 'mayChuInternet' },
+        { label: 'Local', field: 'mayChuLocal' },
+      ],
+    },
+  ];
+
+  get hasDirtyRows(): boolean {
+    return this.matrixDirty() || this.rows().some((r) => !!r.dirty);
+  }
+
+  readonly availableGiaiPhapOptions = computed(() => {
+    const used = new Set(this.rows().map((row) => row.tenGiaiPhap));
+    return this.giaiPhapValues()
+      .filter((item) => !used.has(item.value))
+      .map((item) => ({
+        label: item.name,
+        value: item.value,
+      }));
+  });
+
+  readonly hasAvailableGiaiPhapToAdd = computed(
+    () => this.availableGiaiPhapOptions().length > 0,
   );
 
   constructor(
-    private readonly formBuilder: FormBuilder,
+    private readonly authService: AuthService,
     private readonly giaiPhapAtttApi: GiaiPhapAtttApi,
     private readonly codesApi: CodesApi,
     private readonly notificationService: NotificationService,
@@ -105,93 +147,330 @@ export class GiaiPhapAtttPage {
   }
 
   async load(): Promise<void> {
-    if (this.filterForm.invalid) {
-      this.filterForm.markAllAsTouched();
-      return;
-    }
+    const donViId = this.donViId();
+    if (!donViId) return;
 
-    const donViId = Number(this.filterForm.controls.donViId.value ?? 0);
     this.loading.set(true);
     try {
       const items = await this.giaiPhapAtttApi.getAll({ donViId });
-      this.rows.set(this.buildRows(donViId, items));
+      this.rows.set(this.buildRows(items));
+      this.matrixDirty.set(false);
+      this.selectedGiaiPhapToAdd.set(null);
     } finally {
       this.loading.set(false);
     }
   }
 
   async save(): Promise<void> {
-    if (this.filterForm.invalid || this.saving()) {
-      this.filterForm.markAllAsTouched();
+    if (this.saving() || !this.hasDirtyRows) return;
+
+    const donViId = this.donViId();
+    if (!donViId) {
+      this.notificationService.show(
+        'error',
+        'Không xác định được đơn vị hiện tại.',
+      );
       return;
     }
 
-    const donViId = Number(this.filterForm.controls.donViId.value ?? 0);
+    const rows = this.rows();
+    const missingName = rows.find((row) => !row.tenGiaiPhap.trim());
+    if (missingName) {
+      this.notificationService.show(
+        'warning',
+        'Tên giải pháp không được để trống.',
+      );
+      return;
+    }
+
+    const duplicate = this.findDuplicateTenGiaiPhap(
+      rows.map((row) => row.tenGiaiPhap),
+    );
+    if (duplicate) {
+      this.notificationService.show(
+        'warning',
+        'Danh sách có giải pháp bị trùng. Vui lòng chọn lại.',
+      );
+      return;
+    }
+
     const payload: SaveGiaiPhapAtttMatrixRequest = {
       donViId,
-      items: this.rows().map((row) => this.toRequest(row, donViId)),
+      items: rows.map((row) => this.toRequest(row, donViId)),
     };
 
     this.saving.set(true);
     try {
       const savedItems = await this.giaiPhapAtttApi.saveMatrix(payload);
-      this.rows.set(this.buildRows(donViId, savedItems));
+      this.rows.set(this.buildRows(savedItems));
+      this.matrixDirty.set(false);
+      this.selectedGiaiPhapToAdd.set(null);
       this.notificationService.show(
         'success',
-        'Luu ma tran giai phap ATTT thanh cong.',
+        'Lưu ma trận giải pháp ATTT thành công.',
       );
     } finally {
       this.saving.set(false);
     }
   }
 
-  trackByRow(index: number, row: GiaiPhapAtttRow): string {
-    return row.localId || `${index}`;
-  }
-
-  resolveGiaiPhapLabel(value: string): string {
-    return (
-      this.giaiPhapOptions().find((item) => item.value === value)?.label ??
-      value
+  getTenGiaiPhapOptions(row: GiaiPhapAtttRow): Array<{
+    label: string;
+    value: string;
+    disabled?: boolean;
+  }> {
+    const usedByOtherRows = new Set(
+      this.rows()
+        .filter((item) => item.localId !== row.localId)
+        .map((item) => item.tenGiaiPhap),
     );
-  }
 
-  formatPercent(numerator: number | null, denominator: number | null): string {
-    const soLuong = numerator ?? 0;
-    const tongSo = denominator ?? 0;
-    if (tongSo <= 0) {
-      return '-';
+    const options = this.giaiPhapValues().map((item) => ({
+      label: item.name,
+      value: item.value,
+      disabled: usedByOtherRows.has(item.value),
+    }));
+
+    if (
+      row.tenGiaiPhap &&
+      !options.some((opt) => opt.value === row.tenGiaiPhap)
+    ) {
+      options.unshift({
+        label: row.tenGiaiPhap,
+        value: row.tenGiaiPhap,
+        disabled: false,
+      });
     }
 
-    return `${((soLuong / tongSo) * 100).toFixed(1)}%`;
+    return options;
   }
 
-  private buildRows(
-    donViId: number,
-    items: GiaiPhapAtttDto[],
-  ): GiaiPhapAtttRow[] {
-    return this.giaiPhapValues().map((item) => {
-      const existing = items.find((entry) => entry.tenGiaiPhap === item.value);
-      return {
-        localId: item.value,
-        id: existing?.id ?? null,
-        donViId,
-        tenGiaiPhap: item.value,
-        mayTinhBcanetSl: existing?.mayTinhBcanetSl ?? 0,
-        mayTinhBcanetTs: existing?.mayTinhBcanetTs ?? 0,
-        mayTinhInternetSl: existing?.mayTinhInternetSl ?? 0,
-        mayTinhInternetTs: existing?.mayTinhInternetTs ?? 0,
-        mayTinhLocalSl: existing?.mayTinhLocalSl ?? 0,
-        mayTinhLocalTs: existing?.mayTinhLocalTs ?? 0,
-        mayChuBcanetSl: existing?.mayChuBcanetSl ?? 0,
-        mayChuBcanetTs: existing?.mayChuBcanetTs ?? 0,
-        mayChuInternetSl: existing?.mayChuInternetSl ?? 0,
-        mayChuInternetTs: existing?.mayChuInternetTs ?? 0,
-        mayChuLocalSl: existing?.mayChuLocalSl ?? 0,
-        mayChuLocalTs: existing?.mayChuLocalTs ?? 0,
-        ghiChu: existing?.ghiChu ?? '',
-      };
-    });
+  onSelectedGiaiPhapToAddChange(value: string | null): void {
+    this.selectedGiaiPhapToAdd.set(value ?? null);
+  }
+
+  addRowFromCatalog(): void {
+    const selected = this.selectedGiaiPhapToAdd();
+    if (!selected) {
+      this.notificationService.show('info', 'Vui lòng chọn giải pháp để thêm.');
+      return;
+    }
+
+    const exists = this.rows().some((row) => row.tenGiaiPhap === selected);
+    if (exists) {
+      this.notificationService.show(
+        'warning',
+        'Giải pháp này đã tồn tại trong bảng.',
+      );
+      return;
+    }
+
+    const donViId = this.donViId();
+    if (!donViId) return;
+
+    this.rows.set([
+      ...this.rows(),
+      this.createEmptyRow(selected, null, `gpattt-new-${this.rowSeed++}`),
+    ]);
+    this.selectedGiaiPhapToAdd.set(null);
+    this.matrixDirty.set(true);
+  }
+
+  addFirstAvailableRow(): void {
+    const first = this.availableGiaiPhapOptions()[0]?.value;
+    if (!first) {
+      this.notificationService.show('info', 'Không còn giải pháp nào để thêm.');
+      return;
+    }
+
+    this.selectedGiaiPhapToAdd.set(first);
+    this.addRowFromCatalog();
+  }
+
+  removeRow(row: GiaiPhapAtttRow): void {
+    this.rows.set(this.rows().filter((item) => item.localId !== row.localId));
+    this.matrixDirty.set(true);
+  }
+
+  onTenGiaiPhapChange(row: GiaiPhapAtttRow, nextValue: string | null): void {
+    const value = (nextValue ?? '').trim();
+    if (!value || value === row.tenGiaiPhap) return;
+
+    const duplicated = this.rows().some(
+      (item) => item.localId !== row.localId && item.tenGiaiPhap === value,
+    );
+    if (duplicated) {
+      this.notificationService.show('warning', 'Giải pháp đã tồn tại.');
+      return;
+    }
+
+    this.rows.set(
+      this.rows().map((item) =>
+        item.localId === row.localId
+          ? {
+              ...item,
+              tenGiaiPhap: value,
+              dirty: true,
+            }
+          : item,
+      ),
+    );
+    this.matrixDirty.set(true);
+  }
+
+  trackByRow(_: number, row: GiaiPhapAtttRow): string {
+    return row.localId;
+  }
+
+  getPercent(row: GiaiPhapAtttRow, field: MetricField): string {
+    const sl = this.getMetricValue(row, field, 'Sl');
+    const ts = this.getMetricValue(row, field, 'Ts');
+    if (ts <= 0) return '0%';
+    return `${Math.round((sl / ts) * 100)}%`;
+  }
+
+  getPercentClass(row: GiaiPhapAtttRow, field: MetricField): string {
+    const sl = this.getMetricValue(row, field, 'Sl');
+    const ts = this.getMetricValue(row, field, 'Ts');
+    if (ts <= 0) return 'pct--zero';
+    const pct = (sl / ts) * 100;
+    if (pct >= 80) return 'pct--high';
+    if (pct >= 50) return 'pct--mid';
+    return 'pct--low';
+  }
+
+  onInputEnter(event: Event, rowIdx: number, colIdx: number): void {
+    event.preventDefault();
+    const totalCols = 12;
+    const nextColIdx = colIdx + 1 >= totalCols ? 0 : colIdx + 1;
+    const nextRowIdx = colIdx + 1 >= totalCols ? rowIdx + 1 : rowIdx;
+    const next = document.getElementById(
+      `gp-${nextRowIdx}-${nextColIdx}`,
+    ) as HTMLInputElement | null;
+    if (next) {
+      next.focus();
+      next.select();
+    }
+  }
+
+  onMetricChange(
+    row: GiaiPhapAtttRow,
+    field: MetricField,
+    part: MetricPart,
+    value: string,
+  ): void {
+    const numericField = `${field}${part}` as NumericField;
+    const nextValue = this.sanitizeNumber(value);
+
+    this.rows.set(
+      this.rows().map((item) =>
+        item.localId === row.localId
+          ? {
+              ...item,
+              [numericField]: nextValue,
+              dirty: true,
+            }
+          : item,
+      ),
+    );
+    this.matrixDirty.set(true);
+  }
+
+  onNoteChange(row: GiaiPhapAtttRow, value: string): void {
+    this.rows.set(
+      this.rows().map((item) =>
+        item.localId === row.localId
+          ? {
+              ...item,
+              ghiChu: value,
+              dirty: true,
+            }
+          : item,
+      ),
+    );
+    this.matrixDirty.set(true);
+  }
+
+  onNoteInput(row: GiaiPhapAtttRow, value: string, event: Event): void {
+    this.onNoteChange(row, value);
+    const target = event.target as HTMLTextAreaElement | null;
+    if (!target) return;
+
+    target.style.height = 'auto';
+    target.style.height = `${Math.min(target.scrollHeight, 88)}px`;
+  }
+
+  private getMetricValue(
+    row: GiaiPhapAtttRow,
+    field: MetricField,
+    part: MetricPart,
+  ): number {
+    const key = `${field}${part}` as NumericField;
+    return row[key] ?? 0;
+  }
+
+  private sanitizeNumber(value: string): number {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed < 0) return 0;
+    return Math.trunc(parsed);
+  }
+
+  private buildRows(items: GiaiPhapAtttDto[]): GiaiPhapAtttRow[] {
+    const order = new Map(
+      this.giaiPhapValues().map((item, idx) => [item.value.toUpperCase(), idx]),
+    );
+
+    return [...items]
+      .sort((a, b) => {
+        const ai =
+          order.get(a.tenGiaiPhap.toUpperCase()) ?? Number.MAX_SAFE_INTEGER;
+        const bi =
+          order.get(b.tenGiaiPhap.toUpperCase()) ?? Number.MAX_SAFE_INTEGER;
+        if (ai === bi) {
+          return a.tenGiaiPhap.localeCompare(b.tenGiaiPhap);
+        }
+        return ai - bi;
+      })
+      .map((item) =>
+        this.createEmptyRow(item.tenGiaiPhap, item, `gpattt-${item.id}`),
+      );
+  }
+
+  private createEmptyRow(
+    tenGiaiPhap: string,
+    source: GiaiPhapAtttDto | null,
+    localId: string,
+  ): GiaiPhapAtttRow {
+    return {
+      localId,
+      id: source?.id ?? null,
+      tenGiaiPhap,
+      mayTinhBcanetSl: source?.mayTinhBcanetSl ?? 0,
+      mayTinhBcanetTs: source?.mayTinhBcanetTs ?? 0,
+      mayTinhInternetSl: source?.mayTinhInternetSl ?? 0,
+      mayTinhInternetTs: source?.mayTinhInternetTs ?? 0,
+      mayTinhLocalSl: source?.mayTinhLocalSl ?? 0,
+      mayTinhLocalTs: source?.mayTinhLocalTs ?? 0,
+      mayChuBcanetSl: source?.mayChuBcanetSl ?? 0,
+      mayChuBcanetTs: source?.mayChuBcanetTs ?? 0,
+      mayChuInternetSl: source?.mayChuInternetSl ?? 0,
+      mayChuInternetTs: source?.mayChuInternetTs ?? 0,
+      mayChuLocalSl: source?.mayChuLocalSl ?? 0,
+      mayChuLocalTs: source?.mayChuLocalTs ?? 0,
+      ghiChu: source?.ghiChu ?? '',
+      dirty: source ? false : true,
+    };
+  }
+
+  private findDuplicateTenGiaiPhap(values: string[]): string | null {
+    const seen = new Set<string>();
+    for (const value of values) {
+      const key = value.trim().toUpperCase();
+      if (!key) continue;
+      if (seen.has(key)) return value;
+      seen.add(key);
+    }
+    return null;
   }
 
   private toRequest(
@@ -201,18 +480,18 @@ export class GiaiPhapAtttPage {
     return {
       donViId,
       tenGiaiPhap: row.tenGiaiPhap,
-      mayTinhBcanetSl: row.mayTinhBcanetSl ?? 0,
-      mayTinhBcanetTs: row.mayTinhBcanetTs ?? 0,
-      mayTinhInternetSl: row.mayTinhInternetSl ?? 0,
-      mayTinhInternetTs: row.mayTinhInternetTs ?? 0,
-      mayTinhLocalSl: row.mayTinhLocalSl ?? 0,
-      mayTinhLocalTs: row.mayTinhLocalTs ?? 0,
-      mayChuBcanetSl: row.mayChuBcanetSl ?? 0,
-      mayChuBcanetTs: row.mayChuBcanetTs ?? 0,
-      mayChuInternetSl: row.mayChuInternetSl ?? 0,
-      mayChuInternetTs: row.mayChuInternetTs ?? 0,
-      mayChuLocalSl: row.mayChuLocalSl ?? 0,
-      mayChuLocalTs: row.mayChuLocalTs ?? 0,
+      mayTinhBcanetSl: row.mayTinhBcanetSl,
+      mayTinhBcanetTs: row.mayTinhBcanetTs,
+      mayTinhInternetSl: row.mayTinhInternetSl,
+      mayTinhInternetTs: row.mayTinhInternetTs,
+      mayTinhLocalSl: row.mayTinhLocalSl,
+      mayTinhLocalTs: row.mayTinhLocalTs,
+      mayChuBcanetSl: row.mayChuBcanetSl,
+      mayChuBcanetTs: row.mayChuBcanetTs,
+      mayChuInternetSl: row.mayChuInternetSl,
+      mayChuInternetTs: row.mayChuInternetTs,
+      mayChuLocalSl: row.mayChuLocalSl,
+      mayChuLocalTs: row.mayChuLocalTs,
       ghiChu: row.ghiChu.trim() || null,
     };
   }

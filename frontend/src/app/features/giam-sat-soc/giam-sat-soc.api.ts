@@ -15,10 +15,13 @@ export interface GiamSatSocDto {
   lopGiamSat: string;
   coHeThong: boolean;
   thucTrang?: string | null;
-  namThanhLap?: number | null;
-  soNhanSu?: number | null;
-  congCuSuDung?: string | null;
-  soCanhBaoThang?: number | null;
+  tongSoDoiTuong: number;
+  soGiamSatMotPhan: number;
+  soGiamSatCoBan: number;
+  soGiamSatDayDu: number;
+  soSuCo: number;
+  soSuCoDaKhacPhuc: number;
+  lucLuongUngCuu?: string | null;
   ghiChu?: string | null;
 }
 
@@ -32,10 +35,13 @@ export interface UpsertGiamSatSocRequest {
   lopGiamSat: string;
   coHeThong: boolean;
   thucTrang?: string | null;
-  namThanhLap?: number | null;
-  soNhanSu?: number | null;
-  congCuSuDung?: string | null;
-  soCanhBaoThang?: number | null;
+  tongSoDoiTuong: number;
+  soGiamSatMotPhan: number;
+  soGiamSatCoBan: number;
+  soGiamSatDayDu: number;
+  soSuCo: number;
+  soSuCoDaKhacPhuc: number;
+  lucLuongUngCuu?: string | null;
   ghiChu?: string | null;
 }
 
@@ -53,7 +59,6 @@ export class GiamSatSocApi {
     if (query.donViId != null) {
       params = params.set('donViId', String(query.donViId));
     }
-
     return firstValueFrom(
       this.httpClient.get<ApiResponse<GiamSatSocDto[]>>(
         `${API_BASE_URL}/giam-sat-soc`,

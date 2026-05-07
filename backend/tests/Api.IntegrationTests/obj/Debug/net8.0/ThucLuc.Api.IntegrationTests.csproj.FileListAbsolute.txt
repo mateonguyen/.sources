@@ -482,3 +482,4 @@ D:\Projects\ThucLuc_V2\.sources\backend\tests\Api.IntegrationTests\obj\Debug\net
 D:\Projects\ThucLuc_V2\.sources\backend\tests\Api.IntegrationTests\obj\Debug\net8.0\ThucLuc.Api.IntegrationTests.pdb
 D:\Projects\ThucLuc_V2\.sources\backend\tests\Api.IntegrationTests\obj\Debug\net8.0\ThucLuc.Api.IntegrationTests.genruntimeconfig.cache
 D:\Projects\ThucLuc_V2\.sources\backend\tests\Api.IntegrationTests\obj\Debug\net8.0\ref\ThucLuc.Api.IntegrationTests.dll
+D:\Projects\ThucLuc_V2\.sources\backend\tests\Api.IntegrationTests\obj\Debug\net8.0\ThucLuc.Api.IntegrationTests.sourcelink.json

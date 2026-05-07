@@ -6,8 +6,6 @@ public sealed class HeThongThongTin : AuditableSoftDeleteEntityBase
 {
     public long DonViId { get; set; }
 
-    public string LoaiPhanMem { get; set; } = string.Empty;
-
     public string TenPhanMem { get; set; } = string.Empty;
 
     public string? DonViPhatTrien { get; set; }

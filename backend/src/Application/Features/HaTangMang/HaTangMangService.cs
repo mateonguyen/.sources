@@ -15,6 +15,8 @@ public interface IHaTangMangService
 
     Task<HaTangMangDto> UpsertAsync(long? id, UpsertHaTangMangRequest request, CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyCollection<HaTangMangDto>> SaveMatrixAsync(SaveHaTangMangMatrixRequest request, CancellationToken cancellationToken = default);
+
     Task DeleteAsync(long id, CancellationToken cancellationToken = default);
 }
 
@@ -36,7 +38,6 @@ public sealed class HaTangMangService : IHaTangMangService
         {
             Id = x.Id,
             DonViId = x.DonViId,
-            LoaiDvThongKe = x.LoaiDvThongKe,
             SoDonViTrucThuoc = x.SoDonViTrucThuoc,
             SoDaKetNoiBcanet = x.SoDaKetNoiBcanet,
             SoDuongTruyenVnpt = x.SoDuongTruyenVnpt,
@@ -50,7 +51,6 @@ public sealed class HaTangMangService : IHaTangMangService
         {
             Id = x.Id,
             DonViId = x.DonViId,
-            LoaiDvThongKe = x.LoaiDvThongKe,
             SoDonViTrucThuoc = x.SoDonViTrucThuoc,
             SoDaKetNoiBcanet = x.SoDaKetNoiBcanet,
             SoDuongTruyenVnpt = x.SoDuongTruyenVnpt,
@@ -76,7 +76,6 @@ public sealed class HaTangMangService : IHaTangMangService
         }
 
         entity.DonViId = request.DonViId;
-        entity.LoaiDvThongKe = request.LoaiDvThongKe.Trim().ToUpperInvariant();
         entity.SoDonViTrucThuoc = request.SoDonViTrucThuoc;
         entity.SoDaKetNoiBcanet = request.SoDaKetNoiBcanet;
         entity.SoDuongTruyenVnpt = request.SoDuongTruyenVnpt;
@@ -86,6 +85,32 @@ public sealed class HaTangMangService : IHaTangMangService
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return await GetByIdAsync(entity.Id, cancellationToken) ?? throw new InvalidOperationException();
+    }
+
+    public async Task<IReadOnlyCollection<HaTangMangDto>> SaveMatrixAsync(
+        SaveHaTangMangMatrixRequest request, CancellationToken cancellationToken = default)
+    {
+        await EnsureValidScopeAsync(request.DonViId, cancellationToken);
+        var existing = await _dbContext.HaTangMangs
+            .IgnoreQueryFilters()
+            .Where(x => x.DonViId == request.DonViId)
+            .ToListAsync(cancellationToken);
+        foreach (var e in existing) e.DeletedAt = _dateTimeProvider.Now;
+        foreach (var req in (request.Items ?? []))
+        {
+            var entity = existing.FirstOrDefault() ?? new HaTangMangEntity();
+            if (entity.Id == 0) await _dbContext.HaTangMangs.AddAsync(entity, cancellationToken);
+            entity.DonViId = request.DonViId;
+            entity.SoDonViTrucThuoc = req.SoDonViTrucThuoc;
+            entity.SoDaKetNoiBcanet = req.SoDaKetNoiBcanet;
+            entity.SoDuongTruyenVnpt = req.SoDuongTruyenVnpt;
+            entity.SoDuongTruyenKhac = req.SoDuongTruyenKhac;
+            entity.SoKetNoiInternet = req.SoKetNoiInternet;
+            entity.GhiChu = string.IsNullOrWhiteSpace(req.GhiChu) ? null : req.GhiChu.Trim();
+            entity.DeletedAt = null;
+        }
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return await GetAllAsync(cancellationToken);
     }
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)

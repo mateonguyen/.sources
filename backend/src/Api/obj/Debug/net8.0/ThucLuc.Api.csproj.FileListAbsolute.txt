@@ -118,3 +118,4 @@ D:\Projects\ThucLuc_V2\.sources\backend\src\Api\obj\Debug\net8.0\refint\ThucLuc.
 D:\Projects\ThucLuc_V2\.sources\backend\src\Api\obj\Debug\net8.0\ThucLuc.Api.pdb
 D:\Projects\ThucLuc_V2\.sources\backend\src\Api\obj\Debug\net8.0\ThucLuc.Api.genruntimeconfig.cache
 D:\Projects\ThucLuc_V2\.sources\backend\src\Api\obj\Debug\net8.0\ref\ThucLuc.Api.dll
+D:\Projects\ThucLuc_V2\.sources\backend\src\api\obj\Debug\net8.0\ThucLuc.Api.sourcelink.json

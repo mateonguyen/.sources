@@ -1,156 +1,246 @@
-<app-section-card
-  title="Giam Sat SOC"
-  subtitle="Ma tran giam sat SOC theo loai mang va lop giam sat cho tung ky bao cao."
-  styleClass="giamsat-card"
->
-  <app-filter-bar class="mt-3">
-    <form class="scope-filter" [formGroup]="filterForm">
-      <p-inputNumber
-        inputId="socDonViId"
-        [useGrouping]="false"
-        formControlName="donViId"
-        placeholder="Don vi id"
-      ></p-inputNumber>
+<div class="grid gap-4">
 
-      <input
-        pInputText
-        type="text"
-        formControlName="kyBaoCaoCode"
-        placeholder="Ky bao cao code"
-      />
+  <!-- ─── Header + Toolbar ─── -->
+  <app-section-card
+    title="Giám Sát SOC"
+    subtitle="Ma trận giám sát SOC theo loại mạng và lớp giám sát. Nhập trực tiếp vào ô, nhấn Lưu để ghi dữ liệu."
+  >
+    <div class="relative mt-1">
+      <app-loading-overlay [active]="loading()" label="Đang tải dữ liệu..."></app-loading-overlay>
+    </div>
 
-      <button
-        pButton
-        type="button"
-        icon="pi pi-search"
-        class="p-button-info"
-        label="Tai du lieu"
-        (click)="load()"
-      ></button>
-    </form>
-  </app-filter-bar>
+    <app-filter-bar class="mt-3">
+      <div class="flex items-center gap-3 flex-wrap w-full">
+        <div class="flex items-center gap-1.5 text-sm text-[var(--app-text-muted)]">
+          <i class="pi pi-building text-xs"></i>
+          <span>Đơn vị ID: <strong class="text-[var(--app-text-strong)]">{{ donViId() }}</strong></span>
+        </div>
+        <div class="ml-auto flex gap-2">
+          <button
+            pButton
+            type="button"
+            icon="pi pi-refresh"
+            label="Tải lại"
+            severity="secondary"
+            [loading]="loading()"
+            (click)="load()"
+          ></button>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-save"
+            label="Lưu dữ liệu"
+            [loading]="saving()"
+            [disabled]="saving() || hasValidationError()"
+            (click)="save()"
+          ></button>
+        </div>
+      </div>
+    </app-filter-bar>
 
-  <div class="matrix-shell mt-3">
-    <app-loading-overlay
-      [active]="loading()"
-      label="Dang tai ma tran giam sat SOC..."
-    ></app-loading-overlay>
+    <div *ngIf="hasValidationError()" class="soc-validation-banner mt-3">
+      <i class="pi pi-exclamation-triangle"></i>
+      Có lỗi nhập liệu: tổng số đã giám sát vượt tổng đối tượng, hoặc số đã khắc phục vượt số sự cố. Vui lòng kiểm tra các dòng được đánh dấu đỏ.
+    </div>
+  </app-section-card>
 
-    <p class="matrix-hint">
-      Co he thong duoc dong bo cho tat ca cac lop trong cung mot loai mang.
-    </p>
+  <!-- ─── Card per loaiMang ─── -->
+  <app-section-card
+    *ngFor="let group of loaiMangGroups(); trackBy: trackByGroup"
+    [title]="group.label"
+    subtitle="Nhập số liệu giám sát theo từng lớp. Bật công tắc nếu đơn vị đã triển khai hệ thống SOC."
+  >
 
-    <div class="app-table-wrap app-table-wrap--spacious">
-      <p-table
-        [value]="rows()"
-        styleClass="p-datatable-sm app-admin-table giamsat-matrix-table"
-      >
-        <ng-template pTemplate="header">
+    <!-- CoHeThong toggle bar -->
+    <div class="soc-cohe-bar mt-2">
+      <div>
+        <span class="soc-cohe-label">Có hệ thống giám sát SOC</span>
+        <span class="soc-cohe-sub">Đánh dấu nếu đơn vị đã triển khai hệ thống giám sát cho loại mạng này</span>
+      </div>
+      <p-inputSwitch
+        [ngModel]="getCoHeThong(group.value)"
+        (ngModelChange)="onCoHeThongChange(group.value, $event)"
+      ></p-inputSwitch>
+    </div>
+
+    <!-- Matrix table -->
+    <div class="soc-table-wrap mt-4">
+      <table class="soc-matrix-table">
+        <colgroup>
+          <col style="min-width: 130px">
+          <col style="width: 130px">
+          <col style="width: 76px">
+          <col style="width: 84px">
+          <col style="width: 84px">
+          <col style="width: 84px">
+          <col style="width: 72px">
+          <col style="width: 84px">
+          <col style="min-width: 150px">
+          <col style="min-width: 140px">
+        </colgroup>
+        <thead>
           <tr>
-            <th>Loai mang</th>
-            <th>Lop giam sat</th>
-            <th>Co he thong</th>
-            <th>Thuc trang</th>
-            <th>Nam thanh lap</th>
-            <th>So nhan su</th>
-            <th>Cong cu su dung</th>
-            <th>So canh bao/thang</th>
-            <th>Ghi chu</th>
+            <th class="soc-th soc-th--left">Lớp giám sát</th>
+            <th class="soc-th">Thực trạng</th>
+            <th class="soc-th soc-th--num"
+              pTooltip="Tổng số đối tượng giám sát" tooltipPosition="top">
+              Tổng ĐT
+            </th>
+            <th class="soc-th soc-th--num"
+              pTooltip="Số đối tượng được giám sát một phần" tooltipPosition="top">
+              G.S. 1 phần
+            </th>
+            <th class="soc-th soc-th--num"
+              pTooltip="Số đối tượng được giám sát cơ bản" tooltipPosition="top">
+              G.S. cơ bản
+            </th>
+            <th class="soc-th soc-th--num"
+              pTooltip="Số đối tượng được giám sát đầy đủ" tooltipPosition="top">
+              G.S. đầy đủ
+            </th>
+            <th class="soc-th soc-th--num"
+              pTooltip="Số sự cố phát hiện" tooltipPosition="top">
+              Sự cố
+            </th>
+            <th class="soc-th soc-th--num"
+              pTooltip="Số sự cố đã được khắc phục" tooltipPosition="top">
+              Đã KP
+            </th>
+            <th class="soc-th soc-th--left">Lực lượng ứng cứu</th>
+            <th class="soc-th soc-th--left">Ghi chú</th>
           </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-row>
-          <tr>
-            <td>{{ resolveLoaiMangLabel(row.loaiMang) }}</td>
-            <td>{{ resolveLopGiamSatLabel(row.lopGiamSat) }}</td>
-            <td>
-              <p-checkbox
-                [binary]="true"
-                [ngModel]="row.coHeThong"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="onCoHeThongChange(row.loaiMang, $event)"
-              ></p-checkbox>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let row of group.rows; trackBy: trackByRow"
+            class="soc-row"
+            [class.soc-row--error]="hasRowError(row)"
+          >
+            <!-- Lớp giám sát -->
+            <td class="soc-td soc-td--lop">
+              {{ row.lopGiamSatLabel }}
+              <span
+                *ngIf="hasRowError(row)"
+                class="soc-error-badge"
+                [pTooltip]="hasGiamSatError(row) ? 'Tổng giám sát vượt tổng đối tượng' : 'Số đã KP vượt số sự cố'"
+                tooltipPosition="right"
+              >!</span>
             </td>
-            <td>
+
+            <!-- Thực trạng -->
+            <td class="soc-td soc-td--select">
               <p-dropdown
+                styleClass="soc-dropdown"
                 [options]="thucTrangOptions()"
                 optionLabel="label"
                 optionValue="value"
-                [ngModel]="row.thucTrang"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.thucTrang = $event"
-                placeholder="Thuc trang"
+                [(ngModel)]="row.thucTrang"
+                placeholder="Chọn"
                 appendTo="body"
+                [showClear]="true"
               ></p-dropdown>
             </td>
-            <td>
+
+            <!-- Tổng đối tượng -->
+            <td class="soc-td soc-td--num">
               <p-inputNumber
+                styleClass="soc-num-wrap"
+                inputStyleClass="soc-num-input"
+                [(ngModel)]="row.tongSoDoiTuong"
                 [useGrouping]="false"
-                [ngModel]="row.namThanhLap"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.namThanhLap = $event"
-                placeholder="Nam"
+                [min]="0"
               ></p-inputNumber>
             </td>
-            <td>
+
+            <!-- Giám sát 1 phần -->
+            <td class="soc-td soc-td--num" [class.soc-td--err]="hasGiamSatError(row)">
               <p-inputNumber
+                styleClass="soc-num-wrap"
+                inputStyleClass="soc-num-input"
+                [(ngModel)]="row.soGiamSatMotPhan"
                 [useGrouping]="false"
-                [ngModel]="row.soNhanSu"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.soNhanSu = $event"
-                placeholder="Nhan su"
+                [min]="0"
               ></p-inputNumber>
             </td>
-            <td>
+
+            <!-- Giám sát cơ bản -->
+            <td class="soc-td soc-td--num" [class.soc-td--err]="hasGiamSatError(row)">
+              <p-inputNumber
+                styleClass="soc-num-wrap"
+                inputStyleClass="soc-num-input"
+                [(ngModel)]="row.soGiamSatCoBan"
+                [useGrouping]="false"
+                [min]="0"
+              ></p-inputNumber>
+            </td>
+
+            <!-- Giám sát đầy đủ -->
+            <td class="soc-td soc-td--num" [class.soc-td--err]="hasGiamSatError(row)">
+              <p-inputNumber
+                styleClass="soc-num-wrap"
+                inputStyleClass="soc-num-input"
+                [(ngModel)]="row.soGiamSatDayDu"
+                [useGrouping]="false"
+                [min]="0"
+              ></p-inputNumber>
+            </td>
+
+            <!-- Sự cố -->
+            <td class="soc-td soc-td--num">
+              <p-inputNumber
+                styleClass="soc-num-wrap"
+                inputStyleClass="soc-num-input"
+                [(ngModel)]="row.soSuCo"
+                [useGrouping]="false"
+                [min]="0"
+              ></p-inputNumber>
+            </td>
+
+            <!-- Đã khắc phục -->
+            <td class="soc-td soc-td--num" [class.soc-td--err]="hasSuCoError(row)">
+              <p-inputNumber
+                styleClass="soc-num-wrap"
+                inputStyleClass="soc-num-input"
+                [(ngModel)]="row.soSuCoDaKhacPhuc"
+                [useGrouping]="false"
+                [min]="0"
+              ></p-inputNumber>
+            </td>
+
+            <!-- Lực lượng ứng cứu -->
+            <td class="soc-td soc-td--text">
               <input
                 pInputText
+                class="soc-text-input"
                 type="text"
-                [ngModel]="row.congCuSuDung"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.congCuSuDung = $event"
-                placeholder="Cong cu"
+                [(ngModel)]="row.lucLuongUngCuu"
+                placeholder="Mô tả lực lượng"
               />
             </td>
-            <td>
-              <p-inputNumber
-                [useGrouping]="false"
-                [ngModel]="row.soCanhBaoThang"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.soCanhBaoThang = $event"
-                placeholder="Canh bao"
-              ></p-inputNumber>
-            </td>
-            <td>
+
+            <!-- Ghi chú -->
+            <td class="soc-td soc-td--text">
               <input
                 pInputText
+                class="soc-text-input"
                 type="text"
-                [ngModel]="row.ghiChu"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="row.ghiChu = $event"
-                placeholder="Ghi chu"
+                [(ngModel)]="row.ghiChu"
+                placeholder="Ghi chú"
               />
             </td>
           </tr>
-        </ng-template>
-      </p-table>
+        </tbody>
+      </table>
     </div>
+  </app-section-card>
 
-    <app-form-action-bar class="mt-3">
-      <button
-        pButton
-        type="button"
-        label="Luu ma tran"
-        [loading]="saving()"
-        icon="pi pi-save"
-        (click)="save()"
-      ></button>
-      <button
-        pButton
-        type="button"
-        severity="secondary"
-        label="Tai lai"
-        icon="pi pi-refresh"
-        (click)="load()"
-      ></button>
-    </app-form-action-bar>
+  <!-- Empty state -->
+  <div
+    *ngIf="loaiMangGroups().length === 0 && !loading()"
+    class="text-center py-12 text-sm text-[var(--app-text-muted)]"
+  >
+    <i class="pi pi-inbox text-2xl mb-3 block opacity-40"></i>
+    Không có dữ liệu danh mục. Liên hệ quản trị viên để cấu hình.
   </div>
-</app-section-card>
+
+</div>

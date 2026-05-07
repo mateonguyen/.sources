@@ -146,8 +146,8 @@ public sealed class GiamSatNocService : IGiamSatNocService
                 LopGiamSat = item.LopGiamSat,
                 CoNoc = coNoc,
                 ThucTrang = item.ThucTrang,
-                NamThanhLap = item.NamThanhLap,
-                SoNhanSu = item.SoNhanSu,
+                TongSoDoiTuong = item.TongSoDoiTuong,
+                SoDaGiamSat = item.SoDaGiamSat,
                 GhiChu = item.GhiChu
             });
             entity.DeletedAt = null;
@@ -218,8 +218,8 @@ public sealed class GiamSatNocService : IGiamSatNocService
             LopGiamSat = x.LopGiamSat,
             CoNoc = x.CoNoc,
             ThucTrang = x.ThucTrang,
-            NamThanhLap = x.NamThanhLap,
-            SoNhanSu = x.SoNhanSu,
+            TongSoDoiTuong = x.TongSoDoiTuong,
+            SoDaGiamSat = x.SoDaGiamSat,
             GhiChu = x.GhiChu
         };
 
@@ -232,8 +232,8 @@ public sealed class GiamSatNocService : IGiamSatNocService
             LopGiamSat = x.LopGiamSat,
             CoNoc = x.CoNoc,
             ThucTrang = x.ThucTrang,
-            NamThanhLap = x.NamThanhLap,
-            SoNhanSu = x.SoNhanSu,
+            TongSoDoiTuong = x.TongSoDoiTuong,
+            SoDaGiamSat = x.SoDaGiamSat,
             GhiChu = x.GhiChu
         };
 
@@ -243,8 +243,8 @@ public sealed class GiamSatNocService : IGiamSatNocService
         entity.LopGiamSat = request.LopGiamSat;
         entity.CoNoc = request.CoNoc;
         entity.ThucTrang = request.ThucTrang;
-        entity.NamThanhLap = request.NamThanhLap;
-        entity.SoNhanSu = request.SoNhanSu;
+        entity.TongSoDoiTuong = request.TongSoDoiTuong;
+        entity.SoDaGiamSat = request.SoDaGiamSat;
         entity.GhiChu = request.GhiChu;
     }
 
@@ -263,8 +263,8 @@ public sealed class GiamSatNocService : IGiamSatNocService
             LopGiamSat = NormalizeRequiredCode(request.LopGiamSat, nameof(request.LopGiamSat)),
             CoNoc = request.CoNoc,
             ThucTrang = NormalizeCode(request.ThucTrang),
-            NamThanhLap = request.NamThanhLap,
-            SoNhanSu = request.SoNhanSu,
+            TongSoDoiTuong = request.TongSoDoiTuong,
+            SoDaGiamSat = request.SoDaGiamSat,
             GhiChu = NormalizeText(request.GhiChu)
         };
 

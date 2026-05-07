@@ -572,8 +572,10 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
             await _dbContext.GiamSatSocHis.AddRangeAsync(live.Select(r => new GiamSatSocHis
             {
                 SourceId = r.Id, DonViId = r.DonViId, LoaiMang = r.LoaiMang, LopGiamSat = r.LopGiamSat,
-                CoHeThong = r.CoHeThong, ThucTrang = r.ThucTrang, NamThanhLap = r.NamThanhLap,
-                SoNhanSu = r.SoNhanSu, CongCuSuDung = r.CongCuSuDung, SoCanhBaoThang = r.SoCanhBaoThang,
+                CoHeThong = r.CoHeThong, ThucTrang = r.ThucTrang,
+                TongSoDoiTuong = r.TongSoDoiTuong, SoGiamSatMotPhan = r.SoGiamSatMotPhan,
+                SoGiamSatCoBan = r.SoGiamSatCoBan, SoGiamSatDayDu = r.SoGiamSatDayDu,
+                SoSuCo = r.SoSuCo, SoSuCoDaKhacPhuc = r.SoSuCoDaKhacPhuc, LucLuongUngCuu = r.LucLuongUngCuu,
                 GhiChu = r.GhiChu,
                 KyBaoCaoCode = kyCode, SnapshotBatchId = batchId, SnapshotCreatedAt = now,
                 CreatedBy = userId, UpdatedBy = userId,
@@ -588,8 +590,9 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
             await _dbContext.GiamSatNocHis.AddRangeAsync(live.Select(r => new GiamSatNocHis
             {
                 SourceId = r.Id, DonViId = r.DonViId, LopGiamSat = r.LopGiamSat,
-                CoNoc = r.CoNoc, ThucTrang = r.ThucTrang, NamThanhLap = r.NamThanhLap,
-                SoNhanSu = r.SoNhanSu, GhiChu = r.GhiChu,
+                CoNoc = r.CoNoc, ThucTrang = r.ThucTrang,
+                TongSoDoiTuong = r.TongSoDoiTuong, SoDaGiamSat = r.SoDaGiamSat,
+                GhiChu = r.GhiChu,
                 KyBaoCaoCode = kyCode, SnapshotBatchId = batchId, SnapshotCreatedAt = now,
                 CreatedBy = userId, UpdatedBy = userId,
             }), ct);

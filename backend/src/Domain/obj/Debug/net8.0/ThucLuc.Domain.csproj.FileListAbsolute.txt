@@ -15,3 +15,4 @@ D:\Projects\ThucLuc_V2\.sources\backend\src\Domain\obj\Debug\net8.0\ThucLuc.Doma
 D:\Projects\ThucLuc_V2\.sources\backend\src\Domain\obj\Debug\net8.0\refint\ThucLuc.Domain.dll
 D:\Projects\ThucLuc_V2\.sources\backend\src\Domain\obj\Debug\net8.0\ThucLuc.Domain.pdb
 D:\Projects\ThucLuc_V2\.sources\backend\src\Domain\obj\Debug\net8.0\ref\ThucLuc.Domain.dll
+D:\Projects\ThucLuc_V2\.sources\backend\src\Domain\obj\Debug\net8.0\ThucLuc.Domain.sourcelink.json
