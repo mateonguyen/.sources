@@ -5,6 +5,9 @@ import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { NotificationService } from '../ui/notification.service';
 
+// Prevents duplicate "session expired" toasts when multiple requests fail simultaneously.
+let sessionExpiredShown = false;
+
 export const apiErrorInterceptor: HttpInterceptorFn = (request, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
@@ -12,16 +15,27 @@ export const apiErrorInterceptor: HttpInterceptorFn = (request, next) => {
 
   return next(request).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401) {
-        const isLoginRequest = request.url.includes('/auth/login');
-        const hasActiveSession = !!authService.token();
+      // Auth infrastructure endpoints handle their own errors — never show toasts for them.
+      // /auth/refresh: handled by authInterceptor + authService.logout()
+      // /auth/logout: called fire-and-forget during logout, 401 is expected/benign
+      const isSilentEndpoint =
+        request.url.includes('/auth/refresh') ||
+        request.url.includes('/auth/logout');
 
-        if (!isLoginRequest && hasActiveSession) {
+      if (error.status === 401) {
+        const isAuthEndpoint =
+          isSilentEndpoint || request.url.includes('/auth/login');
+
+        if (!isAuthEndpoint && !sessionExpiredShown) {
+          sessionExpiredShown = true;
           notificationService.show(
             'error',
             'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.',
           );
-          authService.logout();
+          // Reset after delay so re-login in the same SPA session works correctly.
+          setTimeout(() => {
+            sessionExpiredShown = false;
+          }, 5000);
         }
       } else if (error.status === 403) {
         notificationService.show(
@@ -29,7 +43,8 @@ export const apiErrorInterceptor: HttpInterceptorFn = (request, next) => {
           'Bạn không có quyền thực hiện thao tác này.',
         );
         router.navigate(['/forbidden']);
-      } else {
+      } else if (error.status !== 0 && !isSilentEndpoint && authService.isAuthenticated()) {
+        // Skip network errors (status 0), silent auth-flow endpoints, and stale errors after logout.
         const responseError = error.error?.error ?? error.error?.Error;
         const message =
           responseError?.message ??

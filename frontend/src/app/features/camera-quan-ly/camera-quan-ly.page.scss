@@ -1,0 +1,358 @@
+.camera-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.camera-tabs-header {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0.85rem 0;
+}
+
+.camera-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border-radius: 0.45rem;
+  border: 1px solid var(--app-border);
+  background: #fff;
+  color: var(--app-text-muted);
+  font-size: 0.79rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: all 0.17s ease;
+}
+
+.camera-tab:hover:not(.is-active) {
+  color: var(--app-primary-600);
+  border-color: color-mix(
+    in srgb,
+    var(--app-primary-600) 40%,
+    var(--app-border)
+  );
+  background: color-mix(in srgb, var(--app-primary-600) 5%, #fff);
+}
+
+.camera-tab.is-active {
+  background: var(--app-primary-600);
+  border-color: var(--app-primary-700);
+  color: #fff;
+  font-weight: 700;
+  box-shadow:
+    0 3px 14px color-mix(in srgb, var(--app-primary-600) 45%, transparent),
+    0 1px 4px rgba(0, 0, 0, 0.16);
+}
+
+.camera-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4rem;
+  height: 1.3rem;
+  padding: 0 0.44rem;
+  border-radius: 999px;
+  background: var(--app-primary-50);
+  border: 1px solid var(--app-primary-100);
+  color: var(--app-primary-600);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.camera-tab.is-active .camera-tab-badge {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #fff;
+}
+
+.camera-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0.25rem 0 0.65rem;
+  padding: 0.15rem 0 0.75rem;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--app-border) 85%, transparent);
+  flex-wrap: wrap;
+}
+
+.camera-toolbar-left {
+  flex: 1;
+  min-width: 220px;
+}
+
+.camera-filter-label {
+  display: block;
+  margin: 0 0 0.28rem;
+  font-size: 0.69rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--app-text-muted);
+}
+
+.camera-filter-input-shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 2.28rem;
+  border-radius: 0.36rem;
+  border: 1px solid var(--app-border);
+  background: #fff;
+  overflow: hidden;
+
+  i {
+    position: absolute;
+    left: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--app-text-muted);
+    pointer-events: none;
+  }
+}
+
+.app-filter-input {
+  flex: 1;
+  padding: 0.56rem 0.5rem 0.56rem 2rem;
+  border: none;
+  background: transparent;
+  font-size: 0.875rem;
+  outline: none;
+
+  &::placeholder {
+    color: var(--app-text-muted);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.camera-toolbar-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.camera-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.app-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--app-text-strong);
+  }
+
+  .required {
+    color: var(--red-500);
+    margin-left: 0.25rem;
+  }
+
+  &--full {
+    grid-column: 1 / -1;
+  }
+}
+
+.app-validation-error {
+  font-size: 0.75rem;
+  color: var(--red-500);
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+// Camera statistics badges for table
+.camera-stat-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.4rem;
+  height: 1.9rem;
+  padding: 0 0.5rem;
+  border-radius: 0.35rem;
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  color: var(--slate-700);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &--blue {
+    background: var(--blue-50);
+    border-color: var(--blue-200);
+    color: var(--blue-700);
+  }
+
+  &--green {
+    background: var(--green-50);
+    border-color: var(--green-200);
+    color: var(--green-700);
+  }
+
+  &--orange {
+    background: var(--orange-50);
+    border-color: var(--orange-200);
+    color: var(--orange-700);
+  }
+
+  &--red {
+    background: var(--red-50);
+    border-color: var(--red-200);
+    color: var(--red-700);
+  }
+
+  &--purple {
+    background: var(--purple-50);
+    border-color: var(--purple-200);
+    color: var(--purple-700);
+  }
+
+  &--slate {
+    background: var(--slate-100);
+    border-color: var(--slate-300);
+    color: var(--slate-800);
+  }
+}
+
+// Table enhancements
+.app-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 0.36rem;
+  border: 1px solid var(--app-border);
+  background: #fff;
+}
+
+.app-table-wrap--spacious {
+  margin-top: 0.75rem;
+}
+
+.app-admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .camera-tabs-header {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+
+  .camera-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+
+    &-left {
+      min-width: 100%;
+    }
+
+    &-actions {
+      width: 100%;
+    }
+  }
+
+  .camera-filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .camera-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-field--full {
+    grid-column: 1;
+  }
+}
+
+// Dialog improvements
+p-dialog {
+  ::ng-deep .p-dialog {
+    border-radius: 0.48rem;
+    box-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+    .p-dialog-header {
+      background: #fff;
+      border-bottom: 1px solid var(--app-border);
+      padding: 1.2rem;
+    }
+
+    .p-dialog-content {
+      padding: 1.2rem;
+      background: #fff;
+    }
+
+    .p-dialog-footer {
+      background: #f9fafb;
+      border-top: 1px solid var(--app-border);
+      padding: 0.9rem 1.2rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+  }
+}
+
+// Button styling
+pButton {
+  ::ng-deep button {
+    font-weight: 600;
+    transition: all 0.17s ease;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Table action buttons
+.app-table-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.app-table-action-btn {
+  transition: all 0.17s ease;
+
+  &--edit {
+    &:hover:not(:disabled) {
+      color: var(--blue-600);
+    }
+  }
+
+  &--delete {
+    &:hover:not(:disabled) {
+      color: var(--red-600);
+    }
+  }
+}
+
+// Smooth transitions
+* {
+  &:focus-visible {
+    outline: 2px solid var(--app-primary-500);
+    outline-offset: 2px;
+  }
+}

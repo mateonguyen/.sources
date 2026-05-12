@@ -1,0 +1,420 @@
+<app-section-card
+  title="ATTT HTTT DAU TU"
+  subtitle="Theo dõi danh mục đầu tư an toàn thông tin theo mẫu ATTT HTTT đầu tư"
+  styleClass="attt-dau-tu-card"
+>
+  <app-filter-bar class="mt-3 attt-filter-bar">
+    <form class="attt-filter-grid" [formGroup]="filter">
+      <div class="app-field">
+        <label for="viewMode">Chế độ dữ liệu</label>
+        <p-dropdown
+          inputId="viewMode"
+          [options]="viewModeOptions"
+          optionLabel="label"
+          optionValue="value"
+          [panelStyleClass]="selectPanelStyleClass"
+          appendTo="body"
+          formControlName="viewMode"
+          (onChange)="onFilterChanged()"
+        ></p-dropdown>
+      </div>
+
+      <div class="app-field">
+        <label for="kyCode">Kỳ báo cáo</label>
+        <p-dropdown
+          inputId="kyCode"
+          [options]="kyOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [panelStyleClass]="selectPanelStyleClass"
+          appendTo="body"
+          formControlName="kyCode"
+          (onChange)="onFilterChanged()"
+          placeholder="Chọn kỳ báo cáo"
+        ></p-dropdown>
+      </div>
+
+      <div class="attt-filter-actions">
+        <button
+          pButton
+          type="button"
+          icon="pi pi-search"
+          class="p-button-info"
+          label="Tải dữ liệu"
+          [loading]="loading()"
+          (click)="load(true)"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-lock"
+          class="app-button-success"
+          label="Chốt kỳ"
+          [loading]="saving()"
+          [disabled]="!canEdit()"
+          (click)="finalizeModule()"
+        ></button>
+      </div>
+    </form>
+  </app-filter-bar>
+
+  <div class="relative mt-3 min-h-40">
+    <app-loading-overlay
+      [active]="loading()"
+      label="Đang tải dữ liệu ATTT HTTT đầu tư..."
+    ></app-loading-overlay>
+
+    <div class="attt-tabs-header">
+      <button
+        type="button"
+        class="attt-tab"
+        [class.is-active]="activeTab() === 'BCANET'"
+        (click)="setActiveTab('BCANET')"
+      >
+        <span class="attt-tab-label">HỆ THỐNG BCANET</span>
+        <span class="attt-tab-badge">{{ bcanetCount() }}</span>
+      </button>
+      <button
+        type="button"
+        class="attt-tab"
+        [class.is-active]="activeTab() === 'INTERNET'"
+        (click)="setActiveTab('INTERNET')"
+      >
+        <span class="attt-tab-label">HỆ THỐNG INTERNET</span>
+        <span class="attt-tab-badge">{{ internetCount() }}</span>
+      </button>
+      <button
+        type="button"
+        class="attt-tab"
+        [class.is-active]="activeTab() === 'KHAC'"
+        (click)="setActiveTab('KHAC')"
+      >
+        <span class="attt-tab-label">HỆ THỐNG KHÁC</span>
+        <span class="attt-tab-badge">{{ khacCount() }}</span>
+      </button>
+    </div>
+
+    <div class="attt-toolbar">
+      <div class="attt-toolbar-left">
+        <label class="attt-filter-label">Tên HTTT</label>
+        <span class="attt-filter-input-shell">
+          <i class="pi pi-search" aria-hidden="true"></i>
+          <input
+            pInputText
+            type="text"
+            class="app-filter-input"
+            [ngModel]="filterTenHttt()"
+            (ngModelChange)="filterTenHttt.set($event)"
+            placeholder="Tìm theo tên hệ thống..."
+            [ngModelOptions]="{ standalone: true }"
+            [disabled]="loading()"
+          />
+        </span>
+      </div>
+      <div class="attt-toolbar-actions">
+        <button
+          pButton
+          type="button"
+          icon="pi pi-search"
+          class="p-button-info"
+          label="Tải dữ liệu"
+          [loading]="loading()"
+          (click)="load(true)"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-times"
+          severity="secondary"
+          label="Xóa bộ lọc"
+          [disabled]="!filterTenHttt()"
+          (click)="filterTenHttt.set('')"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-plus"
+          label="Thêm HTTT đầu tư"
+          (click)="openCreate()"
+          [disabled]="!canEdit()"
+        ></button>
+      </div>
+    </div>
+
+    <app-empty-state
+      class="mt-3"
+      *ngIf="!loading() && activeItems().length === 0"
+      title="Chưa có dữ liệu"
+      [message]="activeTab() === 'BCANET' ? 'Không có bản ghi nào trong nhóm BCANET.' : (activeTab() === 'INTERNET' ? 'Không có bản ghi nào trong nhóm Internet.' : 'Không có bản ghi nào trong nhóm hạ tầng khác.')"
+      icon="pi-inbox"
+      actionLabel="Tải lại"
+      actionIcon="pi pi-refresh"
+      (action)="load(true)"
+    ></app-empty-state>
+
+    <div
+      class="app-table-wrap app-table-wrap--spacious mt-3"
+      *ngIf="!loading() && activeItems().length > 0"
+    >
+      <p-table
+        [value]="activeItems()"
+        styleClass="p-datatable-sm app-admin-table"
+        [tableStyleClass]="tableStyleClass"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th
+              [class]="tableHeaderCellClass"
+              style="width: 56px; text-align: center"
+            >
+              STT
+            </th>
+            <th [class]="tableHeaderCellClass" style="min-width: 220px">
+              Tên HTTT
+            </th>
+            <th [class]="tableHeaderCellClass" style="min-width: 160px">
+              Chủ quản HTTT
+            </th>
+            <th [class]="tableHeaderCellClass" style="min-width: 160px">
+              Đơn vị vận hành
+            </th>
+            <th [class]="tableHeaderCellClass" style="width: 110px">
+              Cấp độ đề xuất
+            </th>
+            <th [class]="tableHeaderCellClass" style="width: 150px">
+              Ngày phê duyệt HSĐXCĐ
+            </th>
+            <th [class]="tableHeaderCellClass" style="min-width: 220px">
+              Quyết định phê duyệt
+            </th>
+            <th
+              [class]="tableHeaderCellClass"
+              style="width: 120px; text-align: center"
+            >
+              Đã lồng ghép
+            </th>
+            <th [class]="tableHeaderCellClass" style="min-width: 160px">
+              Ghi chú
+            </th>
+            <th
+              [class]="tableHeaderCellClass"
+              style="width: 90px; text-align: center"
+            >
+              Tác vụ
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+          <tr [class]="tableRowClass">
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              {{ rowIndex + 1 }}
+            </td>
+            <td [class]="tableBodyCellClass">{{ getTenHttt(item.htttId) }}</td>
+            <td [class]="tableBodyCellClass">{{ item.chuQuan || '—' }}</td>
+            <td [class]="tableBodyCellClass">{{ item.donViVanHanh || '—' }}</td>
+            <td [class]="tableBodyCellClass">
+              {{ resolveCapDo(item.capDoDeXuat) }}
+            </td>
+            <td [class]="tableBodyCellClass">
+              {{ formatDisplayDate(item.ngayPheDuyetHsdxcd) }}
+            </td>
+            <td [class]="tableBodyCellClass">
+              {{ item.quyetDinhPheDuyet || '—' }}
+            </td>
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              <i
+                [class]="item.daLongGhepThuyetMinh ? 'pi pi-check-circle text-green-500' : 'pi pi-times-circle text-slate-300'"
+                style="font-size: 1rem"
+              ></i>
+            </td>
+            <td [class]="tableBodyCellClass">{{ item.ghiChu || '—' }}</td>
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              <div class="app-table-actions">
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-pencil"
+                  class="p-button-text app-table-action-btn app-table-action-btn--edit"
+                  pTooltip="Chỉnh sửa"
+                  tooltipPosition="top"
+                  (click)="select(item)"
+                  [disabled]="!canEdit()"
+                ></button>
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-trash"
+                  class="p-button-text p-button-danger app-table-action-btn app-table-action-btn--delete"
+                  pTooltip="Xóa"
+                  tooltipPosition="top"
+                  (click)="remove(item)"
+                  [disabled]="!canEdit()"
+                ></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</app-section-card>
+
+<p-dialog
+  [visible]="dialogVisible()"
+  (visibleChange)="!$event && closeDialog()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '760px', maxWidth: '96vw' }"
+  appendTo="body"
+>
+  <ng-template pTemplate="header">
+    <span class="font-bold text-base">
+      {{ selectedId() !== null ? 'Cập nhật ATTT HTTT đầu tư' : 'Thêm mới ATTT
+      HTTT đầu tư' }}
+    </span>
+  </ng-template>
+
+  <form class="attt-form-grid" [formGroup]="form" autocomplete="off">
+    <div class="app-field">
+      <label for="htttId"
+        >Hệ thống thông tin <span class="required">*</span></label
+      >
+      <p-dropdown
+        inputId="htttId"
+        [options]="htttOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [filter]="true"
+        filterBy="label"
+        [showClear]="true"
+        [panelStyleClass]="selectPanelStyleClass"
+        appendTo="body"
+        formControlName="htttId"
+        placeholder="Chọn hệ thống thông tin"
+      ></p-dropdown>
+      <small
+        class="app-validation-error"
+        *ngIf="form.controls.htttId.invalid && form.controls.htttId.touched"
+      >
+        Vui lòng chọn hệ thống thông tin.
+      </small>
+    </div>
+
+    <div class="app-field">
+      <label for="chuQuan">Chủ quản HTTT</label>
+      <p-dropdown
+        inputId="chuQuan"
+        [options]="unitOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [showClear]="true"
+        [filter]="true"
+        filterBy="label"
+        [panelStyleClass]="selectPanelStyleClass"
+        appendTo="body"
+        formControlName="chuQuan"
+        placeholder="Chọn đơn vị chủ quản"
+      ></p-dropdown>
+    </div>
+
+    <div class="app-field">
+      <label for="donViVanHanh">Đơn vị vận hành</label>
+      <p-dropdown
+        inputId="donViVanHanh"
+        [options]="unitOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [showClear]="true"
+        [filter]="true"
+        filterBy="label"
+        [panelStyleClass]="selectPanelStyleClass"
+        appendTo="body"
+        formControlName="donViVanHanh"
+        placeholder="Chọn đơn vị vận hành"
+      ></p-dropdown>
+    </div>
+
+    <div class="app-field">
+      <label for="capDoDeXuat">Cấp độ đề xuất</label>
+      <p-dropdown
+        inputId="capDoDeXuat"
+        [options]="capDoOptions"
+        optionLabel="label"
+        optionValue="value"
+        [showClear]="true"
+        [panelStyleClass]="selectPanelStyleClass"
+        appendTo="body"
+        formControlName="capDoDeXuat"
+        placeholder="Chọn cấp độ đề xuất"
+      ></p-dropdown>
+    </div>
+
+    <div class="app-field">
+      <label for="ngayPheDuyetHsdxcd">Ngày phê duyệt HSĐXCĐ</label>
+      <p-calendar
+        inputId="ngayPheDuyetHsdxcd"
+        formControlName="ngayPheDuyetHsdxcd"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        [showButtonBar]="true"
+        appendTo="body"
+        styleClass="w-full"
+      ></p-calendar>
+    </div>
+
+    <div class="app-field">
+      <label for="quyetDinhPheDuyet">Quyết định phê duyệt dự án</label>
+      <input
+        pInputText
+        id="quyetDinhPheDuyet"
+        type="text"
+        formControlName="quyetDinhPheDuyet"
+        placeholder="Số, ngày, cơ quan phê duyệt"
+      />
+    </div>
+
+    <div class="app-field attt-checkbox-field">
+      <label for="daLongGhepThuyetMinh"
+        >Đã lồng ghép thuyết minh đề xuất cấp độ</label
+      >
+      <p-checkbox
+        inputId="daLongGhepThuyetMinh"
+        [binary]="true"
+        formControlName="daLongGhepThuyetMinh"
+      ></p-checkbox>
+    </div>
+
+    <div class="app-field">
+      <label for="ghiChu">Ghi chú</label>
+      <input
+        pInputText
+        id="ghiChu"
+        type="text"
+        formControlName="ghiChu"
+        placeholder="Ghi chú"
+      />
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="attt-dialog-actions">
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        label="Hủy"
+        (click)="closeDialog()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        [loading]="saving()"
+        [label]="selectedId() !== null ? 'Cập nhật' : 'Thêm mới'"
+        (click)="save()"
+        [disabled]="!canEdit()"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>

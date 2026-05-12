@@ -217,18 +217,16 @@ export const routes: Routes = [
       },
       {
         path: 'attt-httt-van-hanh',
-        data: { moduleKey: 'atttHtttVanHanh' },
         loadComponent: () =>
-          import('./features/business-modules/business-modules.page').then(
-            (m) => m.BusinessModulesPage,
+          import('./features/attt-httt-van-hanh/attt-httt-van-hanh.page').then(
+            (m) => m.AtttHtttVanHanhPage,
           ),
       },
       {
         path: 'attt-httt-dau-tu',
-        data: { moduleKey: 'atttHtttDauTu' },
         loadComponent: () =>
-          import('./features/business-modules/business-modules.page').then(
-            (m) => m.BusinessModulesPage,
+          import('./features/attt-httt-dau-tu/attt-httt-dau-tu.page').then(
+            (m) => m.AtttHtttDauTuPage,
           ),
       },
       {
@@ -240,10 +238,9 @@ export const routes: Routes = [
       },
       {
         path: 'camera-quan-ly',
-        data: { moduleKey: 'cameraQuanLy' },
         loadComponent: () =>
-          import('./features/business-modules/business-modules.page').then(
-            (m) => m.BusinessModulesPage,
+          import('./features/camera-quan-ly/camera-quan-ly.page').then(
+            (m) => m.CameraQuanLyPage,
           ),
       },
       {

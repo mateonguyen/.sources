@@ -3,6 +3,9 @@ import { inject } from '@angular/core';
 import { AuthService } from './auth.service';
 import { catchError, from, switchMap, throwError } from 'rxjs';
 
+// Shared across all concurrent requests — ensures only ONE refresh call at a time.
+let refreshing$: Promise<string> | null = null;
+
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const authService = inject(AuthService);
   const token = authService.token();
@@ -11,28 +14,29 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
     return next(request);
   }
 
-  // Thêm Authorization header
   request = request.clone({
-    setHeaders: {
-      Authorization: `Bearer ${token}`,
-    },
+    setHeaders: { Authorization: `Bearer ${token}` },
   });
 
   return next(request).pipe(
     catchError((error: HttpErrorResponse) => {
-      // Nếu nhận 401 (Unauthorized) và đây không phải là login/refresh endpoint, cố gắng refresh token
       if (
         error.status === 401 &&
         !request.url.includes('/auth/login') &&
-        !request.url.includes('/auth/refresh')
+        !request.url.includes('/auth/refresh') &&
+        authService.isAuthenticated()
       ) {
-        return from(authService.refreshAccessToken()).pipe(
+        if (!refreshing$) {
+          refreshing$ = authService.refreshAccessToken().finally(() => {
+            refreshing$ = null;
+          });
+        }
+
+        return from(refreshing$).pipe(
           switchMap((newToken) =>
             next(
               request.clone({
-                setHeaders: {
-                  Authorization: `Bearer ${newToken}`,
-                },
+                setHeaders: { Authorization: `Bearer ${newToken}` },
               }),
             ),
           ),

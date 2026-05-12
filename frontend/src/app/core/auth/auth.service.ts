@@ -134,9 +134,13 @@ export class AuthService {
    * Logout từ thiết bị hiện tại hoặc tất cả thiết bị.
    */
   async logout(logoutAll: boolean = false): Promise<void> {
+    // Clear local state synchronously FIRST so isAuthenticated() is false immediately.
+    // This prevents other in-flight requests from triggering extra error toasts.
+    this.clearAuthState();
+
     try {
       const request: RevokeSessionRequest = {
-        sessionId: logoutAll ? undefined : undefined, // undefined = logout all nếu logoutAll = true
+        sessionId: logoutAll ? undefined : undefined,
         revocationReason: logoutAll ? 'LOGOUT_ALL' : 'USER_LOGOUT',
       };
 
@@ -148,11 +152,7 @@ export class AuthService {
       );
     } catch (error) {
       console.error('Logout API call failed:', error);
-      // Vẫn clear local state ngay cả khi API call thất bại
     }
-
-    // Clear local state
-    this.clearAuthState();
   }
 
   hasPermission(permission: string): boolean {

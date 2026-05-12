@@ -537,6 +537,7 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, Applicatio
         {
             entity.ToTable("BIZ_ATTT_HTTT_VAN_HANH");
             entity.HasKey(x => x.Id);
+            entity.Property(x => x.LoaiHaTang).HasMaxLength(20);
             entity.Property(x => x.ChuQuan).HasMaxLength(200);
             entity.Property(x => x.DonViVanHanh).HasMaxLength(200);
             entity.Property(x => x.CapDoDeXuat).HasMaxLength(20);
@@ -552,6 +553,7 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, Applicatio
             entity.ToTable("BIZ_ATTT_HTTT_VAN_HANH_HIS");
             entity.HasKey(x => x.Id);
             entity.Property(x => x.KyBaoCaoCode).HasMaxLength(50).IsRequired();
+            entity.Property(x => x.LoaiHaTang).HasMaxLength(20);
             entity.Property(x => x.ChuQuan).HasMaxLength(200);
             entity.Property(x => x.DonViVanHanh).HasMaxLength(200);
             entity.Property(x => x.CapDoDeXuat).HasMaxLength(20);

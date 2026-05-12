@@ -81,6 +81,7 @@ public sealed class AtttHtttVanHanhService : IAtttHtttVanHanhService
 
         entity.DonViId = request.DonViId;
         entity.HtttId = request.HtttId;
+        entity.LoaiHaTang = NormalizeOptional(request.LoaiHaTang)?.ToUpperInvariant();
         entity.ChuQuan = NormalizeOptional(request.ChuQuan);
         entity.DonViVanHanh = NormalizeOptional(request.DonViVanHanh);
         entity.CapDoDeXuat = NormalizeOptional(request.CapDoDeXuat);
@@ -147,6 +148,7 @@ public sealed class AtttHtttVanHanhService : IAtttHtttVanHanhService
             DonViId = x.DonViId,
             KyBaoCaoCode = null,
             HtttId = x.HtttId,
+            LoaiHaTang = x.LoaiHaTang,
             ChuQuan = x.ChuQuan,
             DonViVanHanh = x.DonViVanHanh,
             CapDoDeXuat = x.CapDoDeXuat,
@@ -167,6 +169,7 @@ public sealed class AtttHtttVanHanhService : IAtttHtttVanHanhService
             DonViId = x.DonViId,
             KyBaoCaoCode = x.KyBaoCaoCode,
             HtttId = x.HtttId,
+            LoaiHaTang = x.LoaiHaTang,
             ChuQuan = x.ChuQuan,
             DonViVanHanh = x.DonViVanHanh,
             CapDoDeXuat = x.CapDoDeXuat,

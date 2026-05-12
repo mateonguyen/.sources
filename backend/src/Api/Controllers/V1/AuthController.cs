@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using ThucLuc.Api.Common.Authorization;
 using ThucLuc.Api.Common.Models;
 using ThucLuc.Application.Common.Contracts;
+using ThucLuc.Application.Common.Exceptions;
 using ThucLuc.Application.Features.Auth;
 using ThucLuc.Application.Security;
 
@@ -100,7 +101,7 @@ public sealed class AuthController : ControllerBase
     {
         // Lấy refresh token từ cookie
         if (!Request.Cookies.TryGetValue("refresh_token", out var refreshTokenFromCookie))
-            throw new UnauthorizedAccessException("Refresh token cookie không tìm thấy.");
+            throw new AppException("REFRESH_TOKEN_MISSING", "Phiên đăng nhập đã hết hạn.", 401);
 
         // Lấy thông tin user từ access token nếu có hoặc từ request
         // Ở đây chúng ta giả định endpoint được call với Authorization header

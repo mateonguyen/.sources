@@ -1,0 +1,517 @@
+<app-section-card
+  title="CAMERA QUẢN LÝ"
+  subtitle="Theo dõi hệ thống camera theo nhóm"
+  styleClass="camera-card"
+>
+  <div class="relative mt-3 min-h-40">
+    <app-loading-overlay
+      [active]="loading()"
+      label="Đang tải dữ liệu Camera quản lý..."
+    ></app-loading-overlay>
+
+    <div class="camera-tabs-header">
+      <button
+        type="button"
+        class="camera-tab"
+        [class.is-active]="activeTab() === 'NHOM_1'"
+        (click)="setActiveTab('NHOM_1')"
+      >
+        <span class="camera-tab-label">{{ getTabLabel('NHOM_1') }}</span>
+        <span class="camera-tab-badge">{{ nhom1Count() }}</span>
+      </button>
+      <button
+        type="button"
+        class="camera-tab"
+        [class.is-active]="activeTab() === 'NHOM_2'"
+        (click)="setActiveTab('NHOM_2')"
+      >
+        <span class="camera-tab-label">{{ getTabLabel('NHOM_2') }}</span>
+        <span class="camera-tab-badge">{{ nhom2Count() }}</span>
+      </button>
+    </div>
+
+    <div class="camera-toolbar">
+      <div class="camera-toolbar-left">
+        <label class="camera-filter-label">Tên đơn vị/Địa chỉ</label>
+        <span class="camera-filter-input-shell">
+          <i class="pi pi-search" aria-hidden="true"></i>
+          <input
+            pInputText
+            type="text"
+            class="app-filter-input"
+            [ngModel]="filterTenDonVi()"
+            (ngModelChange)="filterTenDonVi.set($event)"
+            placeholder="Tìm theo tên đơn vị..."
+            [ngModelOptions]="{ standalone: true }"
+            [disabled]="loading()"
+          />
+        </span>
+      </div>
+      <div class="camera-toolbar-actions">
+        <button
+          pButton
+          type="button"
+          icon="pi pi-search"
+          class="p-button-info"
+          label="Tải lại"
+          [loading]="loading()"
+          (click)="load(true)"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-times"
+          severity="secondary"
+          label="Xóa bộ lọc"
+          [disabled]="!filterTenDonVi()"
+          (click)="filterTenDonVi.set('')"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-plus"
+          label="Thêm camera"
+          (click)="openCreate()"
+          [disabled]="!canEdit()"
+        ></button>
+      </div>
+    </div>
+
+    <app-empty-state
+      class="mt-3"
+      *ngIf="!loading() && activeItems().length === 0"
+      [title]="
+        activeTab() === 'NHOM_1'
+          ? 'Chưa có camera Nhóm 1'
+          : 'Chưa có camera Nhóm 2'
+      "
+      message="Không có bản ghi nào trong nhóm camera này. Hãy thêm mới hoặc tải lại dữ liệu."
+      icon="pi-video"
+      actionLabel="Tải lại"
+      actionIcon="pi pi-refresh"
+      (action)="load(true)"
+    ></app-empty-state>
+
+    <div
+      class="app-table-wrap app-table-wrap--spacious mt-3"
+      *ngIf="!loading() && activeItems().length > 0"
+    >
+      <p-table
+        [value]="activeItems()"
+        styleClass="p-datatable-sm app-admin-table"
+        [tableStyleClass]="tableStyleClass"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th
+              [class]="tableHeaderCellClass"
+              style="width: 56px; text-align: center"
+            >
+              STT
+            </th>
+            <th [class]="tableHeaderCellClass" style="min-width: 240px">
+              Tên đơn vị / Địa chỉ
+            </th>
+            <th
+              [class]="tableHeaderCellClass"
+              style="width: 100px; text-align: center"
+            >
+              Buồng phòng
+            </th>
+            <th
+              [class]="tableHeaderCellClass"
+              style="width: 100px; text-align: center"
+            >
+              Nhu cầu ĐT
+            </th>
+            <th
+              [class]="tableHeaderCellClass"
+              style="width: 80px; text-align: center"
+            >
+              Bảo trì
+            </th>
+            <th
+              [class]="tableHeaderCellClass"
+              style="width: 80px; text-align: center"
+            >
+              Sửa chữa
+            </th>
+            <th
+              [class]="tableHeaderCellClass"
+              style="width: 100px; text-align: center"
+            >
+              Vi phạm
+            </th>
+            <th
+              [class]="tableHeaderCellClass"
+              style="width: 80px; text-align: center"
+            >
+              ATTT
+            </th>
+            <th
+              [class]="tableHeaderCellClass"
+              style="width: 80px; text-align: center"
+            >
+              Cán bộ
+            </th>
+            <th [class]="tableHeaderCellClass" style="min-width: 160px">
+              Ghi chú
+            </th>
+            <th
+              [class]="tableHeaderCellClass"
+              style="width: 90px; text-align: center"
+            >
+              Tác vụ
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+          <tr [class]="tableRowClass">
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              {{ rowIndex + 1 }}
+            </td>
+            <td [class]="tableBodyCellClass">
+              <span class="font-semibold">{{ item.tenDonViDiaChi }}</span>
+            </td>
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              <span class="camera-stat-badge">
+                {{ item.buongGiamTrangBiSl }} / {{ item.buongGiamTrangBiTs }}
+              </span>
+            </td>
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              <span class="camera-stat-badge camera-stat-badge--blue">
+                {{ item.nhuCauDauTu }}
+              </span>
+            </td>
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              <span class="camera-stat-badge camera-stat-badge--green">
+                {{ item.baoTri }}
+              </span>
+            </td>
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              <span class="camera-stat-badge camera-stat-badge--orange">
+                {{ item.suaChua }}
+              </span>
+            </td>
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              <span
+                class="camera-stat-badge"
+                [class.camera-stat-badge--red]="item.soLanViPham > 0"
+              >
+                {{ item.soLanViPham }}
+              </span>
+            </td>
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              <span class="camera-stat-badge camera-stat-badge--purple">
+                {{ item.hoSoCapDoAttt }}
+              </span>
+            </td>
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              <span class="camera-stat-badge camera-stat-badge--slate">
+                {{ item.cbChuyenTrach + item.cbKiemNhiem + item.cbDiaPhuong }}
+              </span>
+            </td>
+            <td [class]="tableBodyCellClass">
+              <span class="text-slate-600 text-sm"
+                >{{ item.ghiChu || '—' }}</span
+              >
+            </td>
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              <div class="app-table-actions">
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-pencil"
+                  class="p-button-text app-table-action-btn app-table-action-btn--edit"
+                  pTooltip="Chỉnh sửa"
+                  tooltipPosition="top"
+                  (click)="select(item)"
+                  [disabled]="!canEdit()"
+                ></button>
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-trash"
+                  class="p-button-text p-button-danger app-table-action-btn app-table-action-btn--delete"
+                  pTooltip="Xóa"
+                  tooltipPosition="top"
+                  (click)="remove(item)"
+                  [disabled]="!canEdit()"
+                ></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</app-section-card>
+
+<p-dialog
+  [visible]="dialogVisible()"
+  (visibleChange)="!$event && closeDialog()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '860px', maxWidth: '96vw' }"
+  appendTo="body"
+>
+  <ng-template pTemplate="header">
+    <span class="font-bold text-base">
+      {{ selectedId() !== null ? 'Cập nhật Camera quản lý' : 'Thêm mới Camera
+      quản lý' }}
+    </span>
+  </ng-template>
+
+  <form class="camera-form-grid" [formGroup]="form" autocomplete="off">
+    <div class="app-field">
+      <label for="nhomCamera">Nhóm camera</label>
+      <p-dropdown
+        inputId="nhomCamera"
+        [options]="cameraGroupOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [filter]="true"
+        filterBy="label"
+        [showClear]="true"
+        [panelStyleClass]="selectPanelStyleClass"
+        appendTo="body"
+        formControlName="nhomCamera"
+        placeholder="Chọn nhóm camera"
+      ></p-dropdown>
+    </div>
+
+    <div class="app-field">
+      <label for="tenDonViDiaChi"
+        >Tên đơn vị / Địa chỉ <span class="required">*</span></label
+      >
+      <input
+        pInputText
+        id="tenDonViDiaChi"
+        class="w-full"
+        type="text"
+        formControlName="tenDonViDiaChi"
+        placeholder="Nhập tên đơn vị hoặc địa chỉ"
+      />
+      <small
+        class="app-validation-error"
+        *ngIf="
+          form.controls.tenDonViDiaChi.invalid &&
+          form.controls.tenDonViDiaChi.touched
+        "
+      >
+        Trường này là bắt buộc
+      </small>
+    </div>
+
+    <div class="app-field">
+      <label for="buongGiamTrangBiSl"
+        >Buồng giám / Khu vực đã trang bị (SL)
+        <span class="required">*</span></label
+      >
+      <p-inputNumber
+        id="buongGiamTrangBiSl"
+        inputStyleClass="w-full"
+        [min]="0"
+        formControlName="buongGiamTrangBiSl"
+        placeholder="0"
+        mode="decimal"
+      ></p-inputNumber>
+    </div>
+
+    <div class="app-field">
+      <label for="buongGiamTrangBiTs"
+        >Buồng giám / Khu vực tổng số (TS)
+        <span class="required">*</span></label
+      >
+      <p-inputNumber
+        id="buongGiamTrangBiTs"
+        inputStyleClass="w-full"
+        [min]="0"
+        formControlName="buongGiamTrangBiTs"
+        placeholder="0"
+        mode="decimal"
+      ></p-inputNumber>
+    </div>
+
+    <div class="app-field">
+      <label for="nhuCauDauTu"
+        >Nhu cầu đầu tư <span class="required">*</span></label
+      >
+      <p-inputNumber
+        id="nhuCauDauTu"
+        inputStyleClass="w-full"
+        [min]="0"
+        formControlName="nhuCauDauTu"
+        placeholder="0"
+        mode="decimal"
+      ></p-inputNumber>
+    </div>
+
+    <div class="app-field">
+      <label for="baoTri">Bảo trì <span class="required">*</span></label>
+      <p-inputNumber
+        id="baoTri"
+        inputStyleClass="w-full"
+        [min]="0"
+        formControlName="baoTri"
+        placeholder="0"
+        mode="decimal"
+      ></p-inputNumber>
+    </div>
+
+    <div class="app-field">
+      <label for="suaChua">Sửa chữa <span class="required">*</span></label>
+      <p-inputNumber
+        id="suaChua"
+        inputStyleClass="w-full"
+        [min]="0"
+        formControlName="suaChua"
+        placeholder="0"
+        mode="decimal"
+      ></p-inputNumber>
+    </div>
+
+    <div class="app-field">
+      <label for="soLanViPham"
+        >Số lần vi phạm <span class="required">*</span></label
+      >
+      <p-inputNumber
+        id="soLanViPham"
+        inputStyleClass="w-full"
+        [min]="0"
+        formControlName="soLanViPham"
+        placeholder="0"
+        mode="decimal"
+      ></p-inputNumber>
+    </div>
+
+    <div class="app-field">
+      <label for="ketNoiChiaSe">Kết nối / Chia sẻ</label>
+      <input
+        pInputText
+        id="ketNoiChiaSe"
+        class="w-full"
+        type="text"
+        formControlName="ketNoiChiaSe"
+        placeholder="Nhập chi tiết kết nối"
+      />
+    </div>
+
+    <div class="app-field">
+      <label for="hoSoCapDoAttt"
+        >Hồ sơ cấp độ ATTT <span class="required">*</span></label
+      >
+      <p-inputNumber
+        id="hoSoCapDoAttt"
+        inputStyleClass="w-full"
+        [min]="0"
+        formControlName="hoSoCapDoAttt"
+        placeholder="0"
+        mode="decimal"
+      ></p-inputNumber>
+    </div>
+
+    <div class="app-field">
+      <label for="cbChuyenTrach"
+        >Cán bộ chuyên trách <span class="required">*</span></label
+      >
+      <p-inputNumber
+        id="cbChuyenTrach"
+        inputStyleClass="w-full"
+        [min]="0"
+        formControlName="cbChuyenTrach"
+        placeholder="0"
+        mode="decimal"
+      ></p-inputNumber>
+    </div>
+
+    <div class="app-field">
+      <label for="cbKiemNhiem"
+        >Cán bộ kiêm nhiệm <span class="required">*</span></label
+      >
+      <p-inputNumber
+        id="cbKiemNhiem"
+        inputStyleClass="w-full"
+        [min]="0"
+        formControlName="cbKiemNhiem"
+        placeholder="0"
+        mode="decimal"
+      ></p-inputNumber>
+    </div>
+
+    <div class="app-field">
+      <label for="cbDiaPhuong"
+        >Cán bộ địa phương <span class="required">*</span></label
+      >
+      <p-inputNumber
+        id="cbDiaPhuong"
+        inputStyleClass="w-full"
+        [min]="0"
+        formControlName="cbDiaPhuong"
+        placeholder="0"
+        mode="decimal"
+      ></p-inputNumber>
+    </div>
+
+    <div class="app-field">
+      <label for="daoTaoBo"
+        >Đào tạo tập huấn (Bộ) <span class="required">*</span></label
+      >
+      <p-inputNumber
+        id="daoTaoBo"
+        inputStyleClass="w-full"
+        [min]="0"
+        formControlName="daoTaoBo"
+        placeholder="0"
+        mode="decimal"
+      ></p-inputNumber>
+    </div>
+
+    <div class="app-field">
+      <label for="daoTaoNhuCau"
+        >Đào tạo tập huấn (Nhu cầu) <span class="required">*</span></label
+      >
+      <p-inputNumber
+        id="daoTaoNhuCau"
+        inputStyleClass="w-full"
+        [min]="0"
+        formControlName="daoTaoNhuCau"
+        placeholder="0"
+        mode="decimal"
+      ></p-inputNumber>
+    </div>
+
+    <div class="app-field app-field--full">
+      <label for="ghiChu">Ghi chú</label>
+      <textarea
+        pInputTextarea
+        id="ghiChu"
+        class="w-full"
+        formControlName="ghiChu"
+        placeholder="Nhập ghi chú thêm..."
+        rows="3"
+      ></textarea>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      type="button"
+      icon="pi pi-times"
+      label="Hủy"
+      severity="secondary"
+      (click)="closeDialog()"
+    ></button>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-save"
+      label="Lưu"
+      [loading]="saving()"
+      (click)="save()"
+    ></button>
+  </ng-template>
+</p-dialog>
