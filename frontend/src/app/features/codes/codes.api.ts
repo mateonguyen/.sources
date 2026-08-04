@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { catchError, firstValueFrom, of } from 'rxjs';
 import { API_BASE_URL } from '../../core/api/api.constants';
+import { SUPPRESS_ERROR_TOAST } from '../../core/http/api-error.interceptor';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -68,6 +69,20 @@ export class CodesApi {
         `${API_BASE_URL}/codes/by-code/${encodeURIComponent(code)}`,
       ),
     ).then((response) => response.data);
+  }
+
+  /** Like getByCode but returns null on any error without showing an error toast. */
+  getByCodeSafe(code: string): Promise<CodeDto | null> {
+    return firstValueFrom(
+      this.httpClient
+        .get<ApiResponse<CodeDto>>(
+          `${API_BASE_URL}/codes/by-code/${encodeURIComponent(code)}`,
+          { context: new HttpContext().set(SUPPRESS_ERROR_TOAST, true) },
+        )
+        .pipe(
+          catchError(() => of(null)),
+        ),
+    ).then((response) => response?.data ?? null);
   }
 
   create(payload: UpsertCodeRequest): Promise<CodeDto> {

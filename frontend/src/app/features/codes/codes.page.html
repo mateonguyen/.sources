@@ -1,6 +1,5 @@
 <app-section-card
   title="Quản lý danh mục"
-  subtitle="Quản lý danh mục dùng chung của toàn hệ thống"
   styleClass="codes-card"
 >
   <div sectionActions class="codes-header-actions">
@@ -35,13 +34,11 @@
     ></button>
   </div>
 
-  <div class="codes-shell mt-3">
+  <div class="codes-shell">
     <app-loading-overlay
       [active]="loading"
       label="Đang tải dữ liệu danh mục..."
     ></app-loading-overlay>
-
-    <small class="app-validation-error" *ngIf="apiError">{{ apiError }}</small>
 
     <app-empty-state
       *ngIf="!loading && data.length === 0"
@@ -167,30 +164,50 @@
                   <td class="col-value">{{ row.value }}</td>
                   <td class="col-name">{{ row.name }}</td>
                   <td class="col-description">{{ row.description || '—' }}</td>
-                  <td class="col-order">{{ row.sortOrder }}</td>
+                  <td class="col-order">
+                    <div class="order-cell">
+                      <span class="order-cell__value">{{ row.sortOrder }}</span>
+                      <div class="order-cell__btns">
+                        <button
+                          type="button"
+                          class="action-btn action-btn--reorder"
+                          pTooltip="Đưa lên trên"
+                          tooltipPosition="top"
+                          [disabled]="!!valueSearchTerm || isValueFirst(row) || savingValue"
+                          (click)="moveValueUp(row)"
+                        ><i class="pi pi-arrow-up"></i></button>
+                        <button
+                          type="button"
+                          class="action-btn action-btn--reorder"
+                          pTooltip="Đưa xuống dưới"
+                          tooltipPosition="top"
+                          [disabled]="!!valueSearchTerm || isValueLast(row) || savingValue"
+                          (click)="moveValueDown(row)"
+                        ><i class="pi pi-arrow-down"></i></button>
+                      </div>
+                    </div>
+                  </td>
                   <td class="col-status">
-                    <p-tag
-                      [severity]="row.isActive ? 'success' : 'danger'"
-                      [value]="row.isActive ? 'Đang hoạt động' : 'Ngừng hoạt động'"
-                      styleClass="app-status-badge"
-                    ></p-tag>
+                    <span [class]="'status-badge ' + (row.isActive ? 'status-badge--dang-mo' : 'status-badge--da-dong')">
+                      {{ row.isActive ? 'Đang hoạt động' : 'Ngừng hoạt động' }}
+                    </span>
                   </td>
                   <td class="col-actions">
-                    <div class="app-table-actions">
+                    <div class="action-btns">
                       <button
-                        pButton
                         type="button"
-                        icon="pi pi-pencil"
-                        class="p-button-text app-table-action-btn app-table-action-btn--edit"
+                        class="action-btn action-btn--edit"
+                        pTooltip="Chỉnh sửa"
+                        tooltipPosition="top"
                         (click)="openEditValueDialog(row)"
-                      ></button>
+                      ><i class="pi pi-pencil"></i></button>
                       <button
-                        pButton
                         type="button"
-                        icon="pi pi-trash"
-                        class="p-button-text p-button-danger app-table-action-btn app-table-action-btn--delete"
+                        class="action-btn action-btn--delete"
+                        pTooltip="Xóa"
+                        tooltipPosition="top"
                         (click)="deleteValue(row)"
-                      ></button>
+                      ><i class="pi pi-trash"></i></button>
                     </div>
                   </td>
                 </tr>
@@ -223,23 +240,23 @@
         </ng-container>
       </section>
     </ng-container>
-
-    <app-category-upsert-dialog
-      [visible]="categoryDialogVisible"
-      [submitting]="categoryDialogSubmitting"
-      [mode]="categoryDialogMode"
-      [initialData]="categoryDialogInitialData"
-      (visibleChange)="onCategoryDialogVisibleChange($event)"
-      (save)="onCategoryDialogSave($event)"
-    ></app-category-upsert-dialog>
-
-    <app-code-value-dialog
-      [visible]="valueDialogVisible"
-      [submitting]="savingValue"
-      [mode]="valueDialogMode"
-      [initialData]="valueDialogInitialData"
-      (visibleChange)="onValueDialogVisibleChange($event)"
-      (save)="onValueDialogSave($event)"
-    ></app-code-value-dialog>
   </div>
+
+  <app-category-upsert-dialog
+    [visible]="categoryDialogVisible"
+    [submitting]="categoryDialogSubmitting"
+    [mode]="categoryDialogMode"
+    [initialData]="categoryDialogInitialData"
+    (visibleChange)="onCategoryDialogVisibleChange($event)"
+    (save)="onCategoryDialogSave($event)"
+  ></app-category-upsert-dialog>
+
+  <app-code-value-dialog
+    [visible]="valueDialogVisible"
+    [submitting]="savingValue"
+    [mode]="valueDialogMode"
+    [initialData]="valueDialogInitialData"
+    (visibleChange)="onValueDialogVisibleChange($event)"
+    (save)="onValueDialogSave($event)"
+  ></app-code-value-dialog>
 </app-section-card>

@@ -1,4 +1,4 @@
-:host {
+﻿:host {
   display: block;
 }
 
@@ -31,7 +31,7 @@
 .app-dialog-section {
   padding: 0.5rem 0.75rem;
   border: 1px solid color-mix(in srgb, var(--app-border) 86%, white 14%);
-  border-radius: 0.8rem;
+  border-radius: var(--app-radius);
   background: rgba(255, 255, 255, 0.96);
 }
 
@@ -170,7 +170,7 @@
   max-width: min(280px, 100%);
   padding: 0.3rem 0.45rem;
   border: 1px solid #fdba74;
-  border-radius: 0.45rem;
+  border-radius: var(--app-radius);
   background: #fff7ed;
   box-shadow: 0 6px 18px rgba(194, 65, 12, 0.12);
   white-space: nowrap;
@@ -199,7 +199,7 @@
   gap: 0.65rem;
   padding: 0.45rem 0.75rem;
   border: 1px solid rgba(15, 76, 129, 0.14);
-  border-radius: 999px;
+  border-radius: var(--app-radius);
   background: #f8fbff;
   color: #184a63;
   font-size: 0.88rem;
@@ -215,7 +215,7 @@
   min-width: 7.75rem;
   padding: 0.55rem 0.8rem;
   border: 1px solid rgba(15, 76, 129, 0.12);
-  border-radius: 0.85rem;
+  border-radius: var(--app-radius);
   background: #eef5fb;
 }
 
@@ -240,7 +240,7 @@
   flex: 0 0 auto;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--app-border) 84%, white 16%);
-  border-radius: 0.75rem;
+  border-radius: var(--app-radius);
   background: #fbfcfe;
 }
 

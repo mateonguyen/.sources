@@ -1,3 +1,4 @@
+<app-tong-hop-mode-banner></app-tong-hop-mode-banner>
 <app-section-card
   title="CAMERA QUẢN LÝ"
   subtitle="Theo dõi hệ thống camera theo nhóm"
@@ -80,11 +81,7 @@
     <app-empty-state
       class="mt-3"
       *ngIf="!loading() && activeItems().length === 0"
-      [title]="
-        activeTab() === 'NHOM_1'
-          ? 'Chưa có camera Nhóm 1'
-          : 'Chưa có camera Nhóm 2'
-      "
+      [title]="'Chưa có dữ liệu cho ' + getTabLabel(activeTab())"
       message="Không có bản ghi nào trong nhóm camera này. Hãy thêm mới hoặc tải lại dữ liệu."
       icon="pi-video"
       actionLabel="Tải lại"
@@ -218,27 +215,23 @@
               >
             </td>
             <td [class]="tableBodyCellClass" style="text-align: center">
-              <div class="app-table-actions">
+              <div class="action-btns">
                 <button
-                  pButton
                   type="button"
-                  icon="pi pi-pencil"
-                  class="p-button-text app-table-action-btn app-table-action-btn--edit"
+                  class="action-btn action-btn--edit"
                   pTooltip="Chỉnh sửa"
                   tooltipPosition="top"
                   (click)="select(item)"
                   [disabled]="!canEdit()"
-                ></button>
+                ><i class="pi pi-pencil"></i></button>
                 <button
-                  pButton
                   type="button"
-                  icon="pi pi-trash"
-                  class="p-button-text p-button-danger app-table-action-btn app-table-action-btn--delete"
+                  class="action-btn action-btn--delete"
                   pTooltip="Xóa"
                   tooltipPosition="top"
                   (click)="remove(item)"
                   [disabled]="!canEdit()"
-                ></button>
+                ><i class="pi pi-trash"></i></button>
               </div>
             </td>
           </tr>
@@ -254,264 +247,325 @@
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
-  [style]="{ width: '860px', maxWidth: '96vw' }"
+  [closable]="false"
+  [dismissableMask]="true"
+  [style]="{ width: 'min(1000px, 96vw)' }"
+  styleClass="app-camera-quan-ly-dialog"
   appendTo="body"
 >
   <ng-template pTemplate="header">
-    <span class="font-bold text-base">
-      {{ selectedId() !== null ? 'Cập nhật Camera quản lý' : 'Thêm mới Camera
-      quản lý' }}
-    </span>
+    <div class="app-dialog-header">
+      <span class="app-dialog-title">
+        <i class="pi pi-video" aria-hidden="true"></i>
+        {{ selectedId() !== null ? 'Cập nhật Camera quản lý' : 'Thêm mới Camera
+        quản lý' }}
+      </span>
+      <button
+        type="button"
+        class="app-dialog-close"
+        aria-label="Đóng"
+        (click)="closeDialog()"
+      >
+        <i class="pi pi-times" aria-hidden="true"></i>
+      </button>
+    </div>
   </ng-template>
 
-  <form class="camera-form-grid" [formGroup]="form" autocomplete="off">
-    <div class="app-field">
-      <label for="nhomCamera">Nhóm camera</label>
-      <p-dropdown
-        inputId="nhomCamera"
-        [options]="cameraGroupOptions()"
-        optionLabel="label"
-        optionValue="value"
-        [filter]="true"
-        filterBy="label"
-        [showClear]="true"
-        [panelStyleClass]="selectPanelStyleClass"
-        appendTo="body"
-        formControlName="nhomCamera"
-        placeholder="Chọn nhóm camera"
-      ></p-dropdown>
+  <form
+    [formGroup]="form"
+    class="app-dialog-form camera-dialog-form"
+    autocomplete="off"
+    (ngSubmit)="save()"
+  >
+    <div class="app-dialog-body-standard">
+      <div class="camera-form-grid">
+        <div
+          class="app-form-field"
+          [class.has-value]="hasFieldValue('nhomCamera')"
+        >
+          <label class="app-form-field__label" for="nhomCamera"
+            >Nhóm camera</label
+          >
+          <p-dropdown
+            inputId="nhomCamera"
+            [options]="cameraGroupOptions()"
+            optionLabel="label"
+            optionValue="value"
+            [filter]="true"
+            filterBy="label"
+            [showClear]="true"
+            [panelStyleClass]="selectPanelStyleClass"
+            appendTo="body"
+            formControlName="nhomCamera"
+            placeholder="Chọn nhóm camera"
+          ></p-dropdown>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="hasFieldValue('tenDonViDiaChi')"
+          [class.has-error]="isFieldInvalid('tenDonViDiaChi')"
+        >
+          <label class="app-form-field__label required" for="tenDonViDiaChi"
+            >Tên đơn vị / Địa chỉ</label
+          >
+          <input
+            pInputText
+            id="tenDonViDiaChi"
+            class="app-form-field__input"
+            type="text"
+            formControlName="tenDonViDiaChi"
+            placeholder="Nhập tên đơn vị hoặc địa chỉ"
+          />
+          <small
+            class="app-form-field__error"
+            *ngIf="isFieldInvalid('tenDonViDiaChi')"
+          >
+            Trường này là bắt buộc
+          </small>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="hasFieldValue('buongGiamTrangBiSl')"
+        >
+          <label class="app-form-field__label required" for="buongGiamTrangBiSl"
+            >Buồng giám / Khu vực đã trang bị (SL)</label
+          >
+          <p-inputNumber
+            inputId="buongGiamTrangBiSl"
+            [min]="0"
+            formControlName="buongGiamTrangBiSl"
+            placeholder="0"
+            mode="decimal"
+          ></p-inputNumber>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="hasFieldValue('buongGiamTrangBiTs')"
+        >
+          <label class="app-form-field__label required" for="buongGiamTrangBiTs"
+            >Buồng giám / Khu vực tổng số (TS)</label
+          >
+          <p-inputNumber
+            inputId="buongGiamTrangBiTs"
+            [min]="0"
+            formControlName="buongGiamTrangBiTs"
+            placeholder="0"
+            mode="decimal"
+          ></p-inputNumber>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="hasFieldValue('nhuCauDauTu')"
+        >
+          <label class="app-form-field__label required" for="nhuCauDauTu"
+            >Nhu cầu đầu tư</label
+          >
+          <p-inputNumber
+            inputId="nhuCauDauTu"
+            [min]="0"
+            formControlName="nhuCauDauTu"
+            placeholder="0"
+            mode="decimal"
+          ></p-inputNumber>
+        </div>
+
+        <div class="app-form-field" [class.has-value]="hasFieldValue('baoTri')">
+          <label class="app-form-field__label required" for="baoTri"
+            >Bảo trì</label
+          >
+          <p-inputNumber
+            inputId="baoTri"
+            [min]="0"
+            formControlName="baoTri"
+            placeholder="0"
+            mode="decimal"
+          ></p-inputNumber>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="hasFieldValue('suaChua')"
+        >
+          <label class="app-form-field__label required" for="suaChua"
+            >Sửa chữa</label
+          >
+          <p-inputNumber
+            inputId="suaChua"
+            [min]="0"
+            formControlName="suaChua"
+            placeholder="0"
+            mode="decimal"
+          ></p-inputNumber>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="hasFieldValue('soLanViPham')"
+        >
+          <label class="app-form-field__label required" for="soLanViPham"
+            >Số lần vi phạm</label
+          >
+          <p-inputNumber
+            inputId="soLanViPham"
+            [min]="0"
+            formControlName="soLanViPham"
+            placeholder="0"
+            mode="decimal"
+          ></p-inputNumber>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="hasFieldValue('ketNoiChiaSe')"
+        >
+          <label class="app-form-field__label" for="ketNoiChiaSe"
+            >Kết nối / Chia sẻ</label
+          >
+          <input
+            pInputText
+            id="ketNoiChiaSe"
+            class="app-form-field__input"
+            type="text"
+            formControlName="ketNoiChiaSe"
+            placeholder="Nhập chi tiết kết nối"
+          />
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="hasFieldValue('hoSoCapDoAttt')"
+        >
+          <label class="app-form-field__label required" for="hoSoCapDoAttt"
+            >Hồ sơ cấp độ ATTT</label
+          >
+          <p-inputNumber
+            inputId="hoSoCapDoAttt"
+            [min]="0"
+            formControlName="hoSoCapDoAttt"
+            placeholder="0"
+            mode="decimal"
+          ></p-inputNumber>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="hasFieldValue('cbChuyenTrach')"
+        >
+          <label class="app-form-field__label required" for="cbChuyenTrach"
+            >Cán bộ chuyên trách</label
+          >
+          <p-inputNumber
+            inputId="cbChuyenTrach"
+            [min]="0"
+            formControlName="cbChuyenTrach"
+            placeholder="0"
+            mode="decimal"
+          ></p-inputNumber>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="hasFieldValue('cbKiemNhiem')"
+        >
+          <label class="app-form-field__label required" for="cbKiemNhiem"
+            >Cán bộ kiêm nhiệm</label
+          >
+          <p-inputNumber
+            inputId="cbKiemNhiem"
+            [min]="0"
+            formControlName="cbKiemNhiem"
+            placeholder="0"
+            mode="decimal"
+          ></p-inputNumber>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="hasFieldValue('cbDiaPhuong')"
+        >
+          <label class="app-form-field__label required" for="cbDiaPhuong"
+            >Cán bộ địa phương</label
+          >
+          <p-inputNumber
+            inputId="cbDiaPhuong"
+            [min]="0"
+            formControlName="cbDiaPhuong"
+            placeholder="0"
+            mode="decimal"
+          ></p-inputNumber>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="hasFieldValue('daoTaoBo')"
+        >
+          <label class="app-form-field__label required" for="daoTaoBo"
+            >Đào tạo tập huấn (Bộ)</label
+          >
+          <p-inputNumber
+            inputId="daoTaoBo"
+            [min]="0"
+            formControlName="daoTaoBo"
+            placeholder="0"
+            mode="decimal"
+          ></p-inputNumber>
+        </div>
+
+        <div
+          class="app-form-field"
+          [class.has-value]="hasFieldValue('daoTaoNhuCau')"
+        >
+          <label class="app-form-field__label required" for="daoTaoNhuCau"
+            >Đào tạo tập huấn (Nhu cầu)</label
+          >
+          <p-inputNumber
+            inputId="daoTaoNhuCau"
+            [min]="0"
+            formControlName="daoTaoNhuCau"
+            placeholder="0"
+            mode="decimal"
+          ></p-inputNumber>
+        </div>
+
+        <div
+          class="app-form-field app-form-field--full"
+          [class.has-value]="hasFieldValue('ghiChu')"
+        >
+          <label class="app-form-field__label" for="ghiChu">Ghi chú</label>
+          <textarea
+            pInputTextarea
+            id="ghiChu"
+            class="app-form-field__input p-inputtextarea"
+            formControlName="ghiChu"
+            placeholder="Nhập ghi chú thêm..."
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
     </div>
 
-    <div class="app-field">
-      <label for="tenDonViDiaChi"
-        >Tên đơn vị / Địa chỉ <span class="required">*</span></label
-      >
-      <input
-        pInputText
-        id="tenDonViDiaChi"
-        class="w-full"
-        type="text"
-        formControlName="tenDonViDiaChi"
-        placeholder="Nhập tên đơn vị hoặc địa chỉ"
-      />
-      <small
-        class="app-validation-error"
-        *ngIf="
-          form.controls.tenDonViDiaChi.invalid &&
-          form.controls.tenDonViDiaChi.touched
-        "
-      >
-        Trường này là bắt buộc
-      </small>
-    </div>
-
-    <div class="app-field">
-      <label for="buongGiamTrangBiSl"
-        >Buồng giám / Khu vực đã trang bị (SL)
-        <span class="required">*</span></label
-      >
-      <p-inputNumber
-        id="buongGiamTrangBiSl"
-        inputStyleClass="w-full"
-        [min]="0"
-        formControlName="buongGiamTrangBiSl"
-        placeholder="0"
-        mode="decimal"
-      ></p-inputNumber>
-    </div>
-
-    <div class="app-field">
-      <label for="buongGiamTrangBiTs"
-        >Buồng giám / Khu vực tổng số (TS)
-        <span class="required">*</span></label
-      >
-      <p-inputNumber
-        id="buongGiamTrangBiTs"
-        inputStyleClass="w-full"
-        [min]="0"
-        formControlName="buongGiamTrangBiTs"
-        placeholder="0"
-        mode="decimal"
-      ></p-inputNumber>
-    </div>
-
-    <div class="app-field">
-      <label for="nhuCauDauTu"
-        >Nhu cầu đầu tư <span class="required">*</span></label
-      >
-      <p-inputNumber
-        id="nhuCauDauTu"
-        inputStyleClass="w-full"
-        [min]="0"
-        formControlName="nhuCauDauTu"
-        placeholder="0"
-        mode="decimal"
-      ></p-inputNumber>
-    </div>
-
-    <div class="app-field">
-      <label for="baoTri">Bảo trì <span class="required">*</span></label>
-      <p-inputNumber
-        id="baoTri"
-        inputStyleClass="w-full"
-        [min]="0"
-        formControlName="baoTri"
-        placeholder="0"
-        mode="decimal"
-      ></p-inputNumber>
-    </div>
-
-    <div class="app-field">
-      <label for="suaChua">Sửa chữa <span class="required">*</span></label>
-      <p-inputNumber
-        id="suaChua"
-        inputStyleClass="w-full"
-        [min]="0"
-        formControlName="suaChua"
-        placeholder="0"
-        mode="decimal"
-      ></p-inputNumber>
-    </div>
-
-    <div class="app-field">
-      <label for="soLanViPham"
-        >Số lần vi phạm <span class="required">*</span></label
-      >
-      <p-inputNumber
-        id="soLanViPham"
-        inputStyleClass="w-full"
-        [min]="0"
-        formControlName="soLanViPham"
-        placeholder="0"
-        mode="decimal"
-      ></p-inputNumber>
-    </div>
-
-    <div class="app-field">
-      <label for="ketNoiChiaSe">Kết nối / Chia sẻ</label>
-      <input
-        pInputText
-        id="ketNoiChiaSe"
-        class="w-full"
-        type="text"
-        formControlName="ketNoiChiaSe"
-        placeholder="Nhập chi tiết kết nối"
-      />
-    </div>
-
-    <div class="app-field">
-      <label for="hoSoCapDoAttt"
-        >Hồ sơ cấp độ ATTT <span class="required">*</span></label
-      >
-      <p-inputNumber
-        id="hoSoCapDoAttt"
-        inputStyleClass="w-full"
-        [min]="0"
-        formControlName="hoSoCapDoAttt"
-        placeholder="0"
-        mode="decimal"
-      ></p-inputNumber>
-    </div>
-
-    <div class="app-field">
-      <label for="cbChuyenTrach"
-        >Cán bộ chuyên trách <span class="required">*</span></label
-      >
-      <p-inputNumber
-        id="cbChuyenTrach"
-        inputStyleClass="w-full"
-        [min]="0"
-        formControlName="cbChuyenTrach"
-        placeholder="0"
-        mode="decimal"
-      ></p-inputNumber>
-    </div>
-
-    <div class="app-field">
-      <label for="cbKiemNhiem"
-        >Cán bộ kiêm nhiệm <span class="required">*</span></label
-      >
-      <p-inputNumber
-        id="cbKiemNhiem"
-        inputStyleClass="w-full"
-        [min]="0"
-        formControlName="cbKiemNhiem"
-        placeholder="0"
-        mode="decimal"
-      ></p-inputNumber>
-    </div>
-
-    <div class="app-field">
-      <label for="cbDiaPhuong"
-        >Cán bộ địa phương <span class="required">*</span></label
-      >
-      <p-inputNumber
-        id="cbDiaPhuong"
-        inputStyleClass="w-full"
-        [min]="0"
-        formControlName="cbDiaPhuong"
-        placeholder="0"
-        mode="decimal"
-      ></p-inputNumber>
-    </div>
-
-    <div class="app-field">
-      <label for="daoTaoBo"
-        >Đào tạo tập huấn (Bộ) <span class="required">*</span></label
-      >
-      <p-inputNumber
-        id="daoTaoBo"
-        inputStyleClass="w-full"
-        [min]="0"
-        formControlName="daoTaoBo"
-        placeholder="0"
-        mode="decimal"
-      ></p-inputNumber>
-    </div>
-
-    <div class="app-field">
-      <label for="daoTaoNhuCau"
-        >Đào tạo tập huấn (Nhu cầu) <span class="required">*</span></label
-      >
-      <p-inputNumber
-        id="daoTaoNhuCau"
-        inputStyleClass="w-full"
-        [min]="0"
-        formControlName="daoTaoNhuCau"
-        placeholder="0"
-        mode="decimal"
-      ></p-inputNumber>
-    </div>
-
-    <div class="app-field app-field--full">
-      <label for="ghiChu">Ghi chú</label>
-      <textarea
-        pInputTextarea
-        id="ghiChu"
-        class="w-full"
-        formControlName="ghiChu"
-        placeholder="Nhập ghi chú thêm..."
-        rows="3"
-      ></textarea>
+    <div class="app-dialog-actions">
+      <button
+        pButton
+        type="button"
+        icon="pi pi-times"
+        label="Hủy"
+        class="p-button-secondary p-button-outlined"
+        [disabled]="saving()"
+        (click)="closeDialog()"
+      ></button>
+      <button
+        pButton
+        type="submit"
+        icon="pi pi-save"
+        label="Lưu"
+        class="p-button-primary"
+        [loading]="saving()"
+      ></button>
     </div>
   </form>
-
-  <ng-template pTemplate="footer">
-    <button
-      pButton
-      type="button"
-      icon="pi pi-times"
-      label="Hủy"
-      severity="secondary"
-      (click)="closeDialog()"
-    ></button>
-    <button
-      pButton
-      type="button"
-      icon="pi pi-save"
-      label="Lưu"
-      [loading]="saving()"
-      (click)="save()"
-    ></button>
-  </ng-template>
 </p-dialog>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import {
   FormBuilder,
   FormsModule,
@@ -34,6 +34,9 @@ interface DonViTreeRow {
   expandable: boolean;
   expanded: boolean;
   matched: boolean;
+  /** Ten da highlight tu khoa, tinh san 1 lan khi build rows - tranh goi lai
+   * regex/innerHTML moi vong change-detection (nguyen nhan giat khi go tim). */
+  label: string;
 }
 
 interface SelectOption {
@@ -65,6 +68,8 @@ type EditorMode = 'create-root' | 'create-child' | 'edit';
   styleUrl: './don-vi.page.scss',
 })
 export class DonViPage {
+  @ViewChild('treeBody') treeBodyRef?: ElementRef<HTMLDivElement>;
+
   readonly treeIndentStepPx = 30;
 
   data: DonViDto[] = [];
@@ -78,9 +83,15 @@ export class DonViPage {
   editorMode: EditorMode = 'create-root';
   parentTreeOptions: TreeNode<ParentTreeNodeData>[] = [];
   capDonViOptions: SelectOption[] = [];
+  khoiDonViOptions: SelectOption[] = [];
+  readonly cheDoNhapLieuOptions: SelectOption[] = [
+    { label: 'Tự nhập', value: 'TU_NHAP' },
+    { label: 'Tổng hợp', value: 'TONG_HOP' },
+  ];
 
   private readonly expandedIds = new Set<number>();
   private readonly parentMap = new Map<number, number | null>();
+  private filterDebounceHandle: ReturnType<typeof setTimeout> | null = null;
 
   readonly form = this.formBuilder.group({
     maDonVi: ['', [Validators.required, Validators.maxLength(50)]],
@@ -89,6 +100,8 @@ export class DonViPage {
     parentNode: [null as TreeNode<ParentTreeNodeData> | null],
     diaChi: [''],
     capDonVi: [null as string | null],
+    khoiDonVi: [null as string | null],
+    cheDoNhapLieu: ['TU_NHAP'],
     websiteNoiBo: [''],
     websiteInternet: [''],
     tongBienChe: [null as number | null],
@@ -102,6 +115,14 @@ export class DonViPage {
     private readonly notificationService: NotificationService,
     private readonly confirmDialog: ConfirmDialogWrapperService,
   ) {
+    this.form.controls.capDonVi.valueChanges.subscribe((value) => {
+      if (!this.isTongHopCapDonVi(value)) {
+        this.form.controls.cheDoNhapLieu.setValue('TU_NHAP', {
+          emitEvent: false,
+        });
+      }
+    });
+
     void this.initialize();
   }
 
@@ -109,12 +130,17 @@ export class DonViPage {
     this.loading = true;
     this.apiError = '';
     try {
-      const [capDonViCode, tree] = await Promise.all([
+      const [capDonViCode, khoiDonViCode, tree] = await Promise.all([
         this.codesApi.getByCode('CAP_DON_VI'),
+        this.codesApi.getByCode('KHOI_DON_VI'),
         this.donViApi.getTree(),
       ]);
 
       this.capDonViOptions = capDonViCode.values.map((item: CodeValueDto) => ({
+        label: item.name,
+        value: item.value,
+      }));
+      this.khoiDonViOptions = khoiDonViCode.values.map((item: CodeValueDto) => ({
         label: item.name,
         value: item.value,
       }));
@@ -151,11 +177,14 @@ export class DonViPage {
       parentNode: this.findParentNodeById(this.selected.parentId ?? null),
       diaChi: detail.diaChi ?? '',
       capDonVi: detail.capDonVi ?? null,
+      khoiDonVi: detail.khoiDonVi ?? null,
+      cheDoNhapLieu: detail.cheDoNhapLieu ?? 'TU_NHAP',
       websiteNoiBo: detail.websiteNoiBo ?? '',
       websiteInternet: detail.websiteInternet ?? '',
       tongBienChe: detail.tongBienChe ?? null,
       isActive: this.selected.isActive,
     });
+    this.scrollNodeIntoView(id);
   }
 
   createNew(): void {
@@ -171,6 +200,8 @@ export class DonViPage {
       parentNode: null,
       diaChi: '',
       capDonVi: null,
+      khoiDonVi: null,
+      cheDoNhapLieu: 'TU_NHAP',
       websiteNoiBo: '',
       websiteInternet: '',
       tongBienChe: null,
@@ -193,11 +224,14 @@ export class DonViPage {
       parentNode: this.findParentNodeById(node.id),
       diaChi: '',
       capDonVi: null,
+      khoiDonVi: null,
+      cheDoNhapLieu: 'TU_NHAP',
       websiteNoiBo: '',
       websiteInternet: '',
       tongBienChe: null,
       isActive: true,
     });
+    this.scrollNodeIntoView(node.id);
   }
 
   async save(): Promise<void> {
@@ -217,6 +251,10 @@ export class DonViPage {
         parentId: value.parentNode?.data?.id,
         diaChi: value.diaChi ?? undefined,
         capDonVi: value.capDonVi ?? undefined,
+        khoiDonVi: value.khoiDonVi ?? undefined,
+        cheDoNhapLieu: this.isTongHopCapDonVi(value.capDonVi)
+          ? (value.cheDoNhapLieu ?? 'TU_NHAP')
+          : 'TU_NHAP',
         websiteNoiBo: value.websiteNoiBo ?? undefined,
         websiteInternet: value.websiteInternet ?? undefined,
         tongBienChe: value.tongBienChe ?? undefined,
@@ -248,9 +286,10 @@ export class DonViPage {
     }
 
     const confirmed = await this.confirmDialog.confirmDelete({
-      message: `Xác nhận xóa mềm đơn vị ${this.selected.tenDonVi}?`,
-      acceptLabel: 'Xóa mềm',
+      message: `Xác nhận xóa đơn vị ${this.selected.tenDonVi}?`,
+      acceptLabel: 'Xóa',
       rejectLabel: 'Hủy',
+      countdownSeconds: 5,
     });
     if (!confirmed) {
       return;
@@ -263,12 +302,32 @@ export class DonViPage {
   }
 
   onTreeFilterChange(value: string): void {
+    // Cap nhat gia tri o nhap ngay (go phim muot), nhung debounce phan build
+    // lai cay (5000+ node) + highlight de tranh giat khi go nhanh.
     this.treeFilter = value;
-    this.rebuildTreeRows();
+    if (this.filterDebounceHandle !== null) {
+      clearTimeout(this.filterDebounceHandle);
+    }
+    this.filterDebounceHandle = setTimeout(() => {
+      this.filterDebounceHandle = null;
+      this.rebuildTreeRows();
+    }, 220);
   }
 
   clearTreeFilter(): void {
-    this.onTreeFilterChange('');
+    if (this.filterDebounceHandle !== null) {
+      clearTimeout(this.filterDebounceHandle);
+      this.filterDebounceHandle = null;
+    }
+    this.treeFilter = '';
+    this.rebuildTreeRows();
+    // Sau khi xoa tim kiem, cuon ve dung vi tri don vi dang chon (neu co) de
+    // nguoi dung khong bi "mat dau" don vi vua tim thay trong cay day du.
+    if (this.selected) {
+      this.scrollNodeIntoView(this.selected.id);
+    } else if (this.selectedParent) {
+      this.scrollNodeIntoView(this.selectedParent.id);
+    }
   }
 
   toggleExpanded(id: number): void {
@@ -293,6 +352,21 @@ export class DonViPage {
     return (
       this.capDonViOptions.find((item) => item.value === value)?.label ?? value
     );
+  }
+
+  resolveKhoiDonViLabel(value: string | null | undefined): string {
+    if (!value) {
+      return 'Chưa phân loại';
+    }
+
+    return (
+      this.khoiDonViOptions.find((item) => item.value === value)?.label ??
+      value
+    );
+  }
+
+  get showCheDoNhapLieuField(): boolean {
+    return this.isTongHopCapDonVi(this.form.controls.capDonVi.value);
   }
 
   treeIndentPx(level: number): number {
@@ -393,6 +467,19 @@ export class DonViPage {
     }
   }
 
+  /** Cuon panel cay don vi de dua node dang chon vao vung nhin, sau khi DOM
+   * da cap nhat theo treeRows moi (setTimeout de doi Angular render xong). */
+  private scrollNodeIntoView(id: number): void {
+    setTimeout(() => {
+      const container = this.treeBodyRef?.nativeElement;
+      if (!container) {
+        return;
+      }
+      const el = container.querySelector<HTMLElement>(`[data-node-id="${id}"]`);
+      el?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    });
+  }
+
   private expandSelectionPath(id: number): void {
     this.expandedIds.add(id);
 
@@ -429,21 +516,28 @@ export class DonViPage {
     keyword: string,
     ignoreExpansion: boolean,
     level = 0,
+    forceInclude = false,
   ): DonViTreeRow[] {
     const rows: DonViTreeRow[] = [];
 
     for (let index = 0; index < items.length; index += 1) {
       const item = items[index];
+      const selfTextMatches = !!keyword && this.matches(item, keyword);
+      // Neu chinh don vi nay khop tu khoa (hoac mot to tien da khop), hien
+      // thi TOAN BO cay con cua no khong loc tiep theo tu khoa - nguoi dung
+      // tim thay don vi cha van xem/duyet duoc het cac don vi con ben trong.
+      const childForceInclude = forceInclude || selfTextMatches;
       const childRows = this.buildTreeRows(
         item.children ?? [],
         keyword,
         ignoreExpansion,
         level + 1,
+        childForceInclude,
       );
-      const selfMatches = !keyword || this.matches(item, keyword);
+      const includeSelf = !keyword || forceInclude || selfTextMatches;
       const hasVisibleChildren = childRows.length > 0;
 
-      if (keyword && !selfMatches && !hasVisibleChildren) {
+      if (keyword && !includeSelf && !hasVisibleChildren) {
         continue;
       }
 
@@ -455,7 +549,8 @@ export class DonViPage {
         guideColumns: Array.from({ length: level }, (_, guide) => guide),
         expandable: (item.children?.length ?? 0) > 0,
         expanded,
-        matched: !!keyword && this.matches(item, keyword),
+        matched: selfTextMatches,
+        label: this.highlightNodeName(item.tenDonVi),
       });
 
       if (expanded || ignoreExpansion || !!keyword) {
@@ -489,5 +584,9 @@ export class DonViPage {
 
   private normalize(value: string | null | undefined): string {
     return (value ?? '').trim().toLowerCase();
+  }
+
+  private isTongHopCapDonVi(capDonVi: string | null | undefined): boolean {
+    return capDonVi === 'CAP_1';
   }
 }

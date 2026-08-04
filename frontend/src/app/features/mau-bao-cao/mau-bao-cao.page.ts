@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogWrapperService } from '../../shared/ui/confirm-dialog-wrapper.service';
 import { EmptyStateComponent } from '../../shared/ui/empty-state.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
@@ -42,6 +43,7 @@ import {
     PaginatorModule,
     TableModule,
     TagModule,
+    TooltipModule,
     MauBaoCaoUpsertDialogComponent,
   ],
   templateUrl: './mau-bao-cao.page.html',

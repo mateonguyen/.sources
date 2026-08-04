@@ -28,9 +28,40 @@
 .app-surface-muted {
   background: var(--app-surface-soft);
   border: 1px solid var(--app-border);
-  border-radius: var(--app-radius-md);
+  border-radius: var(--app-radius);
 }
 
 .p-component {
   font-family: var(--app-font-family-base);
 }
+
+/* ── Border-radius system reset ── */
+.p-card,
+.p-card .p-card-body          { border-radius: var(--app-radius) !important; }
+.p-button                     { border-radius: var(--app-radius) !important; }
+.p-inputtext,
+.p-input-icon-left > input,
+.p-input-icon-right > input   { border-radius: var(--app-radius) !important; }
+.p-dropdown,
+.p-dropdown-panel             { border-radius: var(--app-radius) !important; }
+.p-multiselect,
+.p-multiselect-panel          { border-radius: var(--app-radius) !important; }
+.p-calendar input,
+.p-datepicker                 { border-radius: var(--app-radius) !important; }
+.p-dialog                     { border-radius: var(--app-radius) !important; }
+.p-dialog .p-dialog-header    { border-radius: var(--app-radius) var(--app-radius) 0 0 !important; }
+.p-dialog .p-dialog-footer    { border-radius: 0 0 var(--app-radius) var(--app-radius) !important; }
+.p-overlaypanel               { border-radius: var(--app-radius) !important; }
+.p-menu, .p-tieredmenu,
+.p-contextmenu                { border-radius: var(--app-radius) !important; }
+.p-tooltip .p-tooltip-text    { border-radius: var(--app-radius) !important; }
+.p-tag                        { border-radius: var(--app-radius) !important; }
+.p-badge                      { border-radius: var(--app-radius) !important; }
+.p-chip                       { border-radius: var(--app-radius) !important; }
+.p-togglebutton               { border-radius: var(--app-radius) !important; }
+.p-selectbutton .p-button                { border-radius: 0 !important; }
+.p-selectbutton .p-button:first-child    { border-radius: var(--app-radius) 0 0 var(--app-radius) !important; }
+.p-selectbutton .p-button:last-child     { border-radius: 0 var(--app-radius) var(--app-radius) 0 !important; }
+.p-table .p-datatable-wrapper { border-radius: var(--app-radius) !important; }
+.p-paginator                  { border-radius: 0 0 var(--app-radius) var(--app-radius) !important; }
+.p-sidebar                    { border-radius: var(--app-radius) !important; }

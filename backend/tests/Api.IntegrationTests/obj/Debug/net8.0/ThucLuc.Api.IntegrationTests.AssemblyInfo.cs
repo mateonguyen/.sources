@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ThucLuc.Api.IntegrationTests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0b55b813c7597bae72acf8b09ba24400e1149bf1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1d07a5525b9d43aa286ef52eb5921bece2732a20")]
 [assembly: System.Reflection.AssemblyProductAttribute("ThucLuc.Api.IntegrationTests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ThucLuc.Api.IntegrationTests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

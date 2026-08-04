@@ -73,7 +73,7 @@ export class LoginPage {
         value.password ?? '',
         rememberMe,
       );
-      await this.router.navigate(['/']);
+      await this.router.navigate(['/trang-chu'], { replaceUrl: true });
     } catch (error: any) {
       this.error =
         error?.error?.message ||

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ThucLuc.Application.Common.Contracts;
 using ThucLuc.Application.Common.Exceptions;
 using ThucLuc.Application.Common.Models;
+using ThucLuc.Application.Features.Files;
 using ThucLuc.Application.Security;
 using VanBanQpplEntity = ThucLuc.Domain.Entities.Business.VanBanQppl;
 using VanBanQpplHisEntity = ThucLuc.Domain.Entities.Business.VanBanQpplHis;
@@ -24,12 +25,18 @@ public sealed class VanBanQpplService : IVanBanQpplService
     private readonly IApplicationDbContext _dbContext;
     private readonly ICurrentUserService _currentUserService;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IFileService _fileService;
 
-    public VanBanQpplService(IApplicationDbContext dbContext, ICurrentUserService currentUserService, IDateTimeProvider dateTimeProvider)
+    public VanBanQpplService(
+        IApplicationDbContext dbContext,
+        ICurrentUserService currentUserService,
+        IDateTimeProvider dateTimeProvider,
+        IFileService fileService)
     {
         _dbContext = dbContext;
         _currentUserService = currentUserService;
         _dateTimeProvider = dateTimeProvider;
+        _fileService = fileService;
     }
 
     public async Task<IReadOnlyCollection<VanBanQpplDto>> GetAllAsync(GetVanBanQpplQuery query, CancellationToken cancellationToken = default)
@@ -58,10 +65,19 @@ public sealed class VanBanQpplService : IVanBanQpplService
     }
 
     public async Task<VanBanQpplDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
-        => await ApplyReadScope(_dbContext.VanBanQppls)
+    {
+        var dto = await ApplyReadScope(_dbContext.VanBanQppls)
             .Where(x => x.Id == id)
             .Select(MapLiveToDto())
             .FirstOrDefaultAsync(cancellationToken);
+
+        if (dto is not null)
+        {
+            dto.FileDinhKems = await _fileService.GetByEntityAsync("VanBanQppl", id, cancellationToken);
+        }
+
+        return dto;
+    }
 
     public async Task<VanBanQpplDto> UpsertAsync(long? id, UpsertVanBanQpplRequest request, CancellationToken cancellationToken = default)
     {

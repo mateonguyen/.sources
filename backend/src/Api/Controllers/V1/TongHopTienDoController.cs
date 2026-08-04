@@ -40,6 +40,19 @@ public sealed class TongHopTienDoController : ControllerBase
         return Ok(ApiResponseFactory.Success(result));
     }
 
+    /// <summary>Cấp trên xem chi tiết bản ghi live 1 module của đơn vị con trực thuộc.</summary>
+    [HttpGet("chi-tiet")]
+    [HasPermission(Permissions.TongHopTienDo.Read)]
+    [ProducesResponseType(typeof(ApiResponse<ChiTietModuleDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<ChiTietModuleDto>>> GetChiTiet(
+        [FromQuery] long donViId,
+        [FromQuery] string moduleCode,
+        CancellationToken cancellationToken)
+    {
+        var result = await _service.GetChiTietModuleAsync(donViId, moduleCode, cancellationToken);
+        return Ok(ApiResponseFactory.Success(result));
+    }
+
     /// <summary>PHONG/XA bật/tắt flag "Đã xác nhận xong" (không lock BIZ_*).</summary>
     [HttpPost("xac-nhan")]
     [HasPermission(Permissions.TongHopTienDo.XacNhan)]

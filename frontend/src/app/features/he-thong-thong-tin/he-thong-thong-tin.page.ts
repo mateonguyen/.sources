@@ -29,6 +29,7 @@ import { ConfirmDialogWrapperService } from '../../shared/ui/confirm-dialog-wrap
 import { FilterBarComponent } from '../../shared/ui/filter-bar.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
 import { SectionCardComponent } from '../../shared/ui/section-card.component';
+import { TongHopModeBannerComponent } from '../../shared/ui/tong-hop-mode-banner.component';
 import {
   APP_SELECT_PANEL_STYLE_CLASS,
   APP_TABLE_BODY_CELL_CLASS,
@@ -70,6 +71,7 @@ interface HtttTieuChuanGridRow {
   selector: 'app-he-thong-thong-tin-page',
   standalone: true,
   imports: [
+    TongHopModeBannerComponent,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,

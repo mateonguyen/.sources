@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
+import { forbiddenRedirectGuard } from './core/auth/forbidden-redirect.guard';
 
 export const routes: Routes = [
   {
@@ -90,13 +91,6 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'snapshot',
-        loadComponent: () =>
-          import('./features/snapshot/snapshot.page').then(
-            (m) => m.SnapshotPage,
-          ),
-      },
-      {
         path: 'yeu-cau-bo-sung',
         loadComponent: () =>
           import('./features/yeu-cau-bo-sung/yeu-cau-bo-sung.page').then(
@@ -149,11 +143,17 @@ export const routes: Routes = [
           import('./features/codes/codes.page').then((m) => m.CodesPage),
       },
       {
-        path: 'van-ban-qppl',
-        data: { moduleKey: 'vanBanQppl' },
+        path: 'ref-loai-thiet-bi',
         loadComponent: () =>
-          import('./features/business-modules/business-modules.page').then(
-            (m) => m.BusinessModulesPage,
+          import('./features/ref-loai-thiet-bi/ref-loai-thiet-bi.page').then(
+            (m) => m.RefLoaiThietBiPage,
+          ),
+      },
+      {
+        path: 'van-ban-qppl',
+        loadComponent: () =>
+          import('./features/van-ban-qppl/van-ban-qppl.page').then(
+            (m) => m.VanBanQpplPage,
           ),
       },
       {
@@ -245,10 +245,23 @@ export const routes: Routes = [
       },
       {
         path: 'camera-thuc-trang',
-        data: { moduleKey: 'cameraThucTrang' },
         loadComponent: () =>
-          import('./features/business-modules/business-modules.page').then(
-            (m) => m.BusinessModulesPage,
+          import('./features/camera-thuc-trang/camera-thuc-trang.page').then(
+            (m) => m.CameraThucTrangPage,
+          ),
+      },
+      {
+        path: 'du-an-cntt',
+        loadComponent: () =>
+          import('./features/du-an-cntt/du-an-cntt.page').then(
+            (m) => m.DuAnCnttPage,
+          ),
+      },
+      {
+        path: 'tra-cuu-bao-cao',
+        loadComponent: () =>
+          import('./features/tra-cuu-bao-cao/tra-cuu-bao-cao.page').then(
+            (m) => m.TraCuuBaoCaoPage,
           ),
       },
       {
@@ -260,6 +273,7 @@ export const routes: Routes = [
   },
   {
     path: 'forbidden',
+    canActivate: [forbiddenRedirectGuard],
     loadComponent: () =>
       import('./features/system/forbidden.page').then((m) => m.ForbiddenPage),
   },

@@ -1,3 +1,4 @@
+<app-tong-hop-mode-banner></app-tong-hop-mode-banner>
 <div class="httt-page">
   <!-- ── Dialog: Phần mềm / CSDL ───────────────────────────────────────── -->
   <p-dialog
@@ -635,25 +636,21 @@
                           {{ item.ghiChu || '—' }}
                         </td>
                         <td [class]="tableBodyCellClass">
-                          <div class="app-table-actions">
+                          <div class="action-btns">
                             <button
-                              pButton
                               type="button"
-                              icon="pi pi-pencil"
-                              class="p-button-text app-table-action-btn app-table-action-btn--edit"
+                              class="action-btn action-btn--edit"
                               pTooltip="Chỉnh sửa"
                               tooltipPosition="top"
                               (click)="openSoftwareEditDialog(item)"
-                            ></button>
+                            ><i class="pi pi-pencil"></i></button>
                             <button
-                              pButton
                               type="button"
-                              icon="pi pi-trash"
-                              class="p-button-text p-button-danger app-table-action-btn app-table-action-btn--delete"
+                              class="action-btn action-btn--delete"
                               pTooltip="Xóa"
                               tooltipPosition="top"
                               (click)="removeSoftware(item)"
-                            ></button>
+                            ><i class="pi pi-trash"></i></button>
                           </div>
                         </td>
                       </tr>
@@ -775,25 +772,21 @@
                           {{ resolveBool(item.daCongNhanSangKien) }}
                         </td>
                         <td [class]="tableBodyCellClass">
-                          <div class="app-table-actions">
+                          <div class="action-btns">
                             <button
-                              pButton
                               type="button"
-                              icon="pi pi-pencil"
-                              class="p-button-text app-table-action-btn app-table-action-btn--edit"
+                              class="action-btn action-btn--edit"
                               pTooltip="Chỉnh sửa"
                               tooltipPosition="top"
                               (click)="openSoftwareEditDialog(item)"
-                            ></button>
+                            ><i class="pi pi-pencil"></i></button>
                             <button
-                              pButton
                               type="button"
-                              icon="pi pi-trash"
-                              class="p-button-text p-button-danger app-table-action-btn app-table-action-btn--delete"
+                              class="action-btn action-btn--delete"
                               pTooltip="Xóa"
                               tooltipPosition="top"
                               (click)="removeSoftware(item)"
-                            ></button>
+                            ><i class="pi pi-trash"></i></button>
                           </div>
                         </td>
                       </tr>
@@ -1106,14 +1099,12 @@
                           style="text-align: center; padding: 0.26rem"
                         >
                           <button
-                            pButton
                             type="button"
-                            icon="pi pi-trash"
-                            class="p-button-rounded p-button-sm p-button-text p-button-danger"
+                            class="action-btn action-btn--delete"
                             (click)="deleteStandardRow(row, rowIndex)"
-                            [pTooltip]="'Xóa dòng'"
+                            pTooltip="Xóa dòng"
                             tooltipPosition="top"
-                          ></button>
+                          ><i class="pi pi-trash"></i></button>
                         </td>
                       </tr>
                     </ng-template>

@@ -1,6 +1,6 @@
 :root {
-  --app-primary-50: #e8edf4;
-  --app-primary-100: #cdd8e8;
+  --app-primary-50:  #ede8de;
+  --app-primary-100: #d8ccb8;
   --app-primary-500: #1f4f7c;
   --app-primary-600: #173d62;
   --app-primary-700: #12324f;
@@ -12,33 +12,40 @@
 
   --app-success-500: #3f5f2d;
   --app-warning-500: #8a5a12;
-  --app-danger-500: #8a1f2d;
-  --app-info-500: #1f4f7c;
+  --app-danger-500:  #8a1f2d;
+  --app-info-500:    #1f4f7c;
 
-  --app-success-bg: #edf3e9;
-  --app-warning-bg: #fff4e5;
-  --app-danger-bg: #fcecef;
-  --app-info-bg: #e9f0f7;
+  --app-success-bg:  #edf3e9;
+  --app-warning-bg:  #fff4e5;
+  --app-danger-bg:   #fef6f4;
+  --app-info-bg:     #e9f0f7;
 
-  --app-bg: #f3f6f9;
-  --app-bg-soft: #eaf0f5;
-  --app-surface: #ffffff;
-  --app-surface-soft: #f0f4f8;
+  /* Nền ứng dụng — warm */
+  --app-bg:          #e6dfd3;
+  --app-bg-soft:     #ddd7cc;
 
-  --app-border: #bfcbd7;
-  --app-border-strong: #95a5b6;
+  /* Surface / card — trắng sạch nổi trên nền ấm */
+  --app-surface:     #ffffff;
+  --app-surface-soft:#f2ead8;
 
-  --app-text: #142233;
-  --app-text-strong: #0d1a29;
-  --app-text-muted: #415468;
+  /* Border — warm tan */
+  --app-border:       #d0c3ac;
+  --app-border-strong:#b8a88e;
+
+  /* Text */
+  --app-text:          #142233;
+  --app-text-strong:   #0d1a29;
+  --app-text-muted:    #4a5566;
   --app-text-disabled: #7c8b99;
-  --app-text-on-dark: #f7fafc;
+  --app-text-on-dark:  #f7fafc;
 
+  /* Semantic borders */
   --app-success-border: #334f24;
   --app-warning-border: #724a0f;
-  --app-danger-border: #721a25;
-  --app-info-border: #173d62;
+  --app-danger-border:  #721a25;
+  --app-info-border:    #173d62;
 
-  --app-shell-grad-a: #f3f6f9;
-  --app-shell-grad-b: #eaf0f5;
+  /* Shell gradient */
+  --app-shell-grad-a: #e6dfd3;
+  --app-shell-grad-b: #ddd7cc;
 }

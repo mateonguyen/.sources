@@ -1,46 +1,8 @@
-.content-shell {
+﻿.content-shell {
   position: relative;
   min-height: 140px;
 }
 
-.create-grid {
-  display: grid;
-  grid-template-columns: minmax(100px, 120px) minmax(160px, 180px) minmax(
-      0,
-      1fr
-    );
-  column-gap: var(--app-space-3);
-  row-gap: 0.9rem;
-  align-items: start;
-}
-
-.create-grid .app-field {
-  align-content: start;
-}
-
-.create-grid .app-field > label {
-  min-height: 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  flex-wrap: wrap;
-}
-
-.app-field--span2 {
-  grid-column: span 2;
-}
-
-.app-field--full {
-  grid-column: 1 / -1;
-}
-
-.app-field-hint {
-  display: block;
-  margin-top: 0.15rem;
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: var(--app-text-muted);
-}
 
 :host ::ng-deep .ky-card .p-card-content {
   padding-top: 0.45rem;
@@ -54,7 +16,7 @@
   padding: 0.875rem 1rem;
   background: linear-gradient(135deg, #e8f4fd 0%, #d1eaf8 100%);
   border: 1px solid #b3d9f0;
-  border-radius: 0.75rem;
+  border-radius: var(--app-radius);
 
   &__label {
     font-size: 0.75rem;
@@ -84,7 +46,7 @@
   align-items: center;
   gap: 0.25rem;
   padding: 0.25rem 0.625rem;
-  border-radius: 999px;
+  border-radius: var(--app-radius);
   background: #e8f5e9;
   color: #2e7d32;
   font-size: 0.8rem;
@@ -101,8 +63,17 @@
 }
 
 .ky-code {
-  font-weight: 700;
+  font-size: 0.75rem;
+  color: var(--app-text-muted, #64748b);
+  display: block;
+  margin-top: 2px;
+  font-family: monospace;
+}
+
+.ky-ten-ky {
+  font-weight: 600;
   color: var(--app-text-strong);
+  font-size: 0.875rem;
 }
 
 .ky-current-icon {
@@ -146,7 +117,7 @@
   &__badge {
     background: var(--app-surface-soft);
     border: 1px solid var(--app-border);
-    border-radius: 4px;
+    border-radius: var(--app-radius);
     padding: 0 0.3rem;
     font-size: 0.7rem;
     color: var(--app-text-secondary);
@@ -168,22 +139,284 @@
   color: var(--app-text-muted);
   background: var(--app-surface-soft);
   border: 1px solid var(--app-border);
-  border-radius: 4px;
+  border-radius: var(--app-radius);
   padding: 0 0.3rem;
   vertical-align: middle;
 }
 
-:host ::ng-deep .ky-create-dialog {
-  .p-dropdown,
-  .p-calendar,
-  .p-inputtext,
-  .p-inputtextarea {
-    width: 100%;
+:host ::ng-deep .ky-create-dialog .p-dialog-content {
+  padding: 1.25rem 1.5rem;
+}
+
+// Status dots (banner)
+.ky-status-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--app-radius);
+  font-size: 0.78rem;
+  font-weight: 600;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
   }
 
-  .p-inputtextarea {
-    min-height: 5.5rem;
+  &--gray { background: #f1f5f9; color: #64748b; &::before { background: #94a3b8; } }
+  &--blue { background: #eff6ff; color: #2563eb; &::before { background: #3b82f6; } }
+  &--orange { background: #fff7ed; color: #c2410c; &::before { background: #f97316; } }
+  &--green { background: #f0fdf4; color: #15803d; &::before { background: #22c55e; } }
+}
+
+// Progress bar (table cell)
+.ky-progress-bar {
+  height: 6px;
+  background: var(--app-border);
+  border-radius: var(--app-radius);
+  overflow: hidden;
+  margin-bottom: 0.25rem;
+
+  &__fill {
+    height: 100%;
+    background: var(--blue-500, #3b82f6);
+    border-radius: var(--app-radius);
+    transition: width 0.3s ease;
+
+    &--full { background: var(--green-500, #22c55e); }
   }
+}
+
+.ky-progress-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--app-text-strong);
+
+  &__pct {
+    margin-left: 0.3rem;
+    font-weight: 400;
+    color: var(--app-text-muted);
+  }
+}
+
+// Labeled action buttons (active row)
+:host ::ng-deep .app-inline-actions--labeled {
+  .p-button.app-icon-action-btn {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.8rem;
+    gap: 0.3rem;
+  }
+}
+
+// Filter bar â€” two-group single row
+.ky-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid var(--app-border, #e2e8f0);
+  flex-wrap: nowrap;
+}
+
+.ky-filter-left {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.ky-filter-right {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.ky-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.65rem;
+  border-radius: var(--app-radius);
+  border: 1px solid var(--app-border, #e2e8f0);
+  background: var(--surface-0);
+  color: var(--app-text-secondary, #64748b);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+  user-select: none;
+  white-space: nowrap;
+
+  .pi.pi-check { font-size: 0.7rem; }
+
+  &:hover:not(.ky-chip--selected) {
+    border-color: var(--primary-300, #93c5fd);
+    color: var(--primary-600, #2563eb);
+  }
+
+  &--selected {
+    background: var(--primary-50, #eff6ff);
+    border-color: var(--primary-400, #60a5fa);
+    color: var(--primary-700, #1d4ed8);
+    font-weight: 600;
+  }
+
+  &--open.ky-chip--selected {
+    background: #f0fdf4;
+    border-color: #86efac;
+    color: #15803d;
+  }
+
+  &--danger.ky-chip--selected {
+    background: #fff7ed;
+    border-color: #fdba74;
+    color: #c2410c;
+  }
+
+  &__count {
+    background: var(--surface-200);
+    border-radius: var(--app-radius);
+    padding: 0 0.35rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    min-width: 16px;
+    text-align: center;
+  }
+}
+
+.ky-filter-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--surface-400, #94a3b8);
+  flex-shrink: 0;
+  margin: 0 0.4rem;
+}
+
+.ky-filter-search {
+  .p-inputtext {
+    height: 32px;
+    font-size: 0.85rem;
+    padding: 0.3rem 0.75rem 0.3rem 2.1rem;
+    width: 280px;
+  }
+}
+
+// Lock confirmation dialog
+:host ::ng-deep .ky-lock-dialog {
+  .p-dialog-header {
+    border-bottom: 2px solid var(--red-200, #fecaca);
+    background: var(--red-50, #fff5f5);
+  }
+
+  .p-dialog-content {
+    padding: 0 !important;
+  }
+
+  .p-dialog-footer {
+    border-top: 1px solid var(--red-100, #fee2e2);
+  }
+
+  // Disabled: xÃ¡m nháº¡t, rÃµ rÃ ng khÃ´ng thá»ƒ click
+  .p-button.p-button-danger:disabled,
+  .p-button.p-button-danger.p-disabled {
+    background: var(--surface-300, #cbd5e1) !important;
+    border-color: var(--surface-300, #cbd5e1) !important;
+    color: var(--surface-500, #94a3b8) !important;
+    opacity: 1 !important;
+    cursor: not-allowed !important;
+  }
+
+  // Active: Ä‘á» Ä‘áº­m
+  .p-button.p-button-danger:not(:disabled):not(.p-disabled) {
+    background: var(--red-600, #dc2626) !important;
+    border-color: var(--red-600, #dc2626) !important;
+    color: #fff !important;
+
+    &:hover {
+      background: var(--red-700, #b91c1c) !important;
+      border-color: var(--red-700, #b91c1c) !important;
+    }
+  }
+}
+
+.ky-lock-dialog__body {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ky-lock-dialog__warning-banner {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  background: var(--red-50, #fff5f5);
+  border: 1px solid var(--red-300, #fca5a5);
+  border-radius: var(--app-radius);
+  padding: 0.875rem 1rem;
+
+  .pi {
+    color: var(--red-600, #dc2626);
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  strong {
+    display: block;
+    color: var(--red-700, #b91c1c);
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--red-600, #dc2626);
+  }
+}
+
+.ky-lock-dialog__detail {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--surface-100);
+  border-radius: var(--app-radius);
+  border: 1px solid var(--surface-300);
+
+  .ky-lock-dialog__code {
+    font-family: monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--app-text-secondary);
+    background: var(--surface-200);
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--app-radius);
+    white-space: nowrap;
+  }
+
+  .ky-lock-dialog__name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--app-text-strong);
+  }
+}
+
+.ky-lock-dialog__tien-do {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--app-text-secondary);
+
+  .pi { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
 }
 
 @media (max-width: 720px) {

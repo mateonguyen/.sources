@@ -19,6 +19,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../core/auth/auth.service';
+import { DonViModeService } from '../core/don-vi/don-vi-mode.service';
 import { LoadingService } from '../core/ui/loading.service';
 import { DonViApi } from '../features/don-vi/don-vi.api';
 
@@ -39,6 +40,8 @@ interface SidebarMenuGroup {
   id: string;
   label: string;
   items: SidebarMenuItem[];
+  /** Ẩn cả nhóm khi đơn vị của user ở chế độ nhập liệu TONG_HOP. */
+  hideWhenTongHop?: boolean;
 }
 
 @Component({
@@ -125,6 +128,12 @@ export class ShellPage implements OnInit, OnDestroy {
           icon: 'pi pi-list',
           permission: 'codes:read',
         },
+        {
+          label: 'Loại thiết bị CNTT',
+          route: '/ref-loai-thiet-bi',
+          icon: 'pi pi-desktop',
+          permission: 'ref_loai_thiet_bi:read',
+        },
       ],
     },
     {
@@ -147,7 +156,9 @@ export class ShellPage implements OnInit, OnDestroy {
           label: 'Yêu cầu bổ sung',
           route: '/yeu-cau-bo-sung',
           icon: 'pi pi-exclamation-circle',
-          permission: 'yeu_cau_bo_sung:read',
+          // chỉ vai duyệt (QUAN_LY) mới cần xem danh sách toàn bộ đơn vị ở đây;
+          // CAP_TINH/CAP_XA gửi + xem yêu cầu của mình ngay trong màn Nộp báo cáo
+          permission: 'yeu_cau_bo_sung:approve',
         },
         {
           label: 'Tiến độ tổng hợp',
@@ -159,7 +170,7 @@ export class ShellPage implements OnInit, OnDestroy {
           label: 'Tiến độ báo cáo',
           route: '/tien-do-nop',
           icon: 'pi pi-list-check',
-          permission: 'ky_bao_cao:approve',
+          permission: 'tien_do_bao_cao:read',
         },
         {
           label: 'Kỳ báo cáo',
@@ -175,15 +186,16 @@ export class ShellPage implements OnInit, OnDestroy {
         },
         {
           label: 'Tra cứu báo cáo',
-          route: '/snapshot',
+          route: '/tra-cuu-bao-cao',
           icon: 'pi pi-search',
-          permission: 'ky_bao_cao:approve',
+          permission: 'snapshot:read',
         },
       ],
     },
     {
       id: 'nhan-luc-cntt',
       label: 'Nhân lực CNTT',
+      hideWhenTongHop: true,
       items: [
         {
           label: 'Nhân lực CNTT',
@@ -214,6 +226,7 @@ export class ShellPage implements OnInit, OnDestroy {
     {
       id: 'ha-tang-he-thong',
       label: 'Hạ tầng & hệ thống',
+      hideWhenTongHop: true,
       items: [
         {
           label: 'Thiết bị CNTT',
@@ -251,11 +264,18 @@ export class ShellPage implements OnInit, OnDestroy {
           icon: 'pi pi-map-marker',
           permission: 'camera_thuc_trang:read',
         },
+        {
+          label: 'Dự án CNTT',
+          route: '/du-an-cntt',
+          icon: 'pi pi-briefcase',
+          permission: 'du_an_cntt:read',
+        },
       ],
     },
     {
       id: 'van-ban-quan-ly',
       label: 'Văn bản & quản lý',
+      hideWhenTongHop: true,
       items: [
         {
           label: 'Văn bản QPPL',
@@ -268,6 +288,7 @@ export class ShellPage implements OnInit, OnDestroy {
     {
       id: 'an-toan-thong-tin',
       label: 'An toàn thông tin',
+      hideWhenTongHop: true,
       items: [
         {
           label: 'Giám sát SOC',
@@ -311,6 +332,7 @@ export class ShellPage implements OnInit, OnDestroy {
     public readonly authService: AuthService,
     public readonly loadingService: LoadingService,
     private readonly donViApi: DonViApi,
+    private readonly donViModeService: DonViModeService,
     private readonly router: Router,
   ) {}
 
@@ -318,6 +340,7 @@ export class ShellPage implements OnInit, OnDestroy {
     this.loadExpandedGroupState();
     this.expandGroupForCurrentRoute();
     void this.loadUserDonViLabel();
+    void this.donViModeService.ensureLoaded();
 
     this.routerEventsSub = this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
@@ -332,7 +355,9 @@ export class ShellPage implements OnInit, OnDestroy {
   }
 
   get filteredMenuGroups(): SidebarMenuGroup[] {
+    const isTongHop = this.donViModeService.isTongHop;
     const visibleGroups = this.menuGroups
+      .filter((group) => !(isTongHop && group.hideWhenTongHop))
       .map((group) => ({
         ...group,
         items: group.items.filter((item) => this.canView(item)),

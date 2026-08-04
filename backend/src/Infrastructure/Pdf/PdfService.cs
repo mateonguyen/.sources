@@ -45,6 +45,22 @@ public sealed class PdfService : IPdfService
         return MinimalPdfBuilder.Build(StripHtml(html));
     }
 
+    public async Task<byte[]> ConvertOfficeToPdfAsync(byte[] fileBytes, string fileName, CancellationToken cancellationToken = default)
+    {
+        if (!_options.UseGotenberg)
+        {
+            throw new InvalidOperationException("Chuyển đổi Office sang PDF cần Gotenberg (UseGotenberg=true).");
+        }
+
+        using var content = new MultipartFormDataContent();
+        using var fileContent = new ByteArrayContent(fileBytes);
+        fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
+        content.Add(fileContent, "files", fileName);
+        var response = await _httpClient.PostAsync("forms/libreoffice/convert", content, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsByteArrayAsync(cancellationToken);
+    }
+
     private static string StripHtml(string html)
     {
         var builder = new StringBuilder(html.Length);

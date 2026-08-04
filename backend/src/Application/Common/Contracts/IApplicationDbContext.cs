@@ -36,6 +36,8 @@ public interface IApplicationDbContext
 
     DbSet<BaoCaoSnapshot> BaoCaoSnapshots { get; }
 
+    DbSet<BaoCaoSnapshotXacNhan> BaoCaoSnapshotXacNhans { get; }
+
     DbSet<SnapshotBatch> SnapshotBatches { get; }
 
     DbSet<BaoCaoFile> BaoCaoFiles { get; }

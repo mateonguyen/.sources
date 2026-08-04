@@ -49,7 +49,10 @@ public sealed class CodeService : ICodeService
     {
         var query = _dbContext.Codes.Include(x => x.Values).AsQueryable();
         if (!includeInactive)
-            query = query.Where(x => x.IsActive);
+        {
+            var activeFlag = true; // Oracle: không dùng bool trần trong predicate (ORA cast/literal)
+            query = query.Where(x => x.IsActive == activeFlag);
+        }
 
         var items = await query.OrderBy(x => x.SortOrder).ThenBy(x => x.Name).ToListAsync(cancellationToken);
         return items.Select(MapToDto).ToList();
@@ -63,8 +66,9 @@ public sealed class CodeService : ICodeService
 
     public async Task<CodeDto?> GetByCodeAsync(string code, CancellationToken cancellationToken = default)
     {
+        var activeFlag = true;
         var entity = await _dbContext.Codes
-            .Include(x => x.Values.Where(v => v.IsActive).OrderBy(v => v.SortOrder))
+            .Include(x => x.Values.Where(v => v.IsActive == activeFlag).OrderBy(v => v.SortOrder))
             .FirstOrDefaultAsync(x => x.CodeKey == code.ToUpperInvariant(), cancellationToken);
         return entity is null ? null : MapToDto(entity);
     }
@@ -135,7 +139,10 @@ public sealed class CodeService : ICodeService
 
         var query = _dbContext.CodeValues.Where(x => x.CodeId == codeId);
         if (!includeInactive)
-            query = query.Where(x => x.IsActive);
+        {
+            var activeFlag = true;
+            query = query.Where(x => x.IsActive == activeFlag);
+        }
 
         var items = await query.OrderBy(x => x.SortOrder).ThenBy(x => x.Name).ToListAsync(cancellationToken);
         return items.Select(MapValueToDto).ToList();

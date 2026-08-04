@@ -1,0 +1,588 @@
+<app-tong-hop-mode-banner></app-tong-hop-mode-banner>
+<app-section-card title="Quản lý văn bản quy phạm pháp luật">
+  <app-loading-overlay
+    [active]="loading"
+    label="Đang tải dữ liệu..."
+  ></app-loading-overlay>
+
+  <!-- STATS -->
+  <div class="van-ban-stats-section">
+    <div class="stats-grid">
+      <div *ngFor="let stat of stats" class="stat-card">
+        <i class="pi {{ stat.icon }}" [style.color]="stat.color"></i>
+        <div class="stat-content">
+          <span class="stat-value">{{ stat.value }}</span>
+          <span class="stat-label">{{ stat.label }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTER PANEL -->
+  <div class="filter-panel van-ban-filter-panel">
+    <div class="filter-container">
+      <div class="filter-row van-ban-filter-panel__main-row">
+        <div class="filter-group filter-group--lg">
+          <label class="filter-label">Tìm kiếm nhanh</label>
+          <span class="van-ban-search-shell">
+            <i class="pi pi-search" aria-hidden="true"></i>
+            <input
+              pInputText
+              type="text"
+              class="app-filter-input"
+              [(ngModel)]="searchTerm"
+              placeholder="Tìm kiếm Số hiệu, Tên văn bản, Lĩnh vực..."
+            />
+          </span>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Loại văn bản</label>
+          <p-dropdown
+            styleClass="app-filter-select"
+            [options]="loaiVanBanFilterOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="filterLoaiVanBan"
+            appendTo="body"
+          ></p-dropdown>
+        </div>
+
+        <div class="filter-actions van-ban-filter-panel__actions">
+          <button
+            pButton
+            type="button"
+            icon="pi pi-sliders-h"
+            class="p-button-secondary p-button-outlined"
+            [label]="advancedVisible ? 'Ẩn bộ lọc' : 'Lọc nâng cao'"
+            (click)="toggleAdvanced()"
+          ></button>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-filter"
+            class="p-button-primary"
+            label="Lọc"
+            (click)="applyFilters()"
+          ></button>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-times"
+            class="p-button-secondary p-button-outlined"
+            label="Xóa bộ lọc"
+            (click)="clearFilters()"
+          ></button>
+        </div>
+      </div>
+
+      <div class="van-ban-filter-panel__advanced" *ngIf="advancedVisible">
+        <div class="filter-row van-ban-filter-panel__advanced-row">
+          <div class="filter-group">
+            <label class="filter-label">Tình trạng</label>
+            <p-dropdown
+              styleClass="app-filter-select"
+              [options]="tinhTrangOptions"
+              optionLabel="label"
+              optionValue="value"
+              [(ngModel)]="filterTinhTrang"
+              appendTo="body"
+            ></p-dropdown>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Cơ quan ban hành</label>
+            <p-dropdown
+              styleClass="app-filter-select"
+              [options]="coQuanFilterOptions"
+              optionLabel="label"
+              optionValue="value"
+              [(ngModel)]="filterCoQuan"
+              appendTo="body"
+            ></p-dropdown>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Lĩnh vực</label>
+            <p-dropdown
+              styleClass="app-filter-select"
+              [options]="linhVucFilterOptions"
+              optionLabel="label"
+              optionValue="value"
+              [(ngModel)]="filterLinhVuc"
+              appendTo="body"
+            ></p-dropdown>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Ngày ban hành từ</label>
+            <p-calendar
+              styleClass="app-filter-select"
+              [(ngModel)]="filterNgayBanHanhTu"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              appendTo="body"
+            ></p-calendar>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Ngày ban hành đến</label>
+            <p-calendar
+              styleClass="app-filter-select"
+              [(ngModel)]="filterNgayBanHanhDen"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              appendTo="body"
+            ></p-calendar>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE SHELL -->
+  <div class="van-ban-table-shell">
+    <!-- Toolbar -->
+    <div class="van-ban-table-toolbar">
+      <div class="van-ban-table-toolbar__left">
+        <div>
+          <h3>Danh sách văn bản QPPL</h3>
+          <p>Quản lý và tra cứu dữ liệu văn bản quy phạm pháp luật</p>
+        </div>
+        <span class="van-ban-table-toolbar__count">{{ totalRecords }}</span>
+        <p-button
+          label="Xóa dữ liệu đã chọn"
+          icon="pi pi-trash"
+          severity="secondary"
+          [outlined]="true"
+          [disabled]="!selectedItems || selectedItems.length === 0"
+          styleClass="text-sm"
+          [ngStyle]="{ height: '36px' }"
+        ></p-button>
+      </div>
+
+      <div class="van-ban-table-toolbar__right">
+        <button
+          pButton
+          type="button"
+          icon="pi pi-plus"
+          label="Thêm văn bản"
+          class="p-button-primary van-ban-btn-add"
+          (click)="openCreateDialog()"
+        ></button>
+      </div>
+    </div>
+
+    <app-empty-state
+      *ngIf="!loading && allItems.length === 0"
+      title="Chưa có văn bản QPPL"
+      message="Hãy bấm 'Thêm văn bản' để bắt đầu cập nhật danh mục văn bản quy phạm pháp luật."
+      icon="pi-inbox"
+      actionLabel="Thêm văn bản"
+      actionIcon="pi pi-plus"
+      actionSeverity="primary"
+      (action)="openCreateDialog()"
+    ></app-empty-state>
+
+    <app-empty-state
+      *ngIf="!loading && allItems.length > 0 && totalRecords === 0"
+      title="Không tìm thấy kết quả phù hợp"
+      message="Hãy điều chỉnh từ khóa hoặc xóa bớt điều kiện lọc để xem lại danh sách văn bản."
+      icon="pi-filter-slash"
+      actionLabel="Xóa bộ lọc"
+      actionIcon="pi pi-times"
+      (action)="clearFilters()"
+    ></app-empty-state>
+
+    <!-- Table -->
+    <div class="table-section" *ngIf="!loading && totalRecords > 0">
+      <p-table
+        [value]="items"
+        [(selection)]="selectedItems"
+        styleClass="p-datatable-sm app-admin-table van-ban-table"
+        responsiveLayout="scroll"
+        [tableStyle]="{ 'min-width': '1100px' }"
+        dataKey="soHieu"
+        [sortField]="sortField"
+        [sortOrder]="sortOrder"
+        (onSort)="onSort($event)"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 44px; text-align: center">
+              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th class="col-stt" style="width: 60px">STT</th>
+            <th class="col-soHieu" style="width: 130px" pSortableColumn="soHieu">
+              Số hiệu <p-sortIcon field="soHieu"></p-sortIcon>
+            </th>
+            <th class="col-tenVanBan" pSortableColumn="tenVanBan">
+              Tên văn bản (Nội dung chi tiết) <p-sortIcon field="tenVanBan"></p-sortIcon>
+            </th>
+            <th class="col-coQuan" style="width: 130px">Cơ quan ban hành</th>
+            <th class="col-ngayBanHanh" style="width: 110px" pSortableColumn="ngayBanHanh">
+              Ngày ban hành <p-sortIcon field="ngayBanHanh"></p-sortIcon>
+            </th>
+            <th class="col-ngayHieuLuc" style="width: 110px" pSortableColumn="ngayHieuLuc">
+              Ngày hiệu lực <p-sortIcon field="ngayHieuLuc"></p-sortIcon>
+            </th>
+            <th class="col-linhVuc" style="width: 100px">Lĩnh vực</th>
+            <th class="col-trichYeu" style="width: 160px">Trích yếu (Tóm tắt)</th>
+            <th class="col-tinhTrang" style="width: 130px" pSortableColumn="tinhTrangTrienKhai">
+              Tình trạng <p-sortIcon field="tinhTrangTrienKhai"></p-sortIcon>
+            </th>
+            <th class="col-files" style="width: 80px; text-align: center">Tệp</th>
+            <th class="col-thaoTac" style="width: 90px">Thao tác</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+          <tr class="van-ban-table__row">
+            <td style="text-align: center">
+              <p-tableCheckbox [value]="item"></p-tableCheckbox>
+            </td>
+            <td class="col-stt">
+              <span class="app-table-stt">{{ first + rowIndex + 1 }}</span>
+            </td>
+            <td class="col-soHieu">{{ item.soHieu }}</td>
+            <td class="col-tenVanBan">
+              <div class="van-ban-table__identity">
+                <strong>{{ item.tenVanBan }}</strong>
+                <span class="van-ban-table__identity-meta" *ngIf="item.loaiVanBan">
+                  <i class="pi pi-tag"></i>
+                  {{ item.loaiVanBan }}
+                </span>
+              </div>
+            </td>
+            <td class="col-coQuan">{{ item.coQuanBanHanh }}</td>
+            <td class="col-ngayBanHanh">{{ item.ngayBanHanh | date:'dd/MM/yyyy' }}</td>
+            <td class="col-ngayHieuLuc">{{ item.ngayHieuLuc | date:'dd/MM/yyyy' }}</td>
+            <td class="col-linhVuc">{{ item.linhVuc }}</td>
+            <td class="col-trichYeu">
+              <span class="text-muted">{{ item.trichYeu }}</span>
+            </td>
+            <td class="col-tinhTrang">
+              <span [class]="'status-badge ' + getStatusClass(item.tinhTrangTrienKhai ?? '')">
+                {{ item.tinhTrangTrienKhai }}
+              </span>
+            </td>
+            <td class="col-files" style="text-align: center">
+              <span
+                *ngIf="item.fileDinhKems?.length"
+                class="van-ban-file-badge"
+                [pTooltip]="item.fileDinhKems.length + ' tệp đính kèm'"
+                tooltipPosition="top"
+              >
+                <i class="pi pi-paperclip"></i>
+                {{ item.fileDinhKems.length }}
+              </span>
+              <span *ngIf="!item.fileDinhKems?.length" style="color: var(--app-text-disabled)">—</span>
+            </td>
+            <td class="col-thaoTac">
+              <div class="action-btns">
+                <button
+                  type="button"
+                  class="action-btn action-btn--edit"
+                  pTooltip="Chỉnh sửa"
+                  tooltipPosition="top"
+                  (click)="openEditDialog(item)"
+                ><i class="pi pi-pencil"></i></button>
+                <button
+                  type="button"
+                  class="action-btn action-btn--delete"
+                  pTooltip="Xóa"
+                  tooltipPosition="top"
+                  (click)="onDelete(item)"
+                ><i class="pi pi-trash"></i></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+      </p-table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="table-footer">
+      <span class="footer-info">
+        Hiển thị {{ startIndex }}-{{ endIndex }} trong tổng số {{ totalRecords }} văn bản
+      </span>
+
+      <p-paginator
+        [first]="first"
+        [rows]="rows"
+        [totalRecords]="totalRecords"
+        styleClass="footer-paginator"
+        (onPageChange)="onPageChange($event)"
+      ></p-paginator>
+
+      <div class="footer-rpp">
+        <span class="rpp-label">Dòng/trang</span>
+        <p-dropdown
+          [options]="rowsPerPageOptions"
+          [ngModel]="rows"
+          optionLabel="label"
+          optionValue="value"
+          appendTo="body"
+          class="app-filter-select footer-rpp-select"
+          (onChange)="onRowsChange($event.value)"
+        ></p-dropdown>
+      </div>
+    </div>
+  </div>
+</app-section-card>
+
+<!-- Dialog: Thêm / Chỉnh sửa văn bản -->
+<p-dialog
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [closable]="true"
+  [header]="dialogMode === 'create' ? 'Thêm văn bản QPPL' : 'Chỉnh sửa văn bản QPPL'"
+  styleClass="van-ban-dialog"
+  [style]="{ width: '640px', maxWidth: 'calc(100vw - 2rem)' }"
+>
+  <form [formGroup]="dialogForm" class="van-ban-dialog__form app-dialog-form" autocomplete="off">
+    <div class="app-dialog-body-standard">
+    <div class="app-form-row two-columns">
+      <div
+        class="app-form-field"
+        [class.has-value]="!!dialogForm.get('soHieu')?.value"
+        [class.has-error]="isInvalid('soHieu')"
+      >
+        <label class="app-form-field__label required">Số hiệu</label>
+        <input pInputText formControlName="soHieu" class="app-form-field__input" />
+        <div
+          class="app-form-field__feedback"
+          [class.is-visible]="isInvalid('soHieu')"
+          aria-live="polite"
+        >
+          <small class="app-form-field__error">{{
+            isInvalid('soHieu') ? getError('soHieu') : ''
+          }}</small>
+        </div>
+      </div>
+
+      <div
+        class="app-form-field"
+        [class.has-value]="!!dialogForm.get('loaiVanBan')?.value"
+        [class.has-error]="isInvalid('loaiVanBan')"
+      >
+        <label class="app-form-field__label required">Loại văn bản</label>
+        <p-dropdown
+          formControlName="loaiVanBan"
+          [options]="loaiVanBanDialogOptions"
+          optionLabel="label"
+          optionValue="value"
+          appendTo="body"
+        ></p-dropdown>
+        <div
+          class="app-form-field__feedback"
+          [class.is-visible]="isInvalid('loaiVanBan')"
+          aria-live="polite"
+        >
+          <small class="app-form-field__error">{{
+            isInvalid('loaiVanBan') ? getError('loaiVanBan') : ''
+          }}</small>
+        </div>
+      </div>
+
+      <div
+        class="app-form-field app-form-field--full"
+        [class.has-value]="!!dialogForm.get('tenVanBan')?.value"
+        [class.has-error]="isInvalid('tenVanBan')"
+      >
+        <label class="app-form-field__label required">Tên văn bản</label>
+        <input pInputText formControlName="tenVanBan" class="app-form-field__input" />
+        <div
+          class="app-form-field__feedback"
+          [class.is-visible]="isInvalid('tenVanBan')"
+          aria-live="polite"
+        >
+          <small class="app-form-field__error">{{
+            isInvalid('tenVanBan') ? getError('tenVanBan') : ''
+          }}</small>
+        </div>
+      </div>
+
+      <div
+        class="app-form-field"
+        [class.has-value]="!!dialogForm.get('coQuan')?.value"
+      >
+        <label class="app-form-field__label">Cơ quan ban hành</label>
+        <p-dropdown
+          formControlName="coQuan"
+          [options]="coQuanDialogOptions"
+          optionLabel="label"
+          optionValue="value"
+          [editable]="true"
+          appendTo="body"
+        ></p-dropdown>
+      </div>
+
+      <div
+        class="app-form-field"
+        [class.has-value]="!!dialogForm.get('linhVuc')?.value"
+      >
+        <label class="app-form-field__label">Lĩnh vực</label>
+        <p-dropdown
+          formControlName="linhVuc"
+          [options]="linhVucDialogOptions"
+          optionLabel="label"
+          optionValue="value"
+          [editable]="true"
+          appendTo="body"
+        ></p-dropdown>
+      </div>
+
+      <div
+        class="app-form-field"
+        [class.has-value]="!!dialogForm.get('ngayBanHanh')?.value"
+      >
+        <label class="app-form-field__label">Ngày ban hành</label>
+        <p-calendar
+          formControlName="ngayBanHanh"
+          dateFormat="dd/mm/yy"
+          appendTo="body"
+        ></p-calendar>
+      </div>
+
+      <div
+        class="app-form-field"
+        [class.has-value]="!!dialogForm.get('ngayHieuLuc')?.value"
+      >
+        <label class="app-form-field__label">Ngày hiệu lực</label>
+        <p-calendar
+          formControlName="ngayHieuLuc"
+          dateFormat="dd/mm/yy"
+          appendTo="body"
+        ></p-calendar>
+      </div>
+
+      <div class="app-form-field has-value">
+        <label class="app-form-field__label">Tình trạng</label>
+        <p-dropdown
+          formControlName="tinhTrang"
+          [options]="tinhTrangDialogOptions"
+          optionLabel="label"
+          optionValue="value"
+          appendTo="body"
+        ></p-dropdown>
+      </div>
+
+      <div
+        class="app-form-field app-form-field--full"
+        [class.has-value]="!!dialogForm.get('trichYeu')?.value"
+      >
+        <label class="app-form-field__label">Trích yếu</label>
+        <textarea
+          pInputTextarea
+          formControlName="trichYeu"
+          class="app-form-field__input"
+          rows="3"
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- File attachments -->
+    <div class="van-ban-file-section">
+      <div class="van-ban-file-header">
+        <span class="van-ban-file-title">Tệp đính kèm</span>
+        <button type="button" class="van-ban-file-upload-btn" (click)="fileInput.click()">
+          <i class="pi pi-upload"></i> Tải lên
+        </button>
+        <input #fileInput type="file" multiple hidden (change)="onFileSelected($event)" />
+      </div>
+
+      <div class="van-ban-file-list" *ngIf="existingFiles.length > 0">
+        <div *ngFor="let f of existingFiles" class="van-ban-file-item van-ban-file-item--existing">
+          <i class="pi {{ getFileIcon(f.mimeType) }}" [style.color]="isPdf(f.mimeType) ? '#e53e3e' : 'var(--app-text-muted)'"></i>
+          <span class="van-ban-file-item__name" [title]="f.fileName">{{ f.fileName }}</span>
+          <span class="van-ban-file-item__size">{{ formatFileSize(f.fileSize) }}</span>
+
+          <button
+            *ngIf="isPdf(f.mimeType)"
+            type="button"
+            class="van-ban-file-item__action"
+            pTooltip="Xem trước"
+            tooltipPosition="top"
+            (click)="openPreview(f)"
+          ><i class="pi pi-eye"></i></button>
+
+          <button
+            type="button"
+            class="van-ban-file-item__action van-ban-file-item__action--download"
+            pTooltip="Tải xuống"
+            tooltipPosition="top"
+            (click)="downloadFile(f)"
+          ><i class="pi pi-download"></i></button>
+
+          <button
+            type="button"
+            class="van-ban-file-item__remove"
+            pTooltip="Xóa tệp"
+            tooltipPosition="top"
+            (click)="removeExistingFile(f)"
+          ><i class="pi pi-times"></i></button>
+        </div>
+      </div>
+
+      <div class="van-ban-file-list" *ngIf="pendingFiles.length > 0">
+        <div *ngFor="let f of pendingFiles; let i = index" class="van-ban-file-item van-ban-file-item--pending">
+          <i class="pi pi-file-edit"></i>
+          <span class="van-ban-file-item__name">{{ f.name }}</span>
+          <span class="van-ban-file-item__size">{{ formatFileSize(f.size) }}</span>
+          <button
+            type="button"
+            class="van-ban-file-item__remove"
+            pTooltip="Bỏ chọn"
+            tooltipPosition="top"
+            (click)="removePendingFile(i)"
+          ><i class="pi pi-times"></i></button>
+        </div>
+      </div>
+
+      <div *ngIf="existingFiles.length === 0 && pendingFiles.length === 0" class="van-ban-file-empty">
+        Chưa có tệp đính kèm
+      </div>
+    </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      type="button"
+      label="Hủy"
+      icon="pi pi-times"
+      class="p-button-secondary p-button-outlined"
+      (click)="dialogVisible = false"
+    ></button>
+    <button
+      pButton
+      type="button"
+      [label]="dialogMode === 'create' ? 'Thêm' : 'Lưu thay đổi'"
+      icon="pi pi-check"
+      class="p-button-primary"
+      (click)="saveDialog()"
+    ></button>
+  </ng-template>
+</p-dialog>
+
+<!-- PDF Preview Dialog -->
+<p-dialog
+  [(visible)]="previewVisible"
+  [modal]="true"
+  [closable]="true"
+  [header]="previewTitle"
+  styleClass="van-ban-preview-dialog"
+  [style]="{ width: '90vw', maxWidth: '1100px' }"
+  (onHide)="closePreview()"
+>
+  <iframe
+    *ngIf="previewUrl"
+    [src]="safePreviewUrl"
+    class="van-ban-preview-iframe"
+    frameborder="0"
+    allowfullscreen
+  ></iframe>
+</p-dialog>

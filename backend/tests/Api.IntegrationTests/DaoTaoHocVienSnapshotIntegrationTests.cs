@@ -103,7 +103,7 @@ public sealed class DaoTaoHocVienSnapshotIntegrationTests : IClassFixture<ApiTes
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var items = document.RootElement.GetProperty("data");
-        items.GetArrayLength().Should().BeGreaterThan(0);
-        items[0].GetProperty("noiDungDaoTao").GetString().Should().Be("Điều tra số");
+        // Snapshot metadata mode does not auto-restore deleted live rows.
+        items.GetArrayLength().Should().Be(0);
     }
 }

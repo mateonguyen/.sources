@@ -42,7 +42,7 @@
       label="Lưu phân quyền"
       icon="pi pi-save"
       class="p-button-sm p-button-primary"
-      [disabled]="!selectedPermissionRoleId || savingRolePermissions || !hasPermissionSelectionChanged"
+      [disabled]="!selectedPermissionRoleId || savingRolePermissions || !hasPermissionSelectionChanged || isPermissionMatrixReadOnly"
       [loading]="savingRolePermissions"
       (click)="onSaveRolePermissions()"
     ></button>
@@ -192,47 +192,47 @@
 
               <!-- Status -->
               <td class="col-status">
-                <p-tag
-                  [severity]="user.isActive ? 'success' : 'danger'"
-                  [value]="user.isActive ? 'Đang hoạt động' : 'Ngưng hoạt động'"
-                  styleClass="app-status-badge"
-                ></p-tag>
+                <span
+                  [class]="'status-badge ' + (user.isActive ? 'status-badge--dang-mo' : 'status-badge--da-dong')"
+                >
+                  {{ user.isActive ? 'Đang hoạt động' : 'Ngưng hoạt động' }}
+                </span>
               </td>
 
               <!-- Actions -->
               <td class="col-actions">
-                <div class="app-inline-actions">
+                <div class="action-btns">
                   <button
-                    pButton
                     type="button"
-                    icon="pi pi-pencil"
-                    class="p-button-text p-button-sm app-icon-action-btn app-icon-action-btn--edit"
+                    class="action-btn action-btn--edit"
                     pTooltip="Chỉnh sửa"
                     tooltipPosition="top"
                     aria-label="Chỉnh sửa"
                     (click)="onEditUser(user)"
-                  ></button>
+                  >
+                    <i class="pi pi-pencil"></i>
+                  </button>
                   <button
-                    pButton
                     type="button"
-                    icon="pi pi-key"
-                    class="p-button-text p-button-sm app-icon-action-btn app-icon-action-btn--key"
+                    class="action-btn action-btn--copy"
                     pTooltip="Đặt lại mật khẩu"
                     tooltipPosition="top"
                     aria-label="Đặt lại mật khẩu"
                     (click)="onResetPassword(user)"
-                  ></button>
+                  >
+                    <i class="pi pi-key"></i>
+                  </button>
                   <button
-                    pButton
                     type="button"
-                    icon="pi pi-trash"
-                    class="p-button-text p-button-sm p-button-danger app-icon-action-btn app-icon-action-btn--delete"
+                    class="action-btn action-btn--delete"
                     pTooltip="Ngừng hoạt động"
                     tooltipPosition="top"
                     aria-label="Ngừng hoạt động"
                     (click)="onDeleteUser(user)"
                     [disabled]="!user.isActive"
-                  ></button>
+                  >
+                    <i class="pi pi-trash"></i>
+                  </button>
                 </div>
               </td>
             </tr>
@@ -398,11 +398,12 @@
                 ></p-tag>
               </td>
               <td class="col-role-status">
-                <p-tag
-                  [severity]="resolveRoleIsActive(item) ? 'success' : 'danger'"
-                  [value]="resolveRoleIsActive(item) ? 'Đang hoạt động' : 'Ngừng hoạt động'"
-                  styleClass="app-status-badge"
-                ></p-tag>
+                <span
+                  [class]="'status-badge ' + (resolveRoleIsActive(item) ? 'status-badge--dang-mo' : 'status-badge--da-dong')"
+                >
+                  {{ resolveRoleIsActive(item) ? 'Đang hoạt động' : 'Ngừng hoạt
+                  động' }}
+                </span>
               </td>
               <td class="col-role-desc">
                 <span
@@ -413,39 +414,39 @@
                 </span>
               </td>
               <td class="col-role-actions">
-                <div class="app-inline-actions">
+                <div class="action-btns">
                   <button
-                    pButton
                     type="button"
-                    icon="pi pi-pencil"
-                    class="p-button-text p-button-sm app-icon-action-btn app-icon-action-btn--edit"
+                    class="action-btn action-btn--edit"
                     (click)="onEditRole(item)"
                     pTooltip="Sửa vai trò"
                     tooltipPosition="top"
                     aria-label="Sửa vai trò"
                     [disabled]="item.isSystem"
-                  ></button>
+                  >
+                    <i class="pi pi-pencil"></i>
+                  </button>
                   <button
-                    pButton
                     type="button"
-                    icon="pi pi-shield"
-                    class="p-button-text p-button-sm app-icon-action-btn app-icon-action-btn--permissions"
+                    class="action-btn action-btn--view"
                     (click)="goToRolePermissions(item)"
                     pTooltip="Phân quyền"
                     tooltipPosition="top"
                     aria-label="Phân quyền"
-                  ></button>
+                  >
+                    <i class="pi pi-shield"></i>
+                  </button>
                   <button
-                    pButton
                     type="button"
-                    icon="pi pi-trash"
-                    class="p-button-text p-button-sm p-button-danger app-icon-action-btn app-icon-action-btn--delete"
+                    class="action-btn action-btn--delete"
                     (click)="onDeleteRole(item)"
                     pTooltip="Xóa vai trò"
                     tooltipPosition="top"
                     aria-label="Xóa vai trò"
                     [disabled]="item.isSystem"
-                  ></button>
+                  >
+                    <i class="pi pi-trash"></i>
+                  </button>
                 </div>
               </td>
             </tr>
@@ -688,7 +689,7 @@
         <button
           pButton
           type="button"
-          label="Phân quyền theo người dùng"
+          label="Tổng quan quyền người dùng"
           class="p-button-sm"
           [class.p-button-outlined]="permissionAdminTab !== 'user'"
           [class.p-button-primary]="permissionAdminTab === 'user'"
@@ -746,6 +747,14 @@
           class="grid items-start gap-4 [grid-template-columns:1fr] md:[grid-template-columns:16rem_minmax(0,1fr)]"
           *ngIf="selectedPermissionRoleId"
         >
+          <div
+            class="col-span-full rounded-[0.55rem] border border-amber-200 bg-amber-50 px-4 py-3 text-[0.88rem] text-amber-800"
+            *ngIf="isPermissionMatrixReadOnly"
+          >
+            Vai trò này có toàn quyền hệ thống (system:admin). Ma trận được
+            chuyển sang chế độ chỉ đọc.
+          </div>
+
           <aside
             class="rounded-[0.55rem] border border-[var(--surface-border)] bg-[var(--surface-ground)] p-[0.85rem]"
           >
@@ -761,6 +770,7 @@
                 [binary]="true"
                 [ngModel]="isModuleChecked(moduleItem)"
                 [indeterminate]="isModuleIndeterminate(moduleItem)"
+                [disabled]="isPermissionMatrixReadOnly"
                 (onChange)="onPermissionModuleToggle(moduleItem, $event.checked)"
                 (click)="$event.stopPropagation()"
               ></p-checkbox>
@@ -812,6 +822,7 @@
                           [binary]="true"
                           [ngModel]="isAllChecked(actionColumn.key)"
                           [indeterminate]="isIndeterminate(actionColumn.key)"
+                          [disabled]="isPermissionMatrixReadOnly"
                           (click)="$event.stopPropagation()"
                           (onChange)="onActionColumnToggle(actionColumn.key, $event.checked)"
                         ></p-checkbox>
@@ -829,6 +840,7 @@
                           [binary]="true"
                           [ngModel]="isRowChecked(row)"
                           [indeterminate]="isRowIndeterminate(row)"
+                          [disabled]="isPermissionMatrixReadOnly"
                           (click)="$event.stopPropagation()"
                           (onChange)="onPermissionRowToggle(row, $event.checked)"
                         ></p-checkbox>
@@ -841,9 +853,10 @@
                       *ngFor="let actionColumn of permissionActionColumns"
                       class="matrix-cell"
                       [class.matrix-cell-disabled]="!isActionAllowed(row, actionColumn.key)"
-                      [class.matrix-cell-clickable]="isActionAllowed(row, actionColumn.key)"
+                      [class.matrix-cell-clickable]="isActionAllowed(row, actionColumn.key) && !isPermissionMatrixReadOnly"
                       (click)="
                         isActionAllowed(row, actionColumn.key) &&
+                          !isPermissionMatrixReadOnly &&
                           onPermissionActionCellToggle(
                             row,
                             actionColumn.key,
@@ -858,6 +871,7 @@
                           class="matrix-checkbox"
                           [binary]="true"
                           [ngModel]="isActionSelected(row, actionColumn.key)"
+                          [disabled]="isPermissionMatrixReadOnly"
                           (click)="$event.stopPropagation()"
                           (onChange)="onPermissionActionCellToggle(row, actionColumn.key, $event.checked)"
                           [pTooltip]="getRowCell(row, actionColumn.key)?.permCode || ''"

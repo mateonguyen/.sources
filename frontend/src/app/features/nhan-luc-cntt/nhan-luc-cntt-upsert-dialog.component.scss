@@ -1,4 +1,4 @@
-.nhan-luc-dialog {
+﻿.nhan-luc-dialog {
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -25,7 +25,7 @@
 }
 
 .nhan-luc-dialog__body::-webkit-scrollbar-thumb {
-  border-radius: 999px;
+  border-radius: var(--app-radius);
   background: var(--app-border-strong);
 }
 
@@ -39,7 +39,7 @@
 
 .nhan-luc-dialog__section {
   border: 1px solid color-mix(in srgb, var(--app-border) 76%, white 24%);
-  border-radius: 0.75rem;
+  border-radius: var(--app-radius);
   background: color-mix(in srgb, var(--app-surface-soft) 74%, white 26%);
   padding: 0.8rem 0.9rem;
 }
@@ -436,7 +436,7 @@
 :host ::ng-deep .nhan-luc-dialog__dropdown-panel.p-dropdown-panel,
 :host ::ng-deep .nhan-luc-dialog__calendar-panel.p-datepicker {
   border: 1px solid var(--app-border) !important;
-  border-radius: 0.7rem !important;
+  border-radius: var(--app-radius) !important;
   box-shadow: var(--app-shadow-2) !important;
 }
 
@@ -459,7 +459,7 @@
   ::ng-deep
   .nhan-luc-dialog__calendar-panel
   .p-datepicker-calendar-container::-webkit-scrollbar-thumb {
-  border-radius: 999px;
+  border-radius: var(--app-radius);
   background: var(--app-border-strong);
 }
 
@@ -475,7 +475,7 @@
   .p-dropdown-filter {
   height: 2rem;
   padding: 0.32rem 0.55rem;
-  border-radius: 0.55rem;
+  border-radius: var(--app-radius);
   border: 1px solid var(--app-border);
   font-size: 0.84rem;
 }
@@ -487,7 +487,7 @@
 :host ::ng-deep .nhan-luc-dialog__dropdown-panel .p-dropdown-item {
   min-height: 2.15rem;
   padding: 0.45rem 0.62rem !important;
-  border-radius: 0.45rem;
+  border-radius: var(--app-radius);
   font-size: 0.88rem;
   line-height: 1.25;
 }

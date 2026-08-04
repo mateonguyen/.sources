@@ -1,9 +1,9 @@
-// Inside-the-box floating label — Material-style.
+﻿// Inside-the-box floating label â€” Material-style.
 // Label centered inside the control (acts as placeholder).
 // On focus / has-value: floats to top-left, still INSIDE the box.
 
 // ---------------------------------------------------------------------------
-// Field wrapper — position anchor for the absolute label
+// Field wrapper â€” position anchor for the absolute label
 // ---------------------------------------------------------------------------
 .app-form-field {
   position: relative;
@@ -58,7 +58,7 @@
 
 .app-form-field.has-error .app-form-field__label {
   color: var(--app-danger-500);
-  /* Trạng thái label khi invalid: chỉ đổi màu, giữ nguyên vị trí floating nếu có value/đang focus, còn lại trả về giữa input */
+  /* Tráº¡ng thÃ¡i label khi invalid: chá»‰ Ä‘á»•i mÃ u, giá»¯ nguyÃªn vá»‹ trÃ­ floating náº¿u cÃ³ value/Ä‘ang focus, cÃ²n láº¡i tráº£ vá» giá»¯a input */
 }
 
 .app-form-field.has-error:not(.has-value):not(:focus-within)
@@ -71,7 +71,7 @@
 }
 
 // ---------------------------------------------------------------------------
-// Text input — full-border box, 50px, padding-top = room for floating label
+// Text input â€” full-border box, 50px, padding-top = room for floating label
 // Needs .app-form-field prefix + !important to beat primeng-form-fix.scss.
 // ---------------------------------------------------------------------------
 .app-form-field .app-form-field__input {
@@ -133,6 +133,7 @@
 .app-form-field .p-dropdown,
 .app-form-field .p-select,
 .app-form-field .p-multiselect,
+.app-form-field .p-treeselect,
 .app-form-field .p-datepicker,
 .app-form-field .p-calendar {
   display: flex !important;
@@ -155,11 +156,13 @@
 .app-form-field:focus-within .p-dropdown,
 .app-form-field:focus-within .p-select,
 .app-form-field:focus-within .p-multiselect,
+.app-form-field:focus-within .p-treeselect,
 .app-form-field:focus-within .p-datepicker,
 .app-form-field:focus-within .p-calendar,
 .app-form-field .p-dropdown.p-focus,
 .app-form-field .p-select.p-focus,
 .app-form-field .p-multiselect.p-focus,
+.app-form-field .p-treeselect.p-focus,
 .app-form-field .p-datepicker.p-focus,
 .app-form-field .p-calendar.p-focus {
   border: none !important;
@@ -175,6 +178,8 @@
 .app-form-field:has(.ng-invalid.ng-touched) .p-select,
 .app-form-field.has-error .p-multiselect,
 .app-form-field:has(.ng-invalid.ng-touched) .p-multiselect,
+.app-form-field.has-error .p-treeselect,
+.app-form-field:has(.ng-invalid.ng-touched) .p-treeselect,
 .app-form-field.has-error .p-datepicker,
 .app-form-field:has(.ng-invalid.ng-touched) .p-datepicker,
 .app-form-field.has-error .p-calendar,
@@ -189,10 +194,11 @@
 }
 
 // Selected-value text pushed to the bottom of the box (below the floating label)
-// For span-based controls (dropdown/select/multiselect) — flex align-end works
+// For span-based controls (dropdown/select/multiselect) â€” flex align-end works
 .app-form-field .p-dropdown .p-dropdown-label,
 .app-form-field .p-select .p-select-label,
-.app-form-field .p-multiselect .p-multiselect-label {
+.app-form-field .p-multiselect .p-multiselect-label,
+.app-form-field .p-treeselect .p-treeselect-label {
   flex: 1 !important;
   min-width: 0 !important;
   align-self: stretch !important;
@@ -208,9 +214,12 @@
   height: 54px !important;
   min-height: 54px !important;
   line-height: 1.4 !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-// For native-input-based controls (calendar/datepicker) — use padding-top like regular inputs
+// For native-input-based controls (calendar/datepicker) â€” use padding-top like regular inputs
 // align-items: flex-end has no effect on <input>, padding-top is required
 .app-form-field .p-datepicker .p-inputtext,
 .app-form-field .p-calendar .p-inputtext {
@@ -248,6 +257,9 @@
   .p-multiselect
   .p-multiselect-label.p-placeholder,
 .app-form-field:not(.has-value):not(:focus-within)
+  .p-treeselect
+  .p-treeselect-label.p-placeholder,
+.app-form-field:not(.has-value):not(:focus-within)
   .p-datepicker
   .p-inputtext::placeholder,
 .app-form-field:not(.has-value):not(:focus-within)
@@ -259,6 +271,7 @@
 .app-form-field:focus-within .p-dropdown .p-dropdown-label.p-placeholder,
 .app-form-field:focus-within .p-select .p-select-label.p-placeholder,
 .app-form-field:focus-within .p-multiselect .p-multiselect-label.p-placeholder,
+.app-form-field:focus-within .p-treeselect .p-treeselect-label.p-placeholder,
 .app-form-field:focus-within .p-datepicker .p-inputtext::placeholder,
 .app-form-field:focus-within .p-calendar .p-inputtext::placeholder {
   opacity: 1;
@@ -269,15 +282,17 @@
 .app-form-field .p-dropdown .p-dropdown-label.p-placeholder,
 .app-form-field .p-select .p-select-label.p-placeholder,
 .app-form-field .p-multiselect .p-multiselect-label.p-placeholder,
+.app-form-field .p-treeselect .p-treeselect-label.p-placeholder,
 .app-form-field .p-datepicker .p-inputtext::placeholder,
 .app-form-field .p-calendar .p-inputtext::placeholder {
   font-family: var(--form-placeholder-font) !important;
 }
 
-// Trigger icon — vertically centered in the box
+// Trigger icon â€” vertically centered in the box
 .app-form-field .p-dropdown .p-dropdown-trigger,
 .app-form-field .p-select .p-select-trigger,
 .app-form-field .p-multiselect .p-multiselect-trigger,
+.app-form-field .p-treeselect .p-treeselect-trigger,
 .app-form-field .p-datepicker .p-datepicker-trigger,
 .app-form-field .p-calendar .p-datepicker-trigger {
   flex-shrink: 0 !important;
@@ -313,7 +328,23 @@
   font-weight: 600;
 }
 
-// Placeholder always visible for textareas — label stays at top so there is no
+// Native <input type="date"> always shows its own "dd/mm/yyyy" placeholder —
+// unlike text inputs, that placeholder cannot be hidden via ::placeholder,
+// so it would sit under our centered label and overlap. Pin the label to the
+// top permanently (same treatment as textarea) so it never overlaps.
+.app-form-field:has(input[type="date"]) .app-form-field__label {
+  top: 0.35rem;
+  transform: none;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--app-primary-600);
+}
+
+.app-form-field input[type="date"].app-form-field__input {
+  padding: 1.55rem 16px 0.35rem 16px !important;
+}
+
+// Placeholder always visible for textareas â€” label stays at top so there is no
 // "placeholder acting as label" phase. The hint should always be readable.
 .app-form-field:has(textarea):not(.has-value):not(:focus-within)
   .app-form-field__input::placeholder {
@@ -322,7 +353,114 @@
 }
 
 // ---------------------------------------------------------------------------
-// p-inputNumber — underline-only, floating label, matches other controls
+// p-autoComplete â€” underline-only, floating label, matches other controls
+// ---------------------------------------------------------------------------
+.app-form-field .p-autocomplete {
+  display: flex !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  height: 54px !important;
+  min-height: 54px !important;
+  background: var(--surface-input) !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-bottom: 1px solid var(--app-primary-600) !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+  transition:
+    border-bottom-color 160ms,
+    background 160ms;
+}
+
+.app-form-field:focus-within .p-autocomplete,
+.app-form-field .p-autocomplete.p-focus {
+  border: none !important;
+  border-bottom: 2px solid var(--app-primary-500) !important;
+  background: var(--surface-input) !important;
+  box-shadow: none !important;
+}
+
+.app-form-field.has-error .p-autocomplete,
+.app-form-field:has(.ng-invalid.ng-touched) .p-autocomplete {
+  border-bottom: 1.5px solid var(--app-danger-500) !important;
+  box-shadow: none !important;
+}
+
+.app-form-field .p-autocomplete .p-autocomplete-input {
+  flex: 1 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  align-self: stretch !important;
+  display: block !important;
+  padding: 1.35rem 0.75rem 0.35rem !important;
+  font-size: 0.92rem !important;
+  font-weight: 400 !important;
+  font-family: var(--form-value-font) !important;
+  color: #111827 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  height: 54px !important;
+  min-height: 54px !important;
+  line-height: 1.4 !important;
+  outline: none !important;
+}
+
+.app-form-field:not(.has-value):not(:focus-within)
+  .p-autocomplete
+  .p-autocomplete-input::placeholder {
+  opacity: 0;
+}
+
+.app-form-field:focus-within .p-autocomplete .p-autocomplete-input::placeholder {
+  opacity: 1;
+  color: var(--app-text-muted);
+  font-family: var(--form-placeholder-font) !important;
+}
+
+.app-form-field .p-autocomplete .p-autocomplete-dropdown {
+  flex-shrink: 0 !important;
+  width: 2.2rem !important;
+  min-width: 2.2rem !important;
+  height: 100% !important;
+  padding: 0 !important;
+  color: var(--app-primary-600) !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.app-form-field .p-autocomplete .p-autocomplete-dropdown:hover {
+  background: var(--app-primary-50) !important;
+  color: var(--app-primary-700) !important;
+}
+
+.app-autocomplete-panel.p-autocomplete-panel {
+  margin-top: 0.3rem;
+  border-radius: var(--app-radius) !important;
+  border: 1px solid var(--app-primary-100) !important;
+  background: var(--app-surface-soft) !important;
+  box-shadow: var(--app-shadow-2) !important;
+  overflow: hidden !important;
+}
+
+.app-autocomplete-panel.p-autocomplete-panel .p-autocomplete-item {
+  padding: 0.6rem 0.75rem !important;
+  border-radius: var(--app-radius);
+  color: var(--app-primary-700) !important;
+}
+
+.app-autocomplete-panel.p-autocomplete-panel .p-autocomplete-item:hover {
+  background: var(--app-primary-50) !important;
+}
+
+// ---------------------------------------------------------------------------
+// p-inputNumber â€” underline-only, floating label, matches other controls
 // ---------------------------------------------------------------------------
 .app-form-field .p-inputnumber {
   display: flex !important;
@@ -453,7 +591,7 @@
   font-family: var(--form-placeholder-font) !important;
 }
 
-// Toggle mask icon — vertically centered
+// Toggle mask icon â€” vertically centered
 .app-form-field .p-password .p-password-toggle-mask-icon {
   flex-shrink: 0;
   width: 2.2rem;
@@ -471,7 +609,7 @@
 .p-multiselect-panel,
 .p-datepicker {
   margin-top: 0.3rem;
-  border-radius: 0.8rem !important;
+  border-radius: var(--app-radius) !important;
   border: 1px solid var(--app-primary-100) !important;
   background: var(--app-surface-soft) !important;
   box-shadow: var(--app-shadow-2) !important;
@@ -491,7 +629,7 @@
 .p-select-panel .p-select-option,
 .p-multiselect-panel .p-multiselect-item {
   padding: 0.6rem 0.75rem !important;
-  border-radius: 0.45rem;
+  border-radius: var(--app-radius);
   color: var(--app-primary-700) !important;
   font-family: var(
     --app-font-family-mono,
@@ -580,7 +718,7 @@
 .p-select-panel .p-select-items-wrapper::-webkit-scrollbar-thumb,
 .p-multiselect-panel .p-multiselect-items-wrapper::-webkit-scrollbar-thumb,
 .p-datepicker .p-datepicker-calendar-container::-webkit-scrollbar-thumb {
-  border-radius: 999px;
+  border-radius: var(--app-radius);
   background: var(--app-border-strong);
 }
 
@@ -637,7 +775,7 @@
 }
 
 // ---------------------------------------------------------------------------
-// Error message — inline, smooth fade-in
+// Error message â€” inline, smooth fade-in
 // ---------------------------------------------------------------------------
 .app-form-field__feedback {
   max-height: 0;
@@ -699,6 +837,59 @@
 
 .app-form-field--full {
   grid-column: 1 / -1;
+}
+
+// Bang "them/bot bang tim kiem" cho Ung dung dang chay (thay the p-multiSelect
+// chip cu - kho doc khi chon nhieu). Autocomplete de tim & them, bang ben
+// duoi de xem & xoa tung dong, dong bo voi style .action-btn toan he thong.
+.app-form-field--ungdung .app-ungdung-table {
+  margin-top: 0.4rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
+  overflow: hidden;
+  max-height: 11rem;
+  overflow-y: auto;
+}
+
+.app-ungdung-table__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.app-ungdung-table__row:not(:last-child) {
+  border-bottom: 1px solid var(--app-border);
+}
+
+.app-ungdung-table__row:hover {
+  background: color-mix(in srgb, var(--app-primary-50) 30%, white 70%);
+}
+
+.app-ungdung-table__name {
+  padding: 0.45rem 0.7rem;
+  font-size: var(--app-font-size-ui-control);
+  color: var(--app-text);
+}
+
+.app-ungdung-table__action {
+  width: 2.2rem;
+  padding: 0.3rem 0.4rem;
+  text-align: right;
+}
+
+.app-ungdung-table__action .action-btn {
+  width: 26px;
+  height: 26px;
+}
+
+.app-ungdung-table__action .action-btn .pi {
+  font-size: 0.68rem;
+}
+
+.app-ungdung-table__empty {
+  padding: 0.6rem 0.7rem;
+  font-size: var(--app-font-size-ui-control);
+  color: var(--app-text-muted);
+  text-align: center;
 }
 
 .app-form-field--lg {

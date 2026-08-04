@@ -1,4 +1,4 @@
-.mau-shell {
+﻿.mau-shell {
   @apply relative;
   min-height: 12rem;
 }
@@ -42,6 +42,45 @@
   .filter-actions {
     @apply w-full;
   }
+}
+
+// Tráº¡ng thÃ¡i cell
+.mau-status-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mau-ky-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--app-radius);
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #94a3b8;
+  border: 1px solid #e2e8f0;
+  cursor: default;
+
+  .pi { font-size: 0.65rem; }
+
+  &--active {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+  }
+}
+
+// Module tag overflow
+.module-tag--more {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px dashed #cbd5e1;
+  cursor: default;
+  font-style: italic;
 }
 
 :host ::ng-deep .mau-bao-cao-table.p-datatable {

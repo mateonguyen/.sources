@@ -20,6 +20,16 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
     private readonly ILogger<BaselineDataSeeder> _logger;
     private readonly IDateTimeProvider _dateTimeProvider;
 
+    /// <summary>
+    /// Id cua don vi demo (H05/Ha Noi/Da Nang) dung de gan cho 5 tai khoan
+    /// seed. Uu tien tro vao don vi THAT da import tu Thong tu 58 (tra theo
+    /// MaDonVi that: G01.705.000/G01.801.000/G01.863.000); chi tao don vi
+    /// fallback toi thieu khi CSDL con hoan toan trong (chua chay import).
+    /// Populated trong SeedDonViAsync, dung lai o SeedUsersAsync/
+    /// SeedUserRoleAssignmentsAsync/SeedKyTrangThaiDonViAsync.
+    /// </summary>
+    private Dictionary<string, long> _demoDonViIds = new();
+
     public BaselineDataSeeder(
         AppDbContext dbContext,
         IPasswordHasher<ApplicationUser> passwordHasher,
@@ -81,9 +91,83 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
 
     private async Task SeedDonViAsync(CancellationToken cancellationToken)
     {
-        await UpsertDonViAsync(2001, "H05", "Cuc CNTT H05", "H05", null, "CUC", "http://h05-noibo.local", "https://h05.bocongan.gov.vn", 1200, cancellationToken);
-        await UpsertDonViAsync(2002, "CA_HN", "Cong an TP Ha Noi", "CAHN", 2001, "TINH", "http://cahn-noibo.local", "https://congan.hanoi.gov.vn", 850, cancellationToken);
-        await UpsertDonViAsync(2003, "CA_DN", "Cong an TP Da Nang", "CADN", 2001, "TINH", "http://cadn-noibo.local", "https://congan.danang.gov.vn", 640, cancellationToken);
+        var h05Id = await ResolveOrCreateFallbackDonViAsync(
+            realMaDonVi: "G01.705.000",
+            fallbackMaDonVi: "H05",
+            tenDonVi: "Cuc CNTT H05",
+            tenVietTat: "H05",
+            fallbackParentId: null,
+            capDonVi: "CUC",
+            cancellationToken);
+
+        var haNoiId = await ResolveOrCreateFallbackDonViAsync(
+            realMaDonVi: "G01.801.000",
+            fallbackMaDonVi: "CA_HN",
+            tenDonVi: "Cong an TP Ha Noi",
+            tenVietTat: "CAHN",
+            fallbackParentId: h05Id,
+            capDonVi: "TINH",
+            cancellationToken);
+
+        var daNangId = await ResolveOrCreateFallbackDonViAsync(
+            realMaDonVi: "G01.863.000",
+            fallbackMaDonVi: "CA_DN",
+            tenDonVi: "Cong an TP Da Nang",
+            tenVietTat: "CADN",
+            fallbackParentId: h05Id,
+            capDonVi: "TINH",
+            cancellationToken);
+
+        _demoDonViIds = new Dictionary<string, long>
+        {
+            ["H05"] = h05Id,
+            ["HA_NOI"] = haNoiId,
+            ["DA_NANG"] = daNangId,
+        };
+    }
+
+    /// <summary>
+    /// Tra ve Id cua don vi THAT (tra theo realMaDonVi, vd don vi import tu
+    /// Thong tu 58) neu da ton tai - KHONG dung/sua don vi that. Chi khi
+    /// khong tim thay (CSDL con trong, chua chay import G01) moi tao 1 don
+    /// vi fallback toi thieu (theo fallbackMaDonVi) de seed van chay duoc
+    /// tren moi truong hoan toan trong.
+    /// </summary>
+    private async Task<long> ResolveOrCreateFallbackDonViAsync(
+        string realMaDonVi,
+        string fallbackMaDonVi,
+        string tenDonVi,
+        string? tenVietTat,
+        long? fallbackParentId,
+        string? capDonVi,
+        CancellationToken cancellationToken)
+    {
+        var real = await _dbContext.DonVis.IgnoreQueryFilters()
+            .FirstOrDefaultAsync(x => x.MaDonVi == realMaDonVi, cancellationToken);
+        if (real is not null)
+        {
+            return real.Id;
+        }
+
+        var fallback = await _dbContext.DonVis.IgnoreQueryFilters()
+            .FirstOrDefaultAsync(x => x.MaDonVi == fallbackMaDonVi, cancellationToken);
+        if (fallback is null)
+        {
+            fallback = new DonVi();
+            await _dbContext.DonVis.AddAsync(fallback, cancellationToken);
+        }
+
+        fallback.MaDonVi = fallbackMaDonVi;
+        fallback.TenDonVi = tenDonVi;
+        fallback.TenVietTat = tenVietTat;
+        fallback.ParentId = fallbackParentId;
+        fallback.CapDonVi = capDonVi;
+        fallback.IsActive = true;
+        fallback.DeletedAt = null;
+
+        // Luu ngay de co Id (dung lam ParentId cho don vi fallback ke tiep).
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return fallback.Id;
     }
 
     private async Task SeedPermissionsAsync(CancellationToken cancellationToken)
@@ -97,7 +181,9 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
             Permissions.DonVi.Delete,
             Permissions.KyBaoCao.Read,
             Permissions.KyBaoCao.Create,
+            Permissions.KyBaoCao.Update,
             Permissions.KyBaoCao.Approve,
+            Permissions.TienDoBaoCao.Read,
             Permissions.MauBaoCao.Read,
             Permissions.MauBaoCao.Create,
             Permissions.MauBaoCao.Update,
@@ -189,10 +275,12 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
             Permissions.Codes.Create,
             Permissions.Codes.Update,
             Permissions.Codes.Delete,
+            Permissions.RefLoaiThietBi.Read,
+            Permissions.RefLoaiThietBi.Create,
+            Permissions.RefLoaiThietBi.Update,
+            Permissions.RefLoaiThietBi.Delete,
             Permissions.TongHopTienDo.Read,
             Permissions.TongHopTienDo.XacNhan,
-            Permissions.BaoCao.Read,
-            Permissions.BaoCao.Export,
             Permissions.Files.Upload,
             Permissions.SystemAdmin
         };
@@ -217,19 +305,77 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
                 PermCode = permissionCode,
                 Module = module,
                 Action = action,
-                MoTa = $"Baseline permission {permissionCode}"
+                MoTa = $"{ResolveModuleLabelVi(module)} : {ResolveActionLabelVi(action)}"
             }, cancellationToken);
         }
     }
 
+    private static string ResolveModuleLabelVi(string module) => module.ToLowerInvariant() switch
+    {
+        "users" => "Người dùng",
+        "roles" => "Vai trò",
+        "permissions" => "Phân quyền",
+        "phan_quyen" => "Phân quyền",
+        "codes" => "Danh mục",
+        "don_vi" => "Đơn vị",
+        "ky_bao_cao" => "Kỳ báo cáo",
+        "mau_bao_cao" => "Mẫu báo cáo",
+        "bao_cao" => "Báo cáo",
+        "snapshot" => "Snapshot",
+        "nhan_luc_cntt" => "Nhân lực CNTT",
+        "nang_luc_so" => "Năng lực số",
+        "dao_tao_boi_duong" => "Đào tạo bồi dưỡng",
+        "dao_tao_hoc_vien" => "Đào tạo học viên",
+        "dao_tao_nuoc_ngoai" => "Đào tạo nước ngoài",
+        "he_thong_thong_tin" => "Hệ thống thông tin",
+        "du_an_cntt" => "Dự án CNTT",
+        "ha_tang_mang" => "Hạ tầng mạng",
+        "thiet_bi_cntt" => "Thiết bị CNTT",
+        "camera_thuc_trang" => "Camera thực trạng",
+        "camera_quan_ly" => "Camera quản lý",
+        "van_ban_qppl" => "Văn bản quy phạm pháp luật",
+        "van_ban_den" => "Văn bản đến",
+        "van_ban_di" => "Văn bản đi",
+        "giam_sat_soc" => "Giám sát SOC",
+        "giam_sat_noc" => "Giám sát NOC",
+        "attt_httt_dau_tu" => "An toàn thông tin đầu tư",
+        "attt_httt_van_hanh" => "An toàn thông tin vận hành",
+        "giai_phap_attt" => "Giải pháp ATTT",
+        "thong_bao" => "Thông báo",
+        "ref_loai_thiet_bi" => "Loại thiết bị",
+        "files" => "Tệp tin",
+        "auth" => "Xác thực",
+        "tong_hop_tien_do" => "Tiến độ tổng hợp",
+        "yeu_cau_bo_sung" => "Yêu cầu bổ sung",
+        "system" => "Hệ thống",
+        _ => module
+    };
+
+    private static string ResolveActionLabelVi(string action) => action.ToLowerInvariant() switch
+    {
+        "read" => "Xem",
+        "create" => "Thêm",
+        "update" => "Sửa",
+        "delete" => "Xóa",
+        "approve" => "Phê duyệt",
+        "submit" => "Gửi",
+        "upload" => "Tải lên",
+        "export" => "Xuất",
+        "pdf" => "Xuất PDF",
+        "admin" => "Quản trị",
+        "me" => "Thông tin của tôi",
+        "xac_nhan" => "Xác nhận",
+        _ => action
+    };
+
     private async Task SeedRolesAsync(CancellationToken cancellationToken)
     {
-        await UpsertRoleAsync(4001, "SYSTEM_ADMIN", "Quan tri he thong", true, cancellationToken);
-        await UpsertRoleAsync(4002, "QUAN_LY", "Quan ly", false, cancellationToken);
-        await UpsertRoleAsync(4003, "CAP_TINH", "Nguoi dung cap tinh", false, cancellationToken);
-        await UpsertRoleAsync(4004, "CAP_XA", "Nguoi dung cap xa", false, cancellationToken);
-        await UpsertRoleAsync(4005, "VIEWER", "Nguoi xem", false, cancellationToken);
-        await UpsertRoleAsync(4006, "LANH_DAO", "Lanh dao", false, cancellationToken);
+        await UpsertRoleAsync(4001, "SYSTEM_ADMIN", "Quản trị hệ thống", true, cancellationToken);
+        await UpsertRoleAsync(4002, "QUAN_LY", "Quản lý", false, cancellationToken);
+        await UpsertRoleAsync(4003, "CAP_TINH", "Người dùng cấp tỉnh", false, cancellationToken);
+        await UpsertRoleAsync(4004, "CAP_XA", "Người dùng cấp xã", false, cancellationToken);
+        await UpsertRoleAsync(4005, "VIEWER", "Người xem", false, cancellationToken);
+        await UpsertRoleAsync(4006, "LANH_DAO", "Lãnh đạo", false, cancellationToken);
     }
 
     private async Task SeedRolePermissionsAsync(CancellationToken cancellationToken)
@@ -251,15 +397,14 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
                 Permissions.DonVi.Update,
                 Permissions.KyBaoCao.Read,
                 Permissions.KyBaoCao.Create,
+                Permissions.KyBaoCao.Update,
                 Permissions.KyBaoCao.Approve,
+                Permissions.TienDoBaoCao.Read,
                 Permissions.MauBaoCao.Read,
                 Permissions.MauBaoCao.Create,
                 Permissions.MauBaoCao.Update,
                 Permissions.MauBaoCao.Delete,
                 Permissions.BaoCaoSnapshot.Read,
-                Permissions.BaoCaoSnapshot.Create,
-                Permissions.BaoCaoSnapshot.Update,
-                Permissions.BaoCaoSnapshot.Submit,
                 Permissions.BaoCaoSnapshot.Export,
                 Permissions.YeuCauBoSung.Read,
                 Permissions.YeuCauBoSung.Create,
@@ -268,70 +413,6 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
                 Permissions.ThongBao.Update,
                 Permissions.Files.Read,
                 Permissions.Files.Delete,
-                Permissions.NhanLucCntt.Read,
-                Permissions.NhanLucCntt.Create,
-                Permissions.NhanLucCntt.Update,
-                Permissions.NhanLucCntt.Delete,
-                Permissions.HeThongThongTin.Read,
-                Permissions.HeThongThongTin.Create,
-                Permissions.HeThongThongTin.Update,
-                Permissions.HeThongThongTin.Delete,
-                Permissions.DuAnCntt.Read,
-                Permissions.DuAnCntt.Create,
-                Permissions.DuAnCntt.Update,
-                Permissions.DuAnCntt.Delete,
-                Permissions.VanBanQppl.Read,
-                Permissions.VanBanQppl.Create,
-                Permissions.VanBanQppl.Update,
-                Permissions.VanBanQppl.Delete,
-                Permissions.DaoTaoBoiDuong.Read,
-                Permissions.DaoTaoBoiDuong.Create,
-                Permissions.DaoTaoBoiDuong.Update,
-                Permissions.DaoTaoBoiDuong.Delete,
-                Permissions.DaoTaoHocVien.Read,
-                Permissions.DaoTaoHocVien.Create,
-                Permissions.DaoTaoHocVien.Update,
-                Permissions.DaoTaoHocVien.Delete,
-                Permissions.NangLucSo.Read,
-                Permissions.NangLucSo.Create,
-                Permissions.NangLucSo.Update,
-                Permissions.NangLucSo.Delete,
-                Permissions.ThietBiCntt.Read,
-                Permissions.ThietBiCntt.Create,
-                Permissions.ThietBiCntt.Update,
-                Permissions.ThietBiCntt.Delete,
-                Permissions.HaTangMang.Read,
-                Permissions.HaTangMang.Create,
-                Permissions.HaTangMang.Update,
-                Permissions.HaTangMang.Delete,
-                Permissions.GiamSatSoc.Read,
-                Permissions.GiamSatSoc.Create,
-                Permissions.GiamSatSoc.Update,
-                Permissions.GiamSatSoc.Delete,
-                Permissions.GiamSatNoc.Read,
-                Permissions.GiamSatNoc.Create,
-                Permissions.GiamSatNoc.Update,
-                Permissions.GiamSatNoc.Delete,
-                Permissions.AtttHtttVanHanh.Read,
-                Permissions.AtttHtttVanHanh.Create,
-                Permissions.AtttHtttVanHanh.Update,
-                Permissions.AtttHtttVanHanh.Delete,
-                Permissions.AtttHtttDauTu.Read,
-                Permissions.AtttHtttDauTu.Create,
-                Permissions.AtttHtttDauTu.Update,
-                Permissions.AtttHtttDauTu.Delete,
-                Permissions.GiaiPhapAttt.Read,
-                Permissions.GiaiPhapAttt.Create,
-                Permissions.GiaiPhapAttt.Update,
-                Permissions.GiaiPhapAttt.Delete,
-                Permissions.CameraQuanLy.Read,
-                Permissions.CameraQuanLy.Create,
-                Permissions.CameraQuanLy.Update,
-                Permissions.CameraQuanLy.Delete,
-                Permissions.CameraThucTrang.Read,
-                Permissions.CameraThucTrang.Create,
-                Permissions.CameraThucTrang.Update,
-                Permissions.CameraThucTrang.Delete,
                 Permissions.Users.Read,
                 Permissions.Users.Create,
                 Permissions.Users.Update,
@@ -342,9 +423,10 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
                 Permissions.Codes.Create,
                 Permissions.Codes.Update,
                 Permissions.Codes.Delete,
-                Permissions.TongHopTienDo.Read,
-                Permissions.BaoCao.Read,
-                Permissions.BaoCao.Export,
+                Permissions.RefLoaiThietBi.Read,
+                Permissions.RefLoaiThietBi.Create,
+                Permissions.RefLoaiThietBi.Update,
+                Permissions.RefLoaiThietBi.Delete,
                 Permissions.Files.Upload
             ],
             ["CAP_TINH"] =
@@ -374,7 +456,6 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
                 Permissions.DuAnCntt.Read,
                 Permissions.DuAnCntt.Create,
                 Permissions.DuAnCntt.Update,
-                Permissions.DuAnCntt.Delete,
                 Permissions.VanBanQppl.Read,
                 Permissions.VanBanQppl.Create,
                 Permissions.VanBanQppl.Update,
@@ -433,13 +514,13 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
                 Permissions.Users.Create,
                 Permissions.Users.Update,
                 Permissions.Files.Upload,
-                Permissions.BaoCao.Read,
-                Permissions.BaoCao.Export,
                 Permissions.Codes.Read
             ],
             ["CAP_XA"] =
             [
                 Permissions.Auth.Me,
+                Permissions.DonVi.Read,
+                Permissions.Codes.Read,
                 Permissions.KyBaoCao.Read,
                 Permissions.MauBaoCao.Read,
                 Permissions.BaoCaoSnapshot.Read,
@@ -458,6 +539,7 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
                 Permissions.DuAnCntt.Read,
                 Permissions.DuAnCntt.Create,
                 Permissions.DuAnCntt.Update,
+                Permissions.DuAnCntt.Delete,
                 Permissions.VanBanQppl.Read,
                 Permissions.VanBanQppl.Create,
                 Permissions.VanBanQppl.Update,
@@ -506,8 +588,6 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
                 Permissions.MauBaoCao.Read,
                 Permissions.BaoCaoSnapshot.Read,
                 Permissions.BaoCaoSnapshot.Export,
-                Permissions.BaoCao.Read,
-                Permissions.BaoCao.Export,
                 Permissions.ThongBao.Read,
                 Permissions.Files.Read
             ],
@@ -556,6 +636,10 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
 
     private async Task SeedUsersAsync(CancellationToken cancellationToken)
     {
+        var h05Id = _demoDonViIds["H05"];
+        var haNoiId = _demoDonViIds["HA_NOI"];
+        var daNangId = _demoDonViIds["DA_NANG"];
+
         await UpsertUserAsync(
             5001,
             "admin",
@@ -563,7 +647,7 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
             "System Admin",
             "admin@thuc-luc.local",
             "0900000001",
-            2001,
+            h05Id,
             cancellationToken);
 
         await UpsertUserAsync(
@@ -573,7 +657,7 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
             "H05 User",
             "h05.user@thuc-luc.local",
             "0900000002",
-            2001,
+            h05Id,
             cancellationToken);
 
         await UpsertUserAsync(
@@ -583,7 +667,7 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
             "Don Vi User",
             "donvi.user@thuc-luc.local",
             "0900000003",
-            2002,
+            haNoiId,
             cancellationToken);
 
         await UpsertUserAsync(
@@ -593,7 +677,7 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
             "Viewer User",
             "viewer.user@thuc-luc.local",
             "0900000004",
-            2003,
+            daNangId,
             cancellationToken);
 
         await UpsertUserAsync(
@@ -603,7 +687,7 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
             "H05 Viewer",
             "h05.viewer@thuc-luc.local",
             "0900000005",
-            2001,
+            h05Id,
             cancellationToken);
     }
 
@@ -611,12 +695,15 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
     {
         var users = await _dbContext.Users.ToDictionaryAsync(x => x.UserName ?? string.Empty, StringComparer.OrdinalIgnoreCase, cancellationToken);
         var roles = await _dbContext.Roles.ToDictionaryAsync(x => x.Name ?? string.Empty, StringComparer.OrdinalIgnoreCase, cancellationToken);
+        var h05Id = _demoDonViIds["H05"];
+        var haNoiId = _demoDonViIds["HA_NOI"];
+        var daNangId = _demoDonViIds["DA_NANG"];
 
-        await UpsertUserRoleAssignmentAsync(users["admin"].Id, roles["SYSTEM_ADMIN"].Id, 2001, cancellationToken);
-        await UpsertUserRoleAssignmentAsync(users["h05.user"].Id, roles["QUAN_LY"].Id, 2001, cancellationToken);
-        await UpsertUserRoleAssignmentAsync(users["donvi.user"].Id, roles["CAP_TINH"].Id, 2002, cancellationToken);
-        await UpsertUserRoleAssignmentAsync(users["viewer.user"].Id, roles["VIEWER"].Id, 2003, cancellationToken);
-        await UpsertUserRoleAssignmentAsync(users["h05.viewer"].Id, roles["LANH_DAO"].Id, 2001, cancellationToken);
+        await UpsertUserRoleAssignmentAsync(users["admin"].Id, roles["SYSTEM_ADMIN"].Id, h05Id, cancellationToken);
+        await UpsertUserRoleAssignmentAsync(users["h05.user"].Id, roles["QUAN_LY"].Id, h05Id, cancellationToken);
+        await UpsertUserRoleAssignmentAsync(users["donvi.user"].Id, roles["CAP_TINH"].Id, haNoiId, cancellationToken);
+        await UpsertUserRoleAssignmentAsync(users["viewer.user"].Id, roles["VIEWER"].Id, daNangId, cancellationToken);
+        await UpsertUserRoleAssignmentAsync(users["h05.viewer"].Id, roles["LANH_DAO"].Id, h05Id, cancellationToken);
     }
 
     private async Task SeedMauBaoCaoAsync(CancellationToken cancellationToken)
@@ -693,9 +780,12 @@ public sealed class BaselineDataSeeder : IBaselineDataSeeder
 
     private async Task SeedKyTrangThaiDonViAsync(CancellationToken cancellationToken)
     {
-        await UpsertKyTrangThaiDonViAsync(7001, 6001, 2002, KyTrangThaiDonViStatus.ChuaNhap, cancellationToken);
-        await UpsertKyTrangThaiDonViAsync(7002, 6001, 2003, KyTrangThaiDonViStatus.ChuaNhap, cancellationToken);
-        await UpsertKyTrangThaiDonViAsync(7003, 6002, 2002, KyTrangThaiDonViStatus.DaXacNhan, cancellationToken);
+        var haNoiId = _demoDonViIds["HA_NOI"];
+        var daNangId = _demoDonViIds["DA_NANG"];
+
+        await UpsertKyTrangThaiDonViAsync(7001, 6001, haNoiId, KyTrangThaiDonViStatus.ChuaNhap, cancellationToken);
+        await UpsertKyTrangThaiDonViAsync(7002, 6001, daNangId, KyTrangThaiDonViStatus.ChuaNhap, cancellationToken);
+        await UpsertKyTrangThaiDonViAsync(7003, 6002, haNoiId, KyTrangThaiDonViStatus.DaXacNhan, cancellationToken);
     }
 
     private async Task UpsertDonViAsync(

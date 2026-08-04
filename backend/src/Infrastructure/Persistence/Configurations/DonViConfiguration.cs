@@ -15,6 +15,7 @@ public sealed class DonViConfiguration : IEntityTypeConfiguration<DonVi>
         builder.Property(x => x.TenVietTat).HasMaxLength(50);
         builder.Property(x => x.DiaChi).HasMaxLength(500);
         builder.Property(x => x.CapDonVi).HasMaxLength(20);
+        builder.Property(x => x.KhoiDonVi).HasMaxLength(20);
         builder.Property(x => x.WebsiteNoiBo).HasMaxLength(200);
         builder.Property(x => x.WebsiteInternet).HasMaxLength(200);
         builder.Property(x => x.CheDoNhapLieu).HasMaxLength(20).HasColumnName("CHE_DO_NHAP_LIEU").HasDefaultValue("TU_NHAP");

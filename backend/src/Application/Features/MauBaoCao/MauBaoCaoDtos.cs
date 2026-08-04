@@ -11,6 +11,7 @@ public sealed class MauBaoCaoDto
     public TanSuat TanSuat { get; set; }
     public IReadOnlyCollection<string> DanhSachModule { get; set; } = [];
     public bool IsActive { get; set; }
+    public int KyBaoCaoCount { get; set; }
 }
 
 public sealed class UpsertMauBaoCaoRequest

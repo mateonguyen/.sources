@@ -1,4 +1,4 @@
-.camera-filter-grid {
+﻿.camera-filter-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 0.75rem;
@@ -20,7 +20,7 @@
   min-height: 2.75rem;
   width: 100%;
   padding: 0.5rem 1rem;
-  border-radius: 0.45rem;
+  border-radius: var(--app-radius);
   border: 1px solid var(--app-border);
   background: #fff;
   color: var(--app-text-muted);
@@ -29,6 +29,12 @@
   letter-spacing: 0.03em;
   cursor: pointer;
   transition: all 0.17s ease;
+}
+
+.camera-tab-label {
+  line-height: 1.25;
+  white-space: normal;
+  text-wrap: balance;
 }
 
 .camera-tab:hover:not(.is-active) {
@@ -58,7 +64,7 @@
   min-width: 1.4rem;
   height: 1.3rem;
   padding: 0 0.44rem;
-  border-radius: 999px;
+  border-radius: var(--app-radius);
   background: var(--app-primary-50);
   border: 1px solid var(--app-primary-100);
   color: var(--app-primary-600);
@@ -104,7 +110,7 @@
   display: flex;
   align-items: center;
   height: 2.28rem;
-  border-radius: 0.36rem;
+  border-radius: var(--app-radius);
   border: 1px solid var(--app-border);
   background: #fff;
   overflow: hidden;
@@ -144,39 +150,8 @@
 
 .camera-form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
-  padding: 0.5rem 0;
-}
-
-.app-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-
-  label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    color: var(--app-text-strong);
-  }
-
-  .required {
-    color: var(--red-500);
-    margin-left: 0.25rem;
-  }
-
-  &--full {
-    grid-column: 1 / -1;
-  }
-}
-
-.app-validation-error {
-  font-size: 0.75rem;
-  color: var(--red-500);
-  font-weight: 500;
-  margin-top: 0.25rem;
 }
 
 // Camera statistics badges for table
@@ -187,7 +162,7 @@
   min-width: 2.4rem;
   height: 1.9rem;
   padding: 0 0.5rem;
-  border-radius: 0.35rem;
+  border-radius: var(--app-radius);
   background: var(--slate-50);
   border: 1px solid var(--slate-200);
   color: var(--slate-700);
@@ -236,7 +211,7 @@
 .app-table-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  border-radius: 0.36rem;
+  border-radius: var(--app-radius);
   border: 1px solid var(--app-border);
   background: #fff;
 }
@@ -277,52 +252,24 @@
   .camera-form-grid {
     grid-template-columns: 1fr;
   }
-
-  .app-field--full {
-    grid-column: 1;
-  }
 }
 
-// Dialog improvements
-p-dialog {
-  ::ng-deep .p-dialog {
-    border-radius: 0.48rem;
-    box-shadow:
-      0 20px 25px -5px rgba(0, 0, 0, 0.1),
-      0 10px 10px -5px rgba(0, 0, 0, 0.04);
-
-    .p-dialog-header {
-      background: #fff;
-      border-bottom: 1px solid var(--app-border);
-      padding: 1.2rem;
-    }
-
-    .p-dialog-content {
-      padding: 1.2rem;
-      background: #fff;
-    }
-
-    .p-dialog-footer {
-      background: #f9fafb;
-      border-top: 1px solid var(--app-border);
-      padding: 0.9rem 1.2rem;
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.5rem;
-    }
+:host ::ng-deep .app-camera-quan-ly-dialog {
+  .p-dialog-content {
+    padding: 0;
   }
-}
 
-// Button styling
-pButton {
-  ::ng-deep button {
-    font-weight: 600;
-    transition: all 0.17s ease;
+  .app-dialog-body-standard {
+    padding: 1rem;
+  }
 
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
+  .app-dialog-actions {
+    padding: 0.95rem 1.1rem 1.1rem;
+    border-top: 1px solid var(--app-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    background: var(--app-surface);
   }
 }
 

@@ -12,6 +12,7 @@ export interface YeuCauBoSungDto {
   id: number;
   kyBaoCaoId: number;
   donViId: number;
+  tenDonVi: string;
   trangThai: number;
   lyDo: string;
   requestedBy: number;
@@ -21,6 +22,7 @@ export interface YeuCauBoSungDto {
   tuChoiLyDo?: string;
   hanBoSung?: string;
   completedAt?: string;
+  capGui: string;
 }
 
 export interface CreateYeuCauBoSungRequest {

@@ -1,5 +1,5 @@
-using Amazon.Runtime;
-using Amazon.S3;
+using Minio;
+using System.Reflection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -75,6 +75,7 @@ public static class ServiceCollectionExtensions
                 {
                     oracleOptions.MigrationsHistoryTable("__EFMigrationsHistory", dbOptions.Schema);
                     oracleOptions.MaxBatchSize(1);
+                    ApplyOracleSqlCompatibility(oracleOptions);
                 })
                 .UseUpperSnakeCaseNamingConvention()
                 .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning));
@@ -82,18 +83,19 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IApplicationDbContext>(serviceProvider => serviceProvider.GetRequiredService<AppDbContext>());
 
-        services.AddSingleton<IAmazonS3>(serviceProvider =>
+        services.AddSingleton<IMinioClient>(serviceProvider =>
         {
             var storageOptions = serviceProvider.GetRequiredService<IOptions<MinioOptions>>().Value;
-            var config = new AmazonS3Config
-            {
-                ServiceURL = storageOptions.ServiceUrl,
-                ForcePathStyle = true,
-                UseHttp = !storageOptions.UseSsl,
-                AuthenticationRegion = storageOptions.Region
-            };
+            var serviceUri = new Uri(storageOptions.ServiceUrl);
+            var endpoint = serviceUri.IsDefaultPort
+                ? serviceUri.Host
+                : $"{serviceUri.Host}:{serviceUri.Port}";
 
-            return new AmazonS3Client(new BasicAWSCredentials(storageOptions.AccessKey, storageOptions.SecretKey), config);
+            return new MinioClient()
+                .WithEndpoint(endpoint)
+                .WithCredentials(storageOptions.AccessKey, storageOptions.SecretKey)
+                .WithSSL(storageOptions.UseSsl)
+                .Build();
         });
 
         services.AddScoped<IFileStorageService, S3FileStorageService>();
@@ -110,5 +112,45 @@ public static class ServiceCollectionExtensions
             .AddCheck<StorageConfigurationHealthCheck>("storage-configuration", failureStatus: HealthStatus.Unhealthy, tags: ["ready"])
             .AddCheck<PdfConfigurationHealthCheck>("pdf-configuration", failureStatus: HealthStatus.Unhealthy, tags: ["ready"]);
         return services;
+    }
+
+    private static void ApplyOracleSqlCompatibility(object oracleOptions)
+    {
+        var method = oracleOptions.GetType()
+            .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            .FirstOrDefault(m => m.Name == "UseOracleSQLCompatibility" && m.GetParameters().Length == 1);
+        if (method is null)
+        {
+            return;
+        }
+
+        var parameterType = method.GetParameters()[0].ParameterType;
+        if (parameterType == typeof(string))
+        {
+            method.Invoke(oracleOptions, ["21"]);
+            return;
+        }
+
+        if (parameterType.IsEnum)
+        {
+            if (TryInvokeEnumCompatibility(method, oracleOptions, parameterType, "DatabaseVersion21"))
+            {
+                return;
+            }
+
+            TryInvokeEnumCompatibility(method, oracleOptions, parameterType, "Version21");
+        }
+    }
+
+    private static bool TryInvokeEnumCompatibility(MethodInfo method, object target, Type enumType, string enumName)
+    {
+        if (!Enum.GetNames(enumType).Contains(enumName, StringComparer.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        var enumValue = Enum.Parse(enumType, enumName, ignoreCase: true);
+        method.Invoke(target, [enumValue]);
+        return true;
     }
 }

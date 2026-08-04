@@ -1,9 +1,12 @@
-import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { HttpContextToken, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { NotificationService } from '../ui/notification.service';
+
+/** Set to true on a request to silently swallow HTTP errors without showing a toast. */
+export const SUPPRESS_ERROR_TOAST = new HttpContextToken<boolean>(() => false);
 
 // Prevents duplicate "session expired" toasts when multiple requests fail simultaneously.
 let sessionExpiredShown = false;
@@ -43,8 +46,13 @@ export const apiErrorInterceptor: HttpInterceptorFn = (request, next) => {
           'Bạn không có quyền thực hiện thao tác này.',
         );
         router.navigate(['/forbidden']);
-      } else if (error.status !== 0 && !isSilentEndpoint && authService.isAuthenticated()) {
-        // Skip network errors (status 0), silent auth-flow endpoints, and stale errors after logout.
+      } else if (
+        error.status !== 0 &&
+        !isSilentEndpoint &&
+        !request.context.get(SUPPRESS_ERROR_TOAST) &&
+        authService.isAuthenticated()
+      ) {
+        // Skip network errors (status 0), silent auth-flow endpoints, suppressed requests, and stale errors after logout.
         const responseError = error.error?.error ?? error.error?.Error;
         const message =
           responseError?.message ??

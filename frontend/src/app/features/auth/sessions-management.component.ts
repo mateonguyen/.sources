@@ -155,7 +155,7 @@ import { Session } from '../../core/auth/auth.models';
         padding: 0.25rem 0.75rem;
         background: var(--app-success-600);
         color: white;
-        border-radius: 4px;
+        border-radius: 6px;
         font-size: 0.75rem;
         font-weight: 600;
         text-transform: uppercase;

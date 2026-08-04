@@ -1,3 +1,5 @@
+using ThucLuc.Application.Features.Files;
+
 namespace ThucLuc.Application.Features.VanBanQppl;
 
 public sealed class GetVanBanQpplQuery
@@ -21,6 +23,7 @@ public sealed class VanBanQpplDto
     public string? TrichYeu { get; set; }
     public string? TinhTrangTrienKhai { get; set; }
     public string? GhiChu { get; set; }
+    public IReadOnlyCollection<FileMetadataDto> FileDinhKems { get; set; } = [];
 }
 
 public sealed class UpsertVanBanQpplRequest

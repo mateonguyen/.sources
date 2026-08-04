@@ -1,5 +1,10 @@
 ﻿import { CommonModule } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -17,13 +22,14 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
+import { TreeSelectModule } from 'primeng/treeselect';
+import { TreeNode } from 'primeng/api';
 import { AuthService } from '../../core/auth/auth.service';
 import { NotificationService } from '../../core/ui/notification.service';
 import { DonViApi, DonViDto } from '../don-vi/don-vi.api';
 import { ConfirmDialogWrapperService } from '../../shared/ui/confirm-dialog-wrapper.service';
 import { EmptyStateComponent } from '../../shared/ui/empty-state.component';
 import { FilterBarComponent } from '../../shared/ui/filter-bar.component';
-import { FormActionBarComponent } from '../../shared/ui/form-action-bar.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
 import {
   APP_MULTISELECT_PANEL_STYLE_CLASS,
@@ -34,9 +40,11 @@ import {
   APP_TABLE_STYLE_CLASS,
 } from '../../shared/ui/primeng-pt';
 import { SectionCardComponent } from '../../shared/ui/section-card.component';
+import { TongHopModeBannerComponent } from '../../shared/ui/tong-hop-mode-banner.component';
 import {
   HeThongThongTinOptionDto,
   RefLoaiThietBiDto,
+  ThietBiCatalogDto,
   ThietBiCnttApi,
   ThietBiCnttDto,
   UpsertThietBiCnttRequest,
@@ -49,6 +57,11 @@ interface SelectOption<TValue extends string | number | null> {
 
 interface LoaiThietBiOption {
   label: string;
+  // Bản không dấu, riêng "đ"/"Đ" quy về "d"/"D" — PrimeNG tự bỏ dấu kiểu
+  // NFKD trước khi lọc, nhưng "đ" là ký tự Unicode độc lập nên NFKD không
+  // tách được, khiến gõ "de ban" không khớp "để bàn". Field này bù cho lỗ
+  // hổng đó, dùng làm filterBy phụ trên p-dropdown.
+  searchLabel: string;
   value: number;
   laTongHop: boolean;
 }
@@ -71,27 +84,21 @@ interface QuickAddDraft {
   tinhTrang: string;
 }
 
-interface ThietBiCatalogCache {
-  hangSanXuat: string[];
-  heDieuHanh: string[];
-  modelByHang: Record<string, string[]>;
-  modelGlobal: string[];
-}
-
 @Component({
   selector: 'app-thiet-bi-cntt-page',
   standalone: true,
   imports: [
+    TongHopModeBannerComponent,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     SectionCardComponent,
     FilterBarComponent,
-    FormActionBarComponent,
     EmptyStateComponent,
     LoadingOverlayComponent,
     AutoCompleteModule,
     DropdownModule,
+    TreeSelectModule,
     MultiSelectModule,
     InputNumberModule,
     InputTextModule,
@@ -104,8 +111,6 @@ interface ThietBiCatalogCache {
   styleUrl: './thiet-bi-cntt.page.scss',
 })
 export class ThietBiCnttPage {
-  private static readonly CATALOG_CACHE_KEY = 'thiet_bi_cntt_catalog_v1';
-
   readonly selectPanelStyleClass = APP_SELECT_PANEL_STYLE_CLASS;
   readonly multiSelectPanelStyleClass = APP_MULTISELECT_PANEL_STYLE_CLASS;
   readonly tableStyleClass = APP_TABLE_STYLE_CLASS;
@@ -155,6 +160,18 @@ export class ThietBiCnttPage {
     () => this.selectedLoaiThietBi()?.laTongHop ?? false,
   );
 
+  // Node cua p-treeSelect tuong ung voi loaiThietBiId hien tai trong form -
+  // re-derive tu form control (khong phai formControlName truc tiep tren
+  // p-treeSelect) de giu nguyen kieu du lieu number|null cho loaiThietBiId
+  // o moi noi khac trong file (rat nhieu cho dang gia dinh dieu nay).
+  readonly loaiThietBiSelectedNode = computed(() => {
+    const id = this.form.controls.loaiThietBiId.value;
+    if (id === null) {
+      return null;
+    }
+    return this.findLoaiThietBiTreeNode(this.loaiThietBiTreeOptions(), id);
+  });
+
   readonly soLuongError = computed(
     () => this.form.hasError('soLuongVuotQua') && this.form.touched,
   );
@@ -165,6 +182,9 @@ export class ThietBiCnttPage {
   formDialogVisible = signal(false);
   selectedId = signal<number | null>(null);
   loaiThietBiOptions = signal<LoaiThietBiOption[]>([]);
+  loaiThietBiTreeOptions = signal<TreeNode<{ id: number; laTongHop: boolean }>[]>([]);
+  ungDungSearchQuery = signal('');
+  ungDungSuggestions = signal<string[]>([]);
   heThongThongTin = signal<HeThongThongTinOptionDto[]>([]);
   donViSuDungTree = signal<DonViDto[]>([]);
   hangSanXuatCatalog = signal<string[]>([]);
@@ -172,6 +192,8 @@ export class ThietBiCnttPage {
   modelCatalogByHang = signal<Record<string, string[]>>({});
   modelCatalogGlobal = signal<string[]>([]);
   modelSuggestions = signal<string[]>([]);
+  hangSanXuatSuggestions = signal<string[]>([]);
+  heDieuHanhSuggestions = signal<string[]>([]);
   expandedGroups = signal<Record<string, boolean>>({});
   expandedRows = signal<Record<string, boolean>>({});
   quickAddDrafts = signal<Record<string, QuickAddDraft>>({});
@@ -295,6 +317,56 @@ export class ThietBiCnttPage {
       }));
   });
 
+  // Danh sach ung dung da chon, dung de render dang bang trong dialog thay
+  // vi p-multiSelect (kho nhin khi chon nhieu - chu bi cat/chong len nhau).
+  readonly selectedUngDungItems = computed<Array<SelectOption<number>>>(() => {
+    const ids: number[] = this.form.controls.ungDungIds.value ?? [];
+    const options = this.heThongOptions();
+    return ids
+      .map((id) => options.find((option) => option.value === id))
+      .filter((option): option is SelectOption<number> => !!option);
+  });
+
+  onUngDungAutocomplete(event: { query: string }): void {
+    const query = event.query.trim().toLowerCase();
+    const selectedIds = new Set<number>(
+      this.form.controls.ungDungIds.value ?? [],
+    );
+    const candidates = this.heThongOptions().filter(
+      (option) => !selectedIds.has(option.value),
+    );
+    this.ungDungSuggestions.set(
+      (query
+        ? candidates.filter((option) =>
+            option.label.toLowerCase().includes(query),
+          )
+        : candidates
+      ).map((option) => option.label),
+    );
+  }
+
+  // Suggestion la chuoi label (khong phai object) - tranh PrimeNG tu dong
+  // dong bo lai gia tri input thanh label sau khi chon, xung dot voi viec
+  // tu xoa o tim kiem ngay sau addUngDung.
+  onUngDungSelect(label: string): void {
+    const option = this.heThongOptions().find((o) => o.label === label);
+    if (option) {
+      const control = this.form.controls.ungDungIds;
+      const current: number[] = control.value ?? [];
+      if (!current.includes(option.value)) {
+        control.setValue([...current, option.value]);
+        control.markAsDirty();
+      }
+    }
+    this.ungDungSearchQuery.set('');
+  }
+
+  removeUngDung(id: number): void {
+    const control = this.form.controls.ungDungIds;
+    control.setValue((control.value ?? []).filter((x: number) => x !== id));
+    control.markAsDirty();
+  }
+
   readonly donViSuDungOptions = computed<Array<SelectOption<string>>>(() => {
     const options = this.flattenDonViOptions(this.donViSuDungTree());
     const selected = (this.form.controls.donViSuDung.value ?? '').trim();
@@ -308,20 +380,6 @@ export class ThietBiCnttPage {
     }
 
     return [{ label: selected, value: selected }, ...options];
-  });
-
-  readonly hangSanXuatOptions = computed<Array<SelectOption<string>>>(() => {
-    return this.withCurrentValueAsOption(
-      this.hangSanXuatCatalog(),
-      this.form.controls.hangSanXuat.value ?? '',
-    );
-  });
-
-  readonly heDieuHanhOptions = computed<Array<SelectOption<string>>>(() => {
-    return this.withCurrentValueAsOption(
-      this.heDieuHanhCatalog(),
-      this.form.controls.heDieuHanh.value ?? '',
-    );
   });
 
   constructor(
@@ -344,16 +402,19 @@ export class ThietBiCnttPage {
   async initialize(): Promise<void> {
     this.loading.set(true);
     try {
-      const [items, loaiTree, heThongThongTin, donViTree] = await Promise.all([
-        this.thietBiApi.getAll(),
-        this.thietBiApi.getLoaiThietBiTree(),
-        this.thietBiApi.getHeThongThongTin(),
-        this.donViApi.getTree(),
-      ]);
+      const [items, catalog, loaiTree, heThongThongTin, donViTree] =
+        await Promise.all([
+          this.thietBiApi.getAll(),
+          this.thietBiApi.getCatalog(),
+          this.thietBiApi.getLoaiThietBiTree(),
+          this.thietBiApi.getHeThongThongTin(),
+          this.donViApi.getTree(),
+        ]);
 
       this.items.set(items);
-      this.refreshCatalogs(items);
+      this.applyCatalog(catalog);
       this.loaiThietBiOptions.set(this.flattenLoaiThietBiTree(loaiTree));
+      this.loaiThietBiTreeOptions.set(this.buildLoaiThietBiTreeNodes(loaiTree));
       this.heThongThongTin.set(heThongThongTin);
       this.donViSuDungTree.set(this.resolveUserDonViSubtree(donViTree));
       this.syncLoaiThietBiMode();
@@ -365,9 +426,12 @@ export class ThietBiCnttPage {
   async load(): Promise<void> {
     this.loading.set(true);
     try {
-      const items = await this.thietBiApi.getAll();
+      const [items, catalog] = await Promise.all([
+        this.thietBiApi.getAll(),
+        this.thietBiApi.getCatalog(),
+      ]);
       this.items.set(items);
-      this.refreshCatalogs(items);
+      this.applyCatalog(catalog);
     } finally {
       this.loading.set(false);
     }
@@ -375,6 +439,22 @@ export class ThietBiCnttPage {
 
   onModelAutocomplete(event: { query?: string }): void {
     this.refreshModelSuggestions(event.query ?? '');
+  }
+
+  onHangSanXuatAutocomplete(event: { query?: string }): void {
+    this.refreshSimpleSuggestions(
+      this.hangSanXuatCatalog(),
+      event.query ?? '',
+      this.hangSanXuatSuggestions,
+    );
+  }
+
+  onHeDieuHanhAutocomplete(event: { query?: string }): void {
+    this.refreshSimpleSuggestions(
+      this.heDieuHanhCatalog(),
+      event.query ?? '',
+      this.heDieuHanhSuggestions,
+    );
   }
 
   resetFilters(): void {
@@ -621,6 +701,8 @@ export class ThietBiCnttPage {
     });
     this.refreshModelSuggestions(detail.model ?? '');
     this.syncLoaiThietBiMode();
+    this.ungDungSearchQuery.set('');
+    this.ungDungSuggestions.set([]);
   }
 
   async remove(item: ThietBiCnttDto): Promise<void> {
@@ -660,6 +742,8 @@ export class ThietBiCnttPage {
     });
     this.refreshModelSuggestions('');
     this.syncLoaiThietBiMode();
+    this.ungDungSearchQuery.set('');
+    this.ungDungSuggestions.set([]);
   }
 
   resolveLoaiThietBiLabel(loaiThietBiId: number): string {
@@ -706,34 +790,99 @@ export class ThietBiCnttPage {
     return result;
   }
 
+  // De quy - cay khong gioi han so cap, chi lay node "la" (khong co con)
+  // lam lua chon duoc phep, khop voi rang buoc phia backend (EnsureLoaiThietBiAsync).
   private flattenLoaiThietBiTree(
     tree: RefLoaiThietBiDto[],
+    ancestorLabels: string[] = [],
   ): LoaiThietBiOption[] {
-    return tree.flatMap((group) =>
-      group.children.map((child) => ({
-        label: `${group.tenLoai} / ${child.tenLoai}`,
-        value: child.id,
-        laTongHop: child.laTongHop,
-      })),
-    );
+    return tree.flatMap((node) => {
+      const pathLabels = [...ancestorLabels, node.tenLoai];
+      if (node.children.length > 0) {
+        return this.flattenLoaiThietBiTree(node.children, pathLabels);
+      }
+
+      const label = pathLabels.join(' / ');
+      return [
+        {
+          label,
+          searchLabel: this.toSearchLabel(label),
+          value: node.id,
+          laTongHop: node.laTongHop,
+        },
+      ];
+    });
+  }
+
+  private toSearchLabel(value: string): string {
+    return value.replace(/đ/g, 'd').replace(/Đ/g, 'D');
+  }
+
+  // Cay cho p-treeSelect - mac dinh dong (expanded: false) de gon, chi cho
+  // chon node "la" (selectable = khong co con), khop dung rang buoc backend.
+  private buildLoaiThietBiTreeNodes(
+    tree: RefLoaiThietBiDto[],
+  ): TreeNode<{ id: number; laTongHop: boolean }>[] {
+    return tree.map((node) => ({
+      key: String(node.id),
+      label: node.tenLoai,
+      data: { id: node.id, laTongHop: node.laTongHop },
+      selectable: node.children.length === 0,
+      expanded: false,
+      children:
+        node.children.length > 0
+          ? this.buildLoaiThietBiTreeNodes(node.children)
+          : [],
+    }));
+  }
+
+  private findLoaiThietBiTreeNode(
+    nodes: TreeNode<{ id: number; laTongHop: boolean }>[],
+    id: number,
+  ): TreeNode<{ id: number; laTongHop: boolean }> | null {
+    for (const node of nodes) {
+      if (node.data?.id === id) {
+        return node;
+      }
+      const found = this.findLoaiThietBiTreeNode(node.children ?? [], id);
+      if (found) {
+        return found;
+      }
+    }
+    return null;
+  }
+
+  onLoaiThietBiTreeSelect(
+    node: TreeNode<{ id: number; laTongHop: boolean }> | null,
+  ): void {
+    const control = this.form.controls.loaiThietBiId;
+    control.setValue(node?.data?.id ?? null);
+    control.markAsDirty();
+    control.markAsTouched();
   }
 
   private syncLoaiThietBiMode(): void {
-    if (!this.isTongHop()) {
-      return;
+    const donViSuDungControl = this.form.controls.donViSuDung;
+
+    if (this.isTongHop()) {
+      donViSuDungControl.clearValidators();
+      this.form.patchValue(
+        {
+          tenThietBi: '',
+          hangSanXuat: '',
+          model: '',
+          cauHinh: '',
+          heDieuHanh: '',
+          donViSuDung: '',
+          ungDungIds: [],
+        },
+        { emitEvent: false },
+      );
+    } else {
+      donViSuDungControl.setValidators([Validators.required]);
     }
-    this.form.patchValue(
-      {
-        tenThietBi: '',
-        hangSanXuat: '',
-        model: '',
-        cauHinh: '',
-        heDieuHanh: '',
-        donViSuDung: '',
-        ungDungIds: [],
-      },
-      { emitEvent: false },
-    );
+
+    donViSuDungControl.updateValueAndValidity({ emitEvent: false });
   }
 
   private resolveDisplayName(item: ThietBiCnttDto): string {
@@ -763,99 +912,27 @@ export class ThietBiCnttPage {
     return normalized ? normalized : null;
   }
 
-  private withCurrentValueAsOption(
-    values: string[],
-    currentValue: string,
-  ): Array<SelectOption<string>> {
-    const options = values.map((value) => ({ label: value, value }));
-    const current = currentValue.trim();
-    if (!current) {
-      return options;
-    }
 
-    const exists = values.some(
-      (value) => value.toLowerCase() === current.toLowerCase(),
-    );
-    if (exists) {
-      return options;
-    }
-
-    return [{ label: current, value: current }, ...options];
-  }
-
-  private refreshCatalogs(items: ThietBiCnttDto[]): void {
-    const extracted = this.extractCatalogFromItems(items);
-    const cached = this.readCatalogCache();
-
-    const mergedModelByHang: Record<string, string[]> = {
-      ...cached.modelByHang,
-    };
-    for (const [hangKey, models] of Object.entries(extracted.modelByHang)) {
-      mergedModelByHang[hangKey] = this.mergeUnique(
-        mergedModelByHang[hangKey] ?? [],
-        models,
-      );
-    }
-
-    const merged: ThietBiCatalogCache = {
-      hangSanXuat: this.mergeUnique(cached.hangSanXuat, extracted.hangSanXuat),
-      heDieuHanh: this.mergeUnique(cached.heDieuHanh, extracted.heDieuHanh),
-      modelByHang: mergedModelByHang,
-      modelGlobal: this.mergeUnique(cached.modelGlobal, extracted.modelGlobal),
-    };
-
-    this.hangSanXuatCatalog.set(merged.hangSanXuat);
-    this.heDieuHanhCatalog.set(merged.heDieuHanh);
-    this.modelCatalogByHang.set(merged.modelByHang);
-    this.modelCatalogGlobal.set(merged.modelGlobal);
-    this.writeCatalogCache(merged);
+  // Gợi ý Hãng SX/Model/HĐH lấy từ danh sách dùng chung toàn hệ thống trả về
+  // bởi server (GET /thiet-bi-cntt/catalog) — không còn phụ thuộc localStorage
+  // riêng từng trình duyệt hay chỉ dữ liệu của đơn vị mình, để các đơn vị khác
+  // nhau nhập cùng 1 tập giá trị đã dùng, hạn chế trùng lặp do gõ khác nhau.
+  private applyCatalog(catalog: ThietBiCatalogDto): void {
+    this.hangSanXuatCatalog.set(this.sortTextArray(catalog.hangSanXuat ?? []));
+    this.heDieuHanhCatalog.set(this.sortTextArray(catalog.heDieuHanh ?? []));
+    this.modelCatalogGlobal.set(this.sortTextArray(catalog.modelGlobal ?? []));
+    this.modelCatalogByHang.set(catalog.modelByHang ?? {});
     this.refreshModelSuggestions(this.form.controls.model.value ?? '');
-  }
-
-  private extractCatalogFromItems(
-    items: ThietBiCnttDto[],
-  ): ThietBiCatalogCache {
-    const hang = new Set<string>();
-    const os = new Set<string>();
-    const modelGlobal = new Set<string>();
-    const modelByHangMap = new Map<string, Set<string>>();
-
-    for (const item of items) {
-      const hangValue = this.normalizeText(item.hangSanXuat) ?? '';
-      const modelValue = this.normalizeText(item.model) ?? '';
-      const osValue = this.normalizeText(item.heDieuHanh) ?? '';
-
-      if (hangValue) {
-        hang.add(hangValue);
-      }
-
-      if (osValue) {
-        os.add(osValue);
-      }
-
-      if (modelValue) {
-        modelGlobal.add(modelValue);
-      }
-
-      const hangKey = this.normalizeLookup(hangValue);
-      if (hangKey && modelValue) {
-        const bucket = modelByHangMap.get(hangKey) ?? new Set<string>();
-        bucket.add(modelValue);
-        modelByHangMap.set(hangKey, bucket);
-      }
-    }
-
-    const modelByHang: Record<string, string[]> = {};
-    for (const [key, values] of modelByHangMap.entries()) {
-      modelByHang[key] = this.sortTextArray(Array.from(values));
-    }
-
-    return {
-      hangSanXuat: this.sortTextArray(Array.from(hang)),
-      heDieuHanh: this.sortTextArray(Array.from(os)),
-      modelByHang,
-      modelGlobal: this.sortTextArray(Array.from(modelGlobal)),
-    };
+    this.refreshSimpleSuggestions(
+      this.hangSanXuatCatalog(),
+      this.form.controls.hangSanXuat.value ?? '',
+      this.hangSanXuatSuggestions,
+    );
+    this.refreshSimpleSuggestions(
+      this.heDieuHanhCatalog(),
+      this.form.controls.heDieuHanh.value ?? '',
+      this.heDieuHanhSuggestions,
+    );
   }
 
   private refreshModelSuggestions(query: string): void {
@@ -875,6 +952,19 @@ export class ThietBiCnttPage {
             .filter((value) => value.toLowerCase().includes(q))
             .slice(0, 50)
         : withCurrent.slice(0, 50),
+    );
+  }
+
+  private refreshSimpleSuggestions(
+    catalog: string[],
+    query: string,
+    target: WritableSignal<string[]>,
+  ): void {
+    const q = query.trim().toLowerCase();
+    target.set(
+      q
+        ? catalog.filter((value) => value.toLowerCase().includes(q)).slice(0, 50)
+        : catalog.slice(0, 50),
     );
   }
 
@@ -913,77 +1003,6 @@ export class ThietBiCnttPage {
 
   private normalizeLookup(value: string): string {
     return value.trim().toLowerCase();
-  }
-
-  private readCatalogCache(): ThietBiCatalogCache {
-    try {
-      const raw = localStorage.getItem(ThietBiCnttPage.CATALOG_CACHE_KEY);
-      if (!raw) {
-        return this.emptyCatalogCache();
-      }
-
-      const parsed = JSON.parse(raw) as Partial<ThietBiCatalogCache>;
-      return {
-        hangSanXuat: Array.isArray(parsed.hangSanXuat)
-          ? this.sortTextArray(
-              parsed.hangSanXuat.filter(
-                (value): value is string => typeof value === 'string',
-              ),
-            )
-          : [],
-        heDieuHanh: Array.isArray(parsed.heDieuHanh)
-          ? this.sortTextArray(
-              parsed.heDieuHanh.filter(
-                (value): value is string => typeof value === 'string',
-              ),
-            )
-          : [],
-        modelByHang:
-          parsed.modelByHang && typeof parsed.modelByHang === 'object'
-            ? Object.fromEntries(
-                Object.entries(parsed.modelByHang).map(([key, models]) => [
-                  key,
-                  Array.isArray(models)
-                    ? this.sortTextArray(
-                        models.filter(
-                          (value): value is string => typeof value === 'string',
-                        ),
-                      )
-                    : [],
-                ]),
-              )
-            : {},
-        modelGlobal: Array.isArray(parsed.modelGlobal)
-          ? this.sortTextArray(
-              parsed.modelGlobal.filter(
-                (value): value is string => typeof value === 'string',
-              ),
-            )
-          : [],
-      };
-    } catch {
-      return this.emptyCatalogCache();
-    }
-  }
-
-  private writeCatalogCache(cache: ThietBiCatalogCache): void {
-    try {
-      localStorage.setItem(
-        ThietBiCnttPage.CATALOG_CACHE_KEY,
-        JSON.stringify(cache),
-      );
-    } catch {
-      // ignore storage quota and privacy mode errors
-    }
-  }
-
-  private emptyCatalogCache(): ThietBiCatalogCache {
-    return {
-      hangSanXuat: [],
-      heDieuHanh: [],
-      modelByHang: {},
-      modelGlobal: [],
-    };
   }
 
   private resolveUserDonViSubtree(tree: DonViDto[]): DonViDto[] {

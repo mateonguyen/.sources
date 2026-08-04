@@ -15,6 +15,37 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private static readonly BUSINESS_PERMISSION_PREFIXES = [
+    'nhan_luc_cntt:',
+    'dao_tao_boi_duong:',
+    'dao_tao_hoc_vien:',
+    'nang_luc_so:',
+    'thiet_bi_cntt:',
+    'he_thong_thong_tin:',
+    'ha_tang_mang:',
+    'giam_sat_noc:',
+    'camera_quan_ly:',
+    'camera_thuc_trang:',
+    'du_an_cntt:',
+    'van_ban_qppl:',
+    'giam_sat_soc:',
+    'attt_httt_van_hanh:',
+    'attt_httt_dau_tu:',
+    'giai_phap_attt:',
+  ];
+
+  // Module Bao cao - SYSTEM_ADMIN khong duoc bypass vao day, nhung KHONG
+  // dua vao BUSINESS_PERMISSION_PREFIXES vi QUAN_LY van co quyen ro rang
+  // cho module nay (KyBaoCao/MauBaoCao).
+  private static readonly SYSTEM_ADMIN_EXCLUDED_PREFIXES = [
+    'tong_hop_tien_do:',
+    'snapshot:',
+    'yeu_cau_bo_sung:',
+    'tien_do_bao_cao:',
+    'ky_bao_cao:',
+    'mau_bao_cao:',
+  ];
+
   private readonly tokenKey = 'thuc_luc_access_token';
   private readonly userKey = 'thuc_luc_user_profile';
   private readonly deviceIdKey = 'thuc_luc_device_id';
@@ -134,10 +165,6 @@ export class AuthService {
    * Logout từ thiết bị hiện tại hoặc tất cả thiết bị.
    */
   async logout(logoutAll: boolean = false): Promise<void> {
-    // Clear local state synchronously FIRST so isAuthenticated() is false immediately.
-    // This prevents other in-flight requests from triggering extra error toasts.
-    this.clearAuthState();
-
     try {
       const request: RevokeSessionRequest = {
         sessionId: logoutAll ? undefined : undefined,
@@ -152,6 +179,8 @@ export class AuthService {
       );
     } catch (error) {
       console.error('Logout API call failed:', error);
+    } finally {
+      this.clearAuthState();
     }
   }
 
@@ -161,8 +190,25 @@ export class AuthService {
       return false;
     }
 
+    const isBusinessPermission = AuthService.BUSINESS_PERMISSION_PREFIXES.some(
+      (prefix) => permission.toLowerCase().startsWith(prefix),
+    );
+    const isSystemAdminExcluded =
+      AuthService.SYSTEM_ADMIN_EXCLUDED_PREFIXES.some((prefix) =>
+        permission.toLowerCase().startsWith(prefix),
+      );
+
+    const hasSystemAdmin = profile.permissions.includes('system:admin');
+    const isRestrictedBusinessRole =
+      profile.roles.some((role) => role.toUpperCase() === 'SYSTEM_ADMIN') ||
+      profile.roles.some((role) => role.toUpperCase() === 'QUAN_LY');
+
+    if (isBusinessPermission && isRestrictedBusinessRole) {
+      return false;
+    }
+
     return (
-      profile.permissions.includes('system:admin') ||
+      (hasSystemAdmin && !isBusinessPermission && !isSystemAdminExcluded) ||
       profile.permissions.includes(permission)
     );
   }

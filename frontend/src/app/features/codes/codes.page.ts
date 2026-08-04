@@ -66,7 +66,6 @@ export class CodesPage {
 
   loading = false;
   savingValue = false;
-  apiError = '';
 
   categorySelectorValue: CategorySelectorValue = null;
   categorySelectorOptions: CategorySelectorItem[] = [];
@@ -164,7 +163,6 @@ export class CodesPage {
 
   async load(preferredCodeId?: number): Promise<void> {
     this.loading = true;
-    this.apiError = '';
 
     try {
       this.data = await this.codesApi.getAll();
@@ -179,9 +177,10 @@ export class CodesPage {
 
       this.categorySelectorOptions = this.buildCategorySelectorOptions();
     } catch (error: unknown) {
-      this.apiError =
+      const message =
         (error as { error?: { error?: { message?: string } } })?.error?.error
           ?.message ?? 'Không thể tải dữ liệu danh mục.';
+      this.notificationService.show('error', message);
       this.resetSelectionState();
     } finally {
       this.loading = false;
@@ -206,7 +205,6 @@ export class CodesPage {
   }
 
   openCreateCategoryDialog(): void {
-    this.apiError = '';
     this.categoryDialogMode = 'create';
     this.categoryDialogInitialData = {
       code: '',
@@ -250,7 +248,6 @@ export class CodesPage {
     payload: CategoryUpsertSubmitPayload,
   ): Promise<void> {
     this.categoryDialogSubmitting = true;
-    this.apiError = '';
 
     try {
       const request: UpsertCodeRequest = {
@@ -279,9 +276,10 @@ export class CodesPage {
       this.categoryDialogInitialData = null;
       await this.load(selectedId);
     } catch (error: unknown) {
-      this.apiError =
+      const message =
         (error as { error?: { error?: { message?: string } } })?.error?.error
           ?.message ?? 'Không thể lưu danh mục.';
+      this.notificationService.show('error', message);
     } finally {
       this.categoryDialogSubmitting = false;
     }
@@ -310,6 +308,7 @@ export class CodesPage {
 
     await this.codesApi.delete(this.selectedCode.id);
     this.notificationService.show('success', 'Xóa danh mục thành công.');
+    this.selectedCode = null;
     await this.load();
   }
 
@@ -450,6 +449,57 @@ export class CodesPage {
 
   calculateValueStt(index: number): number {
     return this.valueFirst + index + 1;
+  }
+
+  // Danh sach day du, sap theo sortOrder - dung lam moc de xac dinh
+  // "hang xom" khi doi cho (khong dung filteredValues vi dang tim kiem thi
+  // thu tu hien thi khong con phan anh dung thu tu that).
+  private get sortedValues(): CodeValueDto[] {
+    return [...(this.selectedCode?.values ?? [])].sort(
+      (a, b) => a.sortOrder - b.sortOrder,
+    );
+  }
+
+  isValueFirst(item: CodeValueDto): boolean {
+    const list = this.sortedValues;
+    return list.length === 0 || list[0].id === item.id;
+  }
+
+  isValueLast(item: CodeValueDto): boolean {
+    const list = this.sortedValues;
+    return list.length === 0 || list[list.length - 1].id === item.id;
+  }
+
+  async moveValueUp(item: CodeValueDto): Promise<void> {
+    await this.swapValueOrder(item, -1);
+  }
+
+  async moveValueDown(item: CodeValueDto): Promise<void> {
+    await this.swapValueOrder(item, 1);
+  }
+
+  private async swapValueOrder(item: CodeValueDto, direction: -1 | 1): Promise<void> {
+    if (!this.selectedCode || this.savingValue) {
+      return;
+    }
+
+    const list = this.sortedValues;
+    const index = list.findIndex((x) => x.id === item.id);
+    const neighborIndex = index + direction;
+    if (index === -1 || neighborIndex < 0 || neighborIndex >= list.length) {
+      return;
+    }
+
+    const neighbor = list[neighborIndex];
+    const codeId = this.selectedCode.id;
+    this.savingValue = true;
+    try {
+      await this.updateExistingValueSortOrder(codeId, item, neighbor.sortOrder);
+      await this.updateExistingValueSortOrder(codeId, neighbor, item.sortOrder);
+      await this.selectCode(codeId);
+    } finally {
+      this.savingValue = false;
+    }
   }
 
   private resetSelectionState(): void {

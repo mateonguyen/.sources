@@ -2,9 +2,10 @@
   title="Tiến độ tổng hợp"
   subtitle="Theo dõi trạng thái khai báo của các đơn vị cấp dưới theo kỳ báo cáo (số liệu live)."
 >
-  <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-    <div class="app-field min-w-0 md:min-w-80">
-      <label>Kỳ báo cáo</label>
+  <div class="tdth-ky-bar">
+    <span class="tdth-ky-bar__label">Kỳ báo cáo</span>
+    <div class="tdth-ky-bar__sep"></div>
+    <div class="tdth-ky-bar__group">
       <p-dropdown
         [options]="kyOptions"
         optionLabel="label"
@@ -14,14 +15,20 @@
         appendTo="body"
         placeholder="Chọn kỳ báo cáo"
         (onChange)="loadData()"
+        [style]="{ width: 'auto', minWidth: '280px', maxWidth: '420px' }"
       ></p-dropdown>
+      <span class="tdth-ky-bar__badge-open" *ngIf="selectedKy?.trangThai === 2">Đang mở</span>
+      <span class="tdth-ky-bar__date" *ngIf="selectedKy?.ngayBatDau">
+        {{ selectedKy!.ngayBatDau | date:'dd/MM/yyyy' }}
+        –
+        {{ selectedKy!.ngayKetThuc | date:'dd/MM/yyyy' }}
+      </span>
     </div>
     <button
-      pButton
-      type="button"
+      pButton type="button"
       icon="pi pi-refresh"
       label="Làm mới"
-      class="p-button-secondary"
+      class="p-button-secondary p-button-sm tdth-ky-bar__refresh"
       (click)="loadData()"
     ></button>
   </div>
@@ -40,26 +47,23 @@
     ></app-empty-state>
 
     <ng-container *ngIf="!loading && !loadingData && rows.length > 0">
-      <!-- Tóm tắt -->
-      <div class="grid gap-3 sm:grid-cols-3 mb-4">
-        <article class="rounded-xl border border-sky-200 bg-sky-50 p-4">
-          <strong class="block text-2xl font-semibold text-sky-700"
-            >{{ rows.length }}</strong
-          >
-          <span class="text-sm text-slate-600">Tổng đơn vị</span>
-        </article>
-        <article class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-          <strong class="block text-2xl font-semibold text-emerald-700"
-            >{{ soXacNhan }}</strong
-          >
-          <span class="text-sm text-slate-600">Đã xác nhận</span>
-        </article>
-        <article class="rounded-xl border border-amber-200 bg-amber-50 p-4">
-          <strong class="block text-2xl font-semibold text-amber-700"
-            >{{ rows.length - soXacNhan }}</strong
-          >
-          <span class="text-sm text-slate-600">Chưa xác nhận</span>
-        </article>
+      <div class="tdth-stat-row">
+        <div class="tdth-stat-cell">
+          <div class="tdth-stat-lbl">Tổng đơn vị</div>
+          <div class="tdth-stat-val">{{ rows.length }}</div>
+        </div>
+        <div class="tdth-stat-cell">
+          <div class="tdth-stat-lbl">Đã xác nhận</div>
+          <div class="tdth-stat-val tdth-stat-val--success">{{ soXacNhan }}</div>
+        </div>
+        <div class="tdth-stat-cell">
+          <div class="tdth-stat-lbl">Có dữ liệu</div>
+          <div class="tdth-stat-val">{{ soCoDuLieu }}</div>
+        </div>
+        <div class="tdth-stat-cell" [class.tdth-stat-cell--alert]="soChuaCoDuLieu > 0">
+          <div class="tdth-stat-lbl" [class.tdth-stat-lbl--alert]="soChuaCoDuLieu > 0">Chưa có dữ liệu</div>
+          <div class="tdth-stat-val" [class.tdth-stat-val--alert]="soChuaCoDuLieu > 0">{{ soChuaCoDuLieu }}</div>
+        </div>
       </div>
 
       <!-- Bảng chi tiết -->
@@ -67,42 +71,66 @@
         [value]="rows"
         [paginator]="rows.length > 15"
         [rows]="15"
-        styleClass="p-datatable-sm"
+        styleClass="p-datatable-sm app-admin-table"
       >
         <ng-template pTemplate="header">
           <tr>
-            <th>Đơn vị</th>
-            <th class="text-center w-32">Trạng thái</th>
-            <th class="text-center w-24">Nhân lực</th>
-            <th class="text-center w-24">Thiết bị</th>
-            <th class="text-center w-24">HTTT</th>
-            <th class="text-center w-24">Hạ tầng</th>
-            <th class="text-center w-24">Đào tạo</th>
-            <th class="text-center w-24">Dự án</th>
-            <th class="text-center w-44">Cập nhật lần cuối</th>
+            <th pSortableColumn="tenDonVi">
+              Đơn vị <p-sortIcon field="tenDonVi"></p-sortIcon>
+            </th>
+            <th class="text-center w-36" pSortableColumn="daXacNhan">
+              Trạng thái <p-sortIcon field="daXacNhan"></p-sortIcon>
+            </th>
+            <th class="text-center w-28">Tổng bản ghi</th>
+            <th class="w-32">Hạn bổ sung</th>
+            <th class="w-44" pSortableColumn="capNhatLanCuoi">
+              Cập nhật <p-sortIcon field="capNhatLanCuoi"></p-sortIcon>
+            </th>
+            <th class="w-20 text-center"></th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-row>
-          <tr>
+          <tr [class.tdth-row--no-data]="totalRecords(row) === 0">
             <td>
-              <div class="font-medium">{{ row.tenDonVi }}</div>
-              <div class="text-xs text-slate-500">{{ row.capDonVi }}</div>
+              <div class="tdth-donvi-cell">
+                <span class="tdth-donvi-cell__name">{{ row.tenDonVi }}</span>
+                <small class="tdth-donvi-cell__cap">{{ row.capDonVi }}</small>
+              </div>
             </td>
             <td class="text-center">
-              <p-tag
-                [value]="row.daXacNhan ? 'Đã xác nhận' : 'Chưa xác nhận'"
-                [severity]="row.daXacNhan ? 'success' : 'warning'"
-              ></p-tag>
+              <app-status-badge
+                [label]="row.daXacNhan ? (row.coThayDoiSauXacNhan ? 'Cần xác nhận lại' : 'Đã xác nhận') : 'Chưa xác nhận'"
+                [tone]="row.daXacNhan ? (row.coThayDoiSauXacNhan ? 'warning' : 'success') : 'neutral'"
+              ></app-status-badge>
             </td>
-            <td class="text-center">{{ row.soNhanLuc }}</td>
-            <td class="text-center">{{ row.soThietBi }}</td>
-            <td class="text-center">{{ row.soHeThongThongTin }}</td>
-            <td class="text-center">{{ row.soHaTangMang }}</td>
-            <td class="text-center">{{ row.soDaoTao }}</td>
-            <td class="text-center">{{ row.soDuAn }}</td>
-            <td class="text-center text-sm text-slate-500">
-              {{ row.capNhatLanCuoi ? (row.capNhatLanCuoi | date:'dd/MM/yyyy
-              HH:mm') : '—' }}
+            <td class="text-center">
+              <span
+                class="tdth-record-count"
+                [class.tdth-record-count--zero]="totalRecords(row) === 0"
+              >
+                {{ totalRecords(row) }}
+              </span>
+            </td>
+            <td>
+              <span *ngIf="row.hanBoSung" class="tdth-deadline">
+                <i class="pi pi-clock text-amber-500 text-xs"></i>
+                {{ row.hanBoSung | date:'dd/MM/yyyy' }}
+              </span>
+              <span *ngIf="!row.hanBoSung" class="text-slate-400">—</span>
+            </td>
+            <td class="text-sm text-slate-500">
+              {{ row.capNhatLanCuoi ? (row.capNhatLanCuoi | date:'dd/MM/yyyy HH:mm') : '—' }}
+            </td>
+            <td class="text-center">
+              <button
+                pButton
+                type="button"
+                icon="pi pi-eye"
+                class="p-button-outlined p-button-sm"
+                pTooltip="Xem chi tiết số liệu theo module"
+                tooltipPosition="left"
+                (click)="openDetail(row)"
+              ></button>
             </td>
           </tr>
         </ng-template>
@@ -110,3 +138,99 @@
     </ng-container>
   </div>
 </app-section-card>
+
+<!-- Chi tiết số liệu live theo module của một đơn vị cấp dưới -->
+<p-dialog
+  [(visible)]="showDetailDialog"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  header="Chi tiết số liệu đã khai báo"
+  [style]="{ width: '1100px', maxWidth: '95vw' }"
+  appendTo="body"
+  (onHide)="closeDetail()"
+>
+  <div class="tdth-detail" *ngIf="detailUnit">
+    <div class="tdth-detail__meta">
+      <strong>{{ detailUnit.tenDonVi }}</strong>
+      <app-status-badge
+        [label]="detailUnit.daXacNhan ? (detailUnit.coThayDoiSauXacNhan ? 'Cần xác nhận lại' : 'Đã xác nhận') : 'Chưa xác nhận'"
+        [tone]="detailUnit.daXacNhan ? (detailUnit.coThayDoiSauXacNhan ? 'warning' : 'success') : 'neutral'"
+      ></app-status-badge>
+      <span *ngIf="detailUnit.capNhatLanCuoi" class="tdth-detail__time">
+        Cập nhật {{ detailUnit.capNhatLanCuoi | date:'dd/MM/yyyy HH:mm' }}
+      </span>
+    </div>
+
+    <div class="tdth-detail__hint" *ngIf="detailEmptyModuleCount > 0">
+      <i class="pi pi-exclamation-triangle"></i>
+      {{ detailEmptyModuleCount }}/{{ detailModules.length }} module theo mẫu báo
+      cáo chưa có dữ liệu — cân nhắc nhắc đơn vị bổ sung trước khi nộp báo cáo
+      tổng hợp.
+    </div>
+
+    <div class="tdth-detail__grid">
+      <button
+        type="button"
+        class="tdth-detail__item"
+        *ngFor="let m of detailModules"
+        [class.tdth-detail__item--empty]="m.count === 0"
+        [class.tdth-detail__item--active]="selectedModuleCode === m.code"
+        [disabled]="m.count === 0"
+        (click)="loadDetailRecords(m.code)"
+      >
+        <span class="tdth-detail__label">{{ m.label }}</span>
+        <span class="tdth-detail__count">{{ m.count }}</span>
+      </button>
+    </div>
+
+    <!-- Bảng bản ghi của module đang chọn -->
+    <div class="tdth-detail__records">
+      <div *ngIf="detailRecordsLoading" class="tdth-detail__records-loading">
+        <i class="pi pi-spin pi-spinner"></i> Đang tải bản ghi...
+      </div>
+
+      <ng-container *ngIf="!detailRecordsLoading && detailRecords">
+        <p-table
+          [value]="detailRecords.rows"
+          styleClass="p-datatable-sm"
+          [scrollable]="true"
+          scrollHeight="52vh"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th *ngFor="let col of detailRecords.columns">
+                {{ col.label }}
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row>
+            <tr>
+              <td *ngFor="let col of detailRecords.columns">
+                {{ detailCellValue(row, col.key) }}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+        <p class="tdth-detail__note" *ngIf="detailRecords.totalRows > detailRecords.rows.length">
+          Hiển thị {{ detailRecords.rows.length }}/{{ detailRecords.totalRows }} bản ghi gần nhất.
+        </p>
+      </ng-container>
+    </div>
+
+    <p class="tdth-detail__note">
+      Số liệu live tại thời điểm hiện tại (chưa qua chốt báo cáo). Bấm vào module
+      có dữ liệu để xem danh sách bản ghi.
+    </p>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      type="button"
+      label="Đóng"
+      severity="secondary"
+      (click)="closeDetail()"
+    ></button>
+  </ng-template>
+</p-dialog>

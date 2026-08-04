@@ -1,6 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { API_BASE_URL } from '../../core/api/api.constants';
+
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+}
 
 export interface CameraQuanLyDto {
   id: number;
@@ -27,6 +33,7 @@ export interface CameraQuanLyDto {
 }
 
 export interface UpsertCameraQuanLyRequest {
+  donViId: number;
   nhomCamera: string | null;
   tenDonViDiaChi: string;
   buongGiamTrangBiSl: number;
@@ -49,7 +56,7 @@ export interface UpsertCameraQuanLyRequest {
   providedIn: 'root',
 })
 export class CameraQuanLyApi {
-  private readonly endpoint = '/api/v1/camera-quan-ly';
+  private readonly endpoint = `${API_BASE_URL}/camera-quan-ly`;
 
   constructor(private readonly http: HttpClient) {}
 
@@ -66,20 +73,20 @@ export class CameraQuanLyApi {
     }
 
     return firstValueFrom(
-      this.http.get<CameraQuanLyDto[]>(this.endpoint, { params }),
-    );
+      this.http.get<ApiResponse<CameraQuanLyDto[]>>(this.endpoint, { params }),
+    ).then((response) => response.data);
   }
 
   async getById(id: number): Promise<CameraQuanLyDto> {
     return firstValueFrom(
-      this.http.get<CameraQuanLyDto>(`${this.endpoint}/${id}`),
-    );
+      this.http.get<ApiResponse<CameraQuanLyDto>>(`${this.endpoint}/${id}`),
+    ).then((response) => response.data);
   }
 
   async create(request: UpsertCameraQuanLyRequest): Promise<CameraQuanLyDto> {
     return firstValueFrom(
-      this.http.post<CameraQuanLyDto>(this.endpoint, request),
-    );
+      this.http.post<ApiResponse<CameraQuanLyDto>>(this.endpoint, request),
+    ).then((response) => response.data);
   }
 
   async update(
@@ -87,11 +94,16 @@ export class CameraQuanLyApi {
     request: UpsertCameraQuanLyRequest,
   ): Promise<CameraQuanLyDto> {
     return firstValueFrom(
-      this.http.put<CameraQuanLyDto>(`${this.endpoint}/${id}`, request),
-    );
+      this.http.put<ApiResponse<CameraQuanLyDto>>(
+        `${this.endpoint}/${id}`,
+        request,
+      ),
+    ).then((response) => response.data);
   }
 
   async delete(id: number): Promise<void> {
-    return firstValueFrom(this.http.delete<void>(`${this.endpoint}/${id}`));
+    return firstValueFrom(
+      this.http.delete<ApiResponse<null>>(`${this.endpoint}/${id}`),
+    ).then(() => undefined);
   }
 }

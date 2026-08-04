@@ -30,6 +30,7 @@ import {
 } from '../../shared/ui/primeng-pt';
 import { DonViApi, DonViDto } from '../don-vi/don-vi.api';
 import { HeThongThongTinApi, HeThongThongTinDto } from '../he-thong-thong-tin/he-thong-thong-tin.api';
+import { TongHopModeBannerComponent } from '../../shared/ui/tong-hop-mode-banner.component';
 import {
   AtttHtttVanHanhApi,
   AtttHtttVanHanhDto,
@@ -67,6 +68,7 @@ const LOAI_HA_TANG_OPTIONS: SelectOption[] = [
   selector: 'app-attt-httt-van-hanh-page',
   standalone: true,
   imports: [
+    TongHopModeBannerComponent,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,

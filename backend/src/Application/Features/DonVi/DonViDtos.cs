@@ -18,6 +18,10 @@ public sealed class DonViDto
 
     public string? CapDonVi { get; set; }
 
+    public string? KhoiDonVi { get; set; }
+
+    public string CheDoNhapLieu { get; set; } = "TU_NHAP";
+
     public string? WebsiteNoiBo { get; set; }
 
     public string? WebsiteInternet { get; set; }
@@ -61,6 +65,10 @@ public sealed class UpsertDonViRequest
     public string? DiaChi { get; set; }
 
     public string? CapDonVi { get; set; }
+
+    public string? KhoiDonVi { get; set; }
+
+    public string? CheDoNhapLieu { get; set; }
 
     public string? WebsiteNoiBo { get; set; }
 

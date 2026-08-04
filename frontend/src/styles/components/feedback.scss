@@ -1,4 +1,4 @@
-.app-status-tag {
+﻿.app-status-tag {
   display: inline-flex;
 }
 
@@ -105,7 +105,7 @@
 :root .p-dialog,
 :root .p-confirm-dialog {
   border: 1px solid var(--app-border);
-  border-radius: calc(var(--app-radius-card) + 2px);
+  border-radius: var(--app-radius);
   box-shadow: var(--app-shadow-3);
   overflow: hidden;
 }
@@ -163,7 +163,7 @@
   width: 2rem;
   height: 2rem;
   color: var(--app-text-muted) !important;
-  border-radius: 999px;
+  border-radius: var(--app-radius);
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -218,7 +218,7 @@
   height: 2.25rem;
   min-width: 2.25rem;
   border: none;
-  border-radius: 0.55rem;
+  border-radius: var(--app-radius);
   background: transparent;
   color: var(--app-primary-600);
   display: inline-flex;

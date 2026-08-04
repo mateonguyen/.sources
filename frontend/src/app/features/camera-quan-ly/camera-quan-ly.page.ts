@@ -19,7 +19,6 @@ import { AuthService } from '../../core/auth/auth.service';
 import { NotificationService } from '../../core/ui/notification.service';
 import { ConfirmDialogWrapperService } from '../../shared/ui/confirm-dialog-wrapper.service';
 import { EmptyStateComponent } from '../../shared/ui/empty-state.component';
-import { FormActionBarComponent } from '../../shared/ui/form-action-bar.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
 import { SectionCardComponent } from '../../shared/ui/section-card.component';
 import {
@@ -30,6 +29,7 @@ import {
   APP_TABLE_STYLE_CLASS,
 } from '../../shared/ui/primeng-pt';
 import { CodesApi } from '../codes/codes.api';
+import { TongHopModeBannerComponent } from '../../shared/ui/tong-hop-mode-banner.component';
 import {
   CameraQuanLyApi,
   CameraQuanLyDto,
@@ -43,15 +43,33 @@ interface SelectOption<T = string> {
   value: T;
 }
 
+type CameraFormControlName =
+  | 'nhomCamera'
+  | 'tenDonViDiaChi'
+  | 'buongGiamTrangBiSl'
+  | 'buongGiamTrangBiTs'
+  | 'nhuCauDauTu'
+  | 'baoTri'
+  | 'suaChua'
+  | 'soLanViPham'
+  | 'ketNoiChiaSe'
+  | 'hoSoCapDoAttt'
+  | 'cbChuyenTrach'
+  | 'cbKiemNhiem'
+  | 'cbDiaPhuong'
+  | 'daoTaoBo'
+  | 'daoTaoNhuCau'
+  | 'ghiChu';
+
 @Component({
   selector: 'app-camera-quan-ly-page',
   standalone: true,
   imports: [
+    TongHopModeBannerComponent,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     SectionCardComponent,
-    FormActionBarComponent,
     EmptyStateComponent,
     LoadingOverlayComponent,
     DialogModule,
@@ -108,6 +126,12 @@ export class CameraQuanLyPage {
 
   readonly canEdit = signal(true); // Always editable in live view
 
+  private readonly defaultTabLabels: Record<CameraTabKey, string> = {
+    NHOM_1:
+      'Hệ thống camera giám sát tại cơ sở giam giữ, giáo dưỡng, cai nghiện, lưu trú',
+    NHOM_2: 'Hệ thống camera giám sát bảo đảm an ninh trật tự',
+  };
+
   readonly nhom1Items = computed(() =>
     this.items().filter((item) => item.nhomCamera === 'NHOM_1'),
   );
@@ -133,10 +157,17 @@ export class CameraQuanLyPage {
     );
   });
 
-  readonly tabLabels: Record<CameraTabKey, string> = {
-    NHOM_1: 'NHÓM CAMERA 1',
-    NHOM_2: 'NHÓM CAMERA 2',
-  };
+  readonly tabLabels = computed<Record<CameraTabKey, string>>(() => {
+    const options = this.cameraGroupOptions();
+    const map = new Map<string, string>(
+      options.map((option) => [option.value, option.label]),
+    );
+
+    return {
+      NHOM_1: map.get('NHOM_1') || this.defaultTabLabels.NHOM_1,
+      NHOM_2: map.get('NHOM_2') || this.defaultTabLabels.NHOM_2,
+    };
+  });
 
   constructor(
     private readonly fb: FormBuilder,
@@ -159,7 +190,7 @@ export class CameraQuanLyPage {
       if (cameraCodeDto?.values) {
         this.cameraGroupOptions.set(
           cameraCodeDto.values.map((code) => ({
-            label: code.name,
+            label: this.resolveCameraGroupLabel(code.value, code.name),
             value: code.value,
           })),
         );
@@ -276,7 +307,26 @@ export class CameraQuanLyPage {
 
     this.saving.set(true);
     try {
-      const formValue = this.form.getRawValue() as UpsertCameraQuanLyRequest;
+      const raw = this.form.getRawValue();
+      const formValue: UpsertCameraQuanLyRequest = {
+        donViId: this.donViId(),
+        nhomCamera: raw.nhomCamera,
+        tenDonViDiaChi: raw.tenDonViDiaChi ?? '',
+        buongGiamTrangBiSl: raw.buongGiamTrangBiSl ?? 0,
+        buongGiamTrangBiTs: raw.buongGiamTrangBiTs ?? 0,
+        nhuCauDauTu: raw.nhuCauDauTu ?? 0,
+        baoTri: raw.baoTri ?? 0,
+        suaChua: raw.suaChua ?? 0,
+        soLanViPham: raw.soLanViPham ?? 0,
+        ketNoiChiaSe: raw.ketNoiChiaSe,
+        hoSoCapDoAttt: raw.hoSoCapDoAttt ?? 0,
+        cbChuyenTrach: raw.cbChuyenTrach ?? 0,
+        cbKiemNhiem: raw.cbKiemNhiem ?? 0,
+        cbDiaPhuong: raw.cbDiaPhuong ?? 0,
+        daoTaoBo: raw.daoTaoBo ?? 0,
+        daoTaoNhuCau: raw.daoTaoNhuCau ?? 0,
+        ghiChu: raw.ghiChu,
+      };
       const selectedId = this.selectedId();
 
       if (selectedId !== null) {
@@ -346,7 +396,43 @@ export class CameraQuanLyPage {
     }
   }
 
+  hasFieldValue(controlName: CameraFormControlName): boolean {
+    const value = this.form.controls[controlName].value;
+    if (typeof value === 'number') {
+      return true;
+    }
+    return value !== null && value !== undefined && `${value}`.trim() !== '';
+  }
+
+  isFieldInvalid(controlName: CameraFormControlName): boolean {
+    const control = this.form.controls[controlName];
+    return !!control && control.invalid && control.touched;
+  }
+
+  private resolveCameraGroupLabel(
+    value: string,
+    rawLabel?: string | null,
+  ): string {
+    const normalized = (rawLabel || '').trim();
+
+    if (value === 'NHOM_1') {
+      if (!normalized || /^nh[oó]m(\s*camera)?\s*1$/i.test(normalized)) {
+        return this.defaultTabLabels.NHOM_1;
+      }
+      return normalized;
+    }
+
+    if (value === 'NHOM_2') {
+      if (!normalized || /^nh[oó]m(\s*camera)?\s*2$/i.test(normalized)) {
+        return this.defaultTabLabels.NHOM_2;
+      }
+      return normalized;
+    }
+
+    return normalized || value;
+  }
+
   getTabLabel(tab: CameraTabKey): string {
-    return this.tabLabels[tab];
+    return this.tabLabels()[tab];
   }
 }

@@ -13,6 +13,7 @@ import { NotificationService } from '../../core/ui/notification.service';
 import { FilterBarComponent } from '../../shared/ui/filter-bar.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
 import { SectionCardComponent } from '../../shared/ui/section-card.component';
+import { TongHopModeBannerComponent } from '../../shared/ui/tong-hop-mode-banner.component';
 import {
   GiamSatSocApi,
   GiamSatSocDto,
@@ -53,6 +54,7 @@ interface LoaiMangGroup {
   selector: 'app-giam-sat-soc-page',
   standalone: true,
   imports: [
+    TongHopModeBannerComponent,
     CommonModule,
     FormsModule,
     SectionCardComponent,

@@ -32,6 +32,8 @@ public sealed class CreateUserRequest
     public string? SoDienThoai { get; set; }
 
     public long DonViId { get; set; }
+
+    public IReadOnlyCollection<long> RoleIds { get; set; } = Array.Empty<long>();
 }
 
 public sealed class UpdateUserRequest
@@ -41,6 +43,8 @@ public sealed class UpdateUserRequest
     public string? Email { get; set; }
 
     public string? SoDienThoai { get; set; }
+
+    public long DonViId { get; set; }
 
     public bool IsActive { get; set; }
 

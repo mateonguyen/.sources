@@ -1,4 +1,4 @@
-@import "@fontsource/source-sans-3/vietnamese-400.css";
+﻿@import "@fontsource/source-sans-3/vietnamese-400.css";
 @import "@fontsource/source-sans-3/vietnamese-500.css";
 @import "@fontsource/source-sans-3/vietnamese-600.css";
 @import "@fontsource/source-sans-3/vietnamese-700.css";
@@ -88,14 +88,14 @@
   opacity: 0.68;
 }
 
-/* ── Training dialog (tfd-dialog) ──
+/* â”€â”€ Training dialog (tfd-dialog) â”€â”€
    All styles here because PrimeNG appendTo="body" moves the dialog
    outside the Angular component host, so component SCSS won't apply.
    Uses the same floating-label system as nhan-luc-cntt dialog. */
 
 /* Dialog shell */
 .tfd-dialog.p-dialog {
-  border-radius: 0.875rem;
+  border-radius: var(--app-radius);
   box-shadow:
     0 24px 60px -12px rgba(16, 30, 54, 0.22),
     0 8px 20px -6px rgba(16, 30, 54, 0.1);
@@ -139,7 +139,7 @@
   background: var(--app-surface);
 }
 
-/* Section container – no outer frame */
+/* Section container â€“ no outer frame */
 .tfd-dialog .app-dialog-section {
   margin: 0;
   padding: 0;
@@ -191,7 +191,7 @@
   gap: 0.6rem 0.8rem;
 }
 
-/* Form field – floating label system (data-entry-form.scss handles core) */
+/* Form field â€“ floating label system (data-entry-form.scss handles core) */
 .tfd-dialog .app-form-field {
   --surface-input: var(--app-surface-soft);
   --form-label-font: var(--app-font-family-mono);
@@ -204,12 +204,12 @@
   grid-column: 1 / -1;
 }
 
-/* Ghi chú field spacing aligned with nhan-luc dialog */
+/* Ghi chÃº field spacing aligned with nhan-luc dialog */
 .tfd-dialog .tfd-field--ghichu {
   margin-top: 0.12rem;
 }
 
-/* Keep contrast: form nền trắng -> input nền surface-soft */
+/* Keep contrast: form ná»n tráº¯ng -> input ná»n surface-soft */
 .tfd-dialog .app-form-field .app-form-field__input,
 .tfd-dialog .app-form-field .p-dropdown,
 .tfd-dialog .app-form-field .p-calendar,

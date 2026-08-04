@@ -1,8 +1,9 @@
 .app-page-card {
-  background: var(--app-surface);
-  border: 1px solid var(--app-border);
+  background:    var(--app-surface);
+  border:        1px solid var(--app-border);
   border-radius: var(--app-radius-card);
-  box-shadow: var(--app-shadow-1);
+  box-shadow:    0 1px 6px rgba(100,78,42,0.09),
+                 0 4px 16px rgba(100,78,42,0.06);
 }
 
 .app-page-shell {

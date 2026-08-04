@@ -8,7 +8,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PrimeNGConfig } from 'primeng/api';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
@@ -23,6 +23,7 @@ import { PaginatorModule } from 'primeng/paginator';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { AuthService } from '../../core/auth/auth.service';
+import { DonViModeService } from '../../core/don-vi/don-vi-mode.service';
 import { NotificationService } from '../../core/ui/notification.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
 import { ConfirmDialogWrapperService } from '../../shared/ui/confirm-dialog-wrapper.service';
@@ -120,6 +121,7 @@ type ModuleViewMode = 'live' | 'history';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    RouterLink,
     SectionCardComponent,
     FilterBarComponent,
     FormActionBarComponent,
@@ -316,6 +318,7 @@ export class BusinessModulesPage {
     private readonly kyBaoCaoApi: KyBaoCaoApi,
     private readonly snapshotApi: SnapshotApi,
     public readonly authService: AuthService,
+    private readonly donViModeService: DonViModeService,
     private readonly primeNgConfig: PrimeNGConfig,
     private readonly notificationService: NotificationService,
     private readonly confirmDialog: ConfirmDialogWrapperService,
@@ -323,7 +326,12 @@ export class BusinessModulesPage {
     this.primeNgConfig.setTranslation(this.calendarLocaleVi);
     this.initializeModule();
     this.buildForm();
+    void this.donViModeService.ensureLoaded();
     void this.initializePage();
+  }
+
+  get isTongHopMode(): boolean {
+    return this.donViModeService.isTongHop;
   }
 
   get fields(): BizFieldConfig[] {
@@ -504,6 +512,10 @@ export class BusinessModulesPage {
 
   get tableFields(): BizFieldConfig[] {
     return this.fields.filter((field) => field.showInTable);
+  }
+
+  get genericDisplayedItems(): BizRecordDto[] {
+    return this.items;
   }
 
   get formFields(): BizFieldConfig[] {
@@ -723,6 +735,7 @@ export class BusinessModulesPage {
         this.moduleConfig.endpoint,
         item.id,
       );
+
       this.selectedId = detail.id;
       if (this.isCustomModule) {
         this.showCreatePanel = true;

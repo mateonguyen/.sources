@@ -30,6 +30,7 @@ using ThucLuc.Application.Features.ThongBao;
 using ThucLuc.Application.Features.Users;
 using ThucLuc.Application.Features.VanBanQppl;
 using ThucLuc.Application.Features.YeuCauBoSung;
+using ThucLuc.Application.Security;
 
 namespace ThucLuc.Application;
 
@@ -42,10 +43,12 @@ public static class DependencyInjection
 
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IDonViService, DonViService>();
+        services.AddScoped<IDonViInputModeService, DonViInputModeService>();
         services.AddScoped<IRefLoaiThietBiService, RefLoaiThietBiService>();
         services.AddScoped<IKyBaoCaoService, KyBaoCaoService>();
         services.AddScoped<IMauBaoCaoService, MauBaoCaoService>();
         services.AddScoped<IBaoCaoSnapshotService, BaoCaoSnapshotService>();
+        services.AddScoped<IBaoCaoExportService, BaoCaoExportService>();
         services.AddScoped<IYeuCauBoSungService, YeuCauBoSungService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IRoleService, RoleService>();
@@ -70,6 +73,7 @@ public static class DependencyInjection
         services.AddScoped<ICameraQuanLyService, CameraQuanLyService>();
         services.AddScoped<ICameraThucTrangService, CameraThucTrangService>();
         services.AddScoped<ITongHopTienDoService, TongHopTienDoService>();
+        services.AddScoped<IDonViDataScopeService, DonViDataScopeService>();
 
         return services;
     }

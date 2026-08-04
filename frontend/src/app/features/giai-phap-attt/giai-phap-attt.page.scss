@@ -1,4 +1,4 @@
-:host {
+﻿:host {
   --gpattt-header-font: "IBM Plex Mono", "JetBrains Mono", monospace;
   --gpattt-value-font: "Merriweather", Georgia, serif;
   --gpattt-cell-font: "IBM Plex Sans", "Segoe UI", sans-serif;
@@ -29,7 +29,7 @@
   padding: 0.75rem 1rem;
   margin-bottom: 0.75rem;
   border: 1px solid var(--gpattt-border-soft);
-  border-radius: 12px;
+  border-radius: var(--app-radius);
   background: #fafcff;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   transition: all 150ms ease;
@@ -88,7 +88,7 @@
 .gpattt-actions--cluster {
   padding: 0.2rem;
   border: 1px solid var(--gpattt-border-soft);
-  border-radius: 10px;
+  border-radius: var(--app-radius);
   background: #ffffff;
 }
 
@@ -110,7 +110,7 @@
 :host ::ng-deep .gpattt-control .p-dropdown {
   width: 100%;
   min-height: 2.1rem;
-  border-radius: 8px;
+  border-radius: var(--app-radius);
   border: 1px solid var(--gpattt-border);
   background: white;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
@@ -153,7 +153,7 @@
 :host ::ng-deep .gpattt-btn.p-button {
   min-height: 2.1rem;
   padding: 0.42rem 0.9rem;
-  border-radius: 8px;
+  border-radius: var(--app-radius);
   font-size: 0.78rem;
   font-family: var(--gpattt-cell-font);
   font-weight: 600;
@@ -168,7 +168,7 @@
   font-size: 0.78rem;
 }
 
-// Primary: "Lưu thay đổi"
+// Primary: "LÆ°u thay Ä‘á»•i"
 :host ::ng-deep .gpattt-btn--primary.p-button {
   background: #18426f;
   border: 1px solid #18426f;
@@ -185,7 +185,7 @@
   background: #0f2847;
 }
 
-// Secondary: "Tải dữ liệu"
+// Secondary: "Táº£i dá»¯ liá»‡u"
 :host ::ng-deep .gpattt-btn--secondary.p-button {
   background: white;
   border: 1px solid var(--gpattt-border);
@@ -202,7 +202,7 @@
   background: #e8eef7;
 }
 
-// Add: "Thêm" - neutral, compact
+// Add: "ThÃªm" - neutral, compact
 :host ::ng-deep .gpattt-btn--add.p-button {
   min-height: 2.1rem;
   padding: 0.42rem 0.75rem;
@@ -238,7 +238,7 @@
   min-width: 1.9rem;
   width: 1.9rem;
   height: 1.9rem;
-  border-radius: 6px;
+  border-radius: var(--app-radius);
   border: 1px solid transparent;
   color: #b91c1c;
   background: transparent;
@@ -309,7 +309,7 @@
   gap: 0.42rem;
   margin-bottom: 0.45rem;
   padding: 0.34rem 0.58rem;
-  border-radius: 7px;
+  border-radius: var(--app-radius);
   border: 1px solid #fde68a;
   background: #fffbeb;
   color: #854d0e;
@@ -345,7 +345,7 @@
 .gpattt-table-wrap {
   overflow-x: auto;
   border: 1px solid var(--gpattt-border);
-  border-radius: 10px;
+  border-radius: var(--app-radius);
   background: white;
 }
 
@@ -518,7 +518,7 @@
     width: 2.9rem;
     height: 1.52rem;
     border: 1px solid #cdd6e2;
-    border-radius: 5px;
+    border-radius: var(--app-radius);
     text-align: center;
     font-size: 0.78rem;
     font-weight: 600;
@@ -548,7 +548,7 @@
   min-width: 2.4rem;
   height: 1.1rem;
   padding: 0 0.35rem;
-  border-radius: 999px;
+  border-radius: var(--app-radius);
   background: #e8edf4;
   color: #334155;
   font-size: 0.64rem;
@@ -584,7 +584,7 @@
     min-height: 2rem;
     max-height: 88px;
     border: 1px solid var(--gpattt-border);
-    border-radius: 6px;
+    border-radius: var(--app-radius);
     padding: 0.3rem 0.42rem;
     resize: none;
     font-size: 0.75rem;

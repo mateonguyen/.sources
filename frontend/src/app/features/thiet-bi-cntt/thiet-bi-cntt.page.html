@@ -1,3 +1,4 @@
+<app-tong-hop-mode-banner></app-tong-hop-mode-banner>
 ﻿<app-section-card
   title="Thiết Bị CNTT"
   subtitle="Quản lý thiết bị CNTT theo danh mục phân cấp và ứng dụng đang chạy."
@@ -106,7 +107,7 @@
             <span
               class="text-xs font-semibold uppercase tracking-wide text-[var(--app-text-muted)]"
             >
-              Phân loại
+              Thông tin thiết bị
             </span>
             <div class="mt-1 border-t border-[var(--app-border)]"></div>
           </div>
@@ -114,22 +115,42 @@
           <div class="app-form-row">
             <div
               class="app-form-field app-form-field--full"
+              [class.has-value]="form.controls.tenThietBi.value"
+              *ngIf="!isTongHop()"
+            >
+              <label class="app-form-field__label">Tên thiết bị</label>
+              <input
+                pInputText
+                class="app-form-field__input"
+                type="text"
+                formControlName="tenThietBi"
+                placeholder="Nhập tên thiết bị"
+              />
+            </div>
+
+            <div
+              class="app-form-field app-form-field--lg"
               [class.has-value]="form.controls.loaiThietBiId.value !== null"
               [class.has-error]="form.controls.loaiThietBiId.invalid && form.controls.loaiThietBiId.touched && form.dirty"
             >
               <label class="app-form-field__label required"
                 >Loại thiết bị</label
               >
-              <p-dropdown
-                styleClass="w-full"
-                [panelStyleClass]="selectPanelStyleClass"
-                formControlName="loaiThietBiId"
-                [options]="loaiThietBiOptions()"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Chọn loại thiết bị"
+              <p-treeSelect
+                inputId="loaiThietBiSelect"
+                [options]="loaiThietBiTreeOptions()"
+                selectionMode="single"
                 [filter]="true"
-              ></p-dropdown>
+                filterPlaceholder="Tìm loại thiết bị..."
+                panelStyleClass="app-tree-select-panel"
+                placeholder="Chọn loại thiết bị"
+                [showClear]="false"
+                appendTo="body"
+                [ngModel]="loaiThietBiSelectedNode()"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="onLoaiThietBiTreeSelect($event)"
+                (onBlur)="form.controls.loaiThietBiId.markAsTouched()"
+              ></p-treeSelect>
               <div
                 class="app-form-field__feedback"
                 [class.is-visible]="form.controls.loaiThietBiId.invalid && form.controls.loaiThietBiId.touched && form.dirty"
@@ -140,49 +161,55 @@
                 >
               </div>
             </div>
-          </div>
 
-          <ng-container *ngIf="!isTongHop()">
-            <div class="mb-2 mt-5">
-              <span
-                class="text-xs font-semibold uppercase tracking-wide text-[var(--app-text-muted)]"
+            <div
+              class="app-form-field app-form-field--lg"
+              [class.has-value]="form.controls.donViSuDung.value"
+              [class.has-error]="form.controls.donViSuDung.invalid && form.controls.donViSuDung.touched && form.dirty"
+              *ngIf="!isTongHop() && visibleDialogFields().showDonViSuDung"
+            >
+              <label class="app-form-field__label required"
+                >Đơn vị sử dụng</label
               >
-                Thông tin thiết bị
-              </span>
-              <div class="mt-1 border-t border-[var(--app-border)]"></div>
+              <p-dropdown
+                styleClass="w-full"
+                [panelStyleClass]="selectPanelStyleClass"
+                formControlName="donViSuDung"
+                [options]="donViSuDungOptions()"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Chọn đơn vị sử dụng"
+                [filter]="true"
+                appendTo="body"
+              ></p-dropdown>
+              <div
+                class="app-form-field__feedback"
+                [class.is-visible]="form.controls.donViSuDung.invalid && form.controls.donViSuDung.touched && form.dirty"
+                aria-live="polite"
+              >
+                <small class="app-form-field__error"
+                  >Đơn vị sử dụng là bắt buộc.</small
+                >
+              </div>
             </div>
 
-            <div class="app-form-row">
-              <div
-                class="app-form-field"
-                [class.has-value]="form.controls.tenThietBi.value"
-              >
-                <label class="app-form-field__label">Tên thiết bị</label>
-                <input
-                  pInputText
-                  class="app-form-field__input"
-                  type="text"
-                  formControlName="tenThietBi"
-                  placeholder="Nhập tên thiết bị"
-                />
-              </div>
-
+            <ng-container *ngIf="!isTongHop()">
               <div
                 class="app-form-field"
                 [class.has-value]="form.controls.hangSanXuat.value"
               >
                 <label class="app-form-field__label">Hãng sản xuất</label>
-                <p-dropdown
+                <p-autoComplete
                   styleClass="w-full"
-                  [panelStyleClass]="selectPanelStyleClass"
+                  panelStyleClass="app-autocomplete-panel"
                   formControlName="hangSanXuat"
-                  [options]="hangSanXuatOptions()"
-                  optionLabel="label"
-                  optionValue="value"
+                  [suggestions]="hangSanXuatSuggestions()"
+                  (completeMethod)="onHangSanXuatAutocomplete($event)"
+                  [dropdown]="true"
+                  [forceSelection]="false"
+                  appendTo="body"
                   placeholder="Chọn hoặc nhập hãng sản xuất"
-                  [filter]="true"
-                  [editable]="true"
-                ></p-dropdown>
+                ></p-autoComplete>
               </div>
 
               <div
@@ -193,11 +220,13 @@
                 <label class="app-form-field__label">Model</label>
                 <p-autoComplete
                   styleClass="w-full"
+                  panelStyleClass="app-autocomplete-panel"
                   formControlName="model"
                   [suggestions]="modelSuggestions()"
                   (completeMethod)="onModelAutocomplete($event)"
                   [dropdown]="true"
                   [forceSelection]="false"
+                  appendTo="body"
                   placeholder="Chọn hoặc nhập model"
                 ></p-autoComplete>
               </div>
@@ -223,57 +252,69 @@
                 *ngIf="visibleDialogFields().showHeDieuHanh"
               >
                 <label class="app-form-field__label">Hệ điều hành</label>
-                <p-dropdown
+                <p-autoComplete
                   styleClass="w-full"
-                  [panelStyleClass]="selectPanelStyleClass"
+                  panelStyleClass="app-autocomplete-panel"
                   formControlName="heDieuHanh"
-                  [options]="heDieuHanhOptions()"
-                  optionLabel="label"
-                  optionValue="value"
+                  [suggestions]="heDieuHanhSuggestions()"
+                  (completeMethod)="onHeDieuHanhAutocomplete($event)"
+                  [dropdown]="true"
+                  [forceSelection]="false"
+                  appendTo="body"
                   placeholder="Chọn hoặc nhập hệ điều hành"
-                  [filter]="true"
-                  [editable]="true"
-                ></p-dropdown>
+                ></p-autoComplete>
               </div>
 
               <div
-                class="app-form-field"
-                [class.has-value]="form.controls.donViSuDung.value"
-                *ngIf="visibleDialogFields().showDonViSuDung"
-              >
-                <label class="app-form-field__label">Đơn vị sử dụng</label>
-                <p-dropdown
-                  styleClass="w-full"
-                  [panelStyleClass]="selectPanelStyleClass"
-                  formControlName="donViSuDung"
-                  [options]="donViSuDungOptions()"
-                  optionLabel="label"
-                  optionValue="value"
-                  placeholder="Chọn đơn vị sử dụng"
-                  [filter]="true"
-                ></p-dropdown>
-              </div>
-
-              <div
-                class="app-form-field app-form-field--full"
+                class="app-form-field app-form-field--full app-form-field--ungdung"
                 [class.has-value]="form.controls.ungDungIds.value?.length"
                 *ngIf="visibleDialogFields().showUngDung"
               >
                 <label class="app-form-field__label">Ứng dụng đang chạy</label>
-                <p-multiSelect
+                <p-autoComplete
                   styleClass="w-full"
-                  [panelStyleClass]="multiSelectPanelStyleClass"
-                  formControlName="ungDungIds"
-                  [options]="heThongOptions()"
-                  optionLabel="label"
-                  optionValue="value"
-                  placeholder="Chọn ứng dụng đang chạy"
-                  [filter]="true"
-                  display="chip"
-                ></p-multiSelect>
+                  panelStyleClass="app-autocomplete-panel"
+                  [ngModel]="ungDungSearchQuery()"
+                  (ngModelChange)="ungDungSearchQuery.set($event)"
+                  [ngModelOptions]="{ standalone: true }"
+                  [suggestions]="ungDungSuggestions()"
+                  (completeMethod)="onUngDungAutocomplete($event)"
+                  (onSelect)="onUngDungSelect($event.value)"
+                  [dropdown]="true"
+                  [forceSelection]="false"
+                  appendTo="body"
+                  placeholder="Tìm và thêm ứng dụng..."
+                ></p-autoComplete>
+
+                <div class="app-ungdung-table">
+                  <table class="app-ungdung-table__table">
+                    <tbody>
+                      <tr
+                        *ngFor="let item of selectedUngDungItems()"
+                        class="app-ungdung-table__row"
+                      >
+                        <td class="app-ungdung-table__name">{{ item.label }}</td>
+                        <td class="app-ungdung-table__action">
+                          <button
+                            type="button"
+                            class="action-btn action-btn--delete"
+                            (click)="removeUngDung(item.value)"
+                          >
+                            <i class="pi pi-times"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      <tr *ngIf="!selectedUngDungItems().length">
+                        <td class="app-ungdung-table__empty" colspan="2">
+                          Chưa có ứng dụng nào được chọn
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-          </ng-container>
+            </ng-container>
+          </div>
 
           <div class="mb-2 mt-5">
             <span
@@ -287,7 +328,7 @@
           <div class="app-form-row">
             <div
               class="app-form-field"
-              [class.has-value]="(form.controls.soLuongTong.value ?? 0) !== 0"
+              [class.has-value]="form.controls.soLuongTong.value != null"
             >
               <label class="app-form-field__label">SL Tổng</label>
               <p-inputNumber
@@ -302,7 +343,7 @@
 
             <div
               class="app-form-field"
-              [class.has-value]="(form.controls.soLuongHienDung.value ?? 0) !== 0"
+              [class.has-value]="form.controls.soLuongHienDung.value != null"
               [class.has-error]="form.controls.soLuongHienDung.invalid && form.controls.soLuongHienDung.touched"
             >
               <label class="app-form-field__label required">SL Hiện dùng</label>
@@ -318,7 +359,7 @@
 
             <div
               class="app-form-field"
-              [class.has-value]="(form.controls.soLuongHong.value ?? 0) !== 0"
+              [class.has-value]="form.controls.soLuongHong.value != null"
             >
               <label class="app-form-field__label">SL Hỏng</label>
               <p-inputNumber
@@ -496,13 +537,13 @@
               <td [class]="tableBodyCellClass">—</td>
               <td [class]="tableBodyCellClass">
                 <button
-                  pButton
                   type="button"
-                  icon="pi pi-plus"
-                  class="p-button-text app-table-action-btn"
+                  class="action-btn"
+                  pTooltip="Thêm dòng"
+                  tooltipPosition="top"
                   (click)="addQuickItem(group.parentLabel)"
                   [disabled]="saving()"
-                ></button>
+                ><i class="pi pi-plus"></i></button>
               </td>
             </tr>
 
@@ -551,21 +592,21 @@
                     {{ resolveUngDungLabels(row.item.ungDungIds) }}
                   </td>
                   <td [class]="tableBodyCellClass">
-                    <div class="app-table-actions">
+                    <div class="action-btns">
                       <button
-                        pButton
                         type="button"
-                        icon="pi pi-pencil"
-                        class="p-button-text app-table-action-btn app-table-action-btn--edit"
+                        class="action-btn action-btn--edit"
+                        pTooltip="Chỉnh sửa"
+                        tooltipPosition="top"
                         (click)="openEditDialog(row.item)"
-                      ></button>
+                      ><i class="pi pi-pencil"></i></button>
                       <button
-                        pButton
                         type="button"
-                        icon="pi pi-trash"
-                        class="p-button-text p-button-danger app-table-action-btn app-table-action-btn--delete"
+                        class="action-btn action-btn--delete"
+                        pTooltip="Xóa"
+                        tooltipPosition="top"
                         (click)="remove(row.item)"
-                      ></button>
+                      ><i class="pi pi-trash"></i></button>
                     </div>
                   </td>
                 </tr>
@@ -599,21 +640,21 @@
                     {{ resolveUngDungLabels(child.ungDungIds) }}
                   </td>
                   <td [class]="tableBodyCellClass">
-                    <div class="app-table-actions">
+                    <div class="action-btns">
                       <button
-                        pButton
                         type="button"
-                        icon="pi pi-pencil"
-                        class="p-button-text app-table-action-btn app-table-action-btn--edit"
+                        class="action-btn action-btn--edit"
+                        pTooltip="Chỉnh sửa"
+                        tooltipPosition="top"
                         (click)="openEditDialog(child)"
-                      ></button>
+                      ><i class="pi pi-pencil"></i></button>
                       <button
-                        pButton
                         type="button"
-                        icon="pi pi-trash"
-                        class="p-button-text p-button-danger app-table-action-btn app-table-action-btn--delete"
+                        class="action-btn action-btn--delete"
+                        pTooltip="Xóa"
+                        tooltipPosition="top"
                         (click)="remove(child)"
-                      ></button>
+                      ><i class="pi pi-trash"></i></button>
                     </div>
                   </td>
                 </tr>

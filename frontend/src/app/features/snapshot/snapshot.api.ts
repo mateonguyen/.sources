@@ -11,14 +11,39 @@ interface ApiResponse<T> {
 export interface SnapshotDto {
   id: number;
   kyBaoCaoId: number;
+  kyCode: string;
   donViId: number;
+  tenDonVi: string;
   trangThai: number;
   phienBan: number;
-  snapshotJson: string;
-  summaryJson?: string;
   ghiChu?: string;
   submittedAt?: string;
   lockedAt?: string;
+}
+
+export interface ModuleStatusDto {
+  moduleCode: string;
+  recordCount: number;
+  /** Số bản ghi do chính đơn vị nhập (TU_NHAP = recordCount). */
+  ownRecordCount: number;
+  /** Số bản ghi gộp từ đơn vị cấp dưới (chỉ khác 0 khi TONG_HOP). */
+  childRecordCount: number;
+}
+
+export interface SubmitSnapshotContextDto {
+  cheDoNhapLieu: string;
+  isTongHop: boolean;
+  totalChildren: number;
+  confirmedChildren: number;
+  hasUnconfirmedChildren: boolean;
+  hasChildDataChangedAfterLastSubmit: boolean;
+}
+
+export interface SubmitCurrentSnapshotRequest {
+  kyBaoCaoId: number;
+  donViId: number;
+  ghiChu?: string;
+  forceSubmitWhenChildrenUnconfirmed?: boolean;
 }
 
 export interface SnapshotPdfResultDto {
@@ -27,11 +52,40 @@ export interface SnapshotPdfResultDto {
   downloadUrl: string;
 }
 
-export interface SubmitCurrentSnapshotRequest {
-  kyBaoCaoId: number;
+export interface SnapshotBreakdownUnitDto {
   donViId: number;
-  summaryJson?: string;
-  ghiChu?: string;
+  tenDonVi: string;
+  daXacNhan: boolean;
+  moduleCounts: ModuleStatusDto[];
+}
+
+export interface SnapshotBreakdownDto {
+  snapshotId: number;
+  kyBaoCaoId: number;
+  kyCode: string;
+  donViId: number;
+  tenDonVi: string;
+  submittedAt?: string;
+  children?: SnapshotBreakdownUnitDto[];
+}
+
+export interface SnapshotModuleCompareItemDto {
+  moduleCode: string;
+  fromCount: number;
+  toCount: number;
+  delta: number;
+}
+
+export interface SnapshotCompareDto {
+  donViId: number;
+  tenDonVi: string;
+  fromKyBaoCaoId: number;
+  fromKyCode: string;
+  fromSnapshotId: number;
+  toKyBaoCaoId: number;
+  toKyCode: string;
+  toSnapshotId: number;
+  modules: SnapshotModuleCompareItemDto[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -41,38 +95,45 @@ export class SnapshotApi {
   getByKy(kyBaoCaoId: number): Promise<SnapshotDto[]> {
     return firstValueFrom(
       this.httpClient.get<ApiResponse<SnapshotDto[]>>(
-        `${API_BASE_URL}/snapshot?kyBaoCaoId=${kyBaoCaoId}`,
+        `${API_BASE_URL}/snapshot`,
+        { params: { kyBaoCaoId } },
       ),
-    ).then((response) => response.data);
+    ).then((response) => response.data ?? []);
   }
 
-  buildSnapshotJson(kyId: number, donViId: number): Promise<string> {
+  getLatestByDonVi(kyBaoCaoId?: number): Promise<SnapshotDto[]> {
+    const options = kyBaoCaoId != null ? { params: { kyBaoCaoId } } : {};
     return firstValueFrom(
-      this.httpClient.get<ApiResponse<string>>(
-        `${API_BASE_URL}/snapshot/build?kyId=${kyId}&donViId=${donViId}`,
+      this.httpClient.get<ApiResponse<SnapshotDto[]>>(
+        `${API_BASE_URL}/snapshot/latest-by-don-vi`,
+        options,
       ),
-    ).then((response) => response.data);
+    ).then((response) => response.data ?? []);
   }
 
-  createDraft(
-    kyBaoCaoId: number,
+  compareTwoKy(
     donViId: number,
-    snapshotJson: string,
-    summaryJson?: string,
-  ): Promise<SnapshotDto> {
+    fromKyBaoCaoId: number,
+    toKyBaoCaoId: number,
+  ): Promise<SnapshotCompareDto> {
     return firstValueFrom(
-      this.httpClient.post<ApiResponse<SnapshotDto>>(
-        `${API_BASE_URL}/snapshot/create-draft`,
-        { kyBaoCaoId, donViId, snapshotJson, summaryJson },
+      this.httpClient.get<ApiResponse<SnapshotCompareDto>>(
+        `${API_BASE_URL}/snapshot/compare`,
+        {
+          params: {
+            donViId,
+            fromKyBaoCaoId,
+            toKyBaoCaoId,
+          },
+        },
       ),
     ).then((response) => response.data);
   }
 
-  submit(snapshotId: number, ghiChu?: string): Promise<SnapshotDto> {
+  getById(id: number): Promise<SnapshotDto> {
     return firstValueFrom(
-      this.httpClient.post<ApiResponse<SnapshotDto>>(
-        `${API_BASE_URL}/snapshot/${snapshotId}/submit`,
-        { ghiChu },
+      this.httpClient.get<ApiResponse<SnapshotDto>>(
+        `${API_BASE_URL}/snapshot/${id}`,
       ),
     ).then((response) => response.data);
   }
@@ -86,45 +147,62 @@ export class SnapshotApi {
     ).then((response) => response.data);
   }
 
-  cancel(snapshotId: number): Promise<void> {
+  cancel(id: number): Promise<void> {
     return firstValueFrom(
-      this.httpClient.delete<ApiResponse<unknown>>(
-        `${API_BASE_URL}/snapshot/${snapshotId}`,
+      this.httpClient.delete<ApiResponse<null>>(
+        `${API_BASE_URL}/snapshot/${id}`,
       ),
     ).then(() => undefined);
   }
 
-  getById(snapshotId: number): Promise<SnapshotDto> {
+  getModuleStatus(kyBaoCaoId: number): Promise<ModuleStatusDto[]> {
     return firstValueFrom(
-      this.httpClient.get<ApiResponse<SnapshotDto>>(
-        `${API_BASE_URL}/snapshot/${snapshotId}`,
+      this.httpClient.get<ApiResponse<ModuleStatusDto[]>>(
+        `${API_BASE_URL}/snapshot/module-status`,
+        { params: { kyBaoCaoId } },
+      ),
+    ).then((response) => response.data ?? []);
+  }
+
+  getSubmitContext(kyBaoCaoId: number): Promise<SubmitSnapshotContextDto> {
+    return firstValueFrom(
+      this.httpClient.get<ApiResponse<SubmitSnapshotContextDto>>(
+        `${API_BASE_URL}/snapshot/submit-context`,
+        { params: { kyBaoCaoId } },
       ),
     ).then((response) => response.data);
   }
 
-  updateDraft(
-    snapshotId: number,
-    snapshotJson: string,
-    summaryJson?: string,
-    ghiChu?: string,
-  ): Promise<SnapshotDto> {
+  getBreakdown(id: number): Promise<SnapshotBreakdownDto> {
     return firstValueFrom(
-      this.httpClient.patch<ApiResponse<SnapshotDto>>(
-        `${API_BASE_URL}/snapshot/${snapshotId}`,
-        {
-          snapshotJson,
-          summaryJson,
-          ghiChu,
-        },
+      this.httpClient.get<ApiResponse<SnapshotBreakdownDto>>(
+        `${API_BASE_URL}/snapshot/${id}/breakdown`,
       ),
     ).then((response) => response.data);
   }
 
-  getPdf(snapshotId: number): Promise<SnapshotPdfResultDto> {
+  getPdf(id: number): Promise<SnapshotPdfResultDto> {
     return firstValueFrom(
       this.httpClient.get<ApiResponse<SnapshotPdfResultDto>>(
-        `${API_BASE_URL}/snapshot/${snapshotId}/pdf`,
+        `${API_BASE_URL}/snapshot/${id}/pdf`,
       ),
     ).then((response) => response.data);
   }
+
+  /** Xuất biểu mẫu báo cáo (mẫu H05) từ dữ liệu đã chốt. */
+  getExport(id: number, format: 'xlsx' | 'pdf'): Promise<SnapshotExportResultDto> {
+    return firstValueFrom(
+      this.httpClient.get<ApiResponse<SnapshotExportResultDto>>(
+        `${API_BASE_URL}/snapshot/${id}/export`,
+        { params: { format } },
+      ),
+    ).then((response) => response.data);
+  }
+}
+
+export interface SnapshotExportResultDto {
+  snapshotId: number;
+  format: string;
+  fileName: string;
+  downloadUrl: string;
 }

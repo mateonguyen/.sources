@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 
 export type ConfirmDialogIntent =
@@ -21,6 +21,9 @@ export interface ConfirmDialogOptions {
   rejectLabel?: string;
   acceptButtonStyleClass?: string;
   rejectButtonStyleClass?: string;
+  /** Neu > 0, nut dong y bi khoa trong tung nay giay (dem nguoc) truoc khi
+   * bam duoc - dung cho thao tac nguy hiem/kho hoan tac (vd xoa). */
+  countdownSeconds?: number;
 }
 
 type ConfirmDialogPresetOptions = Omit<ConfirmDialogOptions, 'intent'>;
@@ -35,11 +38,26 @@ interface ConfirmDialogAppearance {
 export class ConfirmDialogWrapperService {
   private readonly confirmationService = inject(ConfirmationService);
 
+  /** Doc boi ConfirmDialogWrapperComponent de biet co dang can dem nguoc
+   * truoc khi cho bam nut dong y hay khong (null = khong dem nguoc). */
+  readonly countdownSeconds = signal<number | null>(null);
+
   confirm(options: ConfirmDialogOptions): Promise<boolean> {
     const intent = options.intent ?? this.inferIntent(options);
     const appearance = this.resolveAppearance(intent);
 
     return new Promise((resolve) => {
+      this.countdownSeconds.set(
+        options.countdownSeconds && options.countdownSeconds > 0
+          ? options.countdownSeconds
+          : null,
+      );
+
+      const finish = (result: boolean) => {
+        this.countdownSeconds.set(null);
+        resolve(result);
+      };
+
       this.confirmationService.confirm({
         header: options.header ?? 'Xác nhận thao tác',
         message: options.message,
@@ -50,8 +68,8 @@ export class ConfirmDialogWrapperService {
           options.acceptButtonStyleClass ?? appearance.acceptButtonStyleClass,
         rejectButtonStyleClass:
           options.rejectButtonStyleClass ?? appearance.rejectButtonStyleClass,
-        accept: () => resolve(true),
-        reject: () => resolve(false),
+        accept: () => finish(true),
+        reject: () => finish(false),
       });
     });
   }

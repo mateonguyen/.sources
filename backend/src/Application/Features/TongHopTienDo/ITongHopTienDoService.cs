@@ -11,4 +11,7 @@ public interface ITongHopTienDoService
 
     /// <summary>PHONG/XA bật/tắt flag "Đã xác nhận xong" (không lock BIZ_*).</summary>
     Task XacNhanAsync(XacNhanRequest request, CancellationToken ct);
+
+    /// <summary>Cấp trên xem chi tiết bản ghi live 1 module của đơn vị con trực thuộc.</summary>
+    Task<ChiTietModuleDto> GetChiTietModuleAsync(long donViId, string moduleCode, CancellationToken ct);
 }

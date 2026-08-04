@@ -18,6 +18,7 @@ export interface MauBaoCaoDto {
   tanSuat: TanSuat;
   danhSachModule: string[];
   isActive: boolean;
+  kyBaoCaoCount: number;
 }
 
 export interface UpsertMauBaoCaoRequest {

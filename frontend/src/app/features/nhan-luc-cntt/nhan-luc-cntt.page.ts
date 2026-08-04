@@ -26,6 +26,7 @@ import {
 } from './nhan-luc-cntt.models';
 import { NhanLucCnttTableComponent } from './nhan-luc-cntt-table.component';
 
+import { TongHopModeBannerComponent } from '../../shared/ui/tong-hop-mode-banner.component';
 interface FlatDonViOption {
   id: number;
   parentId?: number;
@@ -36,6 +37,7 @@ interface FlatDonViOption {
   selector: 'app-nhan-luc-cntt-page',
   standalone: true,
   imports: [
+    TongHopModeBannerComponent,
     CommonModule,
     ReactiveFormsModule,
     SectionCardComponent,
@@ -301,7 +303,7 @@ export class NhanLucCnttPage {
         );
       }
 
-      await this.loadPage(false);
+      await this.loadPage(true);
 
       if (event.keepDialogOpen) {
         this.openCreateDialog();

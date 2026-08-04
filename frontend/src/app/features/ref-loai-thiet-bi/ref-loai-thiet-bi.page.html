@@ -1,0 +1,271 @@
+<app-section-card
+  title="Quản lý loại thiết bị"
+  subtitle="Cây danh mục không giới hạn số cấp - thêm loại con ở bất kỳ nhóm nào."
+  styleClass="ref-loai-card"
+>
+  <div sectionActions>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-plus"
+      label="Thêm nhóm gốc"
+      size="small"
+      class="p-button-primary"
+      (click)="openCreateRootDialog()"
+    ></button>
+  </div>
+
+  <div class="ref-loai-shell">
+    <app-loading-overlay
+      [active]="loading"
+      label="Đang tải dữ liệu loại thiết bị..."
+    ></app-loading-overlay>
+
+    <app-empty-state
+      *ngIf="!loading && data.length === 0"
+      title="Chưa có loại thiết bị"
+      message="Tạo nhóm gốc đầu tiên để bắt đầu quản lý cây danh mục loại thiết bị."
+      icon="pi-sitemap"
+      actionLabel="Thêm nhóm gốc"
+      actionIcon="pi pi-plus"
+      actionSeverity="primary"
+      (action)="openCreateRootDialog()"
+    ></app-empty-state>
+
+    <section class="ref-loai-tree-panel" *ngIf="!loading && data.length > 0">
+      <p-treeTable
+        [value]="treeNodes"
+        styleClass="p-datatable-sm app-admin-table app-ref-loai-treetable"
+        (onNodeExpand)="onNodeExpand($event)"
+        (onNodeCollapse)="onNodeCollapse($event)"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="col-name">Tên loại thiết bị</th>
+            <th class="col-code">Mã</th>
+            <th class="col-tonghop">Tổng hợp</th>
+            <th class="col-order">Thứ tự</th>
+            <th class="col-status">Trạng thái</th>
+            <th class="col-actions">Thao tác</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
+          <tr [ttRow]="rowNode">
+            <td class="col-name">
+              <div class="tt-name-cell">
+                <div
+                  class="tt-indent"
+                  *ngIf="rowNode.level > 0"
+                  [style.width.px]="rowNode.level * treeIndentStepPx"
+                >
+                  <span
+                    *ngFor="let guide of guideColumns(rowNode.level)"
+                    class="tt-indent__guide"
+                    [style.left.px]="guide * treeIndentStepPx + treeIndentStepPx / 2"
+                  ></span>
+                </div>
+                <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+                <span class="tt-name">{{ rowData.tenLoai }}</span>
+              </div>
+            </td>
+            <td class="col-code">{{ rowData.maLoai }}</td>
+            <td class="col-tonghop">
+              <i
+                class="pi"
+                [class.pi-check]="rowData.laTongHop"
+                [class.pi-minus]="!rowData.laTongHop"
+                [pTooltip]="rowData.laTongHop ? 'Loại tổng hợp - không yêu cầu tên thiết bị/ứng dụng' : ''"
+                tooltipPosition="top"
+              ></i>
+            </td>
+            <td class="col-order">
+              <div class="order-cell">
+                <span class="order-cell__value">{{ rowData.sortOrder }}</span>
+                <div class="order-cell__btns">
+                  <button
+                    type="button"
+                    class="action-btn action-btn--reorder"
+                    pTooltip="Đưa lên trên"
+                    tooltipPosition="top"
+                    [disabled]="isFirstSibling(rowData) || saving"
+                    (click)="moveNodeUp(rowData)"
+                  ><i class="pi pi-arrow-up"></i></button>
+                  <button
+                    type="button"
+                    class="action-btn action-btn--reorder"
+                    pTooltip="Đưa xuống dưới"
+                    tooltipPosition="top"
+                    [disabled]="isLastSibling(rowData) || saving"
+                    (click)="moveNodeDown(rowData)"
+                  ><i class="pi pi-arrow-down"></i></button>
+                </div>
+              </div>
+            </td>
+            <td class="col-status">
+              <span [class]="'status-badge ' + (rowData.isActive ? 'status-badge--dang-mo' : 'status-badge--da-dong')">
+                {{ rowData.isActive ? 'Hoạt động' : 'Ngừng' }}
+              </span>
+            </td>
+            <td class="col-actions">
+              <div class="action-btns">
+                <button
+                  type="button"
+                  class="action-btn action-btn--add"
+                  pTooltip="Thêm loại con"
+                  tooltipPosition="top"
+                  (click)="openCreateChildDialog(rowData)"
+                ><i class="pi pi-plus"></i></button>
+                <button
+                  type="button"
+                  class="action-btn action-btn--edit"
+                  pTooltip="Chỉnh sửa"
+                  tooltipPosition="top"
+                  (click)="openEditDialog(rowData)"
+                ><i class="pi pi-pencil"></i></button>
+                <button
+                  type="button"
+                  class="action-btn action-btn--delete"
+                  pTooltip="Vô hiệu hóa"
+                  tooltipPosition="top"
+                  (click)="deleteNode(rowData)"
+                ><i class="pi pi-trash"></i></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-treeTable>
+    </section>
+  </div>
+
+  <p-dialog
+    [visible]="dialogVisible"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="false"
+    [dismissableMask]="true"
+    [style]="{ width: 'min(640px, 96vw)' }"
+    styleClass="app-ref-loai-dialog"
+    appendTo="body"
+    (onHide)="closeDialog()"
+  >
+    <ng-template pTemplate="header">
+      <div class="app-ref-loai-dialog__header app-dialog-header">
+        <span class="app-dialog-title">
+          <i class="pi pi-sitemap" aria-hidden="true"></i>
+          {{ dialogTitle }}
+        </span>
+        <button
+          type="button"
+          class="app-dialog-close"
+          aria-label="Đóng"
+          (click)="closeDialog()"
+        >
+          <i class="pi pi-times" aria-hidden="true"></i>
+        </button>
+      </div>
+    </ng-template>
+
+    <form [formGroup]="form" class="app-dialog-form" (ngSubmit)="submit()">
+      <div class="app-dialog-body-standard">
+        <div class="app-form-row two-columns">
+          <div
+            class="app-form-field"
+            [class.has-value]="form.get('maLoai')?.value"
+            [class.has-error]="isInvalid('maLoai')"
+          >
+            <label class="app-form-field__label required" for="loaiMa">Mã loại</label>
+            <input
+              id="loaiMa"
+              pInputText
+              class="app-form-field__input"
+              formControlName="maLoai"
+              placeholder="Nhập mã"
+              maxlength="50"
+            />
+            <small class="app-form-field__error" *ngIf="isInvalid('maLoai')">Vui lòng nhập mã loại.</small>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="form.get('tenLoai')?.value"
+            [class.has-error]="isInvalid('tenLoai')"
+          >
+            <label class="app-form-field__label required" for="loaiTen">Tên hiển thị</label>
+            <input
+              id="loaiTen"
+              pInputText
+              class="app-form-field__input"
+              formControlName="tenLoai"
+              placeholder="Nhập tên hiển thị"
+              maxlength="200"
+            />
+            <small class="app-form-field__error" *ngIf="isInvalid('tenLoai')">Vui lòng nhập tên hiển thị.</small>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="form.get('isActive')?.value != null"
+          >
+            <label class="app-form-field__label" for="loaiTrangThai">Trạng thái</label>
+            <p-dropdown
+              id="loaiTrangThai"
+              [options]="statusOptions"
+              optionLabel="label"
+              optionValue="value"
+              formControlName="isActive"
+              placeholder="Chọn trạng thái"
+              appendTo="body"
+            ></p-dropdown>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="form.get('sortOrder')?.value != null"
+          >
+            <label class="app-form-field__label" for="loaiThuTu">Thứ tự</label>
+            <p-inputNumber
+              inputId="loaiThuTu"
+              formControlName="sortOrder"
+              [useGrouping]="false"
+              placeholder="0"
+            ></p-inputNumber>
+          </div>
+
+          <div class="app-form-field app-form-field--full">
+            <label class="app-form-field__checkbox">
+              <p-checkbox formControlName="laTongHop" [binary]="true"></p-checkbox>
+              <span class="app-form-field__checkbox-text">
+                Là loại tổng hợp
+                <small class="app-form-field__checkbox-hint"
+                  >Không cần nhập tên thiết bị/phần mềm cụ thể - chỉ dùng cho loại không có loại con</small
+                >
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-dialog-actions">
+        <button
+          pButton
+          type="button"
+          label="Hủy"
+          icon="pi pi-times"
+          class="p-button-secondary p-button-outlined"
+          [disabled]="saving"
+          (click)="closeDialog()"
+        ></button>
+        <button
+          pButton
+          type="submit"
+          label="Lưu"
+          icon="pi pi-save"
+          class="p-button-primary"
+          [loading]="saving"
+        ></button>
+      </div>
+    </form>
+  </p-dialog>
+</app-section-card>

@@ -2,6 +2,61 @@ namespace ThucLuc.Application.Security;
 
 public static class Permissions
 {
+    private static readonly string[] BusinessPermissionPrefixes =
+    [
+        "nhan_luc_cntt:",
+        "dao_tao_boi_duong:",
+        "dao_tao_hoc_vien:",
+        "nang_luc_so:",
+        "thiet_bi_cntt:",
+        "he_thong_thong_tin:",
+        "ha_tang_mang:",
+        "giam_sat_noc:",
+        "camera_quan_ly:",
+        "camera_thuc_trang:",
+        "du_an_cntt:",
+        "van_ban_qppl:",
+        "giam_sat_soc:",
+        "attt_httt_van_hanh:",
+        "attt_httt_dau_tu:",
+        "giai_phap_attt:"
+    ];
+
+    public static bool IsBusinessPermission(string permission)
+    {
+        if (string.IsNullOrWhiteSpace(permission))
+        {
+            return false;
+        }
+
+        return BusinessPermissionPrefixes.Any(prefix =>
+            permission.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+    }
+
+    // Module Bao cao - SYSTEM_ADMIN khong duoc bypass vao day (thuan quan
+    // tri he thong), nhung KHONG dua vao BusinessPermissionPrefixes vi
+    // QUAN_LY van duoc cap quyen ro rang cho module nay (KyBaoCao/MauBaoCao).
+    private static readonly string[] SystemAdminExcludedPrefixes =
+    [
+        "tong_hop_tien_do:",
+        "snapshot:",
+        "yeu_cau_bo_sung:",
+        "tien_do_bao_cao:",
+        "ky_bao_cao:",
+        "mau_bao_cao:"
+    ];
+
+    public static bool IsSystemAdminExcluded(string permission)
+    {
+        if (string.IsNullOrWhiteSpace(permission))
+        {
+            return false;
+        }
+
+        return SystemAdminExcludedPrefixes.Any(prefix =>
+            permission.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+    }
+
     public static class Auth
     {
         public const string Me = "auth:me";
@@ -35,7 +90,17 @@ public static class Permissions
     {
         public const string Read = "ky_bao_cao:read";
         public const string Create = "ky_bao_cao:create";
+        public const string Update = "ky_bao_cao:update";
+        public const string Delete = "ky_bao_cao:delete";
         public const string Approve = "ky_bao_cao:approve";
+    }
+
+    // Tach rieng khoi KyBaoCao.Approve: chi gate menu "Tien do bao cao" (xem tien do nop theo don vi).
+    // ky_bao_cao:approve van giu nguyen nghia cu -- duyet/mo/dong ky bao cao (PATCH status) va
+    // duoc tai su dung o ~18 Service.cs khac nhu quyen "xem toan bo khong phan biet don vi", khong dung.
+    public static class TienDoBaoCao
+    {
+        public const string Read = "tien_do_bao_cao:read";
     }
 
     public static class MauBaoCao
@@ -79,12 +144,6 @@ public static class Permissions
     {
         public const string Read = "tong_hop_tien_do:read";
         public const string XacNhan = "tong_hop_tien_do:xac_nhan";
-    }
-
-    public static class BaoCao
-    {
-        public const string Read = "bao_cao:read";
-        public const string Export = "bao_cao:export";
     }
 
     public static class NhanLucCntt
@@ -223,5 +282,13 @@ public static class Permissions
         public const string Create = "codes:create";
         public const string Update = "codes:update";
         public const string Delete = "codes:delete";
+    }
+
+    public static class RefLoaiThietBi
+    {
+        public const string Read = "ref_loai_thiet_bi:read";
+        public const string Create = "ref_loai_thiet_bi:create";
+        public const string Update = "ref_loai_thiet_bi:update";
+        public const string Delete = "ref_loai_thiet_bi:delete";
     }
 }

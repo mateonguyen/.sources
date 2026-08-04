@@ -46,12 +46,12 @@ public sealed class SnapshotPdfIntegrationTests : IClassFixture<ApiTestWebApplic
     {
         await _factory.ResetDataAsync();
         using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
-        const string marker = "payload-marker-2026";
-
-        _ = await CreateDraftAndSubmitAsync(client, $"{{\"marker\":\"{marker}\"}}");
+        _ = await CreateDraftAndSubmitAsync(client, "{\"marker\":\"payload-marker-2026\"}");
 
         _factory.FakePdfService.LastHtml.Should().NotBeNull();
-        _factory.FakePdfService.LastHtml.Should().Contain(marker);
+        _factory.FakePdfService.LastHtml.Should().Contain("Báo cáo #");
+        _factory.FakePdfService.LastHtml.Should().Contain("Kỳ 6001");
+        _factory.FakePdfService.LastHtml.Should().Contain("Đơn vị 2002");
     }
 
     [Fact]

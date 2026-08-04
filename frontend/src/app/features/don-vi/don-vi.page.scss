@@ -1,32 +1,70 @@
-.head-actions {
+﻿.head-actions {
   @apply flex flex-wrap gap-3;
 }
 
+// Card cua trang nay chiem dung chieu cao con lai cua man hinh, khop voi
+// sidebar (sidebar dung cong thuc height: calc(100vh - shell-gap*2) o
+// shell.page.scss - lap lai chinh xac cong thuc do o day thay vi doan vh
+// dua tren doan van ban). Chi ap dung rieng cho trang nay qua class
+// "donvi-card" (styleClass tren app-section-card), khong dung toi shell chung.
+:host ::ng-deep .donvi-card {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 2rem);
+}
+
+:host ::ng-deep .donvi-card .p-card-body,
+:host ::ng-deep .donvi-card .p-card-content {
+  @apply flex flex-col min-h-0;
+  flex: 1 1 auto;
+}
+
+// PrimeNG mac dinh .p-card-body co padding-top khoang 1.25rem, cong them
+// padding-top 0.5rem cua .p-card-content (section-card.component.ts) - tao
+// khoang trang khong can thiet phia tren tieu de trang. Thu gon rieng cho
+// trang nay (khong dung cac trang khac dung chung section-card).
+:host ::ng-deep .donvi-card .p-card-body {
+  padding-top: 0.4rem;
+  padding-bottom: 0.6rem;
+}
+
+:host ::ng-deep .donvi-card .app-page-header {
+  margin-bottom: 0.3rem;
+}
+
+:host ::ng-deep .donvi-card .app-page-title {
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+:host ::ng-deep .donvi-card .app-page-subtitle {
+  margin: 0.18rem 0 0;
+  font-size: 0.8rem;
+}
+
 .content-shell {
-  @apply relative;
-  min-height: 8.75rem;
+  @apply relative flex flex-col min-h-0;
+  flex: 1 1 auto;
 }
 
 .layout {
   @apply grid gap-4 min-h-0;
   grid-template-columns: minmax(260px, 0.9fr) minmax(340px, 1.1fr);
+  flex: 1 1 auto;
 }
 
 .tree-panel,
 .editor {
-  @apply rounded-lg p-4;
+  @apply rounded-lg p-3 flex flex-col min-h-0;
+  height: 100%;
+  overflow: hidden;
   border: 1px solid var(--app-border);
   background: color-mix(in srgb, var(--app-surface-soft) 72%, white 28%);
 }
 
-.tree-panel {
-  @apply flex flex-col min-h-0;
-  max-height: min(72vh, 56rem);
-}
-
 .tree-panel__head {
   flex: 0 0 auto;
-  @apply grid gap-3;
+  @apply grid gap-2;
 }
 
 .tree-panel__body {
@@ -34,8 +72,20 @@
   padding-inline: 0;
 }
 
-.editor {
-  @apply grid gap-3;
+.editor-header {
+  flex: 0 0 auto;
+}
+
+.editor__body {
+  @apply flex-1 min-h-0 overflow-y-auto grid gap-3;
+  /* Ghim cac dong form len dau, khong keo gian ra kin het chieu cao con
+     lai (vd khi chua chon don vi nao, noi dung form ngan hon khung). */
+  align-content: start;
+  padding-right: 0.25rem;
+}
+
+app-form-action-bar {
+  flex: 0 0 auto;
 }
 
 .panel-heading {
@@ -46,16 +96,16 @@
 .panel-title {
   @apply m-0 font-bold;
   color: var(--app-text-strong);
-  font-size: clamp(1rem, 0.95rem + 0.22vw, 1.12rem);
-  line-height: 1.32;
+  font-size: 0.98rem;
+  line-height: 1.24;
   letter-spacing: -0.01em;
 }
 
 .panel-subtitle {
   @apply m-0;
   color: var(--app-text-muted);
-  font-size: 0.88rem;
-  line-height: 1.48;
+  font-size: 0.78rem;
+  line-height: 1.3;
   font-weight: var(--app-font-weight-regular);
 }
 
@@ -64,27 +114,50 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+// Ma don vi / Ten don vi / Ten viet tat - 3 truong dinh danh chinh, gop 1
+// dong va lam noi bat hon cac truong phu ben duoi.
+.primary-fields {
+  @apply grid gap-3;
+  grid-template-columns: 1fr 2fr 1fr;
+}
+
+.primary-fields .app-field label {
+  font-weight: var(--app-font-weight-semibold);
+  color: var(--app-text-strong);
+}
+
+.primary-fields .app-field input {
+  font-size: 1rem;
+  font-weight: var(--app-font-weight-semibold);
+  color: var(--app-text-strong);
+  border-color: color-mix(in srgb, var(--app-primary-400) 45%, var(--app-border) 55%);
+  background: color-mix(in srgb, var(--app-primary-50) 24%, white 76%);
+}
+
 .checkbox {
   @apply flex items-center gap-3;
 }
 
+// Tree-header (trai) va editor-header (phai) phai cao bang nhau va co cung
+// khoang cach xuong dong ke tiep (o tim kiem / truong Ma don vi), de 2 o
+// input dau tien cua 2 cot thang hang ngang voi nhau.
 .tree-header {
-  @apply flex justify-between items-start gap-3;
-  min-height: 4.1rem;
+  @apply flex justify-between items-center gap-3;
+  min-height: 1.6rem;
   margin-bottom: 0;
 }
 
 .editor-header {
-  @apply grid content-start;
-  gap: 0.22rem;
-  min-height: 4.1rem;
-  margin-bottom: 0;
+  @apply grid content-center;
+  gap: 0.15rem;
+  min-height: 1.6rem;
+  margin-bottom: 0.5rem;
 }
 
 .tree-count {
   @apply inline-flex items-center justify-center;
-  min-width: 4.5rem;
-  padding: 0.35rem 0.65rem;
+  min-width: 4rem;
+  padding: 0.2rem 0.55rem;
   border-radius: var(--app-radius-badge);
   background: color-mix(in srgb, var(--app-primary-50) 70%, white 30%);
   color: var(--app-primary-900);
@@ -161,7 +234,7 @@
   min-height: 2.2rem;
   padding: 0.18rem 0.35rem 0.18rem 0.28rem;
   border: 1px solid color-mix(in srgb, var(--app-border) 84%, #d6e0ea 16%);
-  border-radius: 0.5rem;
+  border-radius: var(--app-radius);
   background: color-mix(in srgb, var(--app-surface-soft) 78%, white 22%);
   transition:
     background-color 120ms ease,
@@ -205,7 +278,7 @@
 
 :host ::ng-deep .node-name-mark {
   padding: 0 0.08rem;
-  border-radius: 0.18rem;
+  border-radius: var(--app-radius);
   background: color-mix(in srgb, var(--app-primary-100) 82%, white 18%);
   color: var(--app-primary-900);
 }
@@ -216,7 +289,7 @@
   min-width: 1.25rem;
   height: 1.25rem;
   border: 0;
-  border-radius: 0.24rem;
+  border-radius: var(--app-radius);
   background: transparent;
   color: color-mix(in srgb, var(--app-text-muted) 50%, var(--app-text) 50%);
   font-size: 0.72rem;
@@ -314,9 +387,6 @@
   box-shadow: none;
 }
 
-.selection-summary {
-  @apply flex flex-wrap gap-2;
-}
 
 .stats-grid {
   @apply grid gap-3;
@@ -348,9 +418,17 @@
 @media (max-width: 900px) {
   .layout {
     grid-template-columns: 1fr;
+    height: auto;
   }
 
-  .two-col {
+  .tree-panel,
+  .editor {
+    height: auto;
+    max-height: 34rem;
+  }
+
+  .two-col,
+  .primary-fields {
     grid-template-columns: 1fr;
   }
 }

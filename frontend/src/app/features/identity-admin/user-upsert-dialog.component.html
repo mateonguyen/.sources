@@ -114,6 +114,11 @@
             formControlName="donViId"
             placeholder="Chọn đơn vị"
             appendTo="body"
+            [filter]="true"
+            filterBy="label"
+            filterPlaceholder="Tìm đơn vị..."
+            [virtualScroll]="true"
+            [virtualScrollItemSize]="38"
           ></p-dropdown>
           <div
             class="app-form-field__feedback"

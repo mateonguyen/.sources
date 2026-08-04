@@ -1,3 +1,4 @@
+<app-tong-hop-mode-banner></app-tong-hop-mode-banner>
 <div class="attt-page">
 
   <!-- ─── Single section card with tabs ─── -->
@@ -169,25 +170,21 @@
                   <td [class]="tableBodyCellClass">{{ item.kiemTraDanhGia || '—' }}</td>
                   <td [class]="tableBodyCellClass">{{ item.ghiChu || '—' }}</td>
                   <td [class]="tableBodyCellClass" style="text-align:center">
-                    <div class="app-table-actions">
+                    <div class="action-btns">
                       <button
-                        pButton
                         type="button"
-                        icon="pi pi-pencil"
-                        class="p-button-text app-table-action-btn app-table-action-btn--edit"
+                        class="action-btn action-btn--edit"
                         pTooltip="Chỉnh sửa"
                         tooltipPosition="top"
                         (click)="openDialog(item)"
-                      ></button>
+                      ><i class="pi pi-pencil"></i></button>
                       <button
-                        pButton
                         type="button"
-                        icon="pi pi-trash"
-                        class="p-button-text p-button-danger app-table-action-btn app-table-action-btn--delete"
+                        class="action-btn action-btn--delete"
                         pTooltip="Xóa"
                         tooltipPosition="top"
                         (click)="remove(item)"
-                      ></button>
+                      ><i class="pi pi-trash"></i></button>
                     </div>
                   </td>
                 </tr>

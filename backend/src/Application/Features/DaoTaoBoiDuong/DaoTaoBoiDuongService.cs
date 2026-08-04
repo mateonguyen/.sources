@@ -117,7 +117,7 @@ public sealed class DaoTaoBoiDuongService : IDaoTaoBoiDuongService
 
         var kyExists = await _dbContext.KyBaoCaos
             .AsNoTracking()
-            .AnyAsync(x => x.KyCode == kyBaoCaoCode, cancellationToken);
+            .CountAsync(x => x.KyCode == kyBaoCaoCode, cancellationToken) > 0;
         if (!kyExists)
         {
             throw new AppException("KY_BAO_CAO_NOT_FOUND", "Không tìm thấy kỳ báo cáo.", 404);

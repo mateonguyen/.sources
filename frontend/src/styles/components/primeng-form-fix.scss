@@ -4,25 +4,21 @@
   --app-ctl-radius: var(--app-radius-control);
   --app-ctl-padding-x: 0.625rem;
   --app-ctl-trigger-width: 34px;
-  /* Strong profile: navy borders, light navy background */
-  --app-ctl-bg: #eef4ff;
-  --app-ctl-bg-hover: #dbe2eb;
-  --app-ctl-border-color: var(--app-primary-500);
-  --app-ctl-border-hover: var(--app-primary-600);
-  --app-ctl-focus-color: var(--app-primary-700);
-  --app-ctl-focus-ring: color-mix(
-    in srgb,
-    var(--app-primary-500) 30%,
-    transparent
-  );
+  /* Warm profile: tan borders, warm white background */
+  --app-ctl-bg:           #fefcf8;
+  --app-ctl-bg-hover:     #f0e9d8;
+  --app-ctl-border-color: #cdbfa6;
+  --app-ctl-border-hover: #b8a48a;
+  --app-ctl-focus-color:  var(--app-primary-700);
+  --app-ctl-focus-ring:   rgba(22, 59, 99, 0.18);
   --app-ctl-invalid-color: var(--app-danger-500);
   --app-check-size: 1.05rem;
-  --app-check-radius: 0.2rem;
-  /* Strong profile: navy checkbox borders */
+  --app-check-radius: var(--app-radius);
+  /* Warm profile: checkbox */
+  --app-check-bg:       #ffffff;
+  --app-check-bg-hover: #f2ead8;
   --app-check-border: var(--app-primary-500);
   --app-check-border-hover: var(--app-primary-600);
-  --app-check-bg: #ffffff;
-  --app-check-bg-hover: #eef4ff;
   --app-check-active: var(--app-primary-700);
   --app-check-focus-ring: color-mix(
     in srgb,
@@ -248,7 +244,7 @@ textarea.p-inputtextarea:disabled,
 .p-dropdown-panel .p-dropdown-item,
 .p-select-panel .p-select-option,
 .p-multiselect-panel .p-multiselect-item {
-  border-radius: 0.4rem;
+  border-radius: var(--app-radius);
   padding: 0.52rem 0.7rem;
   color: var(--app-text);
   font-size: var(--app-font-size-ui-control);
@@ -263,14 +259,14 @@ textarea.p-inputtextarea:disabled,
 .p-select-panel .p-select-option.p-focus,
 .p-multiselect-panel .p-multiselect-item:hover,
 .p-multiselect-panel .p-multiselect-item.p-focus {
-  background: #eef4ff;
+  background: #f2ead8;
   color: var(--app-primary-600);
 }
 
 .p-dropdown-panel .p-dropdown-item.p-highlight,
 .p-select-panel .p-select-option.p-selected,
 .p-multiselect-panel .p-multiselect-item.p-highlight {
-  background: #dbe2eb;
+  background: #e8dfcc;
   color: var(--app-primary-700);
   font-weight: 600;
 }
@@ -330,7 +326,7 @@ textarea.p-inputtextarea:disabled,
   content: "";
   width: 0.58rem;
   height: 0.12rem;
-  border-radius: 99px;
+  border-radius: var(--app-radius);
   background: #ffffff;
 }
 

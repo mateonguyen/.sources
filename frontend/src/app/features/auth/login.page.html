@@ -1,9 +1,23 @@
 <div class="login-wrap">
-  <app-section-card
-    title="Đăng nhập"
-    subtitle="Đăng nhập vào tài khoản thành viên của bạn"
-    styleClass="login-card"
-  >
+  <div class="login-bg-drum" aria-hidden="true"></div>
+
+  <app-section-card styleClass="login-card">
+    <div class="login-crest">
+      <img
+        class="login-crest__logo"
+        src="assets/logo-ca.png"
+        alt="Bộ Công an"
+      />
+      <div class="login-crest__org">
+        <span class="login-crest__rule"></span>
+        <span class="login-crest__org-text">BỘ CÔNG AN</span>
+        <span class="login-crest__rule"></span>
+      </div>
+      <h1 class="login-crest__title">
+        PHẦN MỀM QUẢN LÝ, PHÁT TRIỂN,<br>ỨNG DỤNG CÔNG NGHỆ THÔNG TIN
+      </h1>
+    </div>
+
     <form [formGroup]="form" (ngSubmit)="submit()" class="p-fluid login-form">
       <div
         class="login-field"

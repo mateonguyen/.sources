@@ -15,6 +15,8 @@ namespace ThucLuc.Api.Controllers.V1;
 [ApiExplorerSettings(GroupName = "auth")]
 public sealed class AuthController : ControllerBase
 {
+    private const string DeviceIdCookieName = "thuc_luc_device_id";
+
     private readonly IAuthService _authService;
     private readonly IRefreshTokenService _refreshTokenService;
     private readonly ICurrentUserService _currentUserService;
@@ -46,8 +48,8 @@ public sealed class AuthController : ControllerBase
     {
         var token = await _authService.LoginAsync(request, rememberMe, cancellationToken);
 
-        var deviceId = Request.Headers["X-Device-Id"].ToString() ?? GenerateDeviceId();
-        var userAgent = Request.Headers["User-Agent"].ToString();
+        var deviceId = ResolveDeviceId();
+        var userAgent = ResolveUserAgent();
         var ipAddress = GetClientIpAddress();
         var refreshTokenExpiry = rememberMe ? 30 : 0; // 0 = session cookie
 
@@ -85,6 +87,16 @@ public sealed class AuthController : ControllerBase
             IsEssential = true
         });
 
+        Response.Cookies.Append(DeviceIdCookieName, deviceId, new CookieOptions
+        {
+            HttpOnly = false,
+            Secure = true,
+            SameSite = SameSiteMode.Lax,
+            Path = "/",
+            Expires = new DateTimeOffset(_dateTimeProvider.Now.AddYears(1)),
+            IsEssential = true
+        });
+
         return Ok(ApiResponseFactory.Success(token));
     }
 
@@ -107,14 +119,16 @@ public sealed class AuthController : ControllerBase
         // Ở đây chúng ta giả định endpoint được call với Authorization header
         var currentUser = _currentUserService.GetCurrentUser();
 
+        var deviceId = ResolveDeviceId(request.DeviceId);
+        var userAgent = ResolveUserAgent(request.DeviceUserAgent);
         var ipAddress = GetClientIpAddress();
 
         // Rotate token
         var (newRefreshToken, session) = await _refreshTokenService.RotateRefreshTokenAsync(
             refreshTokenFromCookie,
             currentUser.UserId,
-            request.DeviceId,
-            request.DeviceUserAgent,
+            deviceId,
+            userAgent,
             ipAddress,
             cancellationToken);
 
@@ -133,6 +147,16 @@ public sealed class AuthController : ControllerBase
             SameSite = SameSiteMode.Lax,
             Path = "/api/v1/auth",
             Expires = new DateTimeOffset(session.ExpiresAt),
+            IsEssential = true
+        });
+
+        Response.Cookies.Append(DeviceIdCookieName, deviceId, new CookieOptions
+        {
+            HttpOnly = false,
+            Secure = true,
+            SameSite = SameSiteMode.Lax,
+            Path = "/",
+            Expires = new DateTimeOffset(_dateTimeProvider.Now.AddYears(1)),
             IsEssential = true
         });
 
@@ -236,7 +260,43 @@ public sealed class AuthController : ControllerBase
     /// </summary>
     private string GenerateDeviceId()
     {
-        var userAgent = Request.Headers["User-Agent"].ToString();
-        return Convert.ToBase64String(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(userAgent)));
+        return Guid.NewGuid().ToString("N");
+    }
+
+    private string ResolveDeviceId(string? requestDeviceId = null)
+    {
+        var fromHeader = Request.Headers["X-Device-Id"].ToString();
+        var fromCookie = Request.Cookies.TryGetValue(DeviceIdCookieName, out var cookieValue)
+            ? cookieValue
+            : null;
+
+        var candidates = new[] { requestDeviceId, fromHeader, fromCookie };
+        foreach (var candidate in candidates)
+        {
+            var normalized = candidate?.Trim();
+            if (!string.IsNullOrWhiteSpace(normalized))
+            {
+                return normalized;
+            }
+        }
+
+        return GenerateDeviceId();
+    }
+
+    private string ResolveUserAgent(string? requestUserAgent = null)
+    {
+        var normalizedRequest = requestUserAgent?.Trim();
+        if (!string.IsNullOrWhiteSpace(normalizedRequest))
+        {
+            return normalizedRequest;
+        }
+
+        var headerUserAgent = Request.Headers["User-Agent"].ToString()?.Trim();
+        if (!string.IsNullOrWhiteSpace(headerUserAgent))
+        {
+            return headerUserAgent;
+        }
+
+        return "unknown";
     }
 }

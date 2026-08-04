@@ -53,6 +53,13 @@ export interface ThietBiCnttDto {
   ungDungIds: number[];
 }
 
+export interface ThietBiCatalogDto {
+  hangSanXuat: string[];
+  heDieuHanh: string[];
+  modelGlobal: string[];
+  modelByHang: Record<string, string[]>;
+}
+
 export interface UpsertThietBiCnttRequest {
   donViId: number;
   loaiThietBiId: number;
@@ -117,6 +124,14 @@ export class ThietBiCnttApi {
         `${API_BASE_URL}/thiet-bi-cntt/${id}`,
       ),
     ).then(() => undefined);
+  }
+
+  getCatalog(): Promise<ThietBiCatalogDto> {
+    return firstValueFrom(
+      this.httpClient.get<ApiResponse<ThietBiCatalogDto>>(
+        `${API_BASE_URL}/thiet-bi-cntt/catalog`,
+      ),
+    ).then((response) => response.data);
   }
 
   getLoaiThietBiTree(): Promise<RefLoaiThietBiDto[]> {

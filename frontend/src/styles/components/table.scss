@@ -1,4 +1,4 @@
-.app-table-wrap {
+﻿.app-table-wrap {
   border: 1px solid var(--app-border);
   border-radius: var(--app-radius-table);
   overflow: hidden;
@@ -6,7 +6,7 @@
 }
 
 .app-table-wrap--spacious {
-  border-radius: 0.75rem;
+  border-radius: var(--app-radius);
 }
 
 :root .p-datatable .p-datatable-thead > tr > th {
@@ -16,6 +16,20 @@
   font-weight: var(--app-font-weight-semibold);
   border-bottom: 1px solid var(--app-border);
   padding: var(--app-space-3) var(--app-space-3);
+}
+
+// Chỉ cột sortable mới nowrap (giữ icon ↑↓ cùng dòng với label);
+// cột thường phải được wrap để label dài không tràn đè cột bên cạnh.
+:root .p-datatable .p-datatable-thead > tr > th.p-sortable-column {
+  white-space: nowrap;
+}
+
+// Sort icon must stay on the same line as the header label, not wrap below it
+:root .p-datatable .p-datatable-thead > tr > th .p-sortable-column-icon,
+:root .p-datatable .p-datatable-thead > tr > th .p-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 0.3rem;
 }
 
 :root .p-datatable .p-datatable-tbody > tr > td {
@@ -79,7 +93,7 @@
   min-width: 1.8rem;
   height: 1.8rem;
   padding: 0 0.4rem;
-  border-radius: 0.4rem;
+  border-radius: var(--app-radius);
   background: rgba(26, 59, 99, 0.1);
   color: var(--app-primary-600);
   font-size: var(--app-font-size-ui-meta);
@@ -92,4 +106,240 @@
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
+}
+
+.action-btns {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--app-radius);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+  flex-shrink: 0;
+  padding: 0;
+
+  .pi { font-size: 0.82rem; }
+
+  &:hover {
+    background: var(--app-surface-soft);
+    border-color: var(--app-border-strong);
+    box-shadow: 0 1px 4px rgba(100,78,42,0.10);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+.action-btn--view   .pi { color: #1f4f7c; }
+.action-btn--edit   .pi { color: #b8732a; }
+.action-btn--delete .pi { color: #8a1f2d; }
+.action-btn--stats  .pi { color: #1f7c6e; }
+.action-btn--copy   .pi { color: #1f4f7c; }
+.action-btn--lock   .pi { color: #8a5a12; }
+
+.action-btn--delete:hover {
+  background: #fef6f4;
+  border-color: #d9b5ac;
+}
+
+// â”€â”€ Status badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: var(--app-radius);
+  border: 1px solid;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.status-badge--chuan-bi { background: #eef4f9; border-color: #8dafc7; color: #1f4f7c; }
+.status-badge--dang-mo  { background: #edf3e9; border-color: #5a8a44; color: #3f5f2d; }
+.status-badge--da-dong  { background: #f0f2f4; border-color: #8a9baa; color: #394b5e; }
+.status-badge--khoa     { background: #f5f0e8; border-color: #b8a88e; color: #5a4a3a; }
+.status-badge--qua-han  { background: #fef0ef; border-color: #c97070; color: #8a1f2d; }
+.status-badge--cho-nhap { background: #fef0ef; border-color: #c97070; color: #8a1f2d; }
+.status-badge--draft    { background: #fff4e5; border-color: #c89050; color: #7a4a10; }
+.status-badge--xac-nhan { background: #edf3e9; border-color: #5a8a44; color: #3f5f2d; }
+
+// â”€â”€ Filter chip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: var(--app-radius);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 120ms, border-color 120ms, color 120ms;
+  user-select: none;
+
+  .chip-count {
+    font-weight: 700;
+    font-size: 0.78rem;
+  }
+
+  &:hover {
+    background: var(--app-surface-soft);
+    border-color: var(--app-border-strong);
+  }
+}
+
+.filter-chip--chuan-bi.is-active { background: #eef4f9; border-color: #8dafc7; color: #1f4f7c; }
+.filter-chip--dang-mo.is-active  { background: #edf3e9; border-color: #5a8a44; color: #3f5f2d; }
+.filter-chip--da-dong.is-active  { background: #f0f2f4; border-color: #8a9baa; color: #394b5e; }
+.filter-chip--khoa.is-active     { background: #f5f0e8; border-color: #b8a88e; color: #5a4a3a; }
+.filter-chip--qua-han.is-active  { background: #fef0ef; border-color: #c97070; color: #8a1f2d; }
+
+// ── p-treeTable admin style (Loại thiết bị) ──────────────────────────────
+// Dat o file GLOBAL (khong phai component-scoped scss) de loai bo hoan toan
+// nghi ngo ve viec Angular ViewEncapsulation "khoanh vung" (scope) CSS -
+// cac phan tu ben trong p-treeTable (p-treetable-thead/tbody...) do chinh
+// PrimeNG component tu render trong TEMPLATE CUA NO, khong phai cua trang
+// goi no, nen mot so ky thuat (:root, ::ng-deep) co the khong dang tin cay
+// bang viec dat thang o day - giong het cach .app-admin-table (dung cho cac
+// bang p-table khac) da lam va da chay dung.
+// <p-treetable> la mot custom element HOST TAG - class "app-ref-loai-treetable"
+// (truyen qua styleClass) chi nam tren THE <div #container> BEN TRONG no, do
+// chinh PrimeNG tu render, khong phai tren the <p-treetable> ngoai cung. Neu
+// khong set flex/min-height cho chinh THE HOST NAY, no khong tu "gian no" de
+// lap day khoang trong flex cha, khien height:100% cua div con ben trong
+// khong tinh duoc (% height vo nghia khi cha khong co chieu cao xac dinh) -
+// day la ly do toan bo noi dung day tran trang thay vi cuon.
+p-treetable.app-ref-loai-treetable,
+.ref-loai-tree-panel > p-treetable {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.app-ref-loai-treetable {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  background: var(--app-surface);
+}
+
+.app-ref-loai-treetable .p-treetable-wrapper {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.app-ref-loai-treetable .p-treetable-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+.app-ref-loai-treetable .p-treetable-thead > tr > th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: color-mix(in srgb, var(--app-surface-soft) 76%, white 24%);
+  color: var(--app-text-strong);
+  font-size: var(--app-font-size-ui-table-head);
+  font-weight: var(--app-font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.55rem 0.75rem !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--app-border-strong) !important;
+  text-align: left;
+}
+
+.app-ref-loai-treetable .p-treetable-thead > tr > th:not(:last-child) {
+  border-right: 1px solid var(--app-border) !important;
+}
+
+.app-ref-loai-treetable .p-treetable-tbody > tr {
+  transition: background-color 140ms ease;
+  background: var(--app-surface) !important;
+}
+
+.app-ref-loai-treetable .p-treetable-tbody > tr:hover {
+  background: color-mix(in srgb, var(--app-primary-50) 28%, white 72%) !important;
+}
+
+.app-ref-loai-treetable .p-treetable-tbody > tr > td {
+  padding: 0.4rem 0.75rem !important;
+  color: var(--app-text);
+  font-size: var(--app-font-size-ui-table-body);
+  border: 0 !important;
+  border-bottom: 1px solid var(--app-border) !important;
+  vertical-align: middle;
+}
+
+.app-ref-loai-treetable .p-treetable-tbody > tr:last-child > td {
+  border-bottom: 0 !important;
+}
+
+.app-ref-loai-treetable .col-name { width: 34%; }
+.app-ref-loai-treetable .col-code {
+  width: 13%;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", "Courier New", monospace;
+  color: var(--app-text-muted);
+  font-size: var(--app-font-size-ui-table-body);
+}
+.app-ref-loai-treetable .col-tonghop { width: 9%; text-align: center; }
+.app-ref-loai-treetable .col-order   { width: 14%; text-align: center; }
+.app-ref-loai-treetable .col-status  { width: 15%; text-align: center; }
+.app-ref-loai-treetable .col-actions { width: 15%; text-align: center; }
+
+.app-ref-loai-treetable .p-treetable-toggler {
+  // Bo margin-left mac dinh cua PrimeNG (rowNode.level * 16px, dat qua
+  // [ngStyle] inline) - tu ve thut le rieng bang .tt-indent trong
+  // ref-loai-thiet-bi.page.html/scss de co the ve them duong noi cay.
+  margin-left: 0 !important;
+  width: 1.6rem !important;
+  height: 1.6rem !important;
+  margin-right: 0.2rem;
+  color: var(--app-text-muted);
+}
+
+// Thu gon nut thao tac (mac dinh 34px trong .action-btn global) cho khop
+// voi dong da giam padding, tranh chieu cao nut > chieu cao dong mong muon.
+.app-ref-loai-treetable .action-btn {
+  width: 28px;
+  height: 28px;
+}
+
+.app-ref-loai-treetable .action-btn .pi {
+  font-size: 0.72rem;
+}
+
+.app-ref-loai-treetable .order-cell__btns .action-btn--reorder {
+  width: 26px;
+  height: 26px;
+}
+
+.app-ref-loai-treetable .order-cell__btns .action-btn--reorder .pi {
+  font-size: 0.68rem;
+  color: var(--app-text-muted);
 }

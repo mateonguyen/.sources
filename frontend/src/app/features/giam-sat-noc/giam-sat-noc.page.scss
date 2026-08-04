@@ -1,10 +1,10 @@
-/* ── Validation banner ── */
+﻿/* â”€â”€ Validation banner â”€â”€ */
 .noc-validation-banner {
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
   padding: 0.65rem 0.9rem;
-  border-radius: 8px;
+  border-radius: var(--app-radius);
   border: 1px solid #fca5a5;
   background: #fff1f2;
   color: #b91c1c;
@@ -15,14 +15,14 @@
   i { font-size: 0.9rem; flex-shrink: 0; margin-top: 2px; }
 }
 
-/* ── CoNoc toggle bar ── */
+/* â”€â”€ CoNoc toggle bar â”€â”€ */
 .noc-cohe-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
   padding: 12px 16px;
-  border-radius: 10px;
+  border-radius: var(--app-radius);
   border: 1px solid var(--app-border, #e2e8f0);
   background: var(--app-surface-soft, #f8fafc);
 }
@@ -41,10 +41,10 @@
   margin-top: 2px;
 }
 
-/* ── Matrix table ── */
+/* â”€â”€ Matrix table â”€â”€ */
 .noc-table-wrap {
   overflow-x: auto;
-  border-radius: 8px;
+  border-radius: var(--app-radius);
   border: 1px solid var(--app-border, #e2e8f0);
 }
 
@@ -54,7 +54,7 @@
   font-size: 0.82rem;
 }
 
-/* ── Header cells ── */
+/* â”€â”€ Header cells â”€â”€ */
 .noc-th {
   background: var(--app-surface-soft, #f8fafc);
   color: var(--app-text-muted, #64748b);
@@ -73,7 +73,7 @@
 .noc-th--left { text-align: left; padding-left: 14px; }
 .noc-th--num  { text-align: center; }
 
-/* ── Body rows ── */
+/* â”€â”€ Body rows â”€â”€ */
 .noc-row {
   transition: background 0.1s;
   &:hover { background: var(--app-surface-hover, #f1f5f9); }
@@ -84,7 +84,7 @@
   &:hover { background: rgba(239, 68, 68, 0.08) !important; }
 }
 
-/* ── Body cells ── */
+/* â”€â”€ Body cells â”€â”€ */
 .noc-td {
   border: 1px solid var(--app-border, #e2e8f0);
   padding: 4px 5px;
@@ -106,7 +106,7 @@
   background: rgba(239, 68, 68, 0.06) !important;
 }
 
-/* ── Footer totals ── */
+/* â”€â”€ Footer totals â”€â”€ */
 .noc-total-row .noc-td--total-label {
   text-align: right;
   padding: 8px 14px;
@@ -129,7 +129,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Error badge ── */
+/* â”€â”€ Error badge â”€â”€ */
 .noc-error-badge {
   display: inline-flex;
   align-items: center;
@@ -147,14 +147,14 @@
   margin-left: 4px;
 }
 
-/* ── Dropdown ── */
+/* â”€â”€ Dropdown â”€â”€ */
 :host ::ng-deep .noc-dropdown {
   width: 100% !important;
-  .p-dropdown { border-radius: 6px !important; min-height: 34px !important; font-size: 0.8rem !important; }
+  .p-dropdown { border-radius: var(--app-radius) !important; min-height: 34px !important; font-size: 0.8rem !important; }
   .p-dropdown-label { padding: 5px 8px !important; font-size: 0.8rem !important; }
 }
 
-/* ── Number input ── */
+/* â”€â”€ Number input â”€â”€ */
 :host ::ng-deep .noc-num-wrap {
   display: block !important;
   width: 100% !important;
@@ -167,16 +167,16 @@
   font-size: 0.95rem !important;
   font-weight: 600 !important;
   font-variant-numeric: tabular-nums !important;
-  border-radius: 6px !important;
+  border-radius: var(--app-radius) !important;
   padding: 5px 6px !important;
 }
 
-/* ── Text input ── */
+/* â”€â”€ Text input â”€â”€ */
 .noc-text-input {
   width: 100% !important;
   min-height: 34px;
   font-size: 0.82rem !important;
-  border-radius: 6px !important;
+  border-radius: var(--app-radius) !important;
   padding: 5px 8px !important;
 }
 

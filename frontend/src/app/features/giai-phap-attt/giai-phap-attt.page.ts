@@ -8,6 +8,7 @@ import { NotificationService } from '../../core/ui/notification.service';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
 import { SectionCardComponent } from '../../shared/ui/section-card.component';
 import { CodesApi, CodeValueDto } from '../codes/codes.api';
+import { TongHopModeBannerComponent } from '../../shared/ui/tong-hop-mode-banner.component';
 import {
   GiaiPhapAtttApi,
   GiaiPhapAtttDto,
@@ -63,6 +64,7 @@ interface GiaiPhapAtttRow {
   selector: 'app-giai-phap-attt-page',
   standalone: true,
   imports: [
+    TongHopModeBannerComponent,
     CommonModule,
     FormsModule,
     SectionCardComponent,

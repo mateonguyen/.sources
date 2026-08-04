@@ -1,4 +1,4 @@
-:host ::ng-deep .app-thiet-bi-dialog .app-dialog-body-standard {
+﻿:host ::ng-deep .app-thiet-bi-dialog .app-dialog-body-standard {
   max-height: min(70vh, 680px);
   overflow: auto;
 }
@@ -48,7 +48,7 @@
   background: transparent;
   color: var(--app-text-muted);
   cursor: pointer;
-  border-radius: 0.35rem;
+  border-radius: var(--app-radius);
 }
 
 .thiet-bi-row-toggle:hover {

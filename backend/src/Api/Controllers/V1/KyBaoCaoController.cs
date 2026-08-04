@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ThucLuc.Api.Common.Authorization;
 using ThucLuc.Api.Common.Models;
+using ThucLuc.Application.Common.Contracts;
 using ThucLuc.Application.Features.KyBaoCao;
 using ThucLuc.Application.Security;
 
@@ -12,10 +13,12 @@ namespace ThucLuc.Api.Controllers.V1;
 public sealed class KyBaoCaoController : ControllerBase
 {
     private readonly IKyBaoCaoService _kyBaoCaoService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public KyBaoCaoController(IKyBaoCaoService kyBaoCaoService)
+    public KyBaoCaoController(IKyBaoCaoService kyBaoCaoService, ICurrentUserService currentUserService)
     {
         _kyBaoCaoService = kyBaoCaoService;
+        _currentUserService = currentUserService;
     }
 
     [HttpGet]
@@ -65,6 +68,34 @@ public sealed class KyBaoCaoController : ControllerBase
     {
         var result = await _kyBaoCaoService.CreateAsync(request, cancellationToken);
         return Ok(ApiResponseFactory.Success(result));
+    }
+
+    [HttpGet("{id:long}/don-vi-trang-thai")]
+    [HasPermission(Permissions.BaoCaoSnapshot.Read)]
+    [ProducesResponseType(typeof(ApiResponse<int>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<int>>> GetDonViTrangThai(long id, CancellationToken cancellationToken)
+    {
+        var donViId = _currentUserService.GetCurrentUser().DonViId;
+        var result = await _kyBaoCaoService.GetDonViTrangThaiAsync(id, donViId, cancellationToken);
+        return Ok(ApiResponseFactory.Success(result));
+    }
+
+    [HttpPut("{id:long}")]
+    [HasPermission(Permissions.KyBaoCao.Update)]
+    [ProducesResponseType(typeof(ApiResponse<KyBaoCaoDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<KyBaoCaoDto>>> Update(long id, [FromBody] UpdateKyBaoCaoRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _kyBaoCaoService.UpdateAsync(id, request, cancellationToken);
+        return Ok(ApiResponseFactory.Success(result));
+    }
+
+    [HttpDelete("{id:long}")]
+    [HasPermission(Permissions.KyBaoCao.Delete)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<object>>> Delete(long id, CancellationToken cancellationToken)
+    {
+        await _kyBaoCaoService.DeleteAsync(id, cancellationToken);
+        return Ok(ApiResponseFactory.Success<object?>(null));
     }
 
     [HttpPatch("{id:long}/status")]

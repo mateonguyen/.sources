@@ -1,3 +1,4 @@
+<app-tong-hop-mode-banner></app-tong-hop-mode-banner>
 <app-section-card
   title="Giải pháp ATTT"
   subtitle="Ma trận giải pháp ATTT theo từng nhóm tài sản của đơn vị"
@@ -325,13 +326,13 @@
 
             <td class="td-action">
               <button
-                pButton
                 type="button"
-                icon="pi pi-trash"
-                class="gpattt-btn gpattt-btn--danger-icon p-button-text"
+                class="action-btn action-btn--delete"
                 (click)="removeRow(row)"
+                pTooltip="Xóa dòng"
+                tooltipPosition="top"
                 aria-label="Xóa dòng"
-              ></button>
+              ><i class="pi pi-trash"></i></button>
             </td>
           </tr>
         </tbody>

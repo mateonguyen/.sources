@@ -23,6 +23,10 @@ public sealed class KyBaoCaoDto
     public DateOnly? NgayKetThuc { get; set; }
 
     public string? GhiChu { get; set; }
+
+    public string? TenKy { get; set; }
+
+    public IReadOnlyCollection<string> ModuleList { get; set; } = [];
 }
 
 public sealed class KyBaoCaoTienDoDto
@@ -82,6 +86,17 @@ public sealed class CreateKyBaoCaoRequest
     public int? Thang { get; set; }
 
     public DateOnly? NgayBatDau { get; set; }
+
+    public DateOnly? NgayKetThuc { get; set; }
+
+    public string? GhiChu { get; set; }
+
+    public string TenKy { get; set; } = string.Empty;
+}
+
+public sealed class UpdateKyBaoCaoRequest
+{
+    public string TenKy { get; set; } = string.Empty;
 
     public DateOnly? NgayKetThuc { get; set; }
 

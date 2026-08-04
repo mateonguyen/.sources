@@ -1,0 +1,149 @@
+:host ::ng-deep .ref-loai-card {
+  display: flex;
+  flex-direction: column;
+  // 100vh - 2rem (padding tren/duoi cua .shell) - 1.2rem (padding-bottom
+  // cua .content trong shell.page.scss, khong nam trong tam kiem soat cua
+  // component nay nhung van cong don vao chieu cao thuc te) - thieu khoan
+  // nay la ly do trang bi du 1 chut chieu cao, sinh ra thanh cuon ngoai.
+  height: calc(100vh - 2rem - 1.2rem);
+}
+
+:host ::ng-deep .ref-loai-card .p-card-body,
+:host ::ng-deep .ref-loai-card .p-card-content {
+  @apply flex flex-col min-h-0;
+  flex: 1 1 auto;
+  height: 100%;
+}
+
+:host ::ng-deep .ref-loai-card .app-page-header {
+  margin-bottom: 0.6rem;
+}
+
+:host ::ng-deep .ref-loai-card .app-page-title {
+  font-size: 1.35rem;
+  margin: 0;
+}
+
+:host ::ng-deep .ref-loai-card .app-page-subtitle {
+  margin: 0.2rem 0 0;
+  font-size: var(--app-font-size-ui-control);
+  color: var(--app-text-muted);
+}
+
+.ref-loai-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
+}
+
+.ref-loai-tree-panel {
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-lg);
+  background: var(--app-surface);
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+// Cac rule nham vao noi bo p-treeTable (p-treetable-thead/tbody, col-*,
+// action-btn ben trong bang...) da chuyen sang file GLOBAL
+// src/styles/components/table.scss (selector .app-ref-loai-treetable),
+// vi do la cac phan tu do CHINH PrimeNG component render trong TEMPLATE
+// CUA NO - dat o day (component-scoped scss) khong dang tin cay bang dat
+// o file global, du co dung :root hay ::ng-deep.
+
+.tt-name-cell {
+  display: flex;
+  align-items: center;
+  min-height: 1.9rem;
+}
+
+// Duong noi cay (giong don-vi.page): 1 span doc cho moi cap to tien - ve
+// don gian toan bo cac cap (khong tinh "co phai con cuoi hay khong"), khop
+// dung cach don-vi.page dang lam (guideColumns = tat ca cac cap tu 0..level-1).
+.tt-indent {
+  position: relative;
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+.tt-indent__guide {
+  // top/bottom = 0 (khong lam nhu don-vi.page vut ra -0.5rem) - vi don-vi
+  // co "gap" giua cac tree-row nen can bu khoang cach do; con o day cac
+  // dong la <tr> sat nhau (khong gap), vut ra se lam duong ke tran vao
+  // dong tren/duoi, gay hien tuong "tho len/tho xuong" nhu bao loi.
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: color-mix(in srgb, var(--app-border) 58%, transparent 42%);
+  pointer-events: none;
+}
+
+.tt-name {
+  font-weight: 600;
+  color: var(--app-text-strong);
+  font-size: 0.88rem;
+}
+
+.col-tonghop .pi-check {
+  color: var(--app-info-500);
+}
+
+.col-tonghop .pi-minus {
+  color: var(--app-text-muted);
+  opacity: 0.5;
+}
+
+.order-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.order-cell__value {
+  min-width: 1.2rem;
+  font-weight: 600;
+  color: var(--app-text-strong);
+}
+
+.order-cell__btns {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.app-form-field__checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding-top: 0.15rem;
+  cursor: pointer;
+}
+
+.app-form-field__checkbox-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: var(--app-font-size-ui-control);
+  color: var(--app-text);
+  font-weight: 500;
+}
+
+.app-form-field__checkbox-hint {
+  font-size: var(--app-font-size-ui-badge);
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--app-text-muted);
+}
+
+@media (max-width: 900px) {
+  :host ::ng-deep .ref-loai-card {
+    height: auto;
+  }
+}

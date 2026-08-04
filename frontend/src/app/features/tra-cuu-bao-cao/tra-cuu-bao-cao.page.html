@@ -1,0 +1,372 @@
+<app-section-card
+  title="Tra cứu báo cáo"
+  subtitle="Màn theo dõi quản lý dựa trên báo cáo đã nộp; hỗ trợ xem báo cáo gần nhất và so sánh 2 kỳ theo đơn vị."
+>
+  <!-- Bộ lọc -->
+  <div class="tcbc-filters">
+    <div class="app-field tcbc-filter-mode">
+      <label>Chế độ tra cứu</label>
+      <p-dropdown
+        [options]="viewModeOptions"
+        optionLabel="label"
+        optionValue="value"
+        [(ngModel)]="viewMode"
+        [ngModelOptions]="{ standalone: true }"
+        appendTo="body"
+        (onChange)="onViewModeChange()"
+      ></p-dropdown>
+    </div>
+
+    <div class="app-field tcbc-filter-ky">
+      <label>Kỳ báo cáo</label>
+      <p-dropdown
+        [options]="kyOptions"
+        optionLabel="label"
+        optionValue="value"
+        [(ngModel)]="selectedKyId"
+        [ngModelOptions]="{ standalone: true }"
+        appendTo="body"
+        placeholder="Chọn kỳ báo cáo"
+        [disabled]="viewMode === 'latest'"
+        (onChange)="onKyChange()"
+      ></p-dropdown>
+    </div>
+
+    <div class="app-field tcbc-filter-status">
+      <label>Trạng thái</label>
+      <p-dropdown
+        [options]="statusOptions"
+        optionLabel="label"
+        optionValue="value"
+        [(ngModel)]="filterStatus"
+        [ngModelOptions]="{ standalone: true }"
+        appendTo="body"
+        placeholder="Tất cả trạng thái"
+      ></p-dropdown>
+    </div>
+
+    <div class="app-field tcbc-filter-search">
+      <label>Tìm kiếm đơn vị</label>
+      <input
+        pInputText
+        type="text"
+        [(ngModel)]="filterText"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Nhập tên đơn vị..."
+      />
+    </div>
+
+    <div class="tcbc-filter-actions">
+      <label class="tcbc-toggle">
+        <input
+          type="checkbox"
+          [(ngModel)]="latestOnly"
+          [ngModelOptions]="{ standalone: true }"
+          [disabled]="viewMode === 'latest'"
+        />
+        <span>Chỉ phiên bản mới nhất</span>
+      </label>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-refresh"
+        class="p-button-secondary p-button-sm"
+        label="Làm mới"
+        (click)="onKyChange()"
+      ></button>
+    </div>
+  </div>
+
+  <div class="tcbc-compare-box mt-4">
+    <div class="tcbc-compare-title">So sánh 2 kỳ theo đơn vị</div>
+    <div class="tcbc-compare-controls">
+      <div class="app-field">
+        <label>Đơn vị</label>
+        <p-dropdown
+          [options]="donViOptions"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="compareDonViId"
+          [ngModelOptions]="{ standalone: true }"
+          appendTo="body"
+          placeholder="Chọn đơn vị"
+        ></p-dropdown>
+      </div>
+
+      <div class="app-field">
+        <label>Kỳ nguồn</label>
+        <p-dropdown
+          [options]="kyOptions"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="compareFromKyId"
+          [ngModelOptions]="{ standalone: true }"
+          appendTo="body"
+          placeholder="Chọn kỳ nguồn"
+        ></p-dropdown>
+      </div>
+
+      <div class="app-field">
+        <label>Kỳ đích</label>
+        <p-dropdown
+          [options]="kyOptions"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="compareToKyId"
+          [ngModelOptions]="{ standalone: true }"
+          appendTo="body"
+          placeholder="Chọn kỳ đích"
+        ></p-dropdown>
+      </div>
+
+      <div class="tcbc-compare-actions">
+        <button
+          pButton
+          type="button"
+          icon="pi pi-sliders-h"
+          label="So sánh"
+          [loading]="comparing"
+          (click)="compareTwoKy()"
+        ></button>
+      </div>
+    </div>
+
+    <div *ngIf="compareResult" class="tcbc-compare-result">
+      <div class="tcbc-compare-meta">
+        <strong>{{ compareResult.tenDonVi }}</strong>
+        <span>
+          {{ compareResult.fromKyCode }} → {{ compareResult.toKyCode }}
+        </span>
+      </div>
+
+      <p-table [value]="compareResult.modules" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Module</th>
+            <th class="tcbc-col-narrow">{{ compareResult.fromKyCode }}</th>
+            <th class="tcbc-col-narrow">{{ compareResult.toKyCode }}</th>
+            <th class="tcbc-col-narrow">Chênh lệch</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-row>
+          <tr>
+            <td>{{ row.moduleCode }}</td>
+            <td class="tcbc-col-narrow">{{ row.fromCount }}</td>
+            <td class="tcbc-col-narrow">{{ row.toCount }}</td>
+            <td class="tcbc-col-narrow">
+              <span
+                [class.tcbc-delta-up]="row.delta > 0"
+                [class.tcbc-delta-down]="row.delta < 0"
+              >
+                {{ row.delta > 0 ? '+' : '' }}{{ row.delta }}
+              </span>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <div class="relative min-h-48 mt-4">
+    <app-loading-overlay
+      [active]="loading"
+      label="Đang tải..."
+    ></app-loading-overlay>
+
+    <app-empty-state
+      *ngIf="!loading && !selectedKyId"
+      title="Chưa chọn kỳ báo cáo"
+      message="Vui lòng chọn kỳ báo cáo để xem danh sách snapshot."
+      icon="pi-search"
+    ></app-empty-state>
+
+    <app-empty-state
+      *ngIf="!loading && selectedKyId && filteredSnapshots.length === 0"
+      title="Không có dữ liệu"
+      message="Không tìm thấy báo cáo nào phù hợp với bộ lọc hiện tại."
+      icon="pi-inbox"
+    ></app-empty-state>
+
+    <p-table
+      *ngIf="!loading && filteredSnapshots.length > 0"
+      [value]="filteredSnapshots"
+      [paginator]="filteredSnapshots.length > 20"
+      [rows]="20"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Đơn vị</th>
+          <th>Kỳ báo cáo</th>
+          <th class="tcbc-col-narrow">Phiên bản</th>
+          <th class="tcbc-col-narrow">Trạng thái</th>
+          <th>Ghi chú</th>
+          <th>Thời gian nộp</th>
+          <th class="tcbc-col-action"></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row>
+        <tr>
+          <td>
+            <span class="tcbc-don-vi">{{ row.tenDonVi }}</span>
+            <small class="tcbc-don-vi-id">#{{ row.donViId }}</small>
+          </td>
+          <td>
+            <span class="tcbc-ky-code">{{ row.kyCode }}</span>
+          </td>
+          <td>
+            <span class="tcbc-phien-ban">v{{ row.phienBan }}</span>
+          </td>
+          <td>
+            <app-status-badge
+              [label]="statusLabel(row.trangThai)"
+              [tone]="statusTone(row.trangThai)"
+            ></app-status-badge>
+          </td>
+          <td>
+            <span class="text-slate-500 text-sm">{{ row.ghiChu || '—' }}</span>
+          </td>
+          <td>
+            <span *ngIf="row.submittedAt" class="tcbc-timestamp">
+              {{ row.submittedAt | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+            <span *ngIf="!row.submittedAt" class="text-slate-400 text-sm"
+              >—</span
+            >
+          </td>
+          <td>
+            <div class="app-table-actions">
+              <button
+                pButton
+                type="button"
+                icon="pi pi-file-excel"
+                class="p-button-outlined p-button-sm p-button-success"
+                pTooltip="Tải biểu mẫu Excel (mẫu H05)"
+                tooltipPosition="left"
+                [loading]="exportingId === row.id"
+                [disabled]="exportingId !== null"
+                (click)="downloadExport(row, 'xlsx')"
+              ></button>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-sitemap"
+                class="p-button-outlined p-button-sm"
+                pTooltip="Chi tiết đóng góp theo đơn vị"
+                tooltipPosition="left"
+                [loading]="breakdownLoadingId === row.id"
+                (click)="openBreakdown(row)"
+              ></button>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-file-pdf"
+                class="p-button-outlined p-button-sm p-button-danger"
+                pTooltip="Tải PDF biểu mẫu (mẫu H05)"
+                tooltipPosition="left"
+                [loading]="downloadingId === row.id"
+                [disabled]="downloadingId !== null"
+                (click)="downloadPdf(row)"
+              ></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</app-section-card>
+
+<!-- Chi tiết đóng góp theo đơn vị (snapshot của đơn vị chế độ Tổng hợp) -->
+<p-dialog
+  [(visible)]="showBreakdownDialog"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  header="Chi tiết đóng góp theo đơn vị"
+  [style]="{ width: '760px', maxWidth: '95vw' }"
+  appendTo="body"
+  (onHide)="closeBreakdown()"
+>
+  <div class="tcbc-breakdown">
+    <div *ngIf="breakdownLoading" class="tcbc-breakdown__loading">
+      <i class="pi pi-spin pi-spinner"></i> Đang tải chi tiết...
+    </div>
+
+    <ng-container *ngIf="!breakdownLoading && breakdown">
+      <div class="tcbc-breakdown__meta">
+        <strong>{{ breakdown.tenDonVi }}</strong>
+        <span>{{ breakdown.kyCode }}</span>
+        <span *ngIf="breakdown.submittedAt">
+          Nộp lúc {{ breakdown.submittedAt | date:'dd/MM/yyyy HH:mm' }}
+        </span>
+      </div>
+
+      <div
+        *ngIf="breakdownChildren.length === 0"
+        class="tcbc-breakdown__empty"
+      >
+        Báo cáo này không có dữ liệu gộp từ đơn vị cấp dưới (đơn vị nộp ở chế độ
+        Tự nhập hoặc không có đơn vị con).
+      </div>
+
+      <p-table
+        *ngIf="breakdownChildren.length > 0"
+        [value]="breakdownChildren"
+        styleClass="p-datatable-sm"
+        [scrollable]="true"
+        scrollHeight="420px"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Đơn vị con</th>
+            <th class="tcbc-col-narrow">Xác nhận</th>
+            <th class="tcbc-col-narrow">Tổng bản ghi</th>
+            <th>Chi tiết theo module</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-unit>
+          <tr>
+            <td>{{ unit.tenDonVi }}</td>
+            <td class="tcbc-col-narrow">
+              <app-status-badge
+                [label]="unit.daXacNhan ? 'Đã xác nhận' : 'Chưa xác nhận'"
+                [tone]="unit.daXacNhan ? 'success' : 'neutral'"
+              ></app-status-badge>
+            </td>
+            <td class="tcbc-col-narrow">
+              <strong>{{ breakdownUnitTotal(unit) }}</strong>
+            </td>
+            <td>
+              <div class="tcbc-breakdown__modules">
+                <ng-container *ngFor="let m of unit.moduleCounts">
+                  <span
+                    *ngIf="m.recordCount > 0"
+                    class="tcbc-breakdown__module-chip"
+                  >
+                    {{ moduleLabel(m.moduleCode) }}: {{ m.recordCount }}
+                  </span>
+                </ng-container>
+                <span
+                  *ngIf="breakdownUnitTotal(unit) === 0"
+                  class="text-slate-400 text-sm"
+                >
+                  Không có dữ liệu
+                </span>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </ng-container>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      type="button"
+      label="Đóng"
+      severity="secondary"
+      (click)="closeBreakdown()"
+    ></button>
+  </ng-template>
+</p-dialog>

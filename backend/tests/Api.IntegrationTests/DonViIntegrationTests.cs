@@ -74,4 +74,25 @@ public sealed class DonViIntegrationTests : IClassFixture<ApiTestWebApplicationF
         data.GetProperty("soDonViCapPhong").GetInt32().Should().Be(1);
         data.GetProperty("soDonViCapXa").GetInt32().Should().Be(0);
     }
+
+    [Fact]
+    public async Task Create_Should_Reject_TongHop_Mode_For_Phong_Level()
+    {
+        await _factory.ResetDataAsync();
+        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Admin@123");
+
+        var response = await client.PostAsJsonAsync("/api/v1/don-vi", new
+        {
+            maDonVi = "P_MODE_INVALID",
+            tenDonVi = "Phong mode invalid",
+            parentId = 2002,
+            capDonVi = "PHONG",
+            cheDoNhapLieu = "TONG_HOP",
+            isActive = true,
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var body = await response.Content.ReadAsStringAsync();
+        body.Should().Contain("DONVI_CHE_DO_NHAP_LIEU_INVALID");
+    }
 }

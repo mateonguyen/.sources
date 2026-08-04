@@ -19,7 +19,6 @@ import { NotificationService } from '../../core/ui/notification.service';
 import { ConfirmDialogWrapperService } from '../../shared/ui/confirm-dialog-wrapper.service';
 import { EmptyStateComponent } from '../../shared/ui/empty-state.component';
 import { FilterBarComponent } from '../../shared/ui/filter-bar.component';
-import { FormActionBarComponent } from '../../shared/ui/form-action-bar.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
 import { SectionCardComponent } from '../../shared/ui/section-card.component';
 import {
@@ -36,6 +35,7 @@ import {
 } from '../he-thong-thong-tin/he-thong-thong-tin.api';
 import { KyBaoCaoApi, KyBaoCaoDto } from '../ky-bao-cao/ky-bao-cao.api';
 import { BusinessModulesApi } from '../business-modules/business-modules.api';
+import { TongHopModeBannerComponent } from '../../shared/ui/tong-hop-mode-banner.component';
 import {
   AtttHtttDauTuApi,
   AtttHtttDauTuDto,
@@ -62,12 +62,12 @@ const CAP_DO_OPTIONS: Array<SelectOption<string>> = [
   selector: 'app-attt-httt-dau-tu-page',
   standalone: true,
   imports: [
+    TongHopModeBannerComponent,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     SectionCardComponent,
     FilterBarComponent,
-    FormActionBarComponent,
     EmptyStateComponent,
     LoadingOverlayComponent,
     DialogModule,

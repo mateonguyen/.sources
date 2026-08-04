@@ -2,27 +2,33 @@
   title="Tiến độ nộp báo cáo"
   subtitle="Theo dõi trạng thái nộp báo cáo của các đơn vị địa phương."
 >
-  <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-    <div class="app-field min-w-0 md:min-w-80">
-      <label>Kỳ báo cáo</label>
+  <div class="tdn-ky-bar">
+    <span class="tdn-ky-bar__label">Kỳ báo cáo</span>
+    <div class="tdn-ky-bar__sep"></div>
+    <div class="tdn-ky-bar__group">
       <p-dropdown
-        [options]="allKy"
-        optionLabel="kyCode"
-        optionValue="id"
+        [options]="kyOptions"
+        optionLabel="label"
+        optionValue="value"
         [(ngModel)]="selectedKyId"
         [ngModelOptions]="{ standalone: true }"
         appendTo="body"
         placeholder="Chọn kỳ báo cáo"
         (onChange)="loadTienDo()"
+        [style]="{ width: 'auto', minWidth: '280px', maxWidth: '420px' }"
       ></p-dropdown>
+      <span class="tdn-ky-bar__badge-open" *ngIf="selectedKy?.trangThai === 2">Đang mở</span>
+      <span class="tdn-ky-bar__date" *ngIf="selectedKy?.ngayBatDau">
+        {{ selectedKy!.ngayBatDau | date:'dd/MM/yyyy' }}
+        –
+        {{ selectedKy!.ngayKetThuc | date:'dd/MM/yyyy' }}
+      </span>
     </div>
-
     <button
-      pButton
-      type="button"
+      pButton type="button"
       icon="pi pi-refresh"
       label="Làm mới"
-      class="p-button-secondary"
+      class="p-button-secondary p-button-sm tdn-ky-bar__refresh"
       (click)="loadTienDo()"
     ></button>
   </div>
@@ -41,41 +47,50 @@
     ></app-empty-state>
 
     <ng-container *ngIf="!loading && !loadingTienDo && tienDo">
-      <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        <article class="rounded-xl border border-sky-200 bg-sky-50 p-4">
-          <strong class="block text-2xl font-semibold text-sky-700"
-            >{{ tienDo.tongDonVi }}</strong
-          >
-          <span class="text-sm text-slate-600">Tổng đơn vị</span>
-        </article>
-        <article class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-          <strong class="block text-2xl font-semibold text-emerald-700"
-            >{{ tienDo.soDonViDaNop }}</strong
-          >
-          <span class="text-sm text-slate-600">Đã nộp</span>
-        </article>
-        <article class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-          <strong class="block text-2xl font-semibold text-slate-700"
-            >{{ tienDo.soDonViChuaNhap }}</strong
-          >
-          <span class="text-sm text-slate-600">Chưa nộp</span>
-        </article>
-        <article class="rounded-xl border border-amber-200 bg-amber-50 p-4">
-          <strong class="block text-2xl font-semibold text-amber-700"
-            >{{ tienDo.soDonViDangBoSung }}</strong
-          >
-          <span class="text-sm text-slate-600">Đang bổ sung</span>
-        </article>
-        <article class="rounded-xl border border-cyan-200 bg-cyan-50 p-4">
-          <strong class="block text-2xl font-semibold text-cyan-700"
-            >{{ tienDo.soDonViDaXacNhan }}</strong
-          >
-          <span class="text-sm text-slate-600">Đã xác nhận</span>
-        </article>
+
+      <!-- Progress bar tổng thể -->
+      <div class="tdn-progress-wrap mb-3">
+        <div class="tdn-progress-bar-track">
+          <div
+            class="tdn-progress-bar-fill"
+            [style.width.%]="progressPercent"
+          ></div>
+        </div>
+        <span class="tdn-progress-label">
+          {{ tienDo.soDonViDaNop }}/{{ tienDo.tongDonVi }} đơn vị đã nộp
+          ({{ progressPercent }}%)
+        </span>
+      </div>
+
+      <div class="tdn-stat-row">
+        <div class="tdn-stat-cell">
+          <div class="tdn-stat-lbl">Tổng</div>
+          <div class="tdn-stat-val">{{ tienDo.tongDonVi }}</div>
+        </div>
+        <div class="tdn-stat-cell">
+          <div class="tdn-stat-lbl">Đã nộp</div>
+          <div class="tdn-stat-val tdn-stat-val--success">{{ tienDo.soDonViDaNop }}</div>
+        </div>
+        <div class="tdn-stat-cell">
+          <div class="tdn-stat-lbl">Đã xác nhận</div>
+          <div class="tdn-stat-val tdn-stat-val--info">{{ tienDo.soDonViDaXacNhan }}</div>
+        </div>
+        <div class="tdn-stat-cell">
+          <div class="tdn-stat-lbl">Đang bổ sung</div>
+          <div class="tdn-stat-val tdn-stat-val--warn">{{ tienDo.soDonViDangBoSung }}</div>
+        </div>
+        <div class="tdn-stat-cell">
+          <div class="tdn-stat-lbl">Đang nhập</div>
+          <div class="tdn-stat-val">{{ tienDo.soDonViDangNhap }}</div>
+        </div>
+        <div class="tdn-stat-cell" [class.tdn-stat-cell--alert]="tienDo.soDonViChuaNhap > 0">
+          <div class="tdn-stat-lbl" [class.tdn-stat-lbl--alert]="tienDo.soDonViChuaNhap > 0">Chưa nộp</div>
+          <div class="tdn-stat-val" [class.tdn-stat-val--alert]="tienDo.soDonViChuaNhap > 0">{{ tienDo.soDonViChuaNhap }}</div>
+        </div>
       </div>
 
       <div
-        class="app-table-wrap app-table-wrap--spacious mt-3"
+        class="app-table-wrap app-table-wrap--spacious"
         *ngIf="tienDoRows.length > 0"
       >
         <p-table
@@ -86,6 +101,7 @@
             <tr>
               <th>Đơn vị</th>
               <th style="width: 160px">Trạng thái</th>
+              <th style="width: 150px">Thời gian nộp</th>
               <th style="width: 150px; text-align: center">Yêu cầu bổ sung</th>
             </tr>
           </ng-template>
@@ -98,6 +114,9 @@
                   [label]="donViStatusLabel(row.trangThai)"
                   [tone]="donViStatusTone(row.trangThai)"
                 ></app-status-badge>
+              </td>
+              <td class="tdn-timestamp">
+                {{ row.submittedAt ? (row.submittedAt | date:'dd/MM HH:mm') : '—' }}
               </td>
               <td style="text-align: center">
                 <button
@@ -115,6 +134,7 @@
           </ng-template>
         </p-table>
       </div>
+
     </ng-container>
   </div>
 </app-section-card>
@@ -126,36 +146,47 @@
   [resizable]="false"
   [closable]="!ycbsLoading"
   header="Tạo yêu cầu bổ sung"
-  [style]="{ width: '480px' }"
+  [style]="{ width: '520px', maxWidth: '95vw' }"
   appendTo="body"
 >
-  <div class="app-field">
-    <label>Lý do yêu cầu <span class="text-red-500">*</span></label>
-    <textarea
-      pInputTextarea
-      rows="3"
-      [(ngModel)]="ycbsLyDo"
-      [ngModelOptions]="{ standalone: true }"
-      placeholder="Mô tả lý do cần bổ sung..."
-      [disabled]="ycbsLoading"
-    ></textarea>
-  </div>
+  <div class="app-dialog-body-standard tdn-ycbs-dialog">
+    <p class="tdn-ycbs-dialog__intro">
+      Yêu cầu <strong>{{ ycbsTargetTenDonVi }}</strong> bổ sung dữ liệu cho kỳ
+      <strong>{{ selectedKyDisplayName }}</strong>. Sau khi gửi, báo cáo đã nộp
+      của đơn vị sẽ được mở lại để nhập bổ sung.
+    </p>
 
-  <div class="app-field mt-3">
-    <label>Hạn bổ sung</label>
-    <p-calendar
-      [(ngModel)]="ycbsHanBoSung"
-      [ngModelOptions]="{ standalone: true }"
-      dateFormat="dd/mm/yy"
-      [showIcon]="true"
-      [showButtonBar]="true"
-      appendTo="body"
-      styleClass="w-full"
-      [disabled]="ycbsLoading"
-    ></p-calendar>
-  </div>
+    <div class="app-form-field" [class.has-value]="!!ycbsLyDo">
+      <label class="app-form-field__label required">Lý do yêu cầu</label>
+      <textarea
+        class="app-form-field__input"
+        pInputTextarea
+        rows="3"
+        [(ngModel)]="ycbsLyDo"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Ví dụ: Thiếu số liệu thiết bị CNTT quý 1, đề nghị bổ sung..."
+        [disabled]="ycbsLoading"
+      ></textarea>
+    </div>
 
-  <small class="app-validation-error" *ngIf="ycbsError">{{ ycbsError }}</small>
+    <div class="app-form-field mt-3" [class.has-value]="!!ycbsHanBoSung">
+      <label class="app-form-field__label">Hạn bổ sung</label>
+      <p-calendar
+        [(ngModel)]="ycbsHanBoSung"
+        [ngModelOptions]="{ standalone: true }"
+        dateFormat="dd/mm/yy"
+        placeholder="dd/mm/yyyy"
+        [minDate]="ycbsMinDate"
+        [showIcon]="true"
+        iconDisplay="input"
+        appendTo="body"
+        styleClass="w-full"
+        [disabled]="ycbsLoading"
+      ></p-calendar>
+    </div>
+
+    <small class="app-validation-error" *ngIf="ycbsError">{{ ycbsError }}</small>
+  </div>
 
   <ng-template pTemplate="footer">
     <button

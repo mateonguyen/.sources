@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using ThucLuc.Application.Common.Contracts;
 using ThucLuc.Application.Common.Exceptions;
@@ -11,6 +12,8 @@ namespace ThucLuc.Application.Features.ThietBiCntt;
 public interface IThietBiCnttService
 {
     Task<IReadOnlyCollection<ThietBiCnttDto>> GetAllAsync(CancellationToken cancellationToken = default);
+
+    Task<ThietBiCatalogDto> GetCatalogAsync(CancellationToken cancellationToken = default);
 
     Task<ThietBiCnttDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
@@ -53,6 +56,74 @@ public sealed class ThietBiCnttService : IThietBiCnttService
                 UngDungIds = x.UngDungs.Select(u => u.HeThongId).ToList(),
                 GhiChu = x.GhiChu
             }).ToListAsync(cancellationToken);
+
+    // Gợi ý dùng chung toàn hệ thống (không giới hạn theo đơn vị) — mục đích là
+    // kéo các đơn vị khác nhau về cùng 1 tập giá trị Hãng SX/Model/HĐH đã từng
+    // nhập, hạn chế trùng lặp do gõ khác nhau, mà không cần xây danh mục quản trị.
+    public async Task<ThietBiCatalogDto> GetCatalogAsync(CancellationToken cancellationToken = default)
+    {
+        var rows = await _dbContext.ThietBiCntts
+            .Where(x => x.DeletedAt == null)
+            .Select(x => new { x.HangSanXuat, x.Model, x.HeDieuHanh })
+            .ToListAsync(cancellationToken);
+
+        var hangSanXuat = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+        var heDieuHanh = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+        var modelGlobal = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+        var modelByHang = new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var row in rows)
+        {
+            var hang = NormalizeText(row.HangSanXuat);
+            var model = NormalizeText(row.Model);
+            var os = NormalizeText(row.HeDieuHanh);
+
+            if (hang is not null)
+            {
+                hangSanXuat.Add(hang);
+            }
+
+            if (os is not null)
+            {
+                heDieuHanh.Add(os);
+            }
+
+            if (model is not null)
+            {
+                modelGlobal.Add(model);
+
+                if (hang is not null)
+                {
+                    if (!modelByHang.TryGetValue(hang, out var bucket))
+                    {
+                        bucket = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+                        modelByHang[hang] = bucket;
+                    }
+
+                    bucket.Add(model);
+                }
+            }
+        }
+
+        return new ThietBiCatalogDto
+        {
+            HangSanXuat = hangSanXuat.ToList(),
+            HeDieuHanh = heDieuHanh.ToList(),
+            ModelGlobal = modelGlobal.ToList(),
+            ModelByHang = modelByHang.ToDictionary(kv => kv.Key, kv => kv.Value.ToList())
+        };
+    }
+
+    private static string? NormalizeText(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var collapsed = Regex.Replace(value.Trim(), @"\s+", " ");
+        return collapsed.Length == 0 ? null : collapsed;
+    }
 
     public async Task<ThietBiCnttDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
         => await ApplyReadScope(_dbContext.ThietBiCntts)
@@ -109,7 +180,7 @@ public sealed class ThietBiCnttService : IThietBiCnttService
 
             bool shouldVersion =
                 request.TinhTrang != entity.TinhTrang ||
-                request.HeDieuHanh != entity.HeDieuHanh ||
+                NormalizeText(request.HeDieuHanh) != entity.HeDieuHanh ||
                 request.SoLuongHienDung != entity.SoLuongHienDung ||
                 request.SoLuongHong != entity.SoLuongHong ||
                 !existingUngDungIds.SetEquals(requestUngDungIds);
@@ -159,10 +230,10 @@ public sealed class ThietBiCnttService : IThietBiCnttService
         entity.DonViId = request.DonViId;
         entity.LoaiThietBiId = request.LoaiThietBiId;
         entity.TenThietBi = request.TenThietBi;
-        entity.HangSanXuat = request.HangSanXuat;
-        entity.Model = request.Model;
+        entity.HangSanXuat = NormalizeText(request.HangSanXuat);
+        entity.Model = NormalizeText(request.Model);
         entity.CauHinh = request.CauHinh;
-        entity.HeDieuHanh = request.HeDieuHanh;
+        entity.HeDieuHanh = NormalizeText(request.HeDieuHanh);
         entity.DonViSuDung = request.DonViSuDung;
         entity.SoLuongTong = request.SoLuongTong;
         entity.SoLuongHienDung = request.SoLuongHienDung;
@@ -227,12 +298,18 @@ public sealed class ThietBiCnttService : IThietBiCnttService
 
     private async Task EnsureLoaiThietBiAsync(UpsertThietBiCnttRequest request, CancellationToken cancellationToken)
     {
+        var activeFlag = true;
         var loai = await _dbContext.RefLoaiThietBis
-            .Where(x => x.Id == request.LoaiThietBiId && x.IsActive)
+            .Where(x => x.Id == request.LoaiThietBiId && x.IsActive == activeFlag)
             .Select(x => new { x.Id, x.Cap, x.LaTongHop })
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (loai is null || loai.Cap != 2)
+        // Chi cho chon loai la node "la" (khong co con) - cay khong gioi han
+        // so cap nen khong con dua vao Cap == 2 co dinh nhu truoc.
+        var hasChildren = loai is not null && await _dbContext.RefLoaiThietBis
+            .AnyAsync(x => x.ParentId == loai.Id && x.IsActive == activeFlag, cancellationToken);
+
+        if (loai is null || loai.Cap < 2 || hasChildren)
         {
             throw new AppException("TBCNTT_LOAI_INVALID", "Loại thiết bị không hợp lệ.", 400);
         }
@@ -244,9 +321,17 @@ public sealed class ThietBiCnttService : IThietBiCnttService
                 throw new AppException("TBCNTT_TONG_HOP_INVALID", "Loại thiết bị tổng hợp không được khai báo thiết bị cụ thể hoặc ứng dụng đang chạy.", 400);
             }
         }
-        else if (string.IsNullOrWhiteSpace(request.TenThietBi))
+        else
         {
-            throw new AppException("TBCNTT_TEN_REQUIRED", "Thiết bị chi tiết phải có tên thiết bị.", 400);
+            if (string.IsNullOrWhiteSpace(request.TenThietBi))
+            {
+                throw new AppException("TBCNTT_TEN_REQUIRED", "Thiết bị chi tiết phải có tên thiết bị.", 400);
+            }
+
+            if (string.IsNullOrWhiteSpace(request.DonViSuDung))
+            {
+                throw new AppException("TBCNTT_DONVISUDUNG_REQUIRED", "Thiết bị chi tiết phải có đơn vị sử dụng.", 400);
+            }
         }
     }
 

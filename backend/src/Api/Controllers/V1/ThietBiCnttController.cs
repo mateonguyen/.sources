@@ -27,6 +27,15 @@ public sealed class ThietBiCnttController : ControllerBase
         return Ok(ApiResponseFactory.Success(result));
     }
 
+    [HttpGet("catalog")]
+    [HasPermission(Permissions.ThietBiCntt.Read)]
+    [ProducesResponseType(typeof(ApiResponse<ThietBiCatalogDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<ThietBiCatalogDto>>> GetCatalog(CancellationToken cancellationToken)
+    {
+        var result = await _service.GetCatalogAsync(cancellationToken);
+        return Ok(ApiResponseFactory.Success(result));
+    }
+
     [HttpGet("{id:long}")]
     [HasPermission(Permissions.ThietBiCntt.Read)]
     [ProducesResponseType(typeof(ApiResponse<ThietBiCnttDto>), StatusCodes.Status200OK)]

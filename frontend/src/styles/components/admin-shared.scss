@@ -1,4 +1,4 @@
-.filter-panel {
+﻿.filter-panel {
   @apply rounded-lg p-5 mb-7;
   background: var(--surface-ground);
   border: 1px solid var(--surface-border);
@@ -336,25 +336,96 @@
 }
 
 :root .app-tree-select-panel {
-  border: 1px solid #dbe4ee;
-  border-radius: 0.625rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.1);
 }
 
+// Thu gon toan bo p-tree ben trong panel - mac dinh cua PrimeNG (padding
+// 1.25rem, node cao 0.5rem+2rem toggler, font 1rem, vong tron xanh quanh
+// nut mo/dong) qua rong/qua to so voi mat do compact cua he thong (khop
+// voi table.scss/.app-admin-table dang dung font-size nho + padding hep).
 :root .app-tree-select-panel .p-tree {
-  padding: 0.45rem;
+  padding: 0.4rem;
+  border: 0;
+  font-family: inherit;
 }
 
-:root .app-tree-select-panel .p-treenode-content {
-  border-radius: 0.45rem;
+:root .app-tree-select-panel .p-tree-filter-container {
+  margin-bottom: 0.35rem;
 }
 
 :root .app-tree-select-panel .p-tree-filter {
   width: 100%;
+  height: 2.1rem;
+  padding: 0 2rem 0 0.65rem;
+  border: 1px solid var(--app-ctl-border-color);
+  border-radius: var(--app-ctl-radius);
+  font-size: var(--app-font-size-ui-control);
+  background: var(--app-ctl-bg);
+  color: var(--app-text);
+}
+
+:root .app-tree-select-panel .p-tree-filter:focus {
+  border-color: var(--app-ctl-focus-color);
+  box-shadow: 0 0 0 2px var(--app-ctl-focus-ring);
+}
+
+:root .app-tree-select-panel .p-tree-filter-icon {
+  color: var(--app-text-muted);
+  right: 0.65rem;
+}
+
+:root .app-tree-select-panel .p-treenode {
+  padding: 0.06rem 0;
+}
+
+:root .app-tree-select-panel .p-treenode-content {
+  border-radius: var(--app-radius-sm);
+  padding: 0.28rem 0.4rem;
+  min-height: 1.9rem;
+}
+
+:root .app-tree-select-panel .p-treenode-content.p-treenode-selectable:not(.p-highlight):hover {
+  background: color-mix(in srgb, var(--app-primary-50) 55%, white 45%);
+  color: var(--app-text);
+}
+
+:root .app-tree-select-panel .p-treenode-content.p-highlight {
+  background: color-mix(in srgb, var(--app-primary-50) 74%, white 26%);
+  color: var(--app-primary-700);
+}
+
+:root .app-tree-select-panel .p-tree-toggler {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+  margin-right: 0.25rem;
+  color: var(--app-text-muted);
+  border-radius: var(--app-radius-sm);
+}
+
+:root .app-tree-select-panel .p-tree-toggler:enabled:hover {
+  background: color-mix(in srgb, var(--app-primary-50) 60%, white 40%);
+  color: var(--app-primary-700);
+}
+
+:root .app-tree-select-panel .p-tree-toggler:focus-visible {
+  box-shadow: 0 0 0 2px var(--app-ctl-focus-ring);
+}
+
+:root .app-tree-select-panel .p-treenode-icon {
+  margin-right: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--app-text-muted);
 }
 
 :root .app-tree-select-panel .p-treenode-label {
-  font-size: 0.95rem;
+  font-size: var(--app-font-size-ui-control);
+  line-height: 1.3;
+}
+
+:root .app-tree-select-panel .p-treenode-children {
+  padding: 0 0 0 0.85rem;
 }
 
 :root .app-tree-select-panel .p-treenode.is-inactive {
@@ -464,7 +535,7 @@
   width: 2rem;
   height: 2rem;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--app-radius);
   color: var(--app-text-muted);
   cursor: pointer;
   display: inline-flex;
@@ -500,7 +571,7 @@
 .data-toolbar-counter {
   @apply inline-flex items-center justify-center whitespace-nowrap font-semibold;
   padding: 0.28rem 0.7rem;
-  border-radius: 999px;
+  border-radius: var(--app-radius);
   border: 1px solid var(--surface-border);
   background: var(--surface-card);
   font-size: 0.78rem;

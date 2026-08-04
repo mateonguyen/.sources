@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ThucLuc.Application.Common.Contracts;
 using ThucLuc.Application.Common.Exceptions;
+using ThucLuc.Application.Security;
 using ThucLuc.Domain.Entities.Identity;
 
 namespace ThucLuc.Application.Features.Roles;
@@ -147,9 +148,36 @@ public sealed class RoleService : IRoleService
 
     public async Task UpdatePermissionsAsync(long id, UpdateRolePermissionsRequest request, CancellationToken cancellationToken = default)
     {
+        var role = await _dbContext.Roles
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
+            ?? throw new AppException("ROLE_NOT_FOUND", "Không tìm thấy vai trò.", 404);
+
         var existing = await _dbContext.RolePermissions.Where(x => x.RoleId == id).ToListAsync(cancellationToken);
+
+        var permissionIds = request.PermissionIds
+            .Distinct()
+            .ToArray();
+
+        var systemAdminPermissionId = await _dbContext.Permissions
+            .Where(x => x.PermCode == Permissions.SystemAdmin)
+            .Select(x => (long?)x.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (role.IsSystem && systemAdminPermissionId.HasValue)
+        {
+            var currentlyHasSystemAdmin = existing.Any(x => x.PermissionId == systemAdminPermissionId.Value);
+            var requestHasSystemAdmin = permissionIds.Contains(systemAdminPermissionId.Value);
+
+            if (currentlyHasSystemAdmin && !requestHasSystemAdmin)
+            {
+                throw new BusinessRuleException(
+                    "ROLE_SYSTEM_ADMIN_PERMISSION_REQUIRED",
+                    "Vai trò hệ thống phải giữ quyền system:admin.");
+            }
+        }
+
         _dbContext.RolePermissions.RemoveRange(existing);
-        foreach (var permissionId in request.PermissionIds)
+        foreach (var permissionId in permissionIds)
         {
             await _dbContext.RolePermissions.AddAsync(new RolePermission { RoleId = id, PermissionId = permissionId }, cancellationToken);
         }

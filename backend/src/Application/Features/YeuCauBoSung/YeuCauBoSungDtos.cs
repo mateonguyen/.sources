@@ -7,6 +7,7 @@ public sealed class YeuCauBoSungDto
     public long Id { get; set; }
     public long KyBaoCaoId { get; set; }
     public long DonViId { get; set; }
+    public string TenDonVi { get; set; } = string.Empty;
     public YeuCauBoSungStatus TrangThai { get; set; }
     public string LyDo { get; set; } = string.Empty;
     public long RequestedBy { get; set; }
@@ -16,6 +17,7 @@ public sealed class YeuCauBoSungDto
     public string? TuChoiLyDo { get; set; }
     public DateOnly? HanBoSung { get; set; }
     public DateTime? CompletedAt { get; set; }
+    public string CapGui { get; set; } = "BO_XUONG_TINH";
 }
 
 public sealed class CreateYeuCauBoSungRequest

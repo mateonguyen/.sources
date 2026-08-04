@@ -10,6 +10,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
+import { AuthService } from '../../core/auth/auth.service';
 import { NotificationService } from '../../core/ui/notification.service';
 import { ConfirmDialogWrapperService } from '../../shared/ui/confirm-dialog-wrapper.service';
 import { EmptyStateComponent } from '../../shared/ui/empty-state.component';
@@ -25,7 +26,14 @@ import {
   CreateKyBaoCaoRequest,
   KyBaoCaoApi,
   KyBaoCaoDto,
+  UpdateKyBaoCaoRequest,
 } from './ky-bao-cao.api';
+
+interface EditKyModel {
+  tenKy: string;
+  ngayKetThuc: Date | null;
+  ghiChu: string;
+}
 
 interface CreateKyModel {
   mauBaoCaoId: number | null;
@@ -34,6 +42,7 @@ interface CreateKyModel {
   thang: number | null;
   ngayKetThuc: Date | null;
   ghiChu: string;
+  tenKy: string;
 }
 
 @Component({
@@ -61,14 +70,42 @@ interface CreateKyModel {
 })
 export class KyBaoCaoPage {
   today = new Date();
-  current: KyBaoCaoDto | null = null;
   items: KyBaoCaoDto[] = [];
+
+  filterStatus: number[] = [1, 2, 3];
+  filterMauBaoCaoId: number | null = null;
+  filterNam: number | null = new Date().getFullYear();
+  filterQuaHan: boolean | null = null;
+  filterTen = '';
   mauBaoCaos: MauBaoCaoDto[] = [];
   loading = false;
   creating = false;
   createError = '';
   showCreateDialog = false;
-  tienDoMap: Record<number, { daNop: number; tong: number }> = {};
+
+  showEditDialog = false;
+  editing = false;
+  editError = '';
+  editingItem: KyBaoCaoDto | null = null;
+  editModel: EditKyModel = { tenKy: '', ngayKetThuc: null, ghiChu: '' };
+
+  showLockDialog = false;
+  lockingItem: KyBaoCaoDto | null = null;
+  lockCountdown = 5;
+  private lockTimer: ReturnType<typeof setInterval> | null = null;
+  private lastAutoTenKy = '';
+
+  tienDoMap: Record<
+    number,
+    {
+      chuaNhap: number;
+      dangNhap: number;
+      daXacNhan: number;
+      dangBoSung: number;
+      daNop: number;
+      tong: number;
+    }
+  > = {};
 
   statusTextMap: Record<number, string> = {
     1: 'Chuẩn bị',
@@ -92,12 +129,104 @@ export class KyBaoCaoPage {
   createModel: CreateKyModel = this.buildDefaultCreateModel();
 
   constructor(
+    private readonly authService: AuthService,
     private readonly kyBaoCaoApi: KyBaoCaoApi,
     private readonly mauBaoCaoApi: MauBaoCaoApi,
     private readonly notificationService: NotificationService,
     private readonly confirmDialog: ConfirmDialogWrapperService,
   ) {
     void this.load();
+  }
+
+  get filteredItems(): KyBaoCaoDto[] {
+    return this.items.filter((item) => {
+      if (
+        this.filterStatus.length > 0 &&
+        !this.filterStatus.includes(item.trangThai)
+      )
+        return false;
+      if (
+        this.filterMauBaoCaoId !== null &&
+        item.mauBaoCaoId !== this.filterMauBaoCaoId
+      )
+        return false;
+      if (this.filterNam !== null && item.nam !== this.filterNam) return false;
+      if (this.filterQuaHan !== null) {
+        const overdue = item.ngayKetThuc
+          ? new Date(item.ngayKetThuc) < this.today
+          : false;
+        if (this.filterQuaHan !== overdue) return false;
+      }
+      if (this.filterTen) {
+        const q = this.filterTen.toLowerCase();
+        const name = (item.tenKy || this.tenKy(item)).toLowerCase();
+        if (!name.includes(q) && !item.kyCode.toLowerCase().includes(q))
+          return false;
+      }
+      return true;
+    });
+  }
+
+  get namOptions(): { label: string; value: number }[] {
+    const years = [...new Set(this.items.map((x) => x.nam))].sort(
+      (a, b) => b - a,
+    );
+    return years.map((y) => ({ label: String(y), value: y }));
+  }
+
+  private readonly defaultStatus = [1, 2, 3];
+  private readonly defaultNam = new Date().getFullYear();
+
+  get hasActiveFilter(): boolean {
+    const statusChanged =
+      this.filterStatus.length !== this.defaultStatus.length ||
+      !this.defaultStatus.every((s) => this.filterStatus.includes(s));
+    return (
+      statusChanged ||
+      this.filterMauBaoCaoId !== null ||
+      this.filterQuaHan !== null ||
+      !!this.filterTen
+    );
+  }
+
+  countByStatus(status: number): number {
+    // Count items matching all currently active filters EXCEPT the status chips
+    return this.items.filter((item) => {
+      if (item.trangThai !== status) return false;
+      if (
+        this.filterMauBaoCaoId !== null &&
+        item.mauBaoCaoId !== this.filterMauBaoCaoId
+      )
+        return false;
+      if (this.filterNam !== null && item.nam !== this.filterNam) return false;
+      if (this.filterTen) {
+        const q = this.filterTen.toLowerCase();
+        const name = (item.tenKy || this.tenKy(item)).toLowerCase();
+        if (!name.includes(q) && !item.kyCode.toLowerCase().includes(q))
+          return false;
+      }
+      return true;
+    }).length;
+  }
+
+  isStatusSelected(status: number): boolean {
+    return this.filterStatus.includes(status);
+  }
+
+  toggleStatus(status: number): void {
+    if (this.isStatusSelected(status)) {
+      this.filterStatus = this.filterStatus.filter((s) => s !== status);
+    } else {
+      this.filterStatus = [...this.filterStatus, status];
+    }
+  }
+
+  resetFilters(): void {
+    this.filterStatus = [...this.defaultStatus];
+    this.filterMauBaoCaoId = null;
+    this.filterNam = this.defaultNam;
+    this.filterQuaHan = null;
+    this.filterTen = '';
   }
 
   get selectedMauBaoCao(): MauBaoCaoDto | null {
@@ -134,23 +263,109 @@ export class KyBaoCaoPage {
     this.showCreateDialog = false;
   }
 
+  canEdit(item: KyBaoCaoDto): boolean {
+    return (
+      this.authService.hasPermission('ky_bao_cao:update') &&
+      (item.trangThai === 1 || item.trangThai === 2)
+    );
+  }
+
+  canDelete(item: KyBaoCaoDto): boolean {
+    return (
+      this.authService.hasPermission('ky_bao_cao:delete') &&
+      item.trangThai === 1
+    );
+  }
+
+  openEditDialog(item: KyBaoCaoDto): void {
+    this.editingItem = item;
+    this.editError = '';
+    this.editModel = {
+      tenKy: item.tenKy || this.tenKy(item),
+      ngayKetThuc: item.ngayKetThuc ? new Date(item.ngayKetThuc) : null,
+      ghiChu: item.ghiChu || '',
+    };
+    this.showEditDialog = true;
+  }
+
+  closeEditDialog(): void {
+    this.showEditDialog = false;
+    this.editingItem = null;
+  }
+
+  async saveEdit(): Promise<void> {
+    if (!this.editingItem) return;
+    if (!this.editModel.tenKy?.trim()) {
+      this.editError = 'Vui lòng nhập tên kỳ báo cáo.';
+      return;
+    }
+    this.editing = true;
+    this.editError = '';
+    try {
+      const d = this.editModel.ngayKetThuc;
+      const payload: UpdateKyBaoCaoRequest = {
+        tenKy: this.editModel.tenKy.trim(),
+        ngayKetThuc: d
+          ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+          : undefined,
+        ghiChu: this.editModel.ghiChu?.trim() || undefined,
+      };
+      await this.kyBaoCaoApi.update(this.editingItem.id, payload);
+      this.notificationService.show('success', 'Đã cập nhật kỳ báo cáo.');
+      this.closeEditDialog();
+      await this.load();
+    } catch (error: unknown) {
+      this.editError = this.extractError(
+        error,
+        'Không thể cập nhật kỳ báo cáo.',
+      );
+    } finally {
+      this.editing = false;
+    }
+  }
+
+  async deleteKy(item: KyBaoCaoDto): Promise<void> {
+    const confirmed = await this.confirmDialog.confirmSubmit({
+      header: 'Xóa kỳ báo cáo',
+      message: `Xác nhận xóa kỳ "${item.tenKy || item.kyCode}"? Thao tác không thể hoàn tác.`,
+      acceptLabel: 'Xóa',
+      rejectLabel: 'Hủy',
+    });
+    if (!confirmed) return;
+    try {
+      await this.kyBaoCaoApi.delete(item.id);
+      this.notificationService.show('success', `Đã xóa kỳ ${item.kyCode}.`);
+      await this.load();
+    } catch (error: unknown) {
+      this.notificationService.show('error', this.extractError(error));
+    }
+  }
+
+  async moLaiKy(item: KyBaoCaoDto): Promise<void> {
+    await this.changeStatus(
+      item,
+      2,
+      'Mở lại kỳ báo cáo',
+      `Xác nhận mở lại kỳ ${item.kyCode}? Các đơn vị sẽ có thể tiếp tục nộp báo cáo.`,
+      'Mở lại',
+      `Đã mở lại kỳ ${item.kyCode}.`,
+    );
+  }
+
   async load(): Promise<void> {
     this.loading = true;
     this.tienDoMap = {};
 
     try {
-      const [current, items, mauBaoCaos] = await Promise.all([
-        this.kyBaoCaoApi.getCurrent().catch(() => null),
+      const [items, mauBaoCaos] = await Promise.all([
         this.kyBaoCaoApi.getAll(),
         this.mauBaoCaoApi.getAll(false),
       ]);
 
-      this.current = current;
       this.items = items;
       this.mauBaoCaos = mauBaoCaos;
       this.resetCreateModel();
     } catch (error: unknown) {
-      this.current = null;
       this.items = [];
       this.notificationService.show('error', this.extractError(error));
     } finally {
@@ -174,13 +389,47 @@ export class KyBaoCaoPage {
     this.tienDoMap = {};
     results.forEach((result, index) => {
       if (result.status === 'fulfilled') {
-        const tienDo = result.value;
+        const td = result.value;
         this.tienDoMap[activeKy[index].id] = {
-          daNop: tienDo.soDonViDaNop,
-          tong: tienDo.tongDonVi,
+          chuaNhap: td.soDonViChuaNhap,
+          dangNhap: td.soDonViDangNhap,
+          daXacNhan: td.soDonViDaXacNhan,
+          dangBoSung: td.soDonViDangBoSung,
+          daNop: td.soDonViDaNop,
+          tong: td.tongDonVi,
         };
       }
     });
+  }
+
+  tienDoPercent(id: number): number {
+    const td = this.tienDoMap[id];
+    if (!td || td.tong === 0) return 0;
+    return Math.round((td.daNop / td.tong) * 100);
+  }
+
+  suggestTenKy(): string {
+    const mau = this.selectedMauBaoCao;
+    if (!mau) return '';
+    const nam = this.createModel.nam;
+    if (this.showQuyField && this.createModel.quy) {
+      return `${mau.tenMau} Quý ${this.createModel.quy} Năm ${nam}`;
+    }
+    if (this.showThangField && this.createModel.thang) {
+      return `${mau.tenMau} Tháng ${this.createModel.thang} Năm ${nam}`;
+    }
+    return `${mau.tenMau} Năm ${nam}`;
+  }
+
+  applyAutoTenKy(): void {
+    const suggested = this.suggestTenKy();
+    if (
+      !this.createModel.tenKy ||
+      this.createModel.tenKy === this.lastAutoTenKy
+    ) {
+      this.createModel.tenKy = suggested;
+      this.lastAutoTenKy = suggested;
+    }
   }
 
   onMauBaoCaoChange(): void {
@@ -188,22 +437,30 @@ export class KyBaoCaoPage {
     this.createError = '';
     if (this.showQuyField) {
       this.createModel.thang = null;
+      this.applyAutoTenKy();
       return;
     }
 
     if (this.showThangField) {
       this.createModel.quy = null;
       this.createModel.thang = now.getMonth() + 1;
+      this.applyAutoTenKy();
       return;
     }
 
     this.createModel.quy = null;
     this.createModel.thang = null;
+    this.applyAutoTenKy();
   }
 
   async createKyBaoCao(): Promise<void> {
     if (!this.createModel.mauBaoCaoId) {
       this.createError = 'Vui lòng chọn mẫu báo cáo.';
+      return;
+    }
+
+    if (!this.createModel.tenKy?.trim()) {
+      this.createError = 'Vui lòng nhập tên kỳ báo cáo.';
       return;
     }
 
@@ -233,19 +490,27 @@ export class KyBaoCaoPage {
         ngayBatDau: new Date().toISOString().split('T')[0],
         ngayKetThuc,
         ghiChu: this.createModel.ghiChu?.trim() || undefined,
+        tenKy: this.createModel.tenKy.trim(),
       };
 
       const created = await this.kyBaoCaoApi.create(payload);
 
-      await this.kyBaoCaoApi.updateStatus(created.id, {
-        trangThai: 2,
-        ghiChu: 'Tự động mở khi tạo',
-      });
+      try {
+        await this.kyBaoCaoApi.updateStatus(created.id, {
+          trangThai: 2,
+          ghiChu: 'Tự động mở khi tạo',
+        });
+        this.notificationService.show(
+          'success',
+          `Đã tạo và mở kỳ báo cáo ${created.kyCode}.`,
+        );
+      } catch {
+        this.notificationService.show(
+          'warning',
+          `Đã tạo kỳ ${created.kyCode} nhưng chưa mở được — vui lòng mở thủ công.`,
+        );
+      }
 
-      this.notificationService.show(
-        'success',
-        `Đã tạo và mở kỳ báo cáo ${created.kyCode}.`,
-      );
       this.closeCreateDialog();
       await this.load();
     } catch (error: unknown) {
@@ -319,15 +584,45 @@ export class KyBaoCaoPage {
     );
   }
 
-  async khoaKy(item: KyBaoCaoDto): Promise<void> {
-    await this.changeStatus(
-      item,
-      4,
-      'Khóa kỳ báo cáo',
-      `Xác nhận khóa kỳ ${item.kyCode}? Dữ liệu sẽ được khóa hoàn toàn.`,
-      'Khóa kỳ',
-      `Đã khóa kỳ ${item.kyCode}.`,
-    );
+  khoaKy(item: KyBaoCaoDto): void {
+    this.lockingItem = item;
+    this.lockCountdown = 5;
+    this.showLockDialog = true;
+    this.lockTimer = setInterval(() => {
+      this.lockCountdown--;
+      if (this.lockCountdown <= 0) {
+        this.lockCountdown = 0;
+        if (this.lockTimer) {
+          clearInterval(this.lockTimer);
+          this.lockTimer = null;
+        }
+      }
+    }, 1000);
+  }
+
+  cancelLockDialog(): void {
+    this.showLockDialog = false;
+    this.lockingItem = null;
+    if (this.lockTimer) {
+      clearInterval(this.lockTimer);
+      this.lockTimer = null;
+    }
+  }
+
+  async confirmLockKy(): Promise<void> {
+    if (!this.lockingItem || this.lockCountdown > 0) return;
+    const item = this.lockingItem;
+    this.cancelLockDialog();
+    try {
+      await this.kyBaoCaoApi.updateStatus(item.id, {
+        trangThai: 4,
+        ghiChu: 'Khóa kỳ từ giao diện',
+      });
+      this.notificationService.show('success', `Đã khóa kỳ ${item.kyCode}.`);
+      await this.load();
+    } catch (error: unknown) {
+      this.notificationService.show('error', this.extractError(error));
+    }
   }
 
   kyChuKyText(item: KyBaoCaoDto): string {
@@ -340,6 +635,10 @@ export class KyBaoCaoPage {
     }
 
     return 'Năm';
+  }
+
+  tenKy(item: KyBaoCaoDto): string {
+    return `${this.mauBaoCaoName(item.mauBaoCaoId)} ${this.kyChuKyText(item)} ${item.nam}`;
   }
 
   mauBaoCaoName(id?: number): string {
@@ -395,6 +694,7 @@ export class KyBaoCaoPage {
 
   private resetCreateModel(): void {
     const first = this.mauBaoCaos[0] ?? null;
+    this.lastAutoTenKy = '';
     this.createModel = {
       ...this.buildDefaultCreateModel(),
       mauBaoCaoId: first?.id ?? null,
@@ -414,6 +714,7 @@ export class KyBaoCaoPage {
       thang: null,
       ngayKetThuc: null,
       ghiChu: '',
+      tenKy: '',
     };
   }
 

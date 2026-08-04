@@ -55,6 +55,7 @@ export interface UpdateUserRequest {
   hoTen?: string;
   email?: string | null;
   soDienThoai?: string | null;
+  donViId?: number;
   isActive?: boolean;
   mustChangePassword?: boolean;
 }
@@ -66,6 +67,7 @@ export interface CreateUserRequest {
   email?: string | null;
   soDienThoai?: string | null;
   donViId: number;
+  roleIds?: number[];
 }
 
 export interface AssignRolesRequest {

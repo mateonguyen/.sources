@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { PrimeNGConfig } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { DialogModule } from 'primeng/dialog';
@@ -22,6 +23,18 @@ import {
 import { YeuCauBoSungApi } from '../yeu-cau-bo-sung/yeu-cau-bo-sung.api';
 
 type BadgeTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
+
+const CALENDAR_LOCALE_VI = {
+  firstDayOfWeek: 1,
+  dayNames: ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'],
+  dayNamesShort: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+  dayNamesMin: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+  monthNames: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+  monthNamesShort: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+  today: 'Hôm nay',
+  clear: 'Xóa',
+  weekHeader: 'Tuần',
+};
 
 @Component({
   selector: 'app-tien-do-nop-page',
@@ -55,6 +68,7 @@ export class TienDoNopPage implements OnInit {
   ycbsHanBoSung: Date | null = null;
   ycbsLoading = false;
   ycbsError = '';
+  readonly ycbsMinDate = new Date();
 
   readonly donViStatusMap: Record<number, { label: string; tone: BadgeTone }> =
     {
@@ -70,10 +84,39 @@ export class TienDoNopPage implements OnInit {
     private readonly yeuCauApi: YeuCauBoSungApi,
     private readonly notificationService: NotificationService,
     private readonly route: ActivatedRoute,
-  ) {}
+    private readonly primeNgConfig: PrimeNGConfig,
+  ) {
+    this.primeNgConfig.setTranslation(CALENDAR_LOCALE_VI);
+  }
+
+  get ycbsTargetTenDonVi(): string {
+    if (!this.ycbsTargetDonViId || !this.tienDo) return '';
+    return (
+      this.tienDo.donVis.find((d) => d.donViId === this.ycbsTargetDonViId)
+        ?.tenDonVi ?? ''
+    );
+  }
+
+  get selectedKyDisplayName(): string {
+    const ky = this.allKy.find((k) => k.id === this.selectedKyId);
+    return ky ? ky.tenKy || ky.kyCode : '';
+  }
 
   ngOnInit(): void {
     void this.load();
+  }
+
+  get kyOptions(): { label: string; value: number }[] {
+    const sorted = [...this.allKy].sort((a, b) => {
+      if (a.trangThai === 2 && b.trangThai !== 2) return -1;
+      if (a.trangThai !== 2 && b.trangThai === 2) return 1;
+      return 0;
+    });
+    return sorted.map((k) => ({ label: k.tenKy || k.kyCode, value: k.id }));
+  }
+
+  get selectedKy(): KyBaoCaoDto | null {
+    return this.allKy.find((k) => k.id === this.selectedKyId) ?? null;
   }
 
   get tienDoRows(): KyBaoCaoTienDoDonViDto[] {
@@ -158,7 +201,10 @@ export class TienDoNopPage implements OnInit {
         kyBaoCaoId: this.selectedKyId,
         donViId: this.ycbsTargetDonViId,
         lyDo: this.ycbsLyDo.trim(),
-        hanBoSung: this.ycbsHanBoSung?.toISOString() ?? undefined,
+        // Không dùng toISOString() — lệch ngày do timezone
+        hanBoSung: this.ycbsHanBoSung
+          ? `${this.ycbsHanBoSung.getFullYear()}-${String(this.ycbsHanBoSung.getMonth() + 1).padStart(2, '0')}-${String(this.ycbsHanBoSung.getDate()).padStart(2, '0')}`
+          : undefined,
       });
       this.showYcbsDialog = false;
       this.notificationService.show(
@@ -173,6 +219,11 @@ export class TienDoNopPage implements OnInit {
     }
   }
 
+  get progressPercent(): number {
+    if (!this.tienDo?.tongDonVi) return 0;
+    return Math.round((this.tienDo.soDonViDaNop / this.tienDo.tongDonVi) * 100);
+  }
+
   donViStatusLabel(status: number): string {
     return this.donViStatusMap[status]?.label ?? '—';
   }
@@ -182,9 +233,13 @@ export class TienDoNopPage implements OnInit {
   }
 
   private extractError(error: unknown): string {
+    const r = (error as { error?: { error?: { message?: string; Message?: string }; Error?: { message?: string; Message?: string } } })?.error;
     return (
-      (error as { error?: { error?: { message?: string } } })?.error?.error
-        ?.message ?? 'Không thể tải dữ liệu hoặc gửi yêu cầu. Vui lòng thử lại.'
+      r?.error?.message ??
+      r?.error?.Message ??
+      r?.Error?.message ??
+      r?.Error?.Message ??
+      'Không thể tải dữ liệu hoặc gửi yêu cầu. Vui lòng thử lại.'
     );
   }
 }

@@ -24,7 +24,7 @@ public sealed class KyBaoCaoIntegrationTests : IClassFixture<ApiTestWebApplicati
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         using var document = System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        document.RootElement.GetProperty("data").GetProperty("kyCode").GetString().Should().Be("2026Q1");
+        document.RootElement.GetProperty("data").GetProperty("kyCode").GetString().Should().Be("2026Q1_NHAN_LUC");
     }
 
     [Fact]
@@ -43,5 +43,57 @@ public sealed class KyBaoCaoIntegrationTests : IClassFixture<ApiTestWebApplicati
         });
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task UpdateStatus_Should_Reject_ChuanBi_To_Khoa_And_Allow_Delete_ChuanBi()
+    {
+        await _factory.ResetDataAsync();
+        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Admin@123");
+
+        var createResponse = await client.PostAsJsonAsync("/api/v1/ky-bao-cao", new
+        {
+            mauBaoCaoId = 8001,
+            nam = 2027,
+            quy = 1,
+            ngayBatDau = "2027-01-01",
+            ngayKetThuc = "2027-03-31",
+            ghiChu = "test transition",
+            tenKy = "Ky test ChuanBi"
+        });
+
+        createResponse.EnsureSuccessStatusCode();
+        using var createDoc = System.Text.Json.JsonDocument.Parse(await createResponse.Content.ReadAsStringAsync());
+        var kyId = createDoc.RootElement.GetProperty("data").GetProperty("id").GetInt64();
+
+        var lockResponse = await client.PatchAsJsonAsync($"/api/v1/ky-bao-cao/{kyId}/status", new
+        {
+            trangThai = 4,
+            ghiChu = "lock from test"
+        });
+
+        lockResponse.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var lockBody = await lockResponse.Content.ReadAsStringAsync();
+        lockBody.Should().Contain("KY_INVALID_TRANSITION");
+
+        var deleteResponse = await client.DeleteAsync($"/api/v1/ky-bao-cao/{kyId}");
+        deleteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task UpdateStatus_Should_Allow_DangMo_To_Khoa()
+    {
+        await _factory.ResetDataAsync();
+        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Admin@123");
+
+        var response = await client.PatchAsJsonAsync("/api/v1/ky-bao-cao/6001/status", new
+        {
+            trangThai = 4,
+            ghiChu = "lock open period"
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var doc = System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        doc.RootElement.GetProperty("data").GetProperty("trangThai").GetInt32().Should().Be(4);
     }
 }

@@ -4,11 +4,11 @@
 UPDATE IDM_ROLES
 SET NAME            = 'QUAN_LY',
     NORMALIZED_NAME = 'QUAN_LY',
-    TEN_ROLE        = 'Quan ly'
+    TEN_ROLE        = 'Quản lý'
 WHERE NORMALIZED_NAME = 'H05_ADMIN';
 
 UPDATE IDM_ROLES
 SET NAME            = 'LANH_DAO',
     NORMALIZED_NAME = 'LANH_DAO',
-    TEN_ROLE        = 'Lanh dao'
+    TEN_ROLE        = 'Lãnh đạo'
 WHERE NORMALIZED_NAME = 'H05_VIEWER';

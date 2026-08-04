@@ -1,7 +1,34 @@
-.training-page {
+﻿.training-page {
   --training-primary: #1e3a5f;
   --training-gray-600: #4b5563;
   --training-gray-900: #111827;
+}
+
+// Banner nhắc: đơn vị chế độ TONG_HOP, màn module chỉ là dữ liệu tự nhập
+.biz-tong-hop-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  border-radius: var(--app-radius);
+  background: #eef3f9;
+  border: 1px solid #b8cfe0;
+  color: #1f4f7c;
+  font-size: 0.85rem;
+  line-height: 1.5;
+
+  .pi {
+    font-size: 1rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  a {
+    color: #163b63;
+    font-weight: 600;
+    text-decoration: underline;
+  }
 }
 
 .training-page-header {
@@ -33,7 +60,7 @@
 }
 
 .training-summary__card {
-  border-radius: 8px;
+  border-radius: var(--app-radius);
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05);
   border: 1px solid rgba(148, 163, 184, 0.28);
   padding: 0.75rem 0.85rem;
@@ -129,7 +156,7 @@
 .training-status-pill {
   display: inline-flex;
   align-items: center;
-  border-radius: 999px;
+  border-radius: var(--app-radius);
   padding: 0.35rem 0.7rem;
   font-size: 0.78rem;
   font-weight: 700;
@@ -161,7 +188,7 @@
   align-items: center;
   border: 1px solid #dbeafe;
   background: #f8fbff;
-  border-radius: 8px;
+  border-radius: var(--app-radius);
   padding: 0.55rem 0.75rem;
 }
 
@@ -214,7 +241,7 @@
 }
 
 .training-btn {
-  border-radius: 6px;
+  border-radius: var(--app-radius);
 }
 
 .training-btn--sm {
@@ -314,7 +341,7 @@
   gap: 0.45rem;
   padding: 0.5rem 0.65rem;
   margin-bottom: 0.45rem;
-  border-radius: 8px;
+  border-radius: var(--app-radius);
   border: 1px solid #e2e8f0;
   background: #f8fafc;
   color: #475569;
@@ -338,7 +365,7 @@
 
 .training-cell-wrap--error {
   box-shadow: inset 0 0 0 1px #dc2626;
-  border-radius: 4px;
+  border-radius: var(--app-radius);
 }
 
 .training-cell-input {
@@ -421,7 +448,7 @@
   display: inline-flex;
   align-items: center;
   padding: 0.18rem 0.55rem;
-  border-radius: 4px;
+  border-radius: var(--app-radius);
   background: #eff6ff;
   border: 1px solid #bfdbfe;
   color: #1d4ed8;
@@ -464,7 +491,7 @@
 .training-filter-panel {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: var(--app-radius);
   padding: 16px;
   margin-top: 8px;
 }
@@ -504,7 +531,7 @@
   color: #6b7280;
   border: none;
   background: transparent;
-  border-radius: 6px;
+  border-radius: var(--app-radius);
   transition:
     background 0.15s,
     color 0.15s;
@@ -523,7 +550,7 @@
 }
 
 :host ::ng-deep .training-form-dialog .p-dialog {
-  border-radius: 0.9rem;
+  border-radius: var(--app-radius);
   overflow: hidden;
 }
 
@@ -559,7 +586,7 @@
   width: 2rem;
   height: 2rem;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--app-radius);
   background: transparent;
   color: var(--app-text-muted);
   transition:
@@ -574,7 +601,7 @@
 
 .training-form-dialog__section {
   border: 1px solid color-mix(in srgb, var(--app-border) 76%, white 24%);
-  border-radius: 0.75rem;
+  border-radius: var(--app-radius);
   background: color-mix(in srgb, var(--app-surface-soft) 74%, white 26%);
   padding: 0.8rem 0.9rem;
 }
@@ -659,7 +686,7 @@
 // All tfd-dialog styles are in global styles.scss (appendTo="body")
 
 .training-table-zone {
-  border-radius: 8px;
+  border-radius: var(--app-radius);
   border: 1px solid var(--app-border);
   overflow: hidden;
   background: var(--app-surface);
@@ -729,7 +756,7 @@
   top: 4px;
   bottom: 4px;
   width: 3px;
-  border-radius: 999px;
+  border-radius: var(--app-radius);
   background: #f59e0b;
 }
 
@@ -770,11 +797,15 @@
   background: #fff7ed;
 }
 
+// white-space: normal — bảng dùng table-layout:fixed với cột rộng cứng,
+// header dài (vd "Tổng số diện đánh giá") phải được xuống dòng, không tràn đè cột bên.
 :host ::ng-deep .training-table .p-datatable-thead > tr > th {
   background: #f1f5f9;
   font-size: 11px;
   font-weight: 700;
-  white-space: nowrap;
+  white-space: normal;
+  vertical-align: middle;
+  line-height: 1.3;
   padding-top: 0.45rem;
   padding-bottom: 0.45rem;
 }
@@ -783,7 +814,7 @@
   display: none;
 }
 
-/* ── sort icon + header cell ── */
+/* â”€â”€ sort icon + header cell â”€â”€ */
 .header-cell {
   display: flex;
   align-items: center;
@@ -808,44 +839,15 @@
   opacity: 1;
 }
 
-/* ── table layout ── */
 :host ::ng-deep .training-table .p-datatable-table {
   table-layout: fixed;
   width: 100%;
-}
-
-.hv-cell-stt {
-  text-align: center;
 }
 
 :host ::ng-deep .training-table .p-datatable-thead > tr > th:nth-child(1),
 :host ::ng-deep .training-table .p-datatable-tbody > tr > td:nth-child(1) {
   width: 56px;
   text-align: center;
-}
-
-:host ::ng-deep .training-table .p-datatable-thead > tr > th:nth-child(2),
-:host ::ng-deep .training-table .p-datatable-tbody > tr > td:nth-child(2) {
-  width: 280px;
-}
-
-:host ::ng-deep .training-table .p-datatable-thead > tr > th:nth-child(3),
-:host ::ng-deep .training-table .p-datatable-tbody > tr > td:nth-child(3),
-:host ::ng-deep .training-table .p-datatable-thead > tr > th:nth-child(4),
-:host ::ng-deep .training-table .p-datatable-tbody > tr > td:nth-child(4),
-:host ::ng-deep .training-table .p-datatable-thead > tr > th:nth-child(5),
-:host ::ng-deep .training-table .p-datatable-tbody > tr > td:nth-child(5),
-:host ::ng-deep .training-table .p-datatable-thead > tr > th:nth-child(6),
-:host ::ng-deep .training-table .p-datatable-tbody > tr > td:nth-child(6),
-:host ::ng-deep .training-table .p-datatable-thead > tr > th:nth-child(7),
-:host ::ng-deep .training-table .p-datatable-tbody > tr > td:nth-child(7) {
-  width: 98px;
-  text-align: right;
-}
-
-:host ::ng-deep .training-table .p-datatable-thead > tr > th:nth-child(8),
-:host ::ng-deep .training-table .p-datatable-tbody > tr > td:nth-child(8) {
-  width: 180px;
 }
 
 :host
@@ -858,14 +860,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-/* null/empty cell color */
-:host ::ng-deep .training-table .p-datatable-tbody > tr > td.training-td-null {
-  color: #9ca3af;
-}
-
-/* Custom pagination replaced with PrimeNG <p-paginator> component
-   Old custom styles removed: .training-pagination*, .training-pg-* classes */
 
 :host ::ng-deep .training-form-grid .p-inputtext:enabled:focus,
 :host ::ng-deep .training-form-grid .p-inputnumber-input:enabled:focus,

@@ -1,4 +1,4 @@
-.account-shell {
+﻿.account-shell {
   position: relative;
   min-height: 6rem;
 }
@@ -22,11 +22,11 @@
   gap: 1.75rem;
 }
 
-// ── Info block (readonly) ────────────────────────────────────
+// â”€â”€ Info block (readonly) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 .info-block {
   background: var(--app-surface-soft);
   border: 1px solid var(--app-border);
-  border-radius: 0.625rem;
+  border-radius: var(--app-radius);
   padding: 1rem 1.125rem 1.125rem;
 }
 
@@ -75,7 +75,7 @@
   color: var(--app-text-muted);
 }
 
-// ── Editable fields ──────────────────────────────────────────
+// â”€â”€ Editable fields â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 .edit-block__title {
   margin-bottom: 1rem;
 }
@@ -103,7 +103,7 @@
   }
 }
 
-// ── Actions ──────────────────────────────────────────────────
+// â”€â”€ Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 .form-actions {
   display: flex;
   gap: 0.75rem;

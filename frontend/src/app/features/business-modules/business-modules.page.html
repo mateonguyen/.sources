@@ -3,6 +3,17 @@
   [subtitle]="isCustomModule ? '' : moduleConfig.subtitle"
   styleClass="biz-module-card"
 >
+  <!-- Đơn vị chế độ TONG_HOP: bảng dưới chỉ là dữ liệu do CHÍNH đơn vị nhập -->
+  <div class="biz-tong-hop-banner" *ngIf="isTongHopMode">
+    <i class="pi pi-info-circle"></i>
+    <span>
+      Đơn vị của bạn đang ở chế độ <strong>Tổng hợp</strong> — màn hình này chỉ
+      hiển thị dữ liệu do chính đơn vị bạn nhập. Số liệu của các đơn vị cấp dưới
+      sẽ được <strong>tự động gộp khi Nộp báo cáo</strong>; theo dõi chi tiết tại
+      màn <a routerLink="/tien-do-tong-hop">Tiến độ tổng hợp</a>.
+    </span>
+  </div>
+
   <ng-container *ngIf="isCustomModule; else genericModuleTemplate">
     <div class="training-page">
       <header class="training-page-header">
@@ -828,34 +839,30 @@
                     {{ item.ghiChu || '—' }}
                   </td>
                   <td [class]="tableBodyCellClass" style="text-align: center">
-                    <div class="app-inline-actions">
+                    <div class="action-btns">
                       <ng-container
                         *hasPermission="moduleConfig.permissions.update"
                       >
                         <button
-                          pButton
                           type="button"
-                          icon="pi pi-pencil"
-                          class="p-button-text p-button-sm app-icon-action-btn app-icon-action-btn--edit"
+                          class="action-btn action-btn--edit"
                           pTooltip="Chỉnh sửa"
                           tooltipPosition="top"
                           aria-label="Chỉnh sửa"
                           (click)="selectTraining(item)"
-                        ></button>
+                        ><i class="pi pi-pencil"></i></button>
                       </ng-container>
                       <ng-container
                         *hasPermission="moduleConfig.permissions.delete"
                       >
                         <button
-                          pButton
                           type="button"
-                          icon="pi pi-trash"
-                          class="p-button-text p-button-sm app-icon-action-btn app-icon-action-btn--delete"
+                          class="action-btn action-btn--delete"
                           pTooltip="Xóa"
                           tooltipPosition="top"
                           aria-label="Xóa"
                           (click)="remove(item)"
-                        ></button>
+                        ><i class="pi pi-trash"></i></button>
                       </ng-container>
                     </div>
                   </td>
@@ -1552,7 +1559,7 @@
 
       <app-empty-state
         class="mt-3"
-        *ngIf="!loading && items.length === 0"
+        *ngIf="!loading && genericDisplayedItems.length === 0"
         title="Chưa có dữ liệu"
         [message]="requiresKyBaoCaoCode ? 'Không có bản ghi nào cho module này trong kỳ hiện tại.' : 'Không có bản ghi nào cho module này trong đơn vị hiện tại.'"
         icon="pi-inbox"
@@ -1563,10 +1570,10 @@
 
       <div
         class="app-table-wrap app-table-wrap--spacious mt-3"
-        *ngIf="!loading && items.length > 0"
+        *ngIf="!loading && genericDisplayedItems.length > 0"
       >
         <p-table
-          [value]="items"
+          [value]="genericDisplayedItems"
           styleClass="p-datatable-sm app-admin-table"
           [tableStyleClass]="tableStyleClass"
         >
@@ -1592,28 +1599,28 @@
                 {{ displayValue(item, field) }}
               </td>
               <td [class]="tableBodyCellClass">
-                <div class="app-table-actions">
+                <div class="action-btns">
                   <ng-container
                     *hasPermission="moduleConfig.permissions.update"
                   >
                     <button
-                      pButton
                       type="button"
-                      icon="pi pi-pencil"
-                      class="p-button-text app-table-action-btn app-table-action-btn--edit"
+                      class="action-btn action-btn--edit"
+                      pTooltip="Chỉnh sửa"
+                      tooltipPosition="top"
                       (click)="select(item)"
-                    ></button>
+                    ><i class="pi pi-pencil"></i></button>
                   </ng-container>
                   <ng-container
                     *hasPermission="moduleConfig.permissions.delete"
                   >
                     <button
-                      pButton
                       type="button"
-                      icon="pi pi-trash"
-                      class="p-button-text p-button-danger app-table-action-btn app-table-action-btn--delete"
+                      class="action-btn action-btn--delete"
+                      pTooltip="Xóa"
+                      tooltipPosition="top"
                       (click)="remove(item)"
-                    ></button>
+                    ><i class="pi pi-trash"></i></button>
                   </ng-container>
                 </div>
               </td>

@@ -1,0 +1,494 @@
+<app-tong-hop-mode-banner></app-tong-hop-mode-banner>
+<app-section-card
+  title="CAMERA THỰC TRẠNG"
+  subtitle="Theo dõi thực trạng đầu tư, trang bị camera theo nhóm"
+  styleClass="camera-card"
+>
+  <div class="relative mt-3 min-h-40">
+    <app-loading-overlay
+      [active]="loading()"
+      label="Đang tải dữ liệu Camera thực trạng..."
+    ></app-loading-overlay>
+
+    <div class="camera-tabs-header">
+      <button
+        type="button"
+        class="camera-tab"
+        [class.is-active]="activeTab() === 'NHOM_1'"
+        (click)="setActiveTab('NHOM_1')"
+      >
+        <span class="camera-tab-label">{{ getTabLabel('NHOM_1') }}</span>
+        <span class="camera-tab-badge">{{ nhom1Count() }}</span>
+      </button>
+      <button
+        type="button"
+        class="camera-tab"
+        [class.is-active]="activeTab() === 'NHOM_2'"
+        (click)="setActiveTab('NHOM_2')"
+      >
+        <span class="camera-tab-label">{{ getTabLabel('NHOM_2') }}</span>
+        <span class="camera-tab-badge">{{ nhom2Count() }}</span>
+      </button>
+    </div>
+
+    <div class="camera-toolbar">
+      <div class="camera-toolbar-left">
+        <label class="camera-filter-label">Tên hệ thống</label>
+        <span class="camera-filter-input-shell">
+          <i class="pi pi-search" aria-hidden="true"></i>
+          <input
+            pInputText
+            type="text"
+            class="app-filter-input"
+            [ngModel]="filterTenHeThong()"
+            (ngModelChange)="filterTenHeThong.set($event)"
+            placeholder="Tìm theo tên hệ thống..."
+            [ngModelOptions]="{ standalone: true }"
+            [disabled]="loading()"
+          />
+        </span>
+      </div>
+      <div class="camera-toolbar-actions">
+        <button
+          pButton
+          type="button"
+          icon="pi pi-search"
+          class="p-button-info"
+          label="Tải lại"
+          [loading]="loading()"
+          (click)="load(true)"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-times"
+          severity="secondary"
+          label="Xóa bộ lọc"
+          [disabled]="!filterTenHeThong()"
+          (click)="filterTenHeThong.set('')"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-plus"
+          label="Thêm camera"
+          *hasPermission="'camera_thuc_trang:create'"
+          (click)="openCreate()"
+          [disabled]="!canEdit()"
+        ></button>
+      </div>
+    </div>
+
+    <app-empty-state
+      class="mt-3"
+      *ngIf="!loading() && activeItems().length === 0"
+      [title]="'Chưa có dữ liệu cho ' + getTabLabel(activeTab())"
+      message="Không có bản ghi nào trong nhóm camera này. Hãy thêm mới hoặc tải lại dữ liệu."
+      icon="pi-video"
+      actionLabel="Tải lại"
+      actionIcon="pi pi-refresh"
+      (action)="load(true)"
+    ></app-empty-state>
+
+    <div
+      class="app-table-wrap app-table-wrap--spacious mt-3"
+      *ngIf="!loading() && activeItems().length > 0"
+    >
+      <p-table
+        [value]="activeItems()"
+        styleClass="p-datatable-sm app-admin-table"
+        [tableStyleClass]="tableStyleClass"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th [class]="tableHeaderCellClass" style="width: 56px">STT</th>
+            <th [class]="tableHeaderCellClass" style="min-width: 220px">
+              Ten he thong
+            </th>
+            <th [class]="tableHeaderCellClass" style="width: 110px">
+              Cau hinh IP
+            </th>
+            <th [class]="tableHeaderCellClass" style="width: 120px">
+              Cau hinh Analog
+            </th>
+            <th [class]="tableHeaderCellClass" style="width: 110px">
+              Thuc trang IP
+            </th>
+            <th [class]="tableHeaderCellClass" style="width: 130px">
+              Thuc trang Analog
+            </th>
+            <th [class]="tableHeaderCellClass" style="min-width: 160px">
+              Chu dau tu
+            </th>
+            <th [class]="tableHeaderCellClass" style="width: 100px">
+              Nam dau tu
+            </th>
+            <th [class]="tableHeaderCellClass" style="min-width: 150px">
+              Duong truyen
+            </th>
+            <th [class]="tableHeaderCellClass" style="min-width: 150px">
+              Phan mem
+            </th>
+            <th [class]="tableHeaderCellClass" style="min-width: 150px">
+              Luu tru
+            </th>
+            <th [class]="tableHeaderCellClass" style="min-width: 180px">
+              Ghi chu
+            </th>
+            <th [class]="tableHeaderCellClass" style="width: 92px">Thao tac</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+          <tr [class]="tableRowClass">
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              {{ rowIndex + 1 }}
+            </td>
+            <td [class]="tableBodyCellClass">{{ item.tenHeThong }}</td>
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              <span class="camera-stat-badge">{{ item.cauHinhIp }}</span>
+            </td>
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              <span class="camera-stat-badge camera-stat-badge--blue">
+                {{ item.cauHinhAnalog }}
+              </span>
+            </td>
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              <span class="camera-stat-badge camera-stat-badge--green">
+                {{ item.thucTrangIp }}
+              </span>
+            </td>
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              <span class="camera-stat-badge camera-stat-badge--orange">
+                {{ item.thucTrangAnalog }}
+              </span>
+            </td>
+            <td [class]="tableBodyCellClass">{{ item.chuDauTu || '—' }}</td>
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              {{ item.namDauTu || '—' }}
+            </td>
+            <td [class]="tableBodyCellClass">
+              {{ getDuongTruyenLabel(item.duongTruyen) }}
+            </td>
+            <td [class]="tableBodyCellClass">{{ item.phanMem || '—' }}</td>
+            <td [class]="tableBodyCellClass">{{ item.luuTru || '—' }}</td>
+            <td [class]="tableBodyCellClass">
+              <span class="camera-table-note">{{ item.ghiChu || '—' }}</span>
+            </td>
+            <td [class]="tableBodyCellClass" style="text-align: center">
+              <div class="action-btns">
+                <ng-container *hasPermission="'camera_thuc_trang:update'">
+                  <button
+                    type="button"
+                    class="action-btn action-btn--edit"
+                    pTooltip="Chỉnh sửa"
+                    tooltipPosition="top"
+                    (click)="select(item)"
+                  ><i class="pi pi-pencil"></i></button>
+                </ng-container>
+                <ng-container *hasPermission="'camera_thuc_trang:delete'">
+                  <button
+                    type="button"
+                    class="action-btn action-btn--delete"
+                    pTooltip="Xóa"
+                    tooltipPosition="top"
+                    (click)="remove(item)"
+                  ><i class="pi pi-trash"></i></button>
+                </ng-container>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <p-dialog
+    [visible]="dialogVisible()"
+    (visibleChange)="!$event && closeDialog()"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="false"
+    [dismissableMask]="true"
+    [style]="{ width: 'min(1020px, 96vw)' }"
+    styleClass="app-camera-thuc-trang-dialog"
+    appendTo="body"
+  >
+    <ng-template pTemplate="header">
+      <div class="app-dialog-header">
+        <span class="app-dialog-title">
+          <i class="pi pi-video" aria-hidden="true"></i>
+          {{ selectedId() !== null ? 'Cập nhật Camera thực trạng' : 'Thêm mới
+          Camera thực trạng' }}
+        </span>
+        <button
+          type="button"
+          class="app-dialog-close"
+          aria-label="Đóng"
+          (click)="closeDialog()"
+        >
+          <i class="pi pi-times" aria-hidden="true"></i>
+        </button>
+      </div>
+    </ng-template>
+
+    <form
+      [formGroup]="form"
+      class="app-dialog-form camera-dialog-form"
+      autocomplete="off"
+      (ngSubmit)="save()"
+    >
+      <div class="app-dialog-body-standard">
+        <div class="camera-form-grid">
+          <div
+            class="app-form-field"
+            [class.has-value]="hasFieldValue('nhomCamera')"
+          >
+            <label class="app-form-field__label" for="nhomCamera"
+              >Nhóm camera</label
+            >
+            <p-dropdown
+              inputId="nhomCamera"
+              [options]="cameraGroupOptions()"
+              optionLabel="label"
+              optionValue="value"
+              [filter]="true"
+              filterBy="label"
+              [showClear]="true"
+              [panelStyleClass]="selectPanelStyleClass"
+              appendTo="body"
+              formControlName="nhomCamera"
+              placeholder="Chọn nhóm camera"
+            ></p-dropdown>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="hasFieldValue('tenHeThong')"
+            [class.has-error]="isFieldInvalid('tenHeThong')"
+          >
+            <label class="app-form-field__label required" for="tenHeThong">
+              Tên hệ thống
+            </label>
+            <input
+              pInputText
+              id="tenHeThong"
+              class="app-form-field__input"
+              type="text"
+              formControlName="tenHeThong"
+              placeholder="Nhập tên hệ thống"
+            />
+            <small
+              class="app-form-field__error"
+              *ngIf="isFieldInvalid('tenHeThong')"
+            >
+              Trường này là bắt buộc
+            </small>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="hasFieldValue('cauHinhIp')"
+          >
+            <label class="app-form-field__label required" for="cauHinhIp"
+              >Cấu hình IP</label
+            >
+            <p-inputNumber
+              inputId="cauHinhIp"
+              formControlName="cauHinhIp"
+              [min]="0"
+              placeholder="0"
+              mode="decimal"
+              [useGrouping]="false"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="0"
+            ></p-inputNumber>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="hasFieldValue('cauHinhAnalog')"
+          >
+            <label class="app-form-field__label required" for="cauHinhAnalog">
+              Cấu hình Analog
+            </label>
+            <p-inputNumber
+              inputId="cauHinhAnalog"
+              formControlName="cauHinhAnalog"
+              [min]="0"
+              placeholder="0"
+              mode="decimal"
+              [useGrouping]="false"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="0"
+            ></p-inputNumber>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="hasFieldValue('thucTrangIp')"
+          >
+            <label class="app-form-field__label required" for="thucTrangIp">
+              Thực trạng IP
+            </label>
+            <p-inputNumber
+              inputId="thucTrangIp"
+              formControlName="thucTrangIp"
+              [min]="0"
+              placeholder="0"
+              mode="decimal"
+              [useGrouping]="false"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="0"
+            ></p-inputNumber>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="hasFieldValue('thucTrangAnalog')"
+          >
+            <label class="app-form-field__label required" for="thucTrangAnalog">
+              Thực trạng Analog
+            </label>
+            <p-inputNumber
+              inputId="thucTrangAnalog"
+              formControlName="thucTrangAnalog"
+              [min]="0"
+              placeholder="0"
+              mode="decimal"
+              [useGrouping]="false"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="0"
+            ></p-inputNumber>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="hasFieldValue('chuDauTu')"
+          >
+            <label class="app-form-field__label" for="chuDauTu"
+              >Chủ đầu tư</label
+            >
+            <input
+              pInputText
+              id="chuDauTu"
+              class="app-form-field__input"
+              type="text"
+              formControlName="chuDauTu"
+              placeholder="Nhập chủ đầu tư"
+            />
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="hasFieldValue('namDauTu')"
+          >
+            <label class="app-form-field__label" for="namDauTu"
+              >Năm đầu tư</label
+            >
+            <p-inputNumber
+              inputId="namDauTu"
+              formControlName="namDauTu"
+              [min]="0"
+              placeholder="0"
+              mode="decimal"
+              [useGrouping]="false"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="0"
+            ></p-inputNumber>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="hasFieldValue('duongTruyen')"
+          >
+            <label class="app-form-field__label" for="duongTruyen"
+              >Đường truyền</label
+            >
+            <p-dropdown
+              inputId="duongTruyen"
+              [options]="duongTruyenOptions()"
+              optionLabel="label"
+              optionValue="value"
+              [panelStyleClass]="selectPanelStyleClass"
+              appendTo="body"
+              formControlName="duongTruyen"
+              [showClear]="true"
+              placeholder="Chọn đường truyền"
+            ></p-dropdown>
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="hasFieldValue('phanMem')"
+          >
+            <label class="app-form-field__label" for="phanMem">Phần mềm</label>
+            <input
+              pInputText
+              id="phanMem"
+              class="app-form-field__input"
+              type="text"
+              formControlName="phanMem"
+              placeholder="Nhập phần mềm"
+            />
+          </div>
+
+          <div
+            class="app-form-field"
+            [class.has-value]="hasFieldValue('luuTru')"
+          >
+            <label class="app-form-field__label" for="luuTru">Lưu trữ</label>
+            <input
+              pInputText
+              id="luuTru"
+              class="app-form-field__input"
+              type="text"
+              formControlName="luuTru"
+              placeholder="Nhập lưu trữ"
+            />
+          </div>
+
+          <div
+            class="app-form-field app-form-field--full"
+            [class.has-value]="hasFieldValue('ghiChu')"
+          >
+            <label class="app-form-field__label" for="ghiChu">Ghi chú</label>
+            <textarea
+              pInputTextarea
+              id="ghiChu"
+              class="app-form-field__input app-form-field__textarea"
+              formControlName="ghiChu"
+              rows="4"
+              placeholder="Nhập ghi chú thêm..."
+            ></textarea>
+          </div>
+        </div>
+
+        <small class="app-validation-error block" *ngIf="apiError()">
+          {{ apiError() }}
+        </small>
+      </div>
+
+      <div class="app-dialog-actions">
+        <button
+          pButton
+          type="button"
+          icon="pi pi-times"
+          label="Hủy"
+          class="p-button-secondary p-button-outlined"
+          [disabled]="saving()"
+          (click)="closeDialog()"
+        ></button>
+        <button
+          pButton
+          type="submit"
+          icon="pi pi-save"
+          label="Lưu"
+          class="p-button-primary"
+          [loading]="saving()"
+        ></button>
+      </div>
+    </form>
+  </p-dialog>
+</app-section-card>

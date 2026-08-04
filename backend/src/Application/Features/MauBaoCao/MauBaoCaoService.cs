@@ -93,15 +93,21 @@ public sealed class MauBaoCaoService : IMauBaoCaoService
 
     public async Task<IReadOnlyCollection<MauBaoCaoDto>> GetAllAsync(bool includeInactive = false, CancellationToken cancellationToken = default)
     {
-        var query = _dbContext.MauBaoCaos.AsQueryable();
-        if (!includeInactive)
-            query = query.Where(x => x.IsActive);
-
-        var items = await query
+        var items = await _dbContext.MauBaoCaos
             .OrderBy(x => x.MaMau)
+            .Select(x => new
+            {
+                Entity = x,
+                KyBaoCaoCount = _dbContext.KyBaoCaos.Count(k => k.MauBaoCaoId == x.Id)
+            })
             .ToListAsync(cancellationToken);
 
-        return items.Select(MapToDto).ToList();
+        // Oracle provider can fail on some bool-literal query shapes; apply IsActive filter in memory.
+        var filtered = includeInactive
+            ? items
+            : items.Where(x => x.Entity.IsActive);
+
+        return filtered.Select(x => MapToDto(x.Entity, x.KyBaoCaoCount)).ToList();
     }
 
     public Task<IReadOnlyCollection<MauBaoCaoModuleCatalogGroupDto>> GetModuleCatalogAsync(CancellationToken cancellationToken = default)
@@ -185,7 +191,7 @@ public sealed class MauBaoCaoService : IMauBaoCaoService
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    private static MauBaoCaoDto MapToDto(MauBaoCaoEntity entity)
+    private static MauBaoCaoDto MapToDto(MauBaoCaoEntity entity, int kyBaoCaoCount = 0)
         => new()
         {
             Id = entity.Id,
@@ -194,7 +200,8 @@ public sealed class MauBaoCaoService : IMauBaoCaoService
             MoTa = entity.MoTa,
             TanSuat = entity.TanSuat,
             DanhSachModule = ParseModuleList(entity.DanhSachModule),
-            IsActive = entity.IsActive
+            IsActive = entity.IsActive,
+            KyBaoCaoCount = kyBaoCaoCount
         };
 
     private static string NormalizeUpper(string value) => value.Trim().ToUpperInvariant();

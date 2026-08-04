@@ -148,35 +148,44 @@
               <div class="module-tag-list">
                 <span
                   class="module-tag"
-                  *ngFor="let label of moduleLabels(item.danhSachModule)"
+                  *ngFor="let label of moduleLabels(item.danhSachModule).slice(0, 3)"
                 >
                   {{ label }}
+                </span>
+                <span
+                  class="module-tag module-tag--more"
+                  *ngIf="item.danhSachModule.length > 3"
+                  [pTooltip]="moduleLabels(item.danhSachModule).slice(3).join(', ')"
+                  tooltipPosition="top"
+                >
+                  +{{ item.danhSachModule.length - 3 }}
                 </span>
               </div>
             </td>
             <td>
-              <p-tag
-                [severity]="item.isActive ? 'success' : 'danger'"
-                [value]="item.isActive ? 'Đang hoạt động' : 'Ngừng hoạt động'"
-                styleClass="app-status-badge"
-              ></p-tag>
+              <div class="mau-status-cell">
+                <span [class]="'status-badge ' + (item.isActive ? 'status-badge--dang-mo' : 'status-badge--da-dong')">
+                  {{ item.isActive ? 'Hoạt động' : 'Ngừng' }}
+                </span>
+              </div>
             </td>
             <td>
-              <div class="app-table-actions">
+              <div class="action-btns">
                 <button
-                  pButton
                   type="button"
-                  icon="pi pi-pencil"
-                  class="p-button-text app-table-action-btn app-table-action-btn--edit"
+                  class="action-btn action-btn--edit"
+                  pTooltip="Chỉnh sửa"
+                  tooltipPosition="top"
                   (click)="openEdit(item)"
-                ></button>
+                ><i class="pi pi-pencil"></i></button>
                 <button
-                  pButton
                   type="button"
-                  icon="pi pi-trash"
-                  class="p-button-text p-button-danger app-table-action-btn app-table-action-btn--delete"
-                  (click)="delete(item)"
-                ></button>
+                  class="action-btn action-btn--delete"
+                  [disabled]="item.kyBaoCaoCount > 0"
+                  [pTooltip]="item.kyBaoCaoCount > 0 ? 'Đang dùng cho ' + item.kyBaoCaoCount + ' kỳ — không thể xóa' : 'Xóa mẫu'"
+                  tooltipPosition="top"
+                  (click)="item.kyBaoCaoCount === 0 && delete(item)"
+                ><i class="pi pi-trash"></i></button>
               </div>
             </td>
           </tr>

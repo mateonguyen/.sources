@@ -1,4 +1,4 @@
-.app-code-value-dialog__header {
+﻿.app-code-value-dialog__header {
   width: 100%;
   display: flex;
   align-items: center;
@@ -16,7 +16,7 @@
   width: 36px;
   height: 36px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--app-radius);
   background: transparent;
   color: #64748b;
   display: inline-flex;

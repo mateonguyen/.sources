@@ -61,7 +61,8 @@ type PermissionActionKey =
   | 'update'
   | 'delete'
   | 'approve'
-  | 'submit';
+  | 'submit'
+  | 'other';
 
 interface PermissionActionColumn {
   key: PermissionActionKey;
@@ -131,6 +132,7 @@ interface PermissionMatrixModuleGroup {
 })
 export class IdentityAdminPage {
   private static readonly LOAD_TIMEOUT_MS = 12000;
+  private static readonly SYSTEM_ADMIN_PERMISSION_CODE = 'system:admin';
 
   module: IdentityModule = 'users';
   loading = false;
@@ -200,6 +202,7 @@ export class IdentityAdminPage {
     { key: 'delete', label: 'Xóa' },
     { key: 'approve', label: 'Phê duyệt' },
     { key: 'submit', label: 'Gửi' },
+    { key: 'other', label: 'Khác' },
   ];
 
   readonly donViOptions = [
@@ -262,7 +265,13 @@ export class IdentityAdminPage {
     van_ban_den: 'Văn bản đến',
     van_ban_di: 'Văn bản đi',
     giam_sat_soc: 'Giám sát SOC',
+    giam_sat_noc: 'Giám sát NOC',
     attt_httt_dau_tu: 'An toàn thông tin đầu tư',
+    attt_httt_van_hanh: 'An toàn thông tin vận hành',
+    giai_phap_attt: 'Giải pháp ATTT',
+    tong_hop_tien_do: 'Tiến độ tổng hợp',
+    tien_do_bao_cao: 'Tiến độ báo cáo',
+    yeu_cau_bo_sung: 'Yêu cầu bổ sung',
     thong_bao: 'Thông báo',
     files: 'Tệp tin',
     auth: 'Xác thực',
@@ -299,12 +308,14 @@ export class IdentityAdminPage {
         'mau bao cao',
         'snapshot',
         'reports',
+        'tien do tong hop',
+        'yeu cau bo sung',
       ],
     },
     hr_it: {
       key: 'hr_it',
       label: 'Nhân lực CNTT',
-      keywords: ['nhan luc', 'cntt', 'dao tao', 'nan luc so'],
+      keywords: ['nhan luc', 'cntt', 'dao tao', 'nang luc so'],
     },
     infrastructure: {
       key: 'infrastructure',
@@ -343,8 +354,10 @@ export class IdentityAdminPage {
     ky_bao_cao: 'reports',
     mau_bao_cao: 'reports',
     reports: 'reports',
-    bao_cao: 'reports',
     snapshot: 'reports',
+    tong_hop_tien_do: 'reports',
+    tien_do_bao_cao: 'reports',
+    yeu_cau_bo_sung: 'reports',
     nhan_luc_cntt: 'hr_it',
     nang_luc_so: 'hr_it',
     dao_tao_boi_duong: 'hr_it',
@@ -355,11 +368,14 @@ export class IdentityAdminPage {
     thiet_bi_cntt: 'infrastructure',
     camera_thuc_trang: 'infrastructure',
     camera_quan_ly: 'infrastructure',
+    giam_sat_noc: 'infrastructure',
     van_ban_qppl: 'documents',
     van_ban_den: 'documents',
     van_ban_di: 'documents',
     giam_sat_soc: 'security',
     attt_httt_dau_tu: 'security',
+    attt_httt_van_hanh: 'security',
+    giai_phap_attt: 'security',
     thong_bao: 'other',
     files: 'other',
     auth: 'other',
@@ -403,15 +419,43 @@ export class IdentityAdminPage {
     }
   }
 
-  get userDonViOptions(): Array<{ label: string; value: number }> {
-    return this.donVis
+  // Truoc la getter -> tinh lai filter/map/sort tren toan bo danh sach don vi
+  // (5000+ dong sau khi doi nguon du lieu) o MOI vong change-detection, gay
+  // giat/delay khi mo dropdown "Don vi" trong dialog cap nhat nguoi dung.
+  // Gio tinh 1 lan sau khi load xong (xem buildUserDonViOptions()).
+  userDonViOptions: Array<{ label: string; value: number }> = [];
+  userRoleOptions: Array<{ label: string; value: number }> = [];
+
+  private buildUserDonViOptions(): void {
+    const byId = new Map(this.donVis.map((dv) => [dv.id, dv]));
+    this.userDonViOptions = this.donVis
       .filter((dv) => dv.isActive)
-      .map((dv) => ({ label: dv.tenDonVi, value: dv.id }))
+      .map((dv) => ({ label: this.buildDonViLabel(dv, byId), value: dv.id }))
       .sort((a, b) => a.label.localeCompare(b.label));
   }
 
-  get userRoleOptions(): Array<{ label: string; value: number }> {
-    return this.roles
+  /** "Ten don vi — Ten don vi cha (Ma don vi)" - vi cho phep nhieu don vi
+   * trung ten (vd nhieu "Phong 1" thuoc cac cuc khac nhau), can hien them
+   * don vi cha + ma dinh danh de nguoi dung phan biet duoc khi chon trong
+   * danh sach phang (dropdown khong the hien cay phan cap). */
+  private buildDonViLabel(
+    dv: DonViDto,
+    byId: Map<number, DonViDto>,
+  ): string {
+    const parentName =
+      dv.parentId != null ? byId.get(dv.parentId)?.tenDonVi : null;
+    // Nhet ca ten viet tat vao label de filterBy="label" cua p-dropdown
+    // tim duoc theo viet tat (vd go "H05" van ra "Cuc Cong nghe thong tin").
+    // Bo ma dinh danh (G01.xxx.xxx) khoi label - qua dai gay tran dong,
+    // chi giu ten + viet tat + ten don vi cha la du phan biet.
+    const vietTat = dv.tenVietTat ? ` [${dv.tenVietTat}]` : '';
+    return parentName
+      ? `${dv.tenDonVi}${vietTat} — ${parentName}`
+      : `${dv.tenDonVi}${vietTat}`;
+  }
+
+  private buildUserRoleOptions(): void {
+    this.userRoleOptions = this.roles
       .map((role) => ({
         value: role.id,
         label: role.tenRole || role.roleCode,
@@ -435,6 +479,8 @@ export class IdentityAdminPage {
             .getUserRoleMappings()
             .catch(() => []);
           this.syncDonViOptions();
+          this.buildUserDonViOptions();
+          this.buildUserRoleOptions();
           break;
         case 'roles':
           this.roles = await this.identityApi.getRoles();
@@ -778,6 +824,9 @@ export class IdentityAdminPage {
     if (key === 'admin') {
       return 'Quản trị';
     }
+    if (key === 'xac_nhan') {
+      return 'Xác nhận';
+    }
 
     return key;
   }
@@ -911,6 +960,31 @@ export class IdentityAdminPage {
     }
 
     return false;
+  }
+
+  get systemAdminPermissionId(): number | null {
+    return (
+      this.permissions.find(
+        (permission) =>
+          permission.permCode.toLowerCase() ===
+          IdentityAdminPage.SYSTEM_ADMIN_PERMISSION_CODE,
+      )?.id ?? null
+    );
+  }
+
+  get selectedRoleHasSystemAdminPermission(): boolean {
+    const permissionId = this.systemAdminPermissionId;
+    return (
+      typeof permissionId === 'number' &&
+      this.selectedPermissionIds.has(permissionId)
+    );
+  }
+
+  get isPermissionMatrixReadOnly(): boolean {
+    return (
+      !!this.selectedPermissionRole?.isSystem &&
+      this.selectedRoleHasSystemAdminPermission
+    );
   }
 
   buildPermissionMatrixModules(): PermissionMatrixModuleGroup[] {
@@ -1239,6 +1313,10 @@ export class IdentityAdminPage {
   }
 
   onPermissionCellToggle(permissionId: number, checked: boolean): void {
+    if (this.isPermissionMatrixReadOnly) {
+      return;
+    }
+
     if (checked) {
       this.selectedPermissionIds.add(permissionId);
       return;
@@ -1259,6 +1337,10 @@ export class IdentityAdminPage {
   }
 
   onPermissionRowToggle(row: PermissionMatrixRow, checked: boolean): void {
+    if (this.isPermissionMatrixReadOnly) {
+      return;
+    }
+
     for (const permissionId of row.permissionIds) {
       if (checked) {
         this.selectedPermissionIds.add(permissionId);
@@ -1272,6 +1354,10 @@ export class IdentityAdminPage {
     group: PermissionMatrixModuleGroup,
     checked: boolean,
   ): void {
+    if (this.isPermissionMatrixReadOnly) {
+      return;
+    }
+
     for (const permissionId of group.permissionIds) {
       if (checked) {
         this.selectedPermissionIds.add(permissionId);
@@ -1318,6 +1404,10 @@ export class IdentityAdminPage {
   }
 
   onActionColumnToggle(action: PermissionActionKey, checked: boolean): void {
+    if (this.isPermissionMatrixReadOnly) {
+      return;
+    }
+
     const ids =
       this.currentPermissionModuleState?.actionPermissionIds[action] ?? [];
     for (const id of ids) {
@@ -1334,6 +1424,14 @@ export class IdentityAdminPage {
       this.notificationService.show(
         'warning',
         'Vui lòng chọn vai trò cần phân quyền.',
+      );
+      return;
+    }
+
+    if (this.isPermissionMatrixReadOnly) {
+      this.notificationService.show(
+        'warning',
+        'Vai trò hệ thống với quyền system:admin đang ở chế độ chỉ đọc.',
       );
       return;
     }
@@ -1445,6 +1543,8 @@ export class IdentityAdminPage {
     if (this.donVis.length) {
       this.syncDonViOptions();
     }
+    this.buildUserDonViOptions();
+    this.buildUserRoleOptions();
 
     const hasRequiredData =
       this.roles.length > 0 && this.permissions.length > 0;
@@ -1575,6 +1675,17 @@ export class IdentityAdminPage {
     ) {
       return key;
     }
+
+    if (
+      key === 'upload' ||
+      key === 'export' ||
+      key === 'pdf' ||
+      key === 'admin' ||
+      key === 'xac_nhan'
+    ) {
+      return 'other';
+    }
+
     return null;
   }
 
@@ -1911,21 +2022,15 @@ export class IdentityAdminPage {
     this.userDialogSubmitting = true;
     try {
       if (payload.mode === 'create') {
-        const created = await this.identityApi.createUser({
+        await this.identityApi.createUser({
           username: payload.username,
           password: payload.password ?? '',
           hoTen: payload.hoTen,
           email: payload.email ?? null,
           soDienThoai: payload.soDienThoai ?? null,
           donViId: payload.donViId,
+          roleIds: payload.roleId ? [payload.roleId] : [],
         } as CreateUserRequest);
-
-        if (payload.roleId) {
-          await this.identityApi.assignUserRoles(created.id, {
-            roleIds: [payload.roleId],
-            donViId: payload.donViId,
-          } as AssignRolesRequest);
-        }
 
         this.notificationService.show('success', 'Thêm người dùng thành công.');
       } else {
@@ -1941,6 +2046,7 @@ export class IdentityAdminPage {
           hoTen: payload.hoTen,
           email: payload.email ?? null,
           soDienThoai: payload.soDienThoai ?? null,
+          donViId: payload.donViId,
           isActive: payload.isActive,
           mustChangePassword: payload.mustChangePassword,
         });
@@ -1972,11 +2078,12 @@ export class IdentityAdminPage {
   }
 
   private syncDonViOptions(): void {
+    const byId = new Map(this.donVis.map((dv) => [dv.id, dv]));
     const options = this.donVis
       .filter((dv) => dv.isActive)
       .map((dv) => ({
         value: dv.id,
-        label: dv.tenDonVi,
+        label: this.buildDonViLabel(dv, byId),
       }))
       .sort((a, b) => a.label.localeCompare(b.label));
 

@@ -41,6 +41,10 @@ public sealed class DonViService : IDonViService
 
         public string? CapDonVi { get; init; }
 
+        public string? KhoiDonVi { get; init; }
+
+        public string CheDoNhapLieu { get; init; } = "TU_NHAP";
+
         public string? WebsiteNoiBo { get; init; }
 
         public string? WebsiteInternet { get; init; }
@@ -92,6 +96,8 @@ public sealed class DonViService : IDonViService
             ParentId = x.ParentId,
             DiaChi = x.DiaChi,
             CapDonVi = x.CapDonVi,
+            KhoiDonVi = x.KhoiDonVi,
+            CheDoNhapLieu = x.CheDoNhapLieu,
             WebsiteNoiBo = x.WebsiteNoiBo,
             WebsiteInternet = x.WebsiteInternet,
             TongBienChe = x.TongBienChe,
@@ -122,8 +128,9 @@ public sealed class DonViService : IDonViService
 
     public async Task<IReadOnlyCollection<DonViParentCandidateDto>> GetParentCandidatesAsync(long? excludeId, CancellationToken cancellationToken = default)
     {
+        var activeFlag = true;
         var items = await QueryDonViNodes()
-            .Where(x => x.IsActive)
+            .Where(x => x.IsActive == activeFlag)
             .OrderBy(x => x.MaDonVi)
             .ThenBy(x => x.TenDonVi)
             .ToListAsync(cancellationToken);
@@ -210,11 +217,13 @@ public sealed class DonViService : IDonViService
             ParentDisplayName = parentDisplayName,
             DiaChi = donVi.DiaChi,
             CapDonVi = donVi.CapDonVi,
+            KhoiDonVi = donVi.KhoiDonVi,
+            CheDoNhapLieu = donVi.CheDoNhapLieu,
             WebsiteNoiBo = donVi.WebsiteNoiBo,
             WebsiteInternet = donVi.WebsiteInternet,
             TongBienChe = donVi.TongBienChe,
-            SoDonViCapPhong = donVi.Children.Count(child => child.IsActive && child.CapDonVi == "PHONG"),
-            SoDonViCapXa = donVi.Children.Count(child => child.IsActive && child.CapDonVi == "XA"),
+            SoDonViCapPhong = donVi.Children.Count(child => child.IsActive && IsCapPhongByTen(child.TenDonVi)),
+            SoDonViCapXa = donVi.Children.Count(child => child.IsActive && IsCapXaByTen(child.TenDonVi)),
             IsActive = donVi.IsActive
         };
     }
@@ -269,12 +278,18 @@ public sealed class DonViService : IDonViService
             }
         }
 
+        var normalizedCapDonVi = NormalizeNullable(request.CapDonVi)?.ToUpperInvariant();
+        var normalizedCheDoNhapLieu = NormalizeNullable(request.CheDoNhapLieu)?.ToUpperInvariant() ?? "TU_NHAP";
+        ValidateCheDoNhapLieu(normalizedCapDonVi, normalizedCheDoNhapLieu);
+
         entity.MaDonVi = request.MaDonVi.Trim().ToUpperInvariant();
         entity.TenDonVi = request.TenDonVi.Trim();
         entity.TenVietTat = request.TenVietTat?.Trim();
         entity.ParentId = request.ParentId;
         entity.DiaChi = request.DiaChi?.Trim();
-        entity.CapDonVi = NormalizeNullable(request.CapDonVi)?.ToUpperInvariant();
+        entity.CapDonVi = normalizedCapDonVi;
+        entity.KhoiDonVi = NormalizeNullable(request.KhoiDonVi)?.ToUpperInvariant();
+        entity.CheDoNhapLieu = normalizedCheDoNhapLieu;
         entity.WebsiteNoiBo = NormalizeNullable(request.WebsiteNoiBo);
         entity.WebsiteInternet = NormalizeNullable(request.WebsiteInternet);
         entity.TongBienChe = request.TongBienChe;
@@ -315,6 +330,8 @@ public sealed class DonViService : IDonViService
                 ParentId = x.ParentId,
                 DiaChi = x.DiaChi,
                 CapDonVi = x.CapDonVi,
+                KhoiDonVi = x.KhoiDonVi,
+                CheDoNhapLieu = x.CheDoNhapLieu,
                 WebsiteNoiBo = x.WebsiteNoiBo,
                 WebsiteInternet = x.WebsiteInternet,
                 TongBienChe = x.TongBienChe,
@@ -336,6 +353,8 @@ public sealed class DonViService : IDonViService
             ParentId = node.ParentId,
             DiaChi = node.DiaChi,
             CapDonVi = node.CapDonVi,
+            KhoiDonVi = node.KhoiDonVi,
+            CheDoNhapLieu = node.CheDoNhapLieu,
             WebsiteNoiBo = node.WebsiteNoiBo,
             WebsiteInternet = node.WebsiteInternet,
             TongBienChe = node.TongBienChe,
@@ -354,14 +373,58 @@ public sealed class DonViService : IDonViService
             .ToDictionary(
                 group => group.Key,
                 group => (
-                    group.Count(child => child.CapDonVi == "PHONG"),
-                    group.Count(child => child.CapDonVi == "XA")));
+                    group.Count(child => IsCapPhongByTen(child.TenDonVi)),
+                    group.Count(child => IsCapXaByTen(child.TenDonVi))));
+    }
+
+    private static readonly string[] CapPhongPrefixes = { "Phòng", "Phong" };
+    private static readonly string[] CapXaPrefixes = { "Công an xã", "Công an phường", "Công an thị trấn", "Cong an xa", "Cong an phuong", "Cong an thi tran" };
+
+    private static bool IsCapPhongByTen(string tenDonVi)
+    {
+        var name = tenDonVi.Trim();
+        foreach (var prefix in CapPhongPrefixes)
+        {
+            if (name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsCapXaByTen(string tenDonVi)
+    {
+        var name = tenDonVi.Trim();
+        foreach (var prefix in CapXaPrefixes)
+        {
+            if (name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static string? NormalizeNullable(string? value)
     {
         var normalized = value?.Trim();
         return string.IsNullOrWhiteSpace(normalized) ? null : normalized;
+    }
+
+    private static void ValidateCheDoNhapLieu(string? capDonVi, string cheDoNhapLieu)
+    {
+        if (cheDoNhapLieu is not ("TU_NHAP" or "TONG_HOP"))
+        {
+            throw new AppException("DONVI_CHE_DO_NHAP_LIEU_INVALID", "Che do nhap lieu khong hop le.", 422);
+        }
+
+        if (cheDoNhapLieu == "TONG_HOP" && capDonVi != "CAP_1")
+        {
+            throw new AppException("DONVI_CHE_DO_NHAP_LIEU_INVALID", "Chi don vi cap CAP_1 (truc thuoc Bo) moi duoc cau hinh TONG_HOP.", 422);
+        }
     }
 
     private static IReadOnlyCollection<DonViDto> SortTree(IReadOnlyCollection<DonViDto> nodes)
@@ -411,6 +474,8 @@ public sealed class UpsertDonViRequestValidator : AbstractValidator<UpsertDonViR
         RuleFor(x => x.TenVietTat).MaximumLength(50);
         RuleFor(x => x.DiaChi).MaximumLength(500);
         RuleFor(x => x.CapDonVi).MaximumLength(20);
+        RuleFor(x => x.KhoiDonVi).MaximumLength(20);
+        RuleFor(x => x.CheDoNhapLieu).MaximumLength(20);
         RuleFor(x => x.WebsiteNoiBo).MaximumLength(200);
         RuleFor(x => x.WebsiteInternet).MaximumLength(200);
         RuleFor(x => x.TongBienChe).GreaterThanOrEqualTo(0).When(x => x.TongBienChe.HasValue);

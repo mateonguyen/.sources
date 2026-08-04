@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { TableModule } from 'primeng/table';
@@ -10,7 +11,6 @@ import { AuthService } from '../../core/auth/auth.service';
 import { NotificationService } from '../../core/ui/notification.service';
 import { DonViApi } from '../don-vi/don-vi.api';
 import { KyBaoCaoApi, KyBaoCaoDto } from '../ky-bao-cao/ky-bao-cao.api';
-import { ConfirmDialogWrapperService } from '../../shared/ui/confirm-dialog-wrapper.service';
 import { EmptyStateComponent } from '../../shared/ui/empty-state.component';
 import { FilterBarComponent } from '../../shared/ui/filter-bar.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
@@ -21,6 +21,8 @@ import {
   YeuCauBoSungApi,
   YeuCauBoSungDto,
 } from './yeu-cau-bo-sung.api';
+
+type BadgeTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 
 interface DonViOption {
   label: string;
@@ -42,6 +44,7 @@ interface DonViOption {
     InputTextareaModule,
     ButtonModule,
     TableModule,
+    DialogModule,
   ],
   templateUrl: './yeu-cau-bo-sung.page.html',
   styleUrl: './yeu-cau-bo-sung.page.scss',
@@ -59,12 +62,15 @@ export class YeuCauBoSungPage {
   donViOptions: DonViOption[] = [];
   requests: YeuCauBoSungDto[] = [];
 
-  createModel = {
-    donViId: null as number | null,
-    lyDo: '',
-    hanBoSung: '',
-  };
+  // Create dialog (sub-unit tạo cho chính mình — không cần chọn đơn vị)
+  showCreateDialog = false;
+  createModel = { lyDo: '', hanBoSung: '' };
 
+  showApproveDialog = false;
+  approveTarget: YeuCauBoSungDto | null = null;
+  approveHanBoSung = '';
+
+  showRejectDialog = false;
   rejectTarget: YeuCauBoSungDto | null = null;
   rejectReason = '';
 
@@ -75,16 +81,45 @@ export class YeuCauBoSungPage {
     private readonly route: ActivatedRoute,
     private readonly authService: AuthService,
     private readonly notificationService: NotificationService,
-    private readonly confirmDialog: ConfirmDialogWrapperService,
   ) {
     void this.loadInitialData();
   }
 
+  // ── Computed ──────────────────────────────────────────────────────────────
+
+  get currentDonViId(): number {
+    return this.authService.profile()?.donViId ?? 0;
+  }
+
+  /** Cấp quản lý: xem tất cả đơn vị, có filter đơn vị */
+  get isManagerView(): boolean {
+    return this.canApprove;
+  }
+
+  get pageTitle(): string {
+    return this.isManagerView ? 'Duyệt yêu cầu bổ sung' : 'Yêu cầu bổ sung dữ liệu';
+  }
+
+  get pageSubtitle(): string {
+    return this.isManagerView
+      ? 'Xem xét và xử lý các yêu cầu bổ sung từ đơn vị.'
+      : 'Gửi yêu cầu cho phép bổ sung dữ liệu của kỳ báo cáo đã nộp.';
+  }
+
   get kyOptions(): Array<{ label: string; value: number }> {
-    return this.kyBaoCaos.map((item) => ({
-      label: `${item.kyCode} · ${this.kyStatusLabel(item.trangThai)}`,
+    const sorted = [...this.kyBaoCaos].sort((a, b) => {
+      if (a.trangThai === 2 && b.trangThai !== 2) return -1;
+      if (a.trangThai !== 2 && b.trangThai === 2) return 1;
+      return 0;
+    });
+    return sorted.map((item) => ({
+      label: item.tenKy || item.kyCode,
       value: item.id,
     }));
+  }
+
+  get selectedKy(): KyBaoCaoDto | null {
+    return this.kyBaoCaos.find((k) => k.id === this.selectedKyBaoCaoId) ?? null;
   }
 
   get canCreate(): boolean {
@@ -120,34 +155,57 @@ export class YeuCauBoSungPage {
         this.selectedTrangThaiFilter == null ||
         item.trangThai === this.selectedTrangThaiFilter;
       const matchDonVi =
+        !this.isManagerView ||
         this.selectedDonViFilterId == null ||
         item.donViId === this.selectedDonViFilterId;
       return matchTrangThai && matchDonVi;
     });
   }
 
+  get pendingCount(): number {
+    return this.requests.filter((r) => r.trangThai === 1).length;
+  }
+
+  get emptyStateTitle(): string {
+    if (this.requests.length > 0) return 'Không khớp bộ lọc';
+    return this.isManagerView ? 'Chưa có yêu cầu nào' : 'Bạn chưa gửi yêu cầu nào';
+  }
+
+  get emptyStateMessage(): string {
+    if (this.requests.length > 0) return 'Thử thay đổi trạng thái hoặc đơn vị.';
+    return this.isManagerView
+      ? 'Chưa có đơn vị nào gửi yêu cầu bổ sung trong kỳ này.'
+      : 'Nếu cần bổ sung dữ liệu đã nộp, nhấn nút "Gửi yêu cầu bổ sung" ở trên.';
+  }
+
+  // ── Load ─────────────────────────────────────────────────────────────────
+
   async loadInitialData(): Promise<void> {
-    if (!this.canRead) {
-      return;
-    }
+    if (!this.canRead) return;
 
     this.loading = true;
     try {
-      const [allKy, donViTree] = await Promise.all([
+      const tasks: [Promise<KyBaoCaoDto[]>, Promise<unknown>] = [
         this.kyBaoCaoApi.getAll(),
-        this.donViApi.getTree(),
-      ]);
+        this.isManagerView ? this.donViApi.getTree() : Promise.resolve([]),
+      ];
+      const [allKy, donViTree] = await Promise.all(tasks);
 
       this.kyBaoCaos = allKy;
+
       const queryKyIdRaw = this.route.snapshot.queryParamMap.get('kyBaoCaoId');
       const queryKyId = queryKyIdRaw ? Number(queryKyIdRaw) : NaN;
-      const hasQueryKy = Number.isInteger(queryKyId) && queryKyId > 0;
-      const selectedFromQuery = hasQueryKy
+      const selectedFromQuery = Number.isInteger(queryKyId) && queryKyId > 0
         ? (allKy.find((item) => item.id === queryKyId)?.id ?? null)
         : null;
+      const dangMo = allKy.find((k) => k.trangThai === 2);
+      this.selectedKyBaoCaoId = selectedFromQuery ?? dangMo?.id ?? allKy[0]?.id ?? null;
 
-      this.selectedKyBaoCaoId = selectedFromQuery ?? allKy[0]?.id ?? null;
-      this.donViOptions = this.flattenDonViOptions(donViTree);
+      if (this.isManagerView) {
+        this.donViOptions = this.flattenDonViOptions(
+          donViTree as Array<{ id: number; maDonVi: string; tenDonVi: string; children: unknown[] }>,
+        );
+      }
 
       if (this.selectedKyBaoCaoId) {
         await this.loadRequests(this.selectedKyBaoCaoId);
@@ -158,36 +216,35 @@ export class YeuCauBoSungPage {
   }
 
   async onKyChange(value: number | null | undefined): Promise<void> {
-    const nextValue = value ?? null;
-    this.selectedKyBaoCaoId = nextValue;
+    this.selectedKyBaoCaoId = value ?? null;
     this.requests = [];
-    this.rejectTarget = null;
+    if (!this.selectedKyBaoCaoId) return;
+    await this.loadRequests(this.selectedKyBaoCaoId);
+  }
 
-    if (!nextValue) {
-      return;
-    }
+  // ── Create dialog ─────────────────────────────────────────────────────────
 
-    await this.loadRequests(nextValue);
+  openCreateDialog(): void {
+    this.createModel = { lyDo: '', hanBoSung: '' };
+    this.showCreateDialog = true;
+  }
+
+  closeCreateDialog(): void {
+    this.showCreateDialog = false;
   }
 
   async createRequest(): Promise<void> {
-    if (!this.canCreate || !this.selectedKyBaoCaoId) {
-      return;
-    }
+    if (!this.canCreate || !this.selectedKyBaoCaoId) return;
 
-    const donViId = this.createModel.donViId ?? 0;
     const lyDo = this.createModel.lyDo.trim();
-    if (!donViId || !lyDo) {
-      this.notificationService.show(
-        'warning',
-        'Cần chọn đơn vị và nhập lý do bổ sung.',
-      );
+    if (!lyDo) {
+      this.notificationService.show('warning', 'Vui lòng nhập lý do bổ sung.');
       return;
     }
 
     const payload: CreateYeuCauBoSungRequest = {
       kyBaoCaoId: this.selectedKyBaoCaoId,
-      donViId,
+      donViId: this.currentDonViId,
       lyDo,
       hanBoSung: this.normalizeDateValue(this.createModel.hanBoSung),
     };
@@ -195,8 +252,8 @@ export class YeuCauBoSungPage {
     this.creating = true;
     try {
       await this.yeuCauApi.create(payload);
-      this.notificationService.show('success', 'Đã tạo yêu cầu bổ sung.');
-      this.resetCreateForm();
+      this.notificationService.show('success', 'Đã gửi yêu cầu bổ sung. Vui lòng chờ duyệt.');
+      this.closeCreateDialog();
       await this.loadRequests(this.selectedKyBaoCaoId);
     } catch (error: unknown) {
       this.notificationService.show('error', this.extractError(error));
@@ -205,30 +262,31 @@ export class YeuCauBoSungPage {
     }
   }
 
-  async approve(item: YeuCauBoSungDto): Promise<void> {
-    if (!this.canApprove || item.trangThai !== 1) {
-      return;
-    }
+  // ── Approve / Reject ──────────────────────────────────────────────────────
 
-    const confirmed = await this.confirmDialog.confirmApprove({
-      header: 'Duyệt yêu cầu bổ sung',
-      message: `Xác nhận duyệt yêu cầu #${item.id} để mở lại snapshot cho đơn vị #${item.donViId}?`,
-      acceptLabel: 'Duyệt',
-    });
+  openApproveDialog(item: YeuCauBoSungDto): void {
+    if (!this.canApprove || item.trangThai !== 1) return;
+    this.approveTarget = item;
+    this.approveHanBoSung = item.hanBoSung ?? '';
+    this.showApproveDialog = true;
+  }
 
-    if (!confirmed || !this.selectedKyBaoCaoId) {
-      return;
-    }
+  closeApproveDialog(): void {
+    this.showApproveDialog = false;
+    this.approveTarget = null;
+    this.approveHanBoSung = '';
+  }
+
+  async confirmApprove(): Promise<void> {
+    if (!this.approveTarget || !this.selectedKyBaoCaoId) return;
 
     this.processing = true;
     try {
-      await this.yeuCauApi.duyet(item.id, {
-        hanBoSung: item.hanBoSung,
+      await this.yeuCauApi.duyet(this.approveTarget.id, {
+        hanBoSung: this.approveHanBoSung || undefined,
       });
-      this.notificationService.show(
-        'success',
-        'Đã duyệt yêu cầu và mở lại snapshot.',
-      );
+      this.notificationService.show('success', 'Đã duyệt yêu cầu và mở lại snapshot.');
+      this.closeApproveDialog();
       await this.loadRequests(this.selectedKyBaoCaoId);
     } catch (error: unknown) {
       this.notificationService.show('error', this.extractError(error));
@@ -237,24 +295,21 @@ export class YeuCauBoSungPage {
     }
   }
 
-  openReject(item: YeuCauBoSungDto): void {
-    if (!this.canApprove || item.trangThai !== 1) {
-      return;
-    }
-
+  openRejectDialog(item: YeuCauBoSungDto): void {
+    if (!this.canApprove || item.trangThai !== 1) return;
     this.rejectTarget = item;
     this.rejectReason = '';
+    this.showRejectDialog = true;
   }
 
-  cancelReject(): void {
+  closeRejectDialog(): void {
+    this.showRejectDialog = false;
     this.rejectTarget = null;
     this.rejectReason = '';
   }
 
   async submitReject(): Promise<void> {
-    if (!this.rejectTarget || !this.selectedKyBaoCaoId) {
-      return;
-    }
+    if (!this.rejectTarget || !this.selectedKyBaoCaoId) return;
 
     const reason = this.rejectReason.trim();
     if (!reason) {
@@ -262,23 +317,11 @@ export class YeuCauBoSungPage {
       return;
     }
 
-    const confirmed = await this.confirmDialog.confirmReject({
-      header: 'Từ chối yêu cầu bổ sung',
-      message: `Xác nhận từ chối yêu cầu #${this.rejectTarget.id}?`,
-      acceptLabel: 'Từ chối',
-    });
-
-    if (!confirmed) {
-      return;
-    }
-
     this.processing = true;
     try {
-      await this.yeuCauApi.tuChoi(this.rejectTarget.id, {
-        tuChoiLyDo: reason,
-      });
+      await this.yeuCauApi.tuChoi(this.rejectTarget.id, { tuChoiLyDo: reason });
       this.notificationService.show('success', 'Đã từ chối yêu cầu bổ sung.');
-      this.cancelReject();
+      this.closeRejectDialog();
       await this.loadRequests(this.selectedKyBaoCaoId);
     } catch (error: unknown) {
       this.notificationService.show('error', this.extractError(error));
@@ -287,61 +330,30 @@ export class YeuCauBoSungPage {
     }
   }
 
-  statusLabel(status: number): string {
-    switch (status) {
-      case 1:
-        return 'Chờ duyệt';
-      case 2:
-        return 'Đã duyệt';
-      case 3:
-        return 'Từ chối';
-      case 4:
-        return 'Đang bổ sung';
-      case 5:
-        return 'Hoàn thành';
-      default:
-        return 'Không xác định';
-    }
-  }
-
-  statusKey(status: number): string {
-    switch (status) {
-      case 1:
-        return 'draft';
-      case 2:
-        return 'submitted';
-      case 3:
-        return 'rejected';
-      case 4:
-        return 'submitted';
-      case 5:
-        return 'locked';
-      default:
-        return '';
-    }
-  }
-
   canAct(item: YeuCauBoSungDto): boolean {
     return this.canApprove && item.trangThai === 1;
   }
 
-  formatDate(value?: string): string {
-    return value ? new Date(value).toLocaleString('vi-VN') : '-';
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  statusLabel(status: number): string {
+    const map: Record<number, string> = {
+      1: 'Chờ duyệt', 2: 'Đã duyệt', 3: 'Từ chối', 4: 'Đang bổ sung', 5: 'Hoàn thành',
+    };
+    return map[status] ?? 'Không xác định';
   }
 
-  kyStatusLabel(status: number): string {
-    switch (status) {
-      case 1:
-        return 'Chuẩn bị';
-      case 2:
-        return 'Đang mở';
-      case 3:
-        return 'Đã đóng';
-      case 4:
-        return 'Khóa';
-      default:
-        return 'Không xác định';
-    }
+  statusTone(status: number): BadgeTone {
+    const map: Record<number, BadgeTone> = {
+      1: 'warning', 2: 'info', 3: 'danger', 4: 'warning', 5: 'success',
+    };
+    return map[status] ?? 'neutral';
+  }
+
+  relevantTimestamp(item: YeuCauBoSungDto): { label: string; value: string } | null {
+    if (item.completedAt) return { label: 'Hoàn thành', value: item.completedAt };
+    if (item.approvedAt) return { label: item.trangThai === 3 ? 'Từ chối' : 'Duyệt', value: item.approvedAt };
+    return { label: 'Gửi lúc', value: item.requestedAt };
   }
 
   private async loadRequests(kyBaoCaoId: number): Promise<void> {
@@ -357,34 +369,18 @@ export class YeuCauBoSungPage {
   }
 
   private flattenDonViOptions(
-    items: Array<{
-      id: number;
-      maDonVi: string;
-      tenDonVi: string;
-      children: unknown[];
-    }>,
+    items: Array<{ id: number; maDonVi: string; tenDonVi: string; children: unknown[] }>,
     level = 0,
   ): DonViOption[] {
     const result: DonViOption[] = [];
     for (const item of items) {
-      const prefix = level > 0 ? `${'--'.repeat(level)} ` : '';
-      result.push({
-        label: `${prefix}${item.tenDonVi} (${item.maDonVi})`,
-        value: item.id,
-      });
-
+      const prefix = level > 0 ? `${'–'.repeat(level)} ` : '';
+      result.push({ label: `${prefix}${item.tenDonVi}`, value: item.id });
       const children = Array.isArray(item.children)
-        ? (item.children as Array<{
-            id: number;
-            maDonVi: string;
-            tenDonVi: string;
-            children: unknown[];
-          }>)
+        ? (item.children as Array<{ id: number; maDonVi: string; tenDonVi: string; children: unknown[] }>)
         : [];
-
       result.push(...this.flattenDonViOptions(children, level + 1));
     }
-
     return result;
   }
 
@@ -393,17 +389,14 @@ export class YeuCauBoSungPage {
     return trimmed ? trimmed : undefined;
   }
 
-  private resetCreateForm(): void {
-    this.createModel = {
-      donViId: null,
-      lyDo: '',
-      hanBoSung: '',
-    };
-  }
-
   private extractError(error: unknown): string {
-    const message = (error as { error?: { error?: { message?: string } } })
-      ?.error?.error?.message;
-    return message || 'Thao tác thất bại, vui lòng thử lại.';
+    const r = (error as { error?: { error?: { message?: string; Message?: string }; Error?: { message?: string; Message?: string } } })?.error;
+    return (
+      r?.error?.message ??
+      r?.error?.Message ??
+      r?.Error?.message ??
+      r?.Error?.Message ??
+      'Thao tác thất bại, vui lòng thử lại.'
+    );
   }
 }

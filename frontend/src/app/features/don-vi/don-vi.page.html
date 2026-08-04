@@ -1,8 +1,4 @@
-<app-section-card
-  title="Danh mục đơn vị"
-  subtitle="Quản lý cây đơn vị và cập nhật thông tin chi tiết."
-  styleClass="donvi-card"
->
+<app-section-card title="Danh mục đơn vị" styleClass="donvi-card">
   <div sectionActions class="head-actions">
     <button
       pButton
@@ -22,7 +18,7 @@
     ></button>
   </div>
 
-  <div class="content-shell mt-3">
+  <div class="content-shell mt-2">
     <app-loading-overlay
       [active]="loading"
       label="Đang tải danh sách đơn vị..."
@@ -44,9 +40,6 @@
           <div class="tree-header">
             <div class="panel-heading">
               <h3 class="panel-title">Cây đơn vị</h3>
-              <p class="panel-subtitle">
-                Tìm kiếm, chọn nhanh và thêm đơn vị con theo cấp.
-              </p>
             </div>
             <span class="tree-count">{{ treeRows.length }} mục</span>
           </div>
@@ -74,7 +67,7 @@
           </div>
         </div>
 
-        <div class="tree-panel__body">
+        <div class="tree-panel__body" #treeBody>
           <app-empty-state
             *ngIf="treeRows.length === 0"
             title="Không tìm thấy đơn vị phù hợp"
@@ -107,6 +100,7 @@
 
               <div
                 class="unit-tree-node"
+                [attr.data-node-id]="row.item.id"
                 [class.is-selected]="selected?.id === row.item.id"
                 [class.is-matched]="row.matched"
                 [class.is-inactive]="!row.item.isActive"
@@ -140,10 +134,7 @@
                   class="unit-tree-node__label"
                   (click)="select(row.item.id)"
                 >
-                  <span
-                    class="node-name"
-                    [innerHTML]="highlightNodeName(row.item.tenDonVi)"
-                  ></span>
+                  <span class="node-name" [innerHTML]="row.label"></span>
                 </button>
 
                 <span
@@ -171,28 +162,9 @@
             {{ editorMode === 'edit' ? 'Cập nhật đơn vị' : editorMode ===
             'create-child' ? 'Thêm đơn vị con' : 'Tạo đơn vị mới' }}
           </h3>
-          <p class="panel-subtitle">
-            {{ editorMode === 'create-child' && selectedParent ? 'Đơn vị mới sẽ
-            được tạo trực thuộc đơn vị đang chọn.' : 'Cập nhật thông tin đơn vị
-            theo cấu trúc tổ chức.' }}
-          </p>
         </div>
 
-        <div class="selection-summary" *ngIf="selectedParent || selected">
-          <span class="summary-chip" *ngIf="selectedParent">
-            Đơn vị cha: {{ selectedParent.tenDonVi }}
-          </span>
-          <span class="summary-chip" *ngIf="selected && !selectedParent">
-            Đang chỉnh sửa: {{ selected.tenDonVi }}
-          </span>
-          <span class="summary-chip" *ngIf="selected?.parentDisplayName">
-            Trực thuộc: {{ selected?.parentDisplayName }}
-          </span>
-          <span class="summary-chip" *ngIf="selected?.capDonVi">
-            Cấp đơn vị: {{ resolveCapDonViLabel(selected?.capDonVi) }}
-          </span>
-        </div>
-
+        <div class="editor__body">
         <div class="stats-grid" *ngIf="selected">
           <div class="stat-card">
             <span class="stat-card__label">Số ĐV cấp Phòng</span>
@@ -208,44 +180,46 @@
           </div>
         </div>
 
-        <div class="app-field">
-          <label for="maDonVi">Mã đơn vị</label>
-          <input
-            pInputText
-            id="maDonVi"
-            type="text"
-            formControlName="maDonVi"
-          />
-        </div>
-        <small
-          class="app-validation-error"
-          *ngIf="form.controls.maDonVi.invalid && form.controls.maDonVi.touched"
-          >Mã đơn vị bắt buộc, tối đa 50 ký tự.</small
-        >
+        <div class="primary-fields">
+          <div class="app-field">
+            <label for="maDonVi">Mã đơn vị</label>
+            <input
+              pInputText
+              id="maDonVi"
+              type="text"
+              formControlName="maDonVi"
+            />
+            <small
+              class="app-validation-error"
+              *ngIf="form.controls.maDonVi.invalid && form.controls.maDonVi.touched"
+              >Mã đơn vị bắt buộc, tối đa 50 ký tự.</small
+            >
+          </div>
 
-        <div class="app-field">
-          <label for="tenDonVi">Tên đơn vị</label>
-          <input
-            pInputText
-            id="tenDonVi"
-            type="text"
-            formControlName="tenDonVi"
-          />
-        </div>
-        <small
-          class="app-validation-error"
-          *ngIf="form.controls.tenDonVi.invalid && form.controls.tenDonVi.touched"
-          >Tên đơn vị bắt buộc, tối đa 200 ký tự.</small
-        >
+          <div class="app-field">
+            <label for="tenDonVi">Tên đơn vị</label>
+            <input
+              pInputText
+              id="tenDonVi"
+              type="text"
+              formControlName="tenDonVi"
+            />
+            <small
+              class="app-validation-error"
+              *ngIf="form.controls.tenDonVi.invalid && form.controls.tenDonVi.touched"
+              >Tên đơn vị bắt buộc, tối đa 200 ký tự.</small
+            >
+          </div>
 
-        <div class="app-field">
-          <label for="tenVietTat">Tên viết tắt</label>
-          <input
-            pInputText
-            id="tenVietTat"
-            type="text"
-            formControlName="tenVietTat"
-          />
+          <div class="app-field">
+            <label for="tenVietTat">Tên viết tắt</label>
+            <input
+              pInputText
+              id="tenVietTat"
+              type="text"
+              formControlName="tenVietTat"
+            />
+          </div>
         </div>
 
         <div class="two-col">
@@ -287,6 +261,30 @@
               optionValue="value"
               placeholder="Chọn cấp đơn vị"
               [showClear]="true"
+              appendTo="body"
+            ></p-dropdown>
+          </div>
+          <div class="app-field">
+            <label for="khoiDonVi">Khối đơn vị</label>
+            <p-dropdown
+              inputId="khoiDonVi"
+              formControlName="khoiDonVi"
+              [options]="khoiDonViOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Chọn khối đơn vị"
+              [showClear]="true"
+              appendTo="body"
+            ></p-dropdown>
+          </div>
+          <div class="app-field" *ngIf="showCheDoNhapLieuField">
+            <label for="cheDoNhapLieu">Chế độ nhập liệu</label>
+            <p-dropdown
+              inputId="cheDoNhapLieu"
+              formControlName="cheDoNhapLieu"
+              [options]="cheDoNhapLieuOptions"
+              optionLabel="label"
+              optionValue="value"
               appendTo="body"
             ></p-dropdown>
           </div>
@@ -333,6 +331,7 @@
         </div>
 
         <p class="app-validation-error" *ngIf="apiError">{{ apiError }}</p>
+        </div>
 
         <app-form-action-bar>
           <button

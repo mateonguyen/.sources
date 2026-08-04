@@ -19,6 +19,8 @@ export interface KyBaoCaoDto {
   ngayBatDau?: string;
   ngayKetThuc?: string;
   ghiChu?: string;
+  tenKy?: string;
+  moduleList?: string[];
 }
 
 export interface KyBaoCaoTienDoDonViDto {
@@ -55,6 +57,13 @@ export interface CreateKyBaoCaoRequest {
   quy?: number;
   thang?: number;
   ngayBatDau?: string;
+  ngayKetThuc?: string;
+  ghiChu?: string;
+  tenKy: string;
+}
+
+export interface UpdateKyBaoCaoRequest {
+  tenKy: string;
   ngayKetThuc?: string;
   ghiChu?: string;
 }
@@ -115,6 +124,31 @@ export class KyBaoCaoApi {
         payload,
       ),
     ).then((response) => response.data);
+  }
+
+  getDonViTrangThai(kyBaoCaoId: number): Promise<number> {
+    return firstValueFrom(
+      this.httpClient.get<ApiResponse<number>>(
+        `${API_BASE_URL}/ky-bao-cao/${kyBaoCaoId}/don-vi-trang-thai`,
+      ),
+    ).then((r) => r.data ?? 1);
+  }
+
+  update(id: number, payload: UpdateKyBaoCaoRequest): Promise<KyBaoCaoDto> {
+    return firstValueFrom(
+      this.httpClient.put<ApiResponse<KyBaoCaoDto>>(
+        `${API_BASE_URL}/ky-bao-cao/${id}`,
+        payload,
+      ),
+    ).then((response) => response.data);
+  }
+
+  delete(id: number): Promise<void> {
+    return firstValueFrom(
+      this.httpClient.delete<ApiResponse<null>>(
+        `${API_BASE_URL}/ky-bao-cao/${id}`,
+      ),
+    ).then(() => undefined);
   }
 
   updateStatus(

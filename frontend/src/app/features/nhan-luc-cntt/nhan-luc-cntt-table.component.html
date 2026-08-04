@@ -92,27 +92,23 @@
           <td class="col-trinh-do">{{ item.trinhDoCnttText }}</td>
           <td class="col-dien-thoai">{{ item.dienThoaiText }}</td>
           <td class="col-thao-tac" (click)="$event.stopPropagation()">
-            <div class="app-table-actions">
+            <div class="action-btns">
               <button
-                pButton
                 type="button"
-                icon="pi pi-pencil"
-                class="p-button-text app-table-action-btn app-table-action-btn--edit"
+                class="action-btn action-btn--edit"
                 pTooltip="Chỉnh sửa hồ sơ"
                 tooltipPosition="top"
                 aria-label="Chỉnh sửa hồ sơ"
                 (click)="edit.emit(item)"
-              ></button>
+              ><i class="pi pi-pencil"></i></button>
               <button
-                pButton
                 type="button"
-                icon="pi pi-trash"
-                class="p-button-text p-button-danger app-table-action-btn app-table-action-btn--delete"
+                class="action-btn action-btn--delete"
                 pTooltip="Xóa hồ sơ"
                 tooltipPosition="top"
                 aria-label="Xóa hồ sơ"
                 (click)="delete.emit(item)"
-              ></button>
+              ><i class="pi pi-trash"></i></button>
             </div>
           </td>
         </tr>

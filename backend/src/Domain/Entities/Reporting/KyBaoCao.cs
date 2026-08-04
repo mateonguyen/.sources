@@ -28,6 +28,9 @@ public sealed class KyBaoCao : AuditableEntityBase
 
     public string? GhiChu { get; set; }
 
+    /// <summary>Tên kỳ do người dùng đặt, phải duy nhất. VD: "Báo cáo An toàn thông tin Quý 2 Năm 2026"</summary>
+    public string? TenKy { get; set; }
+
     /// <summary>FK đến mẫu báo cáo. Xác định loại báo cáo và danh sách module cần nộp.</summary>
     public long? MauBaoCaoId { get; set; }
 

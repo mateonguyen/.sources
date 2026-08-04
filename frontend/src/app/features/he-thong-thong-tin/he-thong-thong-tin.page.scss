@@ -1,4 +1,4 @@
-:host ::ng-deep .app-httt-dialog .app-dialog-body-standard {
+﻿:host ::ng-deep .app-httt-dialog .app-dialog-body-standard {
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -64,7 +64,7 @@
   min-height: 2.75rem;
   width: 100%;
   padding: 0.5rem 1rem;
-  border-radius: 0.45rem;
+  border-radius: var(--app-radius);
   border: 1px solid var(--app-border);
   background: #fff;
   color: var(--app-text-muted);
@@ -107,7 +107,7 @@
   min-width: 1.4rem;
   height: 1.3rem;
   padding: 0 0.44rem;
-  border-radius: 999px;
+  border-radius: var(--app-radius);
   background: var(--app-primary-50);
   border: 1px solid var(--app-primary-100);
   color: var(--app-primary-600);
@@ -241,7 +241,7 @@
   padding: 1.25rem 1rem;
   text-align: center;
   color: var(--app-text-muted);
-  border-radius: calc(var(--app-radius-md) - 4px);
+  border-radius: var(--app-radius);
   background: color-mix(in srgb, var(--app-surface-soft) 26%, transparent);
 
   i {
@@ -265,7 +265,7 @@
   }
 }
 
-// ── HTTT Tiêu chuẩn inline grid ─────────────────────────────────────────────
+// â”€â”€ HTTT TiÃªu chuáº©n inline grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 .httt-dirty-banner {
   display: flex;
@@ -473,7 +473,7 @@
     justify-content: center;
   }
 
-  // Pencil hint — hidden by default, shown on row hover
+  // Pencil hint â€” hidden by default, shown on row hover
   .httt-edit-hint {
     position: absolute;
     right: 0.1rem;

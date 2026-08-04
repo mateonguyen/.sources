@@ -17,6 +17,8 @@ export interface DonViDto {
   parentDisplayName?: string;
   diaChi?: string;
   capDonVi?: string;
+  khoiDonVi?: string;
+  cheDoNhapLieu: string;
   websiteNoiBo?: string;
   websiteInternet?: string;
   tongBienChe?: number;
@@ -42,6 +44,8 @@ export interface UpsertDonViRequest {
   parentId?: number;
   diaChi?: string;
   capDonVi?: string;
+  khoiDonVi?: string;
+  cheDoNhapLieu?: string;
   websiteNoiBo?: string;
   websiteInternet?: string;
   tongBienChe?: number;

@@ -43,10 +43,27 @@ public sealed class UserService : IUserService
 
     public async Task<UserDto> CreateAsync(CreateUserRequest request, CancellationToken cancellationToken = default)
     {
+        var normalizedUserName = request.Username.Trim().ToUpperInvariant();
+        var duplicateUser = await _dbContext.Users
+            .CountAsync(x => x.NormalizedUserName == normalizedUserName, cancellationToken) > 0;
+        if (duplicateUser)
+        {
+            throw new AppException("USER_DUPLICATE", "Tên đăng nhập đã tồn tại.", 409);
+        }
+
+        if (_dbContext is not DbContext efDbContext)
+        {
+            throw new InvalidOperationException("Database context does not support transactions.");
+        }
+
+        await using var transaction = await efDbContext.Database.BeginTransactionAsync(cancellationToken);
+
         var entity = new ApplicationUser
         {
             UserName = request.Username.Trim().ToLowerInvariant(),
+            NormalizedUserName = normalizedUserName,
             Email = request.Email,
+            NormalizedEmail = request.Email?.Trim().ToUpperInvariant(),
             HoTen = request.HoTen,
             SoDienThoai = request.SoDienThoai,
             DonViId = request.DonViId,
@@ -56,6 +73,18 @@ public sealed class UserService : IUserService
         entity.PasswordHash = _passwordHasher.HashPassword(entity, request.Password);
         await _dbContext.Users.AddAsync(entity, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        if (request.RoleIds.Count > 0)
+        {
+            await AssignRolesInternalAsync(entity.Id, new AssignRolesRequest
+            {
+                DonViId = request.DonViId,
+                RoleIds = request.RoleIds
+            }, saveChanges: false, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        await transaction.CommitAsync(cancellationToken);
         return (await GetAllAsync(cancellationToken)).First(x => x.Id == entity.Id);
     }
 
@@ -65,6 +94,7 @@ public sealed class UserService : IUserService
         entity.HoTen = request.HoTen;
         entity.Email = request.Email;
         entity.SoDienThoai = request.SoDienThoai;
+        entity.DonViId = request.DonViId;
         entity.IsActive = request.IsActive;
         entity.MustChangePassword = request.MustChangePassword;
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -72,6 +102,9 @@ public sealed class UserService : IUserService
     }
 
     public async Task AssignRolesAsync(long id, AssignRolesRequest request, CancellationToken cancellationToken = default)
+        => await AssignRolesInternalAsync(id, request, saveChanges: true, cancellationToken);
+
+    private async Task AssignRolesInternalAsync(long id, AssignRolesRequest request, bool saveChanges, CancellationToken cancellationToken)
     {
         var roles = await _dbContext.Roles
             .Where(r => request.RoleIds.Contains(r.Id))
@@ -79,10 +112,10 @@ public sealed class UserService : IUserService
 
         var roleCapDonViConstraints = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
         {
-            ["QUAN_LY"] = ["CUC"],
-            ["LANH_DAO"] = ["CUC"],
-            ["CAP_TINH"] = ["TINH"],
-            ["CAP_XA"] = ["PHONG", "XA"]
+            ["QUAN_LY"] = ["CAP_1"],
+            ["LANH_DAO"] = ["CAP_1"],
+            ["CAP_TINH"] = ["CAP_1"],
+            ["CAP_XA"] = ["CAP_2"]
         };
 
         var donVi = await _dbContext.DonVis
@@ -117,6 +150,9 @@ public sealed class UserService : IUserService
             }, cancellationToken);
         }
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        if (saveChanges)
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 }

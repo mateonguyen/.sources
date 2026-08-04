@@ -18,6 +18,8 @@ public sealed class DonVi : AuditableSoftDeleteEntityBase
 
     public string? CapDonVi { get; set; }
 
+    public string? KhoiDonVi { get; set; }
+
     public string? WebsiteNoiBo { get; set; }
 
     public string? WebsiteInternet { get; set; }

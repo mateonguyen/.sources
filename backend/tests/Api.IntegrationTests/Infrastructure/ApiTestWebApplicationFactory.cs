@@ -41,7 +41,11 @@ public sealed class ApiTestWebApplicationFactory : WebApplicationFactory<Program
             services.AddDbContext<AppDbContext>(options =>
                 options
                     .UseInMemoryDatabase(_databaseName)
-                    .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning)));
+                    .ConfigureWarnings(warnings =>
+                    {
+                        warnings.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning);
+                        warnings.Ignore(InMemoryEventId.TransactionIgnoredWarning);
+                    }));
             services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<AppDbContext>());
             services.AddSingleton<IFileStorageService>(FakeFileStorageService);
             services.AddSingleton<IPdfService>(FakePdfService);

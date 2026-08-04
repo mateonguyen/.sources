@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Options;
 using ThucLuc.Application.Common.Contracts;
 using ThucLuc.Domain.Common.Interfaces;
@@ -15,6 +16,23 @@ namespace ThucLuc.Infrastructure.Persistence;
 
 public sealed class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, long>, IApplicationDbContext
 {
+    private static readonly ValueConverter<bool, short> BoolToShortConverter =
+        new(
+            value => value ? (short)1 : (short)0,
+            value => value == 1);
+    private static readonly ValueConverter<bool?, short?> NullableBoolToShortConverter =
+        new(
+            value => value.HasValue ? (value.Value ? (short)1 : (short)0) : null,
+            value => value.HasValue ? value.Value == 1 : null);
+    private static readonly ValueConverter<DateOnly, DateTime> DateOnlyConverter =
+        new(
+            value => value.ToDateTime(TimeOnly.MinValue),
+            value => DateOnly.FromDateTime(value));
+    private static readonly ValueConverter<DateOnly?, DateTime?> NullableDateOnlyConverter =
+        new(
+            value => value.HasValue ? value.Value.ToDateTime(TimeOnly.MinValue) : null,
+            value => value.HasValue ? DateOnly.FromDateTime(value.Value) : null);
+
     private readonly ICurrentUserService _currentUserService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly DatabaseOptions _databaseOptions;
@@ -43,6 +61,7 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, Applicatio
     public DbSet<KyBaoCao> KyBaoCaos => Set<KyBaoCao>();
     public DbSet<KyTrangThaiDonVi> KyTrangThaiDonVis => Set<KyTrangThaiDonVi>();
     public DbSet<BaoCaoSnapshot> BaoCaoSnapshots => Set<BaoCaoSnapshot>();
+    public DbSet<BaoCaoSnapshotXacNhan> BaoCaoSnapshotXacNhans => Set<BaoCaoSnapshotXacNhan>();
     public DbSet<SnapshotBatch> SnapshotBatches => Set<SnapshotBatch>();
     public DbSet<BaoCaoFile> BaoCaoFiles => Set<BaoCaoFile>();
     public DbSet<FileDinhKem> FileDinhKems => Set<FileDinhKem>();
@@ -101,14 +120,24 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, Applicatio
                 if (property.ClrType == typeof(bool))
                 {
                     property.SetColumnType("NUMBER(1)");
-                    property.SetProviderClrType(typeof(int));
-                    property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.BoolToZeroOneConverter<int>());
+                    property.SetValueConverter(BoolToShortConverter);
                 }
                 else if (property.ClrType == typeof(bool?))
                 {
                     property.SetColumnType("NUMBER(1)");
-                    property.SetProviderClrType(typeof(int?));
-                    property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.BoolToZeroOneConverter<int?>());
+                    property.SetValueConverter(NullableBoolToShortConverter);
+                }
+                else if (property.ClrType == typeof(DateOnly))
+                {
+                    property.SetColumnType("DATE");
+                    property.SetProviderClrType(typeof(DateTime));
+                    property.SetValueConverter(DateOnlyConverter);
+                }
+                else if (property.ClrType == typeof(DateOnly?))
+                {
+                    property.SetColumnType("DATE");
+                    property.SetProviderClrType(typeof(DateTime?));
+                    property.SetValueConverter(NullableDateOnlyConverter);
                 }
             }
         }

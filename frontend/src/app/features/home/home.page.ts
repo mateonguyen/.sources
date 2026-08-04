@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -6,21 +6,29 @@ import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import { AuthService } from '../../core/auth/auth.service';
+import { DonViModeService } from '../../core/don-vi/don-vi-mode.service';
+import { NotificationService } from '../../core/ui/notification.service';
 import {
   KyBaoCaoApi,
   KyBaoCaoDto,
   KyBaoCaoTienDoDonViDto,
   KyBaoCaoTienDoDto,
 } from '../ky-bao-cao/ky-bao-cao.api';
+import {
+  TienDoDonViDto,
+  TongHopTienDoApi,
+} from '../tong-hop-tien-do/tong-hop-tien-do.api';
 import { EmptyStateComponent } from '../../shared/ui/empty-state.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
-import { SectionCardComponent } from '../../shared/ui/section-card.component';
 
 interface QuickLink {
   label: string;
   route: string;
   icon: string;
   description: string;
+  permission?: string;
+  /** Ẩn khi đơn vị của user ở chế độ nhập liệu TONG_HOP. */
+  hideWhenTongHop?: boolean;
 }
 
 @Component({
@@ -28,113 +36,147 @@ interface QuickLink {
   standalone: true,
   imports: [
     CommonModule,
+    DecimalPipe,
     FormsModule,
     RouterLink,
     ButtonModule,
     DropdownModule,
     TableModule,
-    SectionCardComponent,
     EmptyStateComponent,
     LoadingOverlayComponent,
   ],
   template: `
     <div class="home-page">
-      <section class="home-hero">
-        <div class="home-hero__text">
-          <p class="home-hero__eyebrow">Dashboard báo cáo CNTT</p>
-          <h1 class="home-hero__title">Xin chào, {{ displayName }}</h1>
-          <p class="home-hero__sub">
-            Theo dõi kỳ báo cáo, tiến độ đơn vị và truy cập nhanh các phân hệ
-            nhập liệu.
-          </p>
-        </div>
-        <div class="home-hero__actions">
-          <a
-            pButton
-            routerLink="/ky-bao-cao"
-            label="Quản lý kỳ"
-            icon="pi pi-calendar"
-            severity="secondary"
-          ></a>
-        </div>
-      </section>
-
-      <app-section-card
-        title="Tiến độ kỳ báo cáo"
-        subtitle="Tổng hợp trạng thái nộp báo cáo theo kỳ và theo đơn vị trong phạm vi bạn được phép xem."
-        styleClass="home-dashboard-card"
-      >
-        <div class="dashboard-panel">
-          <app-loading-overlay
-            [active]="loading"
-            label="Đang tải dashboard..."
-          ></app-loading-overlay>
-
-          <div class="dashboard-toolbar">
-            <div class="dashboard-toolbar__field">
-              <label for="homeKyBaoCao">Kỳ báo cáo</label>
-              <p-dropdown
-                inputId="homeKyBaoCao"
-                [options]="kyOptions"
-                optionLabel="label"
-                optionValue="value"
-                [ngModel]="selectedKyId"
-                (ngModelChange)="onKyChange($event)"
-                placeholder="Chọn kỳ báo cáo"
-              ></p-dropdown>
+      <!-- ── Welcome bar ── -->
+      <div class="tc-welcome-bar">
+        <div class="tc-welcome-bar__left">
+          <div class="tc-welcome-bar__icon">
+            <i class="pi pi-home"></i>
+          </div>
+          <div>
+            <div class="tc-welcome-bar__title">Xin chào, {{ displayName }}</div>
+            <div class="tc-welcome-bar__sub">
+              Theo dõi kỳ báo cáo, tiến độ đơn vị và truy cập nhanh các phân hệ
+              nhập liệu.
             </div>
+          </div>
+        </div>
+        <a
+          pButton
+          routerLink="/ky-bao-cao"
+          icon="pi pi-calendar"
+          label="Quản lý kỳ"
+          class="p-button-outlined p-button-sm tc-btn-ky"
+        ></a>
+      </div>
 
-            <div class="dashboard-toolbar__meta" *ngIf="selectedKy">
-              <span class="dashboard-chip">{{
-                kyStatusLabel(selectedKy.trangThai)
-              }}</span>
-              <span *ngIf="selectedKy.ngayBatDau || selectedKy.ngayKetThuc">
-                {{ formatKyDateRange(selectedKy) }}
-              </span>
+      <!-- ── Tiến độ card ── -->
+      <div class="app-page-card tc-progress-card">
+        <app-loading-overlay
+          [active]="loading"
+          label="Đang tải dashboard..."
+        ></app-loading-overlay>
+
+        <div class="tc-progress-card__header">
+          <div>
+            <h2 class="tc-card-title">
+              {{ canViewKyProgress ? 'Tiến độ kỳ báo cáo' : 'Tiến độ của tôi' }}
+            </h2>
+            <p class="tc-card-sub">
+              {{
+                canViewKyProgress
+                  ? 'Tổng hợp trạng thái nộp báo cáo theo kỳ và theo đơn vị trong phạm vi bạn được phép xem.'
+                  : 'Theo dõi trạng thái khai báo của đơn vị và xác nhận hoàn tất.'
+              }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Kỳ bar -->
+        <div class="tc-ky-bar">
+          <span class="tc-ky-bar__label">Kỳ báo cáo</span>
+          <div class="tc-ky-bar__sep"></div>
+          <div class="tc-ky-bar__group">
+            <p-dropdown
+              [options]="kyOptions"
+              optionLabel="label"
+              optionValue="value"
+              [ngModel]="selectedKyId"
+              (ngModelChange)="onKyChange($event)"
+              appendTo="body"
+              placeholder="Chọn kỳ báo cáo"
+              [style]="{ width: 'auto', minWidth: '280px', maxWidth: '380px' }"
+            ></p-dropdown>
+            <span class="tc-ky-badge" *ngIf="selectedKy?.trangThai === 2"
+              >Đang mở</span
+            >
+            <span class="tc-ky-date" *ngIf="selectedKy?.ngayBatDau">
+              {{ selectedKy!.ngayBatDau | date: 'dd/MM/yyyy' }}
+              –
+              {{ selectedKy!.ngayKetThuc | date: 'dd/MM/yyyy' }}
+            </span>
+          </div>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-refresh"
+            label="Làm mới"
+            class="p-button-outlined p-button-sm tc-btn-refresh"
+            (click)="onKyChange(selectedKyId)"
+          ></button>
+        </div>
+
+        <ng-container
+          *ngIf="canViewKyProgress && progress; else noDashboardData"
+        >
+          <!-- Stat row -->
+          <div class="tc-stat-row">
+            <div class="tc-stat-cell">
+              <div class="tc-stat-lbl">Tổng đơn vị</div>
+              <div class="tc-stat-val">{{ progress.tongDonVi }}</div>
+            </div>
+            <div class="tc-stat-cell">
+              <div class="tc-stat-lbl">Đã nộp</div>
+              <div class="tc-stat-val">{{ progress.soDonViDaNop }}</div>
+            </div>
+            <div class="tc-stat-cell">
+              <div class="tc-stat-lbl">Đang bổ sung</div>
+              <div class="tc-stat-val">{{ progress.soDonViDangBoSung }}</div>
+            </div>
+            <div class="tc-stat-cell">
+              <div class="tc-stat-lbl">Đã xác nhận</div>
+              <div class="tc-stat-val">{{ progress.soDonViDaXacNhan }}</div>
+            </div>
+            <div class="tc-stat-cell tc-stat-cell--alert">
+              <div class="tc-stat-lbl tc-stat-lbl--alert">Chưa nhập</div>
+              <div class="tc-stat-val tc-stat-val--alert">
+                {{ progress.soDonViChuaNhap }}
+              </div>
             </div>
           </div>
 
-          <ng-container *ngIf="progress; else noDashboardData">
-            <div class="dashboard-metrics">
-              <article class="metric-card metric-card--neutral">
-                <span class="metric-card__label">Tổng đơn vị</span>
-                <strong>{{ progress.tongDonVi }}</strong>
-              </article>
-              <article class="metric-card metric-card--success">
-                <span class="metric-card__label">Đã nộp</span>
-                <strong>{{ progress.soDonViDaNop }}</strong>
-              </article>
-              <article class="metric-card metric-card--warning">
-                <span class="metric-card__label">Đang bổ sung</span>
-                <strong>{{ progress.soDonViDangBoSung }}</strong>
-              </article>
-              <article class="metric-card metric-card--info">
-                <span class="metric-card__label">Đã xác nhận</span>
-                <strong>{{ progress.soDonViDaXacNhan }}</strong>
-              </article>
-              <article class="metric-card metric-card--muted">
-                <span class="metric-card__label">Chưa nhập</span>
-                <strong>{{ progress.soDonViChuaNhap }}</strong>
-              </article>
-            </div>
-
-            <div class="dashboard-progressbar" *ngIf="progress.tongDonVi > 0">
+          <!-- Progress row -->
+          <div class="tc-prog-row" *ngIf="progress.tongDonVi > 0">
+            <span class="tc-prog-text">
+              {{ progress.soDonViDaNop }} / {{ progress.tongDonVi }} đơn vị đã
+              nộp
+            </span>
+            <div class="tc-prog-track">
               <div
-                class="dashboard-progressbar__value"
+                class="tc-prog-fill"
                 [style.width.%]="submissionPercent"
               ></div>
             </div>
-            <p
-              class="dashboard-progressbar__caption"
-              *ngIf="progress.tongDonVi > 0"
+            <span class="tc-prog-pct"
+              >{{ submissionPercent | number: '1.0-0' }}%</span
             >
-              {{ submissionPercent | number: '1.0-0' }}% đơn vị đã nộp báo cáo
-              cho {{ progress.kyCode }}.
-            </p>
+          </div>
 
+          <!-- Table -->
+          <div class="tc-table-wrap">
             <p-table
               [value]="progress.donVis"
-              styleClass="home-progress-table"
+              styleClass="home-progress-table app-admin-table"
               [tableStyle]="{ 'min-width': '52rem' }"
               [rows]="8"
             >
@@ -169,29 +211,97 @@ interface QuickLink {
                 </tr>
               </ng-template>
             </p-table>
-          </ng-container>
+          </div>
+        </ng-container>
 
-          <ng-template #noDashboardData>
-            <app-empty-state
-              title="Chưa có dữ liệu tiến độ"
-              message="Chọn kỳ báo cáo hoặc mở kỳ để hệ thống bắt đầu ghi nhận trạng thái các đơn vị."
-              icon="pi-chart-line"
-            ></app-empty-state>
+        <ng-template #noDashboardData>
+          <div
+            class="tc-empty-wrap"
+            *ngIf="canViewMyProgress && myTienDo; else noPermissionData"
+          >
+            <div
+              class="tc-stat-row"
+              style="grid-template-columns: repeat(3, 1fr); border-bottom: 0;"
+            >
+              <div class="tc-stat-cell">
+                <div class="tc-stat-lbl">Đơn vị</div>
+                <div
+                  class="tc-stat-val"
+                  style="font-size: 1rem; line-height: 1.3;"
+                >
+                  {{ myTienDo.tenDonVi }}
+                </div>
+              </div>
+              <div class="tc-stat-cell">
+                <div class="tc-stat-lbl">Đã xác nhận</div>
+                <div
+                  class="tc-stat-val"
+                  [class.tc-stat-val--alert]="
+                    myTienDo.daXacNhan && myTienDo.coThayDoiSauXacNhan
+                  "
+                >
+                  {{
+                    myTienDo.daXacNhan
+                      ? myTienDo.coThayDoiSauXacNhan
+                        ? 'Cần xác nhận lại'
+                        : 'Có'
+                      : 'Chưa'
+                  }}
+                </div>
+              </div>
+              <div class="tc-stat-cell">
+                <div class="tc-stat-lbl">Tổng bản ghi</div>
+                <div class="tc-stat-val">{{ myTotalRecords }}</div>
+              </div>
+            </div>
+            <div class="mt-3" style="display:flex; justify-content:flex-end;">
+              <button
+                pButton
+                type="button"
+                [icon]="
+                  myTienDo.daXacNhan && !myTienDo.coThayDoiSauXacNhan
+                    ? 'pi pi-times'
+                    : 'pi pi-check'
+                "
+                [label]="
+                  myTienDo.daXacNhan
+                    ? myTienDo.coThayDoiSauXacNhan
+                      ? 'Xác nhận lại'
+                      : 'Hủy xác nhận'
+                    : 'Xác nhận hoàn tất'
+                "
+                class="p-button-sm"
+                (click)="toggleMyXacNhan()"
+              ></button>
+            </div>
+          </div>
+          <ng-template #noPermissionData>
+            <div class="tc-empty-wrap">
+              <app-empty-state
+                title="Chưa có dữ liệu tiến độ"
+                message="Chọn kỳ báo cáo hoặc mở kỳ để hệ thống bắt đầu ghi nhận trạng thái các đơn vị."
+                icon="pi-chart-line"
+              ></app-empty-state>
+            </div>
           </ng-template>
-        </div>
-      </app-section-card>
+        </ng-template>
+      </div>
 
+      <!-- ── Quick access ── -->
       <div class="home-quick-links">
         <h2 class="home-section-title">Truy cập nhanh</h2>
-        <div class="home-quick-grid">
+        <div class="tc-qa-grid">
           <a
             *ngFor="let link of quickLinks"
             [routerLink]="link.route"
-            class="quick-card"
+            class="tc-qa-card"
           >
-            <span class="quick-card__icon"><i [class]="link.icon"></i></span>
-            <span class="quick-card__label">{{ link.label }}</span>
-            <span class="quick-card__desc">{{ link.description }}</span>
+            <span class="tc-qa-icon"><i [class]="link.icon"></i></span>
+            <div class="tc-qa-body">
+              <div class="tc-qa-name">{{ link.label }}</div>
+              <div class="tc-qa-sub">{{ link.description }}</div>
+            </div>
+            <i class="pi pi-chevron-right tc-qa-arr"></i>
           </a>
         </div>
       </div>
@@ -202,350 +312,510 @@ interface QuickLink {
       .home-page {
         display: flex;
         flex-direction: column;
-        gap: 2rem;
-        padding: 0.25rem;
-      }
-
-      .home-hero {
-        display: flex;
-        justify-content: space-between;
-        align-items: end;
         gap: 1.5rem;
-        background: linear-gradient(
-          135deg,
-          var(--app-primary-50) 0%,
-          #fff 100%
-        );
+      }
+
+      /* ── Welcome bar ── */
+      .tc-welcome-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 18px;
+        background: var(--app-surface);
         border: 1px solid var(--app-border);
-        border-radius: 0.75rem;
-        padding: 2rem 2.25rem;
+        border-radius: 6px;
       }
-
-      .home-hero__eyebrow {
-        margin: 0 0 0.35rem;
-        font-size: 0.75rem;
+      .tc-welcome-bar__left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+      }
+      .tc-welcome-bar__icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        background: #eef3f9;
+        color: var(--app-primary-500);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 1rem;
+      }
+      .tc-welcome-bar__title {
+        font-size: 1.08rem;
         font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--app-primary-600);
+        color: var(--app-text-strong);
       }
-
-      .home-hero__title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--app-primary-600);
-        margin: 0 0 0.4rem;
-      }
-
-      .home-hero__sub {
+      .tc-welcome-bar__sub {
+        font-size: 0.8rem;
         color: var(--app-text-muted);
-        font-size: 0.9375rem;
+        margin-top: 1px;
+      }
+      .tc-btn-ky {
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+      .tc-btn-refresh {
+        margin-left: auto;
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+
+      /* ── Tiến độ card ── */
+      .tc-progress-card {
+        position: relative;
+        overflow: hidden;
+      }
+      .tc-progress-card__header {
+        padding: 16px 20px 12px;
+        border-bottom: 1px solid var(--app-border);
+      }
+      .tc-card-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--app-text-strong);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin: 0 0 2px;
+      }
+      .tc-card-sub {
+        font-size: 0.8rem;
+        color: var(--app-text-muted);
         margin: 0;
       }
 
-      .home-hero__actions {
+      /* ── Kỳ bar ── */
+      .tc-ky-bar {
         display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-      }
-
-      .dashboard-panel {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-
-      .dashboard-toolbar {
-        display: flex;
-        justify-content: space-between;
-        gap: 1rem;
-        align-items: end;
-        flex-wrap: wrap;
-      }
-
-      .dashboard-toolbar__field {
-        min-width: 18rem;
-      }
-
-      .dashboard-toolbar__field label {
-        display: block;
-        margin-bottom: 0.4rem;
-        font-size: 0.8125rem;
-        font-weight: 600;
-        color: var(--app-text-muted);
-      }
-
-      .dashboard-toolbar__meta {
-        display: flex;
-        gap: 0.65rem;
         align-items: center;
-        flex-wrap: wrap;
-        color: var(--app-text-muted);
-        font-size: 0.875rem;
+        gap: 10px;
+        padding: 9px 14px;
+        background: #eef3f9;
+        border-bottom: 1px solid #c4d8ea;
+        flex-wrap: nowrap;
       }
-
-      .dashboard-chip {
+      .tc-ky-bar__label {
+        font-size: 0.63rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--app-primary-500);
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .tc-ky-bar__sep {
+        width: 1px;
+        height: 16px;
+        background: #c4d8ea;
+        flex-shrink: 0;
+      }
+      .tc-ky-bar__group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      :host ::ng-deep .tc-ky-bar .p-dropdown {
+        border: 1.5px solid var(--app-primary-500) !important;
+        border-radius: 6px !important;
+        background: #fff;
+        width: auto !important;
+        min-width: 280px;
+        max-width: 380px;
+      }
+      :host ::ng-deep .tc-ky-bar .p-dropdown .p-dropdown-label {
+        font-weight: 600;
+        font-size: 0.87rem;
+        color: var(--app-primary-500);
+        padding: 5px 10px;
+      }
+      :host ::ng-deep .tc-ky-bar .p-dropdown .p-dropdown-trigger {
+        color: var(--app-primary-500);
+      }
+      .tc-ky-badge {
         display: inline-flex;
         align-items: center;
-        padding: 0.3rem 0.6rem;
-        border-radius: 999px;
-        background: var(--app-surface-soft);
-        border: 1px solid var(--app-border);
-        color: var(--app-text-strong);
+        gap: 4px;
+        padding: 3px 8px;
+        border-radius: 6px;
+        border: 1px solid #5a8a44;
+        background: #edf3e9;
+        color: #3f5f2d;
+        font-size: 0.72rem;
         font-weight: 600;
+        white-space: nowrap;
       }
-
-      .dashboard-metrics {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 0.85rem;
+      .tc-ky-badge::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #5a8a44;
+        display: block;
+        flex-shrink: 0;
       }
-
-      .metric-card {
-        border: 1px solid var(--app-border);
-        border-radius: 0.875rem;
-        padding: 0.95rem 1rem;
-        background: #fff;
-        display: flex;
-        flex-direction: column;
-        gap: 0.35rem;
-      }
-
-      .metric-card strong {
-        font-size: 1.5rem;
-        line-height: 1;
-        color: var(--app-text-strong);
-      }
-
-      .metric-card__label {
-        font-size: 0.8125rem;
+      .tc-ky-date {
+        font-size: 0.76rem;
         color: var(--app-text-muted);
+        white-space: nowrap;
+      }
+
+      /* ── Stat row ── */
+      .tc-stat-row {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        border-bottom: 1px solid var(--app-border);
+      }
+      .tc-stat-cell {
+        padding: 14px 16px;
+        border-right: 1px solid var(--app-border);
+      }
+      .tc-stat-cell:last-child {
+        border-right: 0;
+      }
+      .tc-stat-cell--alert {
+        background: #fef5f5;
+      }
+      .tc-stat-lbl {
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.07em;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        color: var(--app-text-muted);
+        margin-bottom: 5px;
+      }
+      .tc-stat-lbl--alert {
+        color: #8a1f2d;
+      }
+      .tc-stat-val {
+        font-size: 1.65rem;
+        font-weight: 700;
+        color: var(--app-text-strong);
+        line-height: 1;
+      }
+      .tc-stat-val--alert {
+        color: #8a1f2d;
       }
 
-      .metric-card--success {
-        background: linear-gradient(180deg, #effaf4 0%, #ffffff 100%);
+      /* ── Progress row ── */
+      .tc-prog-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 14px;
+        border-bottom: 1px solid var(--app-border);
       }
-
-      .metric-card--warning {
-        background: linear-gradient(180deg, #fff8ea 0%, #ffffff 100%);
+      .tc-prog-text {
+        font-size: 0.76rem;
+        color: var(--app-text-muted);
+        white-space: nowrap;
       }
-
-      .metric-card--info {
-        background: linear-gradient(180deg, #eef6ff 0%, #ffffff 100%);
-      }
-
-      .metric-card--muted {
-        background: linear-gradient(180deg, #f7f8fa 0%, #ffffff 100%);
-      }
-
-      .dashboard-progressbar {
-        width: 100%;
-        height: 0.8rem;
-        border-radius: 999px;
-        background: #edf1f5;
+      .tc-prog-track {
+        flex: 1;
+        height: 6px;
+        border-radius: 3px;
+        background: rgba(120, 95, 55, 0.14);
         overflow: hidden;
       }
-
-      .dashboard-progressbar__value {
-        height: 100%;
-        border-radius: inherit;
-        background: linear-gradient(90deg, #1f7a45 0%, #3fa96a 100%);
+      .tc-prog-fill {
+        height: 6px;
+        border-radius: 3px;
+        background: var(--app-primary-500);
+        transition: width 0.4s ease;
+      }
+      .tc-prog-pct {
+        font-size: 0.76rem;
+        font-weight: 700;
+        color: var(--app-primary-500);
+        min-width: 30px;
+        text-align: right;
       }
 
-      .dashboard-progressbar__caption {
-        margin: -0.15rem 0 0;
-        font-size: 0.875rem;
-        color: var(--app-text-muted);
+      /* ── Table ── */
+      .tc-table-wrap {
+        overflow-x: auto;
       }
-
       .progress-unit-cell {
         display: flex;
         flex-direction: column;
         gap: 0.2rem;
       }
-
       .progress-unit-cell strong {
         color: var(--app-text-strong);
       }
-
       .progress-unit-cell span {
         color: var(--app-text-muted);
         font-size: 0.8125rem;
       }
-
       .dashboard-tag {
         display: inline-flex;
         align-items: center;
         padding: 0.28rem 0.6rem;
-        border-radius: 999px;
+        border-radius: 6px;
         border: 1px solid transparent;
         font-size: 0.8125rem;
         font-weight: 600;
       }
-
       .tag-chua-nhap {
         background: #f3f5f7;
         color: #52606d;
+        border-color: #d4dae0;
       }
-
       .tag-dang-nhap {
         background: #e8f2ff;
         color: #1d5fa8;
+        border-color: #b8d4f0;
       }
-
       .tag-da-xac-nhan {
         background: #f4ecff;
         color: #6d3bb8;
+        border-color: #d0b8f0;
       }
-
       .tag-dang-bo-sung {
         background: #fff4de;
         color: #9a5a00;
+        border-color: #f0d8a0;
       }
-
       .tag-da-nop {
         background: #e8f8ef;
         color: #1f7a45;
+        border-color: #b0dfc0;
+      }
+      .tc-empty-wrap {
+        padding: 2rem 1.5rem;
       }
 
+      /* ── Quick access ── */
       .home-section-title {
         font-size: 0.8125rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         color: var(--app-text-muted);
-        margin: 0 0 0.875rem;
+        margin: 0 0 0.75rem;
       }
-
-      .home-quick-grid {
+      .tc-qa-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 0.875rem;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
       }
-
-      .quick-card {
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-        padding: 1.25rem 1rem;
-        background: #fff;
+      .tc-qa-card {
+        background: var(--app-surface);
         border: 1px solid var(--app-border);
-        border-radius: 0.625rem;
+        border-radius: 6px;
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        gap: 11px;
         text-decoration: none;
         color: var(--app-text);
-        transition: all 150ms ease;
-        cursor: pointer;
+        transition:
+          background 120ms,
+          border-color 120ms;
       }
-
-      .quick-card:hover {
-        border-color: var(--app-primary-500);
-        box-shadow: 0 2px 8px rgba(42, 90, 138, 0.12);
-        transform: translateY(-1px);
+      .tc-qa-card:hover {
+        background: var(--app-surface-soft);
+        border-color: #b8a48a;
       }
-
-      .quick-card__icon {
-        font-size: 1.5rem;
+      .tc-qa-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 6px;
+        background: #eef3f9;
         color: var(--app-primary-500);
-        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 0.95rem;
       }
-
-      .quick-card__label {
-        font-size: 0.9375rem;
+      .tc-qa-body {
+        min-width: 0;
+        flex: 1;
+      }
+      .tc-qa-name {
+        font-size: 0.85rem;
         font-weight: 600;
         color: var(--app-text-strong);
-        line-height: 1.3;
       }
-
-      .quick-card__desc {
-        font-size: 0.8125rem;
+      .tc-qa-sub {
+        font-size: 0.73rem;
         color: var(--app-text-muted);
-        line-height: 1.4;
+        margin-top: 1px;
+      }
+      .tc-qa-arr {
+        font-size: 0.72rem;
+        color: #c8bfb2;
+        flex-shrink: 0;
       }
 
       @media (max-width: 900px) {
-        .home-hero {
-          flex-direction: column;
-          align-items: stretch;
+        .tc-stat-row {
+          grid-template-columns: repeat(3, 1fr);
         }
-
-        .home-hero__actions {
-          width: 100%;
+        .tc-qa-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .tc-welcome-bar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+      @media (max-width: 600px) {
+        .tc-stat-row {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .tc-qa-grid {
+          grid-template-columns: 1fr 1fr;
         }
       }
     `,
   ],
 })
 export class HomePage {
-  currentKy: KyBaoCaoDto | null = null;
   selectedKyId: number | null = null;
+  selectedKyCode: string | null = null;
   progress: KyBaoCaoTienDoDto | null = null;
+  myTienDo: TienDoDonViDto | null = null;
   loading = false;
 
-  readonly quickLinks: QuickLink[] = [
+  private readonly allQuickLinks: QuickLink[] = [
+    {
+      label: 'Tiến độ của tôi',
+      route: '/tong-hop-du-lieu',
+      icon: 'pi pi-chart-line',
+      description: 'Theo dõi và xác nhận trạng thái khai báo',
+      permission: 'tong_hop_tien_do:xac_nhan',
+    },
+    {
+      label: 'Tra cứu báo cáo',
+      route: '/tra-cuu-bao-cao',
+      icon: 'pi pi-search',
+      description: 'Xem snapshot và báo cáo đã nộp',
+      permission: 'snapshot:read',
+    },
     {
       label: 'Người dùng',
       route: '/nguoi-dung',
       icon: 'pi pi-user',
       description: 'Quản lý tài khoản',
+      permission: 'users:read',
     },
     {
       label: 'Đơn vị',
       route: '/don-vi',
       icon: 'pi pi-sitemap',
       description: 'Cây tổ chức',
-    },
-    {
-      label: 'Snapshot',
-      route: '/snapshot',
-      icon: 'pi pi-briefcase',
-      description: 'Báo cáo tổng hợp',
+      permission: 'don_vi:read',
     },
     {
       label: 'Yêu cầu bổ sung',
       route: '/yeu-cau-bo-sung',
-      icon: 'pi pi-exclamation-circle',
+      icon: 'pi pi-info-circle',
       description: 'Mở lại snapshot theo đơn vị',
+      permission: 'yeu_cau_bo_sung:approve',
     },
     {
       label: 'Nhân lực CNTT',
       route: '/nhan-luc-cntt',
       icon: 'pi pi-users',
       description: 'Thực trạng nhân lực',
+      permission: 'nhan_luc_cntt:read',
+      hideWhenTongHop: true,
     },
     {
       label: 'Thiết bị CNTT',
       route: '/thiet-bi-cntt',
       icon: 'pi pi-desktop',
       description: 'Quản lý thiết bị',
+      permission: 'thiet_bi_cntt:read',
+      hideWhenTongHop: true,
     },
     {
       label: 'Hệ thống thông tin',
       route: '/he-thong-thong-tin',
       icon: 'pi pi-server',
       description: 'Các hệ thống đang vận hành',
+      permission: 'he_thong_thong_tin:read',
+      hideWhenTongHop: true,
     },
     {
       label: 'Kỳ báo cáo',
       route: '/ky-bao-cao',
       icon: 'pi pi-calendar',
       description: 'Chu kỳ ghi nhận',
+      permission: 'ky_bao_cao:read',
     },
     {
       label: 'Mẫu báo cáo',
       route: '/mau-bao-cao',
-      icon: 'pi pi-file-edit',
+      icon: 'pi pi-file',
       description: 'Quản lý template báo cáo',
+      permission: 'mau_bao_cao:read',
     },
   ];
 
+  private kyItems: KyBaoCaoDto[] = [];
+
   constructor(
     public readonly authService: AuthService,
+    private readonly donViModeService: DonViModeService,
     private readonly kyBaoCaoApi: KyBaoCaoApi,
+    private readonly tongHopTienDoApi: TongHopTienDoApi,
+    private readonly notificationService: NotificationService,
   ) {
+    void this.donViModeService.ensureLoaded();
     void this.load();
+  }
+
+  get canViewKyProgress(): boolean {
+    return (
+      !this.canViewMyProgress &&
+      (this.authService.hasPermission('tong_hop_tien_do:read') ||
+        this.authService.hasPermission('snapshot:read'))
+    );
+  }
+
+  get canViewMyProgress(): boolean {
+    return this.authService.hasPermission('tong_hop_tien_do:xac_nhan');
+  }
+
+  get quickLinks(): QuickLink[] {
+    const isTongHop = this.donViModeService.isTongHop;
+    return this.allQuickLinks.filter(
+      (link) =>
+        (!link.permission || this.authService.hasPermission(link.permission)) &&
+        !(isTongHop && link.hideWhenTongHop),
+    );
+  }
+
+  get myTotalRecords(): number {
+    if (!this.myTienDo) {
+      return 0;
+    }
+
+    return (
+      this.myTienDo.soNhanLuc +
+      this.myTienDo.soNangLucSo +
+      this.myTienDo.soDaoTao +
+      this.myTienDo.soDaoTaoHocVien +
+      this.myTienDo.soHeThongThongTin +
+      this.myTienDo.soHtttTieuChuan +
+      this.myTienDo.soDuAn +
+      this.myTienDo.soThietBi +
+      this.myTienDo.soHaTangMang +
+      this.myTienDo.soGiamSatNoc +
+      this.myTienDo.soCameraQuanLy +
+      this.myTienDo.soCameraThucTrang +
+      this.myTienDo.soGiamSatSoc +
+      this.myTienDo.soAtttVanHanh +
+      this.myTienDo.soAtttDauTu +
+      this.myTienDo.soAtttGiaiPhap +
+      this.myTienDo.soVanBanQppl
+    );
   }
 
   get displayName(): string {
@@ -555,45 +825,59 @@ export class HomePage {
 
   get kyOptions(): Array<{ label: string; value: number }> {
     return this.kyItems.map((item) => ({
-      label: `${item.kyCode} · ${this.kyStatusLabel(item.trangThai)}`,
+      label: item.tenKy || item.kyCode,
       value: item.id,
     }));
   }
 
   get selectedKy(): KyBaoCaoDto | null {
-    if (!this.selectedKyId) {
-      return null;
-    }
-
+    if (!this.selectedKyId) return null;
     return this.kyItems.find((item) => item.id === this.selectedKyId) ?? null;
   }
 
   get submissionPercent(): number {
-    if (!this.progress || this.progress.tongDonVi <= 0) {
-      return 0;
-    }
-
-    return (this.progress.soDonViDaNop / this.progress.tongDonVi) * 100;
+    if (!this.progress || this.progress.tongDonVi <= 0) return 0;
+    return Math.round(
+      (this.progress.soDonViDaNop / this.progress.tongDonVi) * 100,
+    );
   }
-
-  private kyItems: KyBaoCaoDto[] = [];
 
   async load(): Promise<void> {
     this.loading = true;
     try {
-      const [currentKy, kyItems] = await Promise.all([
-        this.kyBaoCaoApi.getCurrent().catch(() => null),
-        this.kyBaoCaoApi.getAll(),
-      ]);
+      const canReadKy = this.authService.hasPermission('ky_bao_cao:read');
 
-      this.currentKy = currentKy;
-      this.kyItems = kyItems;
-      this.selectedKyId = currentKy?.id ?? kyItems[0]?.id ?? null;
+      if (canReadKy) {
+        const [currentKy, allKyItems] = await Promise.all([
+          this.kyBaoCaoApi.getCurrent().catch(() => null),
+          this.kyBaoCaoApi.getAll().catch(() => [] as KyBaoCaoDto[]),
+        ]);
+        // Dashboard chi can chon/xem ky dang mo (trangThai === 2) - danh
+        // sach day du (Chuan bi/Da dong/Khoa) de o trang "Ky bao cao" rieng.
+        // Neu khong loc, dropdown se phinh to theo thoi gian voi ca ky da
+        // dong/het han, gay kho chon nham lan.
+        const openKyItems = allKyItems.filter((item) => item.trangThai === 2);
+        this.kyItems = openKyItems;
+        this.selectedKyId = currentKy?.id ?? openKyItems[0]?.id ?? null;
+        this.selectedKyCode = this.selectedKy?.kyCode ?? null;
+      } else {
+        this.kyItems = [];
+        this.selectedKyId = null;
+        this.selectedKyCode = null;
+      }
 
-      if (this.selectedKyId) {
+      if (this.canViewKyProgress && this.selectedKyId) {
         this.progress = await this.kyBaoCaoApi.getTienDo(this.selectedKyId);
       } else {
         this.progress = null;
+      }
+
+      if (this.canViewMyProgress && this.selectedKyCode) {
+        this.myTienDo = await this.tongHopTienDoApi.getMyTienDo(
+          this.selectedKyCode,
+        );
+      } else {
+        this.myTienDo = null;
       }
     } finally {
       this.loading = false;
@@ -601,100 +885,117 @@ export class HomePage {
   }
 
   async onKyChange(value: number | null | undefined): Promise<void> {
-    const nextValue = value ?? null;
-    this.selectedKyId = nextValue;
-    if (!nextValue) {
+    if (!this.authService.hasPermission('ky_bao_cao:read')) {
+      this.selectedKyId = null;
+      this.selectedKyCode = null;
       this.progress = null;
+      this.myTienDo = null;
+      return;
+    }
+
+    this.selectedKyId = value ?? null;
+    this.selectedKyCode = this.selectedKy?.kyCode ?? null;
+    if (!this.selectedKyId) {
+      this.progress = null;
+      this.myTienDo = null;
+      return;
+    }
+    this.loading = true;
+    try {
+      if (this.canViewKyProgress) {
+        this.progress = await this.kyBaoCaoApi.getTienDo(this.selectedKyId);
+      } else {
+        this.progress = null;
+      }
+
+      if (this.canViewMyProgress && this.selectedKyCode) {
+        this.myTienDo = await this.tongHopTienDoApi.getMyTienDo(
+          this.selectedKyCode,
+        );
+      } else {
+        this.myTienDo = null;
+      }
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async toggleMyXacNhan(): Promise<void> {
+    if (!this.selectedKyCode || !this.myTienDo) {
       return;
     }
 
     this.loading = true;
     try {
-      this.progress = await this.kyBaoCaoApi.getTienDo(nextValue);
+      // Đang "cần xác nhận lại" (stale) → xác nhận lại (true); còn lại → toggle
+      const nextValue = this.myTienDo.coThayDoiSauXacNhan
+        ? true
+        : !this.myTienDo.daXacNhan;
+      await this.tongHopTienDoApi.xacNhan(this.selectedKyCode, nextValue);
+      this.myTienDo = await this.tongHopTienDoApi.getMyTienDo(
+        this.selectedKyCode,
+      );
+      this.notificationService.show(
+        'success',
+        this.myTienDo.daXacNhan
+          ? 'Đã xác nhận hoàn tất.'
+          : 'Đã hủy xác nhận — cấp trên sẽ thấy số liệu chưa chốt.',
+      );
+    } catch {
+      this.notificationService.show(
+        'error',
+        'Không thể cập nhật trạng thái xác nhận.',
+      );
     } finally {
       this.loading = false;
     }
   }
 
   kyStatusLabel(status: number): string {
-    switch (status) {
-      case 1:
-        return 'Chuẩn bị';
-      case 2:
-        return 'Đang mở';
-      case 3:
-        return 'Đã đóng';
-      case 4:
-        return 'Khóa';
-      default:
-        return 'Không xác định';
-    }
+    const map: Record<number, string> = {
+      1: 'Chuẩn bị',
+      2: 'Đang mở',
+      3: 'Đã đóng',
+      4: 'Khóa',
+    };
+    return map[status] ?? 'Không xác định';
   }
 
   progressStatusLabel(status: number): string {
-    switch (status) {
-      case 1:
-        return 'Chưa nhập';
-      case 2:
-        return 'Đang nhập';
-      case 3:
-        return 'Đã xác nhận';
-      case 4:
-        return 'Đang bổ sung';
-      case 5:
-        return 'Đã nộp';
-      default:
-        return 'Không xác định';
-    }
+    const map: Record<number, string> = {
+      1: 'Chưa nhập',
+      2: 'Đang nhập',
+      3: 'Đã xác nhận',
+      4: 'Đang bổ sung',
+      5: 'Đã nộp',
+    };
+    return map[status] ?? 'Không xác định';
   }
 
   progressTagClass(status: number): string {
-    switch (status) {
-      case 1:
-        return 'tag-chua-nhap';
-      case 2:
-        return 'tag-dang-nhap';
-      case 3:
-        return 'tag-da-xac-nhan';
-      case 4:
-        return 'tag-dang-bo-sung';
-      case 5:
-        return 'tag-da-nop';
-      default:
-        return 'tag-chua-nhap';
-    }
+    const map: Record<number, string> = {
+      1: 'dashboard-tag tag-chua-nhap',
+      2: 'dashboard-tag tag-dang-nhap',
+      3: 'dashboard-tag tag-da-xac-nhan',
+      4: 'dashboard-tag tag-dang-bo-sung',
+      5: 'dashboard-tag tag-da-nop',
+    };
+    return map[status] ?? 'dashboard-tag tag-chua-nhap';
   }
 
   snapshotStatusLabel(status?: number): string {
-    switch (status) {
-      case 1:
-        return 'Draft';
-      case 2:
-        return 'Submitted';
-      case 3:
-        return 'Locked';
-      case 4:
-        return 'Superseded';
-      default:
-        return '-';
-    }
+    const map: Record<number, string> = {
+      1: 'Draft',
+      2: 'Submitted',
+      3: 'Locked',
+      4: 'Superseded',
+    };
+    return status != null ? (map[status] ?? '-') : '-';
   }
 
   progressTimestamp(row: KyBaoCaoTienDoDonViDto): string {
     return (
       row.lockedAt || row.submittedAt || row.ngayMoLai || row.ngayXacNhan || '-'
     );
-  }
-
-  formatKyDateRange(item: KyBaoCaoDto): string {
-    if (!item.ngayBatDau && !item.ngayKetThuc) {
-      return 'Chưa cấu hình thời gian';
-    }
-
-    if (item.ngayBatDau && item.ngayKetThuc) {
-      return `${item.ngayBatDau} đến ${item.ngayKetThuc}`;
-    }
-
-    return item.ngayBatDau || item.ngayKetThuc || '';
   }
 }

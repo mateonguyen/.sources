@@ -43,6 +43,11 @@ public sealed class RefreshTokenService : IRefreshTokenService
         var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
         var tokenHash = BCrypt.Net.BCrypt.HashPassword(refreshToken);
 
+        deviceId = NormalizeRequiredOracleText(deviceId, $"device-{Guid.NewGuid():N}");
+        deviceUserAgent = NormalizeRequiredOracleText(deviceUserAgent, "unknown");
+        deviceIpAddress = NormalizeRequiredOracleText(deviceIpAddress, "unknown");
+        deviceName = NormalizeOptionalOracleText(deviceName);
+
         var now = _dateTimeProvider.Now;
         var session = new RefreshTokenSession
         {
@@ -75,11 +80,13 @@ public sealed class RefreshTokenService : IRefreshTokenService
     {
         // Tìm session theo deviceId và userId
         var session = await _dbContext.RefreshTokenSessions
-            .FirstOrDefaultAsync(
-                s => s.UserId == userId
-                    && s.DeviceId == deviceId
-                    && !s.IsRevoked,
-                cancellationToken)
+            .FromSqlInterpolated($@"
+                SELECT *
+                FROM IDM_REFRESH_TOKEN_SESSIONS
+                WHERE USER_ID = {userId}
+                  AND DEVICE_ID = {deviceId}
+                  AND IS_REVOKED = 0")
+            .FirstOrDefaultAsync(cancellationToken)
             ?? throw new AppException("SESSION_NOT_FOUND", "Phiên không tồn tại hoặc đã bị thu hồi.", 401);
 
         // Verify token
@@ -110,8 +117,14 @@ public sealed class RefreshTokenService : IRefreshTokenService
 
         // Get new session để trả về
         var newSession = await _dbContext.RefreshTokenSessions
-            .OrderByDescending(s => s.IssuedAt)
-            .FirstAsync(s => s.UserId == userId && s.DeviceId == deviceId && !s.IsRevoked, cancellationToken);
+            .FromSqlInterpolated($@"
+                SELECT *
+                FROM IDM_REFRESH_TOKEN_SESSIONS
+                WHERE USER_ID = {userId}
+                  AND DEVICE_ID = {deviceId}
+                  AND IS_REVOKED = 0
+                ORDER BY ISSUED_AT DESC")
+            .FirstAsync(cancellationToken);
 
         return (newRefreshToken, newSession);
     }
@@ -140,19 +153,15 @@ public sealed class RefreshTokenService : IRefreshTokenService
         CancellationToken cancellationToken = default)
     {
         var now = _dateTimeProvider.Now;
-        var sessions = await _dbContext.RefreshTokenSessions
-            .Where(s => s.UserId == userId && !s.IsRevoked)
-            .ToListAsync(cancellationToken);
-
-        foreach (var session in sessions)
-        {
-            session.IsRevoked = true;
-            session.RevokedAt = now;
-            session.RevocationReason = revocationReason;
-            session.UpdatedAt = now;
-        }
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        var dbContext = (DbContext)_dbContext;
+        await dbContext.Database.ExecuteSqlInterpolatedAsync($@"
+            UPDATE IDM_REFRESH_TOKEN_SESSIONS
+               SET IS_REVOKED = 1,
+                   REVOKED_AT = {now},
+                   REVOCATION_REASON = {revocationReason},
+                   UPDATED_AT = {now}
+             WHERE USER_ID = {userId}
+               AND IS_REVOKED = 0", cancellationToken);
     }
 
     public async Task<IReadOnlyList<RefreshTokenSession>> GetActiveSessionsAsync(
@@ -161,7 +170,12 @@ public sealed class RefreshTokenService : IRefreshTokenService
     {
         var now = _dateTimeProvider.Now;
         var sessions = await _dbContext.RefreshTokenSessions
-            .Where(s => s.UserId == userId && !s.IsRevoked && s.ExpiresAt > now)
+            .FromSqlInterpolated($@"
+                SELECT *
+                FROM IDM_REFRESH_TOKEN_SESSIONS
+                WHERE USER_ID = {userId}
+                  AND IS_REVOKED = 0
+                  AND EXPIRES_AT > {now}")
             .OrderByDescending(s => s.LastUsedAt ?? s.IssuedAt)
             .ToListAsync(cancellationToken);
 
@@ -172,7 +186,11 @@ public sealed class RefreshTokenService : IRefreshTokenService
     {
         var now = _dateTimeProvider.Now;
         var expiredSessions = await _dbContext.RefreshTokenSessions
-            .Where(s => s.ExpiresAt < now || (s.IsRevoked && s.RevokedAt.HasValue && s.RevokedAt.Value.AddDays(30) < now))
+            .FromSqlInterpolated($@"
+                SELECT *
+                FROM IDM_REFRESH_TOKEN_SESSIONS
+                WHERE EXPIRES_AT < {now}
+                   OR (IS_REVOKED = 1 AND REVOKED_AT IS NOT NULL AND REVOKED_AT < {now.AddDays(-30)})")
             .ToListAsync(cancellationToken);
 
         if (expiredSessions.Count == 0)
@@ -182,5 +200,22 @@ public sealed class RefreshTokenService : IRefreshTokenService
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return expiredSessions.Count;
+    }
+
+    private static string NormalizeRequiredOracleText(string? value, string fallback)
+    {
+        var normalized = value?.Trim();
+        if (!string.IsNullOrWhiteSpace(normalized))
+        {
+            return normalized;
+        }
+
+        return fallback;
+    }
+
+    private static string? NormalizeOptionalOracleText(string? value)
+    {
+        var normalized = value?.Trim();
+        return string.IsNullOrWhiteSpace(normalized) ? null : normalized;
     }
 }

@@ -1,3 +1,46 @@
+﻿// Card chiem dung chieu cao con lai cua man hinh, khop bottom voi sidebar -
+// cung cong thuc height: calc(100vh - shell-gap*2) nhu don-vi.page.scss.
+:host ::ng-deep .codes-card {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 2rem);
+}
+
+// flex:1 1 auto khong du tin cay qua nhieu tang long nhau (p-card-body >
+// p-card-content > codes-shell) - ep them height:100% de moi tang chac
+// chan lap day het chieu cao con lai, tranh khoang trong "flex slack".
+:host ::ng-deep .codes-card .p-card-body,
+:host ::ng-deep .codes-card .p-card-content {
+  @apply flex flex-col min-h-0;
+  flex: 1 1 auto;
+  height: 100%;
+}
+
+:host ::ng-deep .codes-card .p-card-body {
+  padding-top: 0.4rem;
+  padding-bottom: 0.6rem;
+}
+
+:host ::ng-deep .codes-card .app-page-header {
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+:host ::ng-deep .codes-card .app-page-title {
+  font-size: 1.55rem;
+  margin: 0;
+}
+
+// app-category-upsert-dialog / app-code-value-dialog la con truc tiep cua
+// vung flex (p-card-content) - du dong (visible=false) van la 1 flex-item
+// nen van chiem cho/gay khoang trang thua. display:contents de chung
+// "bien mat" khoi flex layout, chi con noi dung ben trong (dialog thuc su
+// khi mo) hien thi binh thuong.
+:host ::ng-deep .codes-card > .p-card-body app-category-upsert-dialog,
+:host ::ng-deep .codes-card > .p-card-body app-code-value-dialog {
+  display: contents;
+}
+
 .codes-header-actions {
   display: flex;
   align-items: center;
@@ -11,23 +54,34 @@
 
 .codes-shell {
   position: relative;
-  min-height: 10rem;
-  display: grid;
-  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
+  gap: 0.85rem;
+}
+
+.filter-panel {
+  flex: 0 0 auto;
 }
 
 /* Top control bar: aligned with user-management filter panel */
 .filter-panel {
+  // De: class ".filter-panel" trung ten voi rule global o admin-shared.scss
+  // (@apply p-5 mb-7 - margin-bottom 28px), rule scoped o day chua tung
+  // dat lai margin nen bi "lot" margin do vao gay khoang trong lon.
+  margin: 0;
   background: var(--surface-ground);
   border: 1px solid var(--surface-border);
-  border-radius: 0.5rem;
-  padding: 1rem;
+  border-radius: var(--app-radius);
+  padding: 0.8rem 0.85rem;
 }
 
 .filter-row {
   display: grid;
   grid-template-columns: 1.2fr 1.8fr;
-  gap: 1rem;
+  gap: 0.75rem;
   align-items: flex-end;
 }
 
@@ -92,7 +146,7 @@
   width: 1.65rem;
   height: 1.65rem;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--app-radius);
   background: transparent;
   color: var(--text-color-secondary);
   display: inline-flex;
@@ -136,16 +190,19 @@
   background: var(--app-surface);
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  height: 100%;
   min-height: 0;
   overflow: hidden;
 }
 
 .values-toolbar {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.85rem;
-  padding: 0.9rem 0.95rem 0.75rem;
+  padding: 0.8rem 0.8rem;
   border-bottom: 1px solid
     color-mix(in srgb, var(--app-border) 70%, transparent 30%);
 }
@@ -198,23 +255,78 @@
 }
 
 .values-table-wrap {
-  overflow: hidden;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-border-strong) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: var(--app-radius);
+    background: var(--app-border-strong);
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 :host ::ng-deep .app-codes-values-table {
   .p-datatable {
     border: 0;
     border-radius: 0;
-    overflow: hidden;
     background: var(--app-surface);
   }
 
+  .p-datatable-wrapper {
+    overflow: visible;
+  }
+
+  // Ghim header khi cuon than bang. Luu y: scrollbar cua trinh duyet luon
+  // chay het chieu cao cua khung cuon (.values-table-wrap), kho ma "cat"
+  // rieng phan ngang hang header duoc bang CSS thuan - neu can scrollbar
+  // chi nam trong vung body, phai tach header/body thanh 2 bang vat ly
+  // rieng (thay doi cau truc lon hon).
   .p-datatable-thead > tr > th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding-block: 0.5rem;
     background: color-mix(in srgb, var(--app-surface-soft) 78%, white 22%);
   }
 
+  // Thu gon row de 10 dong vua man hinh khong can cuon (nhung khong be
+  // qua muc - van con khoang tho de bam nut/doc de).
   .p-datatable-tbody > tr > td {
-    padding-block: 0.78rem;
+    padding-block: 0.62rem;
+  }
+
+  .app-table-stt {
+    min-width: 1.65rem;
+    height: 1.65rem;
+    font-size: 0.78rem;
+  }
+
+  .action-btns {
+    gap: 5px;
+  }
+
+  .action-btn {
+    width: 30px;
+    height: 30px;
+
+    .pi {
+      font-size: 0.8rem;
+    }
+  }
+
+  .status-badge {
+    padding: 2.5px 8px;
   }
 
   .col-stt {
@@ -238,7 +350,32 @@
   }
 
   .col-order {
-    width: 10%;
+    width: 14%;
+  }
+
+  .order-cell {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+
+  .order-cell__value {
+    min-width: 1.2rem;
+  }
+
+  .order-cell__btns {
+    display: inline-flex;
+    gap: 3px;
+  }
+
+  .order-cell__btns .action-btn--reorder {
+    width: 24px;
+    height: 24px;
+
+    .pi {
+      font-size: 0.65rem;
+    }
   }
 
   .col-status {
@@ -250,15 +387,25 @@
     width: 12%;
     text-align: center;
   }
+
+  .action-btn--reorder .pi {
+    color: var(--app-text-muted);
+  }
+
+  .action-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
 }
 
 .values-footer {
+  flex: 0 0 auto;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 0.85rem;
   margin-top: 0;
-  padding: 0.8rem 0.95rem 0.85rem;
+  padding: 0.8rem 0.8rem;
   border-top: 1px solid color-mix(in srgb, var(--app-border) 82%, white 18%);
 }
 
@@ -311,6 +458,16 @@
 }
 
 /* Paginator visuals moved to shared `admin-shared.scss` (.footer-paginator) */
+
+@media (max-width: 900px) {
+  :host ::ng-deep .codes-card {
+    height: auto;
+  }
+
+  .code-values-panel {
+    max-height: 34rem;
+  }
+}
 
 @media (max-width: 1080px) {
   .filter-row {
