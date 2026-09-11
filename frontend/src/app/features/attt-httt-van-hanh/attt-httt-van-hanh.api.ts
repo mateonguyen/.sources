@@ -21,6 +21,8 @@ export interface AtttHtttVanHanhDto {
   quyCheAttt: string | null;
   duKienNgayPheDuyet: string | null;
   daTrienKhaiPhuongAn: boolean;
+  trangThaiTrienKhaiPhuongAn: string | null;
+  noiDungPhuongAnDaTrienKhai: string | null;
   duKienNgayTrienKhai: string | null;
   kiemTraDanhGia: string | null;
   ghiChu: string | null;
@@ -38,6 +40,8 @@ export interface UpsertAtttHtttVanHanhRequest {
   quyCheAttt: string | null;
   duKienNgayPheDuyet: string | null;
   daTrienKhaiPhuongAn: boolean;
+  trangThaiTrienKhaiPhuongAn: string | null;
+  noiDungPhuongAnDaTrienKhai: string | null;
   duKienNgayTrienKhai: string | null;
   kiemTraDanhGia: string | null;
   ghiChu: string | null;

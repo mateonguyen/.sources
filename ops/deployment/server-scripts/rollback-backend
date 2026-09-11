@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+source /opt/thucluc-ops/lib/common.sh
+
+app_dir="$(resolve_component_app_dir backend)"
+previous_file="$(component_state_file "$app_dir" backend previous)"
+current_file="$(component_state_file "$app_dir" backend current)"
+require_file "$previous_file"
+require_file "$app_dir/compose.yml"
+require_file "$app_dir/.env"
+
+previous_version="$(tr -d '[:space:]' < "$previous_file")"
+validate_version "$previous_version"
+image="thucluc-backend:$previous_version"
+docker image inspect "$image" >/dev/null
+
+exec 9>/run/lock/thucluc-backend-deploy.lock
+flock --exclusive 9
+
+current_version=""
+if [[ -f "$current_file" ]]; then
+  current_version="$(tr -d '[:space:]' < "$current_file")"
+fi
+
+export THUCLUC_BACKEND_IMAGE="$image"
+export RELEASE_VERSION="$previous_version"
+docker compose \
+  --project-directory "$app_dir" \
+  --env-file "$app_dir/.env" \
+  --file "$app_dir/compose.yml" \
+  up --detach --no-deps --wait backend
+
+set_env_value "$app_dir/.env" THUCLUC_BACKEND_IMAGE "$image"
+set_env_value "$app_dir/.env" RELEASE_VERSION "$previous_version"
+
+printf '%s\n' "$previous_version" > "$current_file"
+if [[ -n "$current_version" && "$current_version" != "$previous_version" ]]; then
+  printf '%s\n' "$current_version" > "$previous_file"
+fi
+echo "Backend đã rollback về phiên bản $previous_version."

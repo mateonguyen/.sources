@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { API_BASE_URL } from '../../core/api/api.constants';
 
@@ -8,10 +8,15 @@ interface ApiResponse<T> {
   data: T;
 }
 
+export type LoaiPhanMemCode =
+  | 'DUNG_CHUNG'
+  | 'TU_PHAT_TRIEN'
+  | 'CHUA_PHAN_LOAI';
+
 export interface HeThongThongTinDto {
   id: number;
   donViId: number;
-  loaiPhanMem: string;
+  loaiPhanMem: LoaiPhanMemCode;
   tenPhanMem: string;
   donViPhatTrien?: string | null;
   donViQuanLy?: string | null;
@@ -26,7 +31,7 @@ export interface HeThongThongTinDto {
 
 export interface UpsertHeThongThongTinRequest {
   donViId: number;
-  loaiPhanMem: string;
+  loaiPhanMem: Exclude<LoaiPhanMemCode, 'CHUA_PHAN_LOAI'>;
   tenPhanMem: string;
   donViPhatTrien?: string | null;
   donViQuanLy?: string | null;
@@ -66,16 +71,10 @@ export interface UpsertHtttTieuChuanRequest {
 export class HeThongThongTinApi {
   constructor(private readonly httpClient: HttpClient) {}
 
-  getAll(loaiPhanMem?: string): Promise<HeThongThongTinDto[]> {
-    let params = new HttpParams();
-    if (loaiPhanMem) {
-      params = params.set('loaiPhanMem', loaiPhanMem);
-    }
-
+  getAll(): Promise<HeThongThongTinDto[]> {
     return firstValueFrom(
       this.httpClient.get<ApiResponse<HeThongThongTinDto[]>>(
         `${API_BASE_URL}/he-thong-thong-tin`,
-        { params },
       ),
     ).then((response) => response.data);
   }

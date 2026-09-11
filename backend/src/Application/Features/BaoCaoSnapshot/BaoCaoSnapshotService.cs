@@ -21,9 +21,11 @@ public interface IBaoCaoSnapshotService
 {
     Task<IReadOnlyCollection<DaoTaoBoiDuongPreviewItem>> PreviewDaoTaoAsync(long kyBaoCaoId, long donViId, CancellationToken cancellationToken = default);
     Task<string> BuildSnapshotJsonAsync(long kyBaoCaoId, long donViId, CancellationToken cancellationToken = default);
+    Task<string> GetSnapshotPreviewJsonAsync(long id, CancellationToken cancellationToken = default);
     Task<BaoCaoSnapshotDto?> GetAsync(long id, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<BaoCaoSnapshotDto>> GetByKyAsync(long kyBaoCaoId, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<BaoCaoSnapshotDto>> GetLatestByDonViAsync(long? kyBaoCaoId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<SnapshotCompareOptionDto>> GetCompareOptionsAsync(CancellationToken cancellationToken = default);
     Task<SnapshotCompareDto> CompareTwoKyAsync(long donViId, long fromKyBaoCaoId, long toKyBaoCaoId, CancellationToken cancellationToken = default);
     Task<BaoCaoSnapshotDto> CreateDraftAsync(CreateBaoCaoSnapshotRequest request, CancellationToken cancellationToken = default);
     Task<BaoCaoSnapshotDto> UpdateDraftAsync(long id, UpdateBaoCaoSnapshotRequest request, CancellationToken cancellationToken = default);
@@ -48,6 +50,7 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
     private readonly ICurrentUserService _currentUserService;
     private readonly IFileStorageService _fileStorageService;
     private readonly IPdfService _pdfService;
+    private readonly IBaoCaoExportService _baoCaoExportService;
     private readonly IAuditLogService _auditLogService;
     private readonly IValidator<CreateBaoCaoSnapshotRequest> _createValidator;
     private readonly IValidator<UpdateBaoCaoSnapshotRequest> _updateValidator;
@@ -61,6 +64,7 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
         ICurrentUserService currentUserService,
         IFileStorageService fileStorageService,
         IPdfService pdfService,
+        IBaoCaoExportService baoCaoExportService,
         IAuditLogService auditLogService,
         IValidator<CreateBaoCaoSnapshotRequest> createValidator,
         IValidator<UpdateBaoCaoSnapshotRequest> updateValidator,
@@ -73,6 +77,7 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
         _currentUserService = currentUserService;
         _fileStorageService = fileStorageService;
         _pdfService = pdfService;
+        _baoCaoExportService = baoCaoExportService;
         _auditLogService = auditLogService;
         _createValidator = createValidator;
         _updateValidator = updateValidator;
@@ -286,6 +291,61 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
         };
     }
 
+    public async Task<IReadOnlyCollection<SnapshotCompareOptionDto>> GetCompareOptionsAsync(CancellationToken cancellationToken = default)
+    {
+        var scope = await _donViDataScopeService.GetScopeAsync(cancellationToken);
+
+        var query = _dbContext.BaoCaoSnapshots
+            .AsNoTracking()
+            .Where(x => x.SubmittedAt != null
+                && (x.TrangThai == SnapshotStatus.Submitted || x.TrangThai == SnapshotStatus.Locked));
+
+        if (!scope.HasFullAccess)
+        {
+            var allowedIds = scope.AllowedDonViIds;
+            query = query.Where(x => allowedIds.Contains(x.DonViId));
+        }
+
+        var rows = await query
+            .Select(x => new
+            {
+                x.DonViId,
+                TenDonVi = x.DonVi != null ? x.DonVi.TenDonVi : string.Empty,
+                x.KyBaoCaoId,
+                KyCode = x.KyBaoCao != null ? x.KyBaoCao.KyCode : string.Empty,
+                x.SubmittedAt,
+            })
+            .ToListAsync(cancellationToken);
+
+        var options = rows
+            .GroupBy(x => new { x.DonViId, x.TenDonVi })
+            .Select(group =>
+            {
+                var kyOptions = group
+                    .GroupBy(x => new { x.KyBaoCaoId, x.KyCode })
+                    .Select(kyGroup => new SnapshotCompareKyOptionDto
+                    {
+                        KyBaoCaoId = kyGroup.Key.KyBaoCaoId,
+                        KyCode = kyGroup.Key.KyCode,
+                        LastSubmittedAt = kyGroup.Max(x => x.SubmittedAt),
+                    })
+                    .OrderByDescending(x => x.LastSubmittedAt)
+                    .ToList();
+
+                return new SnapshotCompareOptionDto
+                {
+                    DonViId = group.Key.DonViId,
+                    TenDonVi = group.Key.TenDonVi,
+                    KyOptions = kyOptions,
+                };
+            })
+            .Where(x => x.KyOptions.Count >= 2)
+            .OrderBy(x => x.TenDonVi)
+            .ToList();
+
+        return options;
+    }
+
     public async Task<BaoCaoSnapshotDto> CreateDraftAsync(CreateBaoCaoSnapshotRequest request, CancellationToken cancellationToken = default)
     {
         await _createValidator.ValidateAndThrowAsync(request, cancellationToken);
@@ -469,17 +529,23 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
         var modeContext = await _donViInputModeService.GetContextAsync(entity.DonViId, cancellationToken);
         var batch = await CreateSnapshotBatchAsync(entity.KyBaoCaoId, entity.DonViId, now, currentUser.UserId, cancellationToken);
 
-        var copiedRows = 0;
+        var kyModuleList = ParseSnapshotModuleList(
+            await _dbContext.MauBaoCaos
+                .Where(m => m.Id == ky.MauBaoCaoId)
+                .Select(m => m.DanhSachModule)
+                .FirstOrDefaultAsync(cancellationToken) ?? "[]");
+
+        int copiedRows;
         if (modeContext.IsTongHop)
         {
-            var kyModuleList = ParseSnapshotModuleList(
-                await _dbContext.MauBaoCaos
-                    .Where(m => m.Id == ky.MauBaoCaoId)
-                    .Select(m => m.DanhSachModule)
-                    .FirstOrDefaultAsync(cancellationToken) ?? "[]");
             var allDonViIds = GetTongHopSnapshotDonViIds(modeContext, entity.DonViId);
             copiedRows = await CopyLiveToHisAsync(ky.KyCode, allDonViIds, batch.Id, now, currentUser.UserId, kyModuleList, cancellationToken);
             await WriteTongHopConfirmationsAsync(entity.Id, entity.KyBaoCaoId, modeContext.DescendantDonViIds, now, currentUser.UserId, cancellationToken);
+        }
+        else
+        {
+            // TU_NHAP: đơn vị tự nhập tự nộp — copy dữ liệu chính đơn vị đó vào _HIS để Tra cứu báo cáo đọc được.
+            copiedRows = await CopyLiveToHisAsync(ky.KyCode, new[] { entity.DonViId }, batch.Id, now, currentUser.UserId, kyModuleList, cancellationToken);
         }
 
         batch.Status = "SUCCEEDED";
@@ -750,54 +816,13 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
 
         if (entity.TrangThai == SnapshotStatus.Draft)
             throw new AppException("SNAPSHOT_NOT_SUBMITTED", "Chỉ được xuất PDF từ snapshot đã nộp.", 422);
-        var existingFile = await _dbContext.BaoCaoFiles
-            .Where(x => x.BaoCaoSnapshotId == entity.Id && x.MimeType == "application/pdf")
-            .OrderByDescending(x => x.Id)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (existingFile is not null)
-        {
-            return new BaoCaoPdfResultDto
-            {
-                SnapshotId = entity.Id,
-                FileName = existingFile.FileName,
-                DownloadUrl = await _fileStorageService.GetPresignedDownloadUrlAsync(existingFile.FilePath, TimeSpan.FromMinutes(15), cancellationToken)
-            };
-        }
-        var html = $"<html><body><h1>Báo cáo #{entity.Id} — Kỳ {entity.KyBaoCaoId} — Đơn vị {entity.DonViId}</h1><p>Nộp lúc: {entity.SubmittedAt:dd/MM/yyyy HH:mm}</p></body></html>";
-        var pdfBytes = await _pdfService.GenerateFromHtmlAsync(html, cancellationToken);
-        if (pdfBytes.Length > MaxGeneratedPdfBytes)
-            throw new InvalidOperationException("Kích thước PDF vượt quá giới hạn cho phép.");
-        var fileName = $"snapshot-{entity.KyBaoCaoId}-{entity.DonViId}-v{entity.PhienBan}.pdf";
-        var objectKey = $"{entity.DonViId}/{entity.KyBaoCaoId}/snapshot/{Guid.NewGuid():N}.pdf";
-        await using var stream = new MemoryStream(pdfBytes);
-        var filePath = await _fileStorageService.UploadAsync(objectKey, stream, "application/pdf", cancellationToken);
-        var reportFile = new BaoCaoFileEntity
-        {
-            BaoCaoSnapshotId = entity.Id,
-            FileName = fileName,
-            FilePath = filePath,
-            MimeType = "application/pdf",
-            FileSize = pdfBytes.Length,
-            CreatedBy = _currentUserService.GetCurrentUser().UserId,
-            UpdatedBy = _currentUserService.GetCurrentUser().UserId
-        };
-        await _dbContext.BaoCaoFiles.AddAsync(reportFile, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-        await _auditLogService.WriteAsync(
-            AuditActionType.GeneratePdf,
-            nameof(BaoCaoFileEntity),
-            reportFile.Id,
-            null,
-            $"{{\"snapshotId\":{entity.Id},\"fileName\":\"{fileName}\"}}",
-            "/api/v1/snapshot/{id}/pdf",
-            null,
-            null,
-            cancellationToken);
+        var exportResult = await _baoCaoExportService.ExportAsync(entity.Id, "pdf", cancellationToken);
         return new BaoCaoPdfResultDto
         {
-            SnapshotId = entity.Id,
-            FileName = fileName,
-            DownloadUrl = await _fileStorageService.GetPresignedDownloadUrlAsync(filePath, TimeSpan.FromMinutes(15), cancellationToken)
+            SnapshotId = exportResult.SnapshotId,
+            FileName = exportResult.FileName,
+            PreviewUrl = exportResult.PreviewUrl,
+            DownloadUrl = exportResult.DownloadUrl,
         };
     }
 
@@ -853,6 +878,12 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
+    }
+
+    public async Task<string> GetSnapshotPreviewJsonAsync(long id, CancellationToken cancellationToken = default)
+    {
+        var snapshot = await LoadSnapshotAsync(id, cancellationToken);
+        return await BuildSnapshotJsonAsync(snapshot.KyBaoCaoId, snapshot.DonViId, cancellationToken);
     }
 
     public async Task<IReadOnlyCollection<ModuleStatusDto>> GetModuleStatusAsync(long kyBaoCaoId, long donViId, CancellationToken cancellationToken = default)
@@ -1316,6 +1347,31 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
             total += live.Count;
         }
 
+        // HA_TANG_MANG
+        if (distinctDonViIds.Length > 0 && Include("HA_TANG_MANG"))
+        {
+            _dbContext.HaTangMangHis.RemoveRange(await _dbContext.HaTangMangHis
+                .Where(x => x.KyBaoCaoCode == kyCode && distinctDonViIds.Contains(x.DonViId)).ToListAsync(ct));
+            var live = await _dbContext.HaTangMangs.Where(x => distinctDonViIds.Contains(x.DonViId)).ToListAsync(ct);
+            await _dbContext.HaTangMangHis.AddRangeAsync(live.Select(r => new HaTangMangHis
+            {
+                SourceId = r.Id,
+                DonViId = r.DonViId,
+                SoDonViTrucThuoc = r.SoDonViTrucThuoc,
+                SoDaKetNoiBcanet = r.SoDaKetNoiBcanet,
+                SoDuongTruyenVnpt = r.SoDuongTruyenVnpt,
+                SoDuongTruyenKhac = r.SoDuongTruyenKhac,
+                SoKetNoiInternet = r.SoKetNoiInternet,
+                GhiChu = r.GhiChu,
+                KyBaoCaoCode = kyCode,
+                SnapshotBatchId = batchId,
+                SnapshotCreatedAt = now,
+                CreatedBy = userId,
+                UpdatedBy = userId,
+            }), ct);
+            total += live.Count;
+        }
+
         // VAN_BAN_QPPL
         if (distinctDonViIds.Length > 0 && Include("VAN_BAN_QPPL"))
         {
@@ -1433,19 +1489,28 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
             _dbContext.AtttHtttVanHanhHis.RemoveRange(await _dbContext.AtttHtttVanHanhHis
                 .Where(x => x.KyBaoCaoCode == kyCode && distinctDonViIds.Contains(x.DonViId)).ToListAsync(ct));
             var live = await _dbContext.AtttHtttVanHanhs.Where(x => distinctDonViIds.Contains(x.DonViId)).ToListAsync(ct);
+            var linkedUnitsByHtttId = await (
+                from httt in _dbContext.HeThongThongTins
+                join donVi in _dbContext.DonVis on httt.DonViId equals donVi.Id
+                where live.Select(x => x.HtttId).Contains(httt.Id)
+                select new { httt.Id, ChuQuan = donVi.TenDonVi, DonViVanHanh = httt.DonViQuanLy })
+                .ToDictionaryAsync(x => x.Id, ct);
             await _dbContext.AtttHtttVanHanhHis.AddRangeAsync(live.Select(r => new AtttHtttVanHanhHis
             {
                 SourceId = r.Id,
                 DonViId = r.DonViId,
                 HtttId = r.HtttId,
-                ChuQuan = r.ChuQuan,
-                DonViVanHanh = r.DonViVanHanh,
+                LoaiHaTang = r.LoaiHaTang,
+                ChuQuan = linkedUnitsByHtttId.GetValueOrDefault(r.HtttId)?.ChuQuan ?? r.ChuQuan,
+                DonViVanHanh = linkedUnitsByHtttId.GetValueOrDefault(r.HtttId)?.DonViVanHanh ?? r.DonViVanHanh,
                 CapDoDeXuat = r.CapDoDeXuat,
                 TinhTrangPheDuyet = r.TinhTrangPheDuyet,
                 QuyetDinhPheDuyet = r.QuyetDinhPheDuyet,
                 QuyCheAttt = r.QuyCheAttt,
                 DuKienNgayPheDuyet = r.DuKienNgayPheDuyet,
                 DaTrienKhaiPhuongAn = r.DaTrienKhaiPhuongAn,
+                TrangThaiTrienKhaiPhuongAn = r.TrangThaiTrienKhaiPhuongAn,
+                NoiDungPhuongAnDaTrienKhai = r.NoiDungPhuongAnDaTrienKhai,
                 DuKienNgayTrienKhai = r.DuKienNgayTrienKhai,
                 KiemTraDanhGia = r.KiemTraDanhGia,
                 GhiChu = r.GhiChu,
@@ -1469,6 +1534,7 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
                 SourceId = r.Id,
                 DonViId = r.DonViId,
                 HtttId = r.HtttId,
+                LoaiHaTang = r.LoaiHaTang,
                 ChuQuan = r.ChuQuan,
                 DonViVanHanh = r.DonViVanHanh,
                 CapDoDeXuat = r.CapDoDeXuat,

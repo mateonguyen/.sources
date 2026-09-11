@@ -4,6 +4,7 @@ using ThucLuc.Application.Common.Exceptions;
 using ThucLuc.Application.Common.Models;
 using ThucLuc.Application.Security;
 using ThucLuc.Domain.Entities.Business;
+using ThucLuc.Domain.Enums;
 using HeThongThongTinEntity = ThucLuc.Domain.Entities.Business.HeThongThongTin;
 
 namespace ThucLuc.Application.Features.HeThongThongTin;
@@ -34,7 +35,8 @@ public sealed class HeThongThongTinService : IHeThongThongTinService
 
     public async Task<IReadOnlyCollection<HeThongThongTinDto>> GetAllAsync(CancellationToken cancellationToken = default)
         => await ApplyReadScope(_dbContext.HeThongThongTins)
-            .OrderBy(x => x.TenPhanMem)
+            .OrderBy(x => x.LoaiPhanMem)
+            .ThenBy(x => x.TenPhanMem)
             .Select(MapToDto())
             .ToListAsync(cancellationToken);
 
@@ -47,6 +49,38 @@ public sealed class HeThongThongTinService : IHeThongThongTinService
     public async Task<HeThongThongTinDto> UpsertAsync(long? id, UpsertHeThongThongTinRequest request, CancellationToken cancellationToken = default)
     {
         await EnsureValidScopeAsync(request.DonViId, cancellationToken);
+
+        var normalizedLoaiPhanMem = NormalizeRequired(request.LoaiPhanMem).ToUpperInvariant();
+        if (!LoaiPhanMemCodes.IsSelectable(normalizedLoaiPhanMem))
+        {
+            throw new AppException(
+                "HTTT_LOAI_PHAN_MEM_INVALID",
+                "Loại phần mềm phải là phần mềm dùng chung hoặc phần mềm tự phát triển.",
+                400);
+        }
+
+        var normalizedTenPhanMem = NormalizeRequired(request.TenPhanMem);
+        if (string.IsNullOrWhiteSpace(normalizedTenPhanMem))
+        {
+            throw new AppException("HTTT_TEN_REQUIRED", "Tên phần mềm/CSDL không được để trống.", 400);
+        }
+
+        var isTuPhatTrien = normalizedLoaiPhanMem == LoaiPhanMemCodes.TuPhatTrien;
+        var normalizedDonViPhatTrien = isTuPhatTrien ? NormalizeText(request.DonViPhatTrien) : null;
+        var normalizedDonViQuanLy = NormalizeText(request.DonViQuanLy);
+        if (normalizedDonViQuanLy is null)
+        {
+            throw new AppException(
+                "HTTT_DON_VI_QUAN_LY_REQUIRED",
+                "Đơn vị quản lý/sử dụng không được để trống.",
+                400);
+        }
+        var normalizedPhamViHoatDong = isTuPhatTrien ? NormalizeText(request.PhamViHoatDong) : null;
+        var normalizedPhamViHoatDongKyThuat = isTuPhatTrien ? null : NormalizeText(request.PhamViHoatDongKyThuat);
+        var normalizedUngDungCnMoi = NormalizeText(request.UngDungCnMoi);
+        var normalizedKhaNangTichHop = NormalizeText(request.KhaNangTichHop);
+        var normalizedGhiChu = NormalizeText(request.GhiChu);
+        var newDaCongNhanSangKien = isTuPhatTrien && request.DaCongNhanSangKien;
 
         HeThongThongTinEntity entity;
         bool isNew = !id.HasValue;
@@ -62,58 +96,43 @@ public sealed class HeThongThongTinService : IHeThongThongTinService
             await _dbContext.HeThongThongTins.AddAsync(entity, cancellationToken);
         }
 
-        var normalizedPhamViHoatDong = NormalizeText(request.PhamViHoatDong);
-        var normalizedPhamViHoatDongKyThuat = NormalizeText(request.PhamViHoatDongKyThuat);
-        var normalizedUngDungCnMoi = NormalizeText(request.UngDungCnMoi);
-        var normalizedKhaNangTichHop = NormalizeText(request.KhaNangTichHop);
-        var newDaCongNhanSangKien = request.DaCongNhanSangKien;
-
         if (!isNew)
         {
             bool shouldVersion =
+                request.DonViId != entity.DonViId ||
+                normalizedLoaiPhanMem != entity.LoaiPhanMem ||
+                normalizedTenPhanMem != entity.TenPhanMem ||
+                normalizedDonViPhatTrien != entity.DonViPhatTrien ||
+                normalizedDonViQuanLy != entity.DonViQuanLy ||
+                request.NamTrienKhai != entity.NamTrienKhai ||
                 normalizedPhamViHoatDong != entity.PhamViHoatDong ||
                 normalizedPhamViHoatDongKyThuat != entity.PhamViHoatDongKyThuat ||
                 normalizedUngDungCnMoi != entity.UngDungCnMoi ||
                 normalizedKhaNangTichHop != entity.KhaNangTichHop ||
-                newDaCongNhanSangKien != entity.DaCongNhanSangKien;
+                newDaCongNhanSangKien != entity.DaCongNhanSangKien ||
+                normalizedGhiChu != entity.GhiChu;
 
             if (shouldVersion)
             {
                 var now = _dateTimeProvider.Now;
-                await _dbContext.HeThongThongTinHis.AddAsync(new HeThongThongTinHis
-                {
-                    SourceId = entity.Id,
-                    DonViId = entity.DonViId,
-                    TenPhanMem = entity.TenPhanMem,
-                    DonViPhatTrien = entity.DonViPhatTrien,
-                    DonViQuanLy = entity.DonViQuanLy,
-                    NamTrienKhai = entity.NamTrienKhai,
-                    PhamViHoatDong = entity.PhamViHoatDong,
-                    PhamViHoatDongKyThuat = entity.PhamViHoatDongKyThuat,
-                    UngDungCnMoi = entity.UngDungCnMoi,
-                    KhaNangTichHop = entity.KhaNangTichHop,
-                    DaCongNhanSangKien = entity.DaCongNhanSangKien,
-                    GhiChu = entity.GhiChu,
-                    ValidFrom = entity.ValidFrom,
-                    ValidTo = now,
-                    VersionNo = entity.VersionNo,
-                }, cancellationToken);
+                await ArchiveCurrentVersionAsync(entity, now, cancellationToken);
                 entity.ValidFrom = now;
                 entity.VersionNo++;
             }
         }
 
         entity.DonViId = request.DonViId;
-        entity.TenPhanMem = NormalizeRequired(request.TenPhanMem);
-        entity.DonViPhatTrien = NormalizeText(request.DonViPhatTrien);
-        entity.DonViQuanLy = NormalizeText(request.DonViQuanLy);
+        entity.LoaiPhanMem = normalizedLoaiPhanMem;
+        entity.TenPhanMem = normalizedTenPhanMem;
+        entity.DonViPhatTrien = normalizedDonViPhatTrien;
+        entity.DonViQuanLy = normalizedDonViQuanLy;
         entity.NamTrienKhai = request.NamTrienKhai;
         entity.PhamViHoatDong = normalizedPhamViHoatDong;
         entity.PhamViHoatDongKyThuat = normalizedPhamViHoatDongKyThuat;
         entity.UngDungCnMoi = normalizedUngDungCnMoi;
         entity.KhaNangTichHop = normalizedKhaNangTichHop;
         entity.DaCongNhanSangKien = newDaCongNhanSangKien;
-        entity.GhiChu = NormalizeText(request.GhiChu);
+        entity.GhiChu = normalizedGhiChu;
         await _dbContext.SaveChangesAsync(cancellationToken);
         return await ApplyReadScope(_dbContext.HeThongThongTins)
             .Where(x => x.Id == entity.Id)
@@ -125,8 +144,36 @@ public sealed class HeThongThongTinService : IHeThongThongTinService
     {
         var entity = await ApplyReadScope(_dbContext.HeThongThongTins).FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
             ?? throw new AppException("HTTT_NOT_FOUND", "Không tìm thấy hệ thống thông tin.", 404);
-        entity.DeletedAt = _dateTimeProvider.Now;
+        var now = _dateTimeProvider.Now;
+        await ArchiveCurrentVersionAsync(entity, now, cancellationToken);
+        entity.DeletedAt = now;
         await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task ArchiveCurrentVersionAsync(
+        HeThongThongTinEntity entity,
+        DateTime validTo,
+        CancellationToken cancellationToken)
+    {
+        await _dbContext.HeThongThongTinHis.AddAsync(new HeThongThongTinHis
+        {
+            SourceId = entity.Id,
+            DonViId = entity.DonViId,
+            LoaiPhanMem = entity.LoaiPhanMem,
+            TenPhanMem = entity.TenPhanMem,
+            DonViPhatTrien = entity.DonViPhatTrien,
+            DonViQuanLy = entity.DonViQuanLy,
+            NamTrienKhai = entity.NamTrienKhai,
+            PhamViHoatDong = entity.PhamViHoatDong,
+            PhamViHoatDongKyThuat = entity.PhamViHoatDongKyThuat,
+            UngDungCnMoi = entity.UngDungCnMoi,
+            KhaNangTichHop = entity.KhaNangTichHop,
+            DaCongNhanSangKien = entity.DaCongNhanSangKien,
+            GhiChu = entity.GhiChu,
+            ValidFrom = entity.ValidFrom,
+            ValidTo = validTo,
+            VersionNo = entity.VersionNo,
+        }, cancellationToken);
     }
 
     private IQueryable<HeThongThongTinEntity> ApplyReadScope(IQueryable<HeThongThongTinEntity> query)
@@ -163,6 +210,7 @@ public sealed class HeThongThongTinService : IHeThongThongTinService
         {
             Id = x.Id,
             DonViId = x.DonViId,
+            LoaiPhanMem = x.LoaiPhanMem,
             TenPhanMem = x.TenPhanMem,
             DonViPhatTrien = x.DonViPhatTrien,
             DonViQuanLy = x.DonViQuanLy,
@@ -175,7 +223,7 @@ public sealed class HeThongThongTinService : IHeThongThongTinService
             GhiChu = x.GhiChu
         };
 
-    private static string NormalizeRequired(string value) => value.Trim();
+    private static string NormalizeRequired(string? value) => value?.Trim() ?? string.Empty;
 
     private static string? NormalizeText(string? value)
     {

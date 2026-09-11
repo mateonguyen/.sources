@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+source /opt/thucluc-ops/lib/common.sh
+
+version="${1:-}"
+validate_version "$version"
+source_file="/tmp/thucluc-frontend-$version.tar.uploading"
+app_dir="$(resolve_component_app_dir frontend)"
+destination="$app_dir/releases/frontend-$version.tar"
+
+require_file "$source_file"
+if [[ -L "$source_file" ]]; then
+  echo "Không chấp nhận symbolic link." >&2
+  exit 3
+fi
+
+install -d -o root -g root -m 0750 "$app_dir/releases"
+install -o root -g root -m 0640 "$source_file" "$destination"
+rm -- "$source_file"
+echo "Đã tiếp nhận frontend image $version."

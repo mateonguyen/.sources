@@ -67,7 +67,7 @@
   color: var(--app-text-muted, #64748b);
   display: block;
   margin-top: 2px;
-  font-family: monospace;
+  font-family: var(--app-font-family-base);
 }
 
 .ky-ten-ky {
@@ -392,7 +392,7 @@
   border: 1px solid var(--surface-300);
 
   .ky-lock-dialog__code {
-    font-family: monospace;
+    font-family: var(--app-font-family-base);
     font-weight: 700;
     font-size: 0.85rem;
     color: var(--app-text-secondary);

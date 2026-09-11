@@ -265,6 +265,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'so-sanh-bao-cao',
+        loadComponent: () =>
+          import('./features/so-sanh-bao-cao/so-sanh-bao-cao.page').then(
+            (m) => m.SoSanhBaoCaoPage,
+          ),
+      },
+      {
         path: '',
         pathMatch: 'full',
         redirectTo: 'trang-chu',

@@ -1,668 +1,818 @@
 <app-tong-hop-mode-banner></app-tong-hop-mode-banner>
-﻿<app-section-card
-  title="Thiết Bị CNTT"
-  subtitle="Quản lý thiết bị CNTT theo danh mục phân cấp và ứng dụng đang chạy."
+
+<app-section-card
+  title="Trang thiết bị CNTT"
+  subtitle="Khai báo theo đúng nhóm của biểu mẫu; loại tổng hợp cập nhật số lượng, loại chi tiết quản lý từng thiết bị."
   styleClass="thietbi-card"
 >
-  <app-filter-bar class="mt-3">
-    <div class="flex flex-wrap items-end gap-3">
-      <div class="filter-group">
-        <label class="filter-label">Loại thiết bị</label>
-        <p-dropdown
-          styleClass="app-filter-select"
-          [panelStyleClass]="selectPanelStyleClass"
-          [options]="loaiThietBiFilterOptions()"
-          optionLabel="label"
-          optionValue="value"
-          [ngModel]="filterLoaiThietBiId()"
-          (ngModelChange)="filterLoaiThietBiId.set($event)"
-          placeholder="Tất cả loại thiết bị"
-        ></p-dropdown>
+  <div sectionActions class="device-page-actions">
+    <button
+      pButton
+      type="button"
+      icon="pi pi-plus"
+      label="Thêm thiết bị"
+      (click)="openCreateDialog()"
+    ></button>
+  </div>
+
+  <div class="device-summary" aria-label="Tổng quan trang thiết bị">
+    <div class="device-summary__item device-summary__item--primary">
+      <span class="device-summary__icon"><i class="pi pi-desktop"></i></span>
+      <span class="device-summary__content">
+        <strong>{{ summary().currentCount }}</strong>
+        <small>Thiết bị đang sử dụng</small>
+      </span>
+    </div>
+    <div class="device-summary__item">
+      <span class="device-summary__icon"><i class="pi pi-list"></i></span>
+      <span class="device-summary__content">
+        <strong>{{ summary().configuredTypeCount }}/{{ summary().totalTypeCount }}</strong>
+        <small>Loại đã khai báo</small>
+      </span>
+    </div>
+    <div class="device-summary__item">
+      <span class="device-summary__icon"><i class="pi pi-server"></i></span>
+      <span class="device-summary__content">
+        <strong>{{ summary().detailCount }}</strong>
+        <small>Hồ sơ thiết bị chi tiết</small>
+      </span>
+    </div>
+    <div
+      class="device-summary__item"
+      [class.device-summary__item--warning]="summary().brokenCount > 0"
+    >
+      <span class="device-summary__icon"><i class="pi pi-wrench"></i></span>
+      <span class="device-summary__content">
+        <strong>{{ summary().brokenCount }}</strong>
+        <small>Thiết bị hỏng</small>
+      </span>
+    </div>
+  </div>
+
+  <app-filter-bar class="device-filter-bar">
+    <div class="device-toolbar">
+      <div class="device-toolbar__filters">
+        <div class="filter-group filter-group--search">
+          <label class="filter-label" for="deviceSearch">Tìm kiếm</label>
+          <span class="device-search">
+            <i class="pi pi-search" aria-hidden="true"></i>
+            <input
+              id="deviceSearch"
+              pInputText
+              type="search"
+              [ngModel]="filterTenThietBi()"
+              (ngModelChange)="filterTenThietBi.set($event)"
+              placeholder="Tên, hãng, đơn vị, cấu hình..."
+            />
+          </span>
+        </div>
+
+        <div class="filter-group filter-group--type">
+          <label class="filter-label">Loại thiết bị</label>
+          <p-dropdown
+            styleClass="app-filter-select"
+            [panelStyleClass]="selectPanelStyleClass"
+            [options]="loaiThietBiFilterOptions()"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="filterLoaiThietBiId()"
+            (ngModelChange)="filterLoaiThietBiId.set($event)"
+            placeholder="Tất cả loại thiết bị"
+            appendTo="body"
+            scrollHeight="18rem"
+          ></p-dropdown>
+        </div>
       </div>
-      <div class="filter-group">
-        <label class="filter-label">Tên thiết bị</label>
-        <input
-          pInputText
-          class="app-filter-input"
-          type="text"
-          [ngModel]="filterTenThietBi()"
-          (ngModelChange)="filterTenThietBi.set($event)"
-          placeholder="Tìm theo tên..."
-        />
+
+      <div class="device-toolbar__actions">
+        <button
+          pButton
+          type="button"
+          class="p-button-text p-button-secondary p-button-icon-only device-tool-button"
+          icon="pi pi-angle-double-down"
+          aria-label="Mở tất cả"
+          pTooltip="Mở tất cả"
+          tooltipPosition="top"
+          (click)="setAllExpanded(true)"
+        ></button>
+        <button
+          pButton
+          type="button"
+          class="p-button-text p-button-secondary p-button-icon-only device-tool-button"
+          icon="pi pi-angle-double-up"
+          aria-label="Thu gọn tất cả"
+          pTooltip="Thu gọn tất cả"
+          tooltipPosition="top"
+          (click)="setAllExpanded(false)"
+        ></button>
+        <button
+          *ngIf="hasActiveFilters()"
+          pButton
+          type="button"
+          class="p-button-text p-button-secondary p-button-icon-only device-tool-button"
+          icon="pi pi-filter-slash"
+          aria-label="Xóa bộ lọc"
+          pTooltip="Xóa bộ lọc"
+          tooltipPosition="top"
+          (click)="resetFilters()"
+        ></button>
+        <button
+          pButton
+          type="button"
+          class="p-button-outlined p-button-icon-only device-tool-button"
+          icon="pi pi-refresh"
+          aria-label="Tải lại dữ liệu"
+          pTooltip="Tải lại dữ liệu"
+          tooltipPosition="top"
+          [loading]="loading()"
+          (click)="load()"
+        ></button>
       </div>
-      <button
-        pButton
-        type="button"
-        icon="pi pi-search"
-        class="p-button-info"
-        label="Tải dữ liệu"
-        (click)="load()"
-      ></button>
-      <button
-        pButton
-        type="button"
-        icon="pi pi-times"
-        severity="secondary"
-        label="Xóa bộ lọc"
-        (click)="resetFilters()"
-      ></button>
-      <button
-        pButton
-        type="button"
-        icon="pi pi-plus"
-        label="Thêm mới"
-        (click)="openCreateDialog()"
-      ></button>
     </div>
   </app-filter-bar>
 
-  <div class="relative mt-3 min-h-[140px]">
+  <div class="device-content">
     <app-loading-overlay
       [active]="loading()"
-      label="Đang tải dữ liệu..."
+      label="Đang tải danh sách thiết bị..."
     ></app-loading-overlay>
 
-    <div
-      class="mb-3 flex items-center gap-2 text-sm text-[var(--app-text-muted)]"
-    >
-      <i class="pi pi-building" aria-hidden="true"></i>
-      <span>
-        Đơn vị ID:
-        <strong class="text-[var(--app-text)]">{{ donViId() }}</strong>
-      </span>
-    </div>
-
-    <p-dialog
-      [visible]="formDialogVisible()"
-      [modal]="true"
-      [draggable]="false"
-      [resizable]="false"
-      [closable]="false"
-      [dismissableMask]="true"
-      [style]="{ width: 'min(980px, 96vw)' }"
-      styleClass="app-thiet-bi-dialog"
-      appendTo="body"
-      (onHide)="closeDialog()"
-    >
-      <ng-template pTemplate="header">
-        <div class="app-dialog-header">
-          <span class="app-dialog-title">
-            <i class="pi pi-desktop" aria-hidden="true"></i>
-            {{ selectedId() ? 'Cập nhật thiết bị' : 'Thêm thiết bị CNTT' }}
-          </span>
-          <button
-            type="button"
-            class="app-dialog-close"
-            aria-label="Đóng"
-            (click)="closeDialog()"
-          >
-            <i class="pi pi-times" aria-hidden="true"></i>
-          </button>
-        </div>
-      </ng-template>
-
-      <form [formGroup]="form" class="app-dialog-form">
-        <div class="app-dialog-body-standard">
-          <div class="mb-2">
-            <span
-              class="text-xs font-semibold uppercase tracking-wide text-[var(--app-text-muted)]"
-            >
-              Thông tin thiết bị
+    <div class="device-groups" *ngIf="!loading() && deviceGroups().length > 0">
+      <section class="device-group" *ngFor="let group of deviceGroups()">
+        <button
+          type="button"
+          class="device-group__header"
+          [attr.aria-expanded]="isGroupExpanded(group.key)"
+          (click)="toggleGroup(group.key)"
+        >
+          <span class="device-group__identity">
+            <span class="device-group__roman">{{ group.roman }}</span>
+            <span>
+              <strong>{{ group.label }}</strong>
+              <small>
+                {{ group.configuredCount }}/{{ group.categories.length }} loại đã khai báo
+                <span aria-hidden="true">·</span>
+                {{ group.currentCount }} thiết bị đang sử dụng
+              </small>
             </span>
-            <div class="mt-1 border-t border-[var(--app-border)]"></div>
-          </div>
+          </span>
+          <i
+            class="pi device-group__chevron"
+            [ngClass]="isGroupExpanded(group.key) ? 'pi-chevron-up' : 'pi-chevron-down'"
+            aria-hidden="true"
+          ></i>
+        </button>
 
-          <div class="app-form-row">
-            <div
-              class="app-form-field app-form-field--full"
-              [class.has-value]="form.controls.tenThietBi.value"
-              *ngIf="!isTongHop()"
-            >
-              <label class="app-form-field__label">Tên thiết bị</label>
-              <input
-                pInputText
-                class="app-form-field__input"
-                type="text"
-                formControlName="tenThietBi"
-                placeholder="Nhập tên thiết bị"
-              />
-            </div>
+        <div class="device-group__body" *ngIf="isGroupExpanded(group.key)">
+          <article
+            class="device-category"
+            [class.device-category--aggregate]="category.laTongHop"
+            *ngFor="let category of group.categories"
+          >
+            <ng-container *ngIf="category.laTongHop; else detailCategory">
+              <div class="aggregate-row">
+                <div class="category-identity">
+                  <span class="category-identity__number">{{ category.ordinal }}</span>
+                  <span class="category-identity__text">
+                    <strong>{{ category.label }}</strong>
+                    <small>Nhập số lượng tổng hợp theo biểu mẫu</small>
+                  </span>
+                  <span class="category-badge">Tổng hợp</span>
+                </div>
 
-            <div
-              class="app-form-field app-form-field--lg"
-              [class.has-value]="form.controls.loaiThietBiId.value !== null"
-              [class.has-error]="form.controls.loaiThietBiId.invalid && form.controls.loaiThietBiId.touched && form.dirty"
-            >
-              <label class="app-form-field__label required"
-                >Loại thiết bị</label
-              >
-              <p-treeSelect
-                inputId="loaiThietBiSelect"
-                [options]="loaiThietBiTreeOptions()"
-                selectionMode="single"
-                [filter]="true"
-                filterPlaceholder="Tìm loại thiết bị..."
-                panelStyleClass="app-tree-select-panel"
-                placeholder="Chọn loại thiết bị"
-                [showClear]="false"
-                appendTo="body"
-                [ngModel]="loaiThietBiSelectedNode()"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="onLoaiThietBiTreeSelect($event)"
-                (onBlur)="form.controls.loaiThietBiId.markAsTouched()"
-              ></p-treeSelect>
+                <div class="aggregate-inline-field aggregate-inline-field--quantity">
+                  <label [for]="'aggregate-' + category.id">Đang sử dụng</label>
+                  <div class="aggregate-stepper">
+                    <button
+                      type="button"
+                      aria-label="Giảm số lượng"
+                      (click)="adjustAggregateDraft(category, -1)"
+                    ><i class="pi pi-minus"></i></button>
+                    <input
+                      [id]="'aggregate-' + category.id"
+                      type="number"
+                      inputmode="numeric"
+                      min="0"
+                      [ngModel]="aggregateDraft(category).soLuongHienDung"
+                      (ngModelChange)="updateAggregateDraft(category, { soLuongHienDung: $event })"
+                      [ngModelOptions]="{ standalone: true }"
+                    />
+                    <button
+                      type="button"
+                      aria-label="Tăng số lượng"
+                      (click)="adjustAggregateDraft(category, 1)"
+                    ><i class="pi pi-plus"></i></button>
+                  </div>
+                </div>
+
+                <div class="aggregate-inline-field">
+                  <label [for]="'status-' + category.id">Tình trạng</label>
+                  <input
+                    pInputText
+                    [id]="'status-' + category.id"
+                    type="text"
+                    [ngModel]="aggregateDraft(category).tinhTrang"
+                    (ngModelChange)="updateAggregateDraft(category, { tinhTrang: $event })"
+                    [ngModelOptions]="{ standalone: true }"
+                    placeholder="Chưa cập nhật"
+                  />
+                </div>
+
+                <div class="aggregate-inline-field aggregate-inline-field--note">
+                  <label [for]="'note-' + category.id">Ghi chú</label>
+                  <input
+                    pInputText
+                    [id]="'note-' + category.id"
+                    type="text"
+                    [ngModel]="aggregateDraft(category).ghiChu"
+                    (ngModelChange)="updateAggregateDraft(category, { ghiChu: $event })"
+                    [ngModelOptions]="{ standalone: true }"
+                    placeholder="Thông tin cần lưu ý"
+                  />
+                </div>
+
+                <div class="aggregate-row__actions">
+                  <button
+                    *ngIf="hasAggregateChanges(category)"
+                    type="button"
+                    class="aggregate-save-button"
+                    [disabled]="savingAggregateId() === category.id"
+                    (click)="saveAggregate(category)"
+                  >
+                    <i
+                      class="pi"
+                      [ngClass]="savingAggregateId() === category.id ? 'pi-spinner pi-spin' : 'pi-check'"
+                    ></i>
+                    <span>Lưu</span>
+                  </button>
+                </div>
+              </div>
+
               <div
-                class="app-form-field__feedback"
-                [class.is-visible]="form.controls.loaiThietBiId.invalid && form.controls.loaiThietBiId.touched && form.dirty"
-                aria-live="polite"
+                class="aggregate-row__meta"
+                *ngIf="category.recordCount > 1"
               >
-                <small class="app-form-field__error"
-                  >Loại thiết bị là bắt buộc.</small
+                <span class="aggregate-row__warning" *ngIf="category.recordCount > 1">
+                  <i class="pi pi-exclamation-triangle"></i>
+                  Có {{ category.recordCount }} bản ghi tổng hợp
+                </span>
+              </div>
+            </ng-container>
+
+            <ng-template #detailCategory>
+              <div class="detail-category__header">
+                <button
+                  type="button"
+                  class="detail-category__toggle"
+                  [attr.aria-expanded]="isCategoryExpanded(category.key)"
+                  (click)="toggleCategory(category.key)"
                 >
-              </div>
-            </div>
-
-            <div
-              class="app-form-field app-form-field--lg"
-              [class.has-value]="form.controls.donViSuDung.value"
-              [class.has-error]="form.controls.donViSuDung.invalid && form.controls.donViSuDung.touched && form.dirty"
-              *ngIf="!isTongHop() && visibleDialogFields().showDonViSuDung"
-            >
-              <label class="app-form-field__label required"
-                >Đơn vị sử dụng</label
-              >
-              <p-dropdown
-                styleClass="w-full"
-                [panelStyleClass]="selectPanelStyleClass"
-                formControlName="donViSuDung"
-                [options]="donViSuDungOptions()"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Chọn đơn vị sử dụng"
-                [filter]="true"
-                appendTo="body"
-              ></p-dropdown>
-              <div
-                class="app-form-field__feedback"
-                [class.is-visible]="form.controls.donViSuDung.invalid && form.controls.donViSuDung.touched && form.dirty"
-                aria-live="polite"
-              >
-                <small class="app-form-field__error"
-                  >Đơn vị sử dụng là bắt buộc.</small
-                >
-              </div>
-            </div>
-
-            <ng-container *ngIf="!isTongHop()">
-              <div
-                class="app-form-field"
-                [class.has-value]="form.controls.hangSanXuat.value"
-              >
-                <label class="app-form-field__label">Hãng sản xuất</label>
-                <p-autoComplete
-                  styleClass="w-full"
-                  panelStyleClass="app-autocomplete-panel"
-                  formControlName="hangSanXuat"
-                  [suggestions]="hangSanXuatSuggestions()"
-                  (completeMethod)="onHangSanXuatAutocomplete($event)"
-                  [dropdown]="true"
-                  [forceSelection]="false"
-                  appendTo="body"
-                  placeholder="Chọn hoặc nhập hãng sản xuất"
-                ></p-autoComplete>
+                  <span class="category-identity">
+                    <span class="category-identity__number">{{ category.ordinal }}</span>
+                    <span class="category-identity__text">
+                      <strong>{{ category.label }}</strong>
+                      <small>
+                        {{ category.recordCount }} hồ sơ
+                        <span aria-hidden="true">·</span>
+                        {{ category.currentCount }} thiết bị đang sử dụng
+                      </small>
+                    </span>
+                    <span class="category-badge category-badge--detail">Chi tiết</span>
+                  </span>
+                  <i
+                    class="pi"
+                    [ngClass]="isCategoryExpanded(category.key) ? 'pi-chevron-up' : 'pi-chevron-down'"
+                    aria-hidden="true"
+                  ></i>
+                </button>
+                <button
+                  pButton
+                  type="button"
+                  class="p-button-sm p-button-outlined detail-add-button"
+                  icon="pi pi-plus"
+                  label="Thêm"
+                  [pTooltip]="'Thêm ' + category.label"
+                  tooltipPosition="top"
+                  (click)="openCreateForCategory(category)"
+                ></button>
               </div>
 
               <div
-                class="app-form-field"
-                [class.has-value]="form.controls.model.value"
-                *ngIf="visibleDialogFields().showModel"
+                class="detail-category__body"
+                *ngIf="isCategoryExpanded(category.key)"
               >
-                <label class="app-form-field__label">Model</label>
-                <p-autoComplete
-                  styleClass="w-full"
-                  panelStyleClass="app-autocomplete-panel"
-                  formControlName="model"
-                  [suggestions]="modelSuggestions()"
-                  (completeMethod)="onModelAutocomplete($event)"
-                  [dropdown]="true"
-                  [forceSelection]="false"
-                  appendTo="body"
-                  placeholder="Chọn hoặc nhập model"
-                ></p-autoComplete>
-              </div>
-
-              <div
-                class="app-form-field"
-                [class.has-value]="form.controls.cauHinh.value"
-                *ngIf="visibleDialogFields().showCauHinh"
-              >
-                <label class="app-form-field__label">Cấu hình</label>
-                <input
-                  pInputText
-                  class="app-form-field__input"
-                  type="text"
-                  formControlName="cauHinh"
-                  placeholder="Nhập cấu hình"
-                />
-              </div>
-
-              <div
-                class="app-form-field"
-                [class.has-value]="form.controls.heDieuHanh.value"
-                *ngIf="visibleDialogFields().showHeDieuHanh"
-              >
-                <label class="app-form-field__label">Hệ điều hành</label>
-                <p-autoComplete
-                  styleClass="w-full"
-                  panelStyleClass="app-autocomplete-panel"
-                  formControlName="heDieuHanh"
-                  [suggestions]="heDieuHanhSuggestions()"
-                  (completeMethod)="onHeDieuHanhAutocomplete($event)"
-                  [dropdown]="true"
-                  [forceSelection]="false"
-                  appendTo="body"
-                  placeholder="Chọn hoặc nhập hệ điều hành"
-                ></p-autoComplete>
-              </div>
-
-              <div
-                class="app-form-field app-form-field--full app-form-field--ungdung"
-                [class.has-value]="form.controls.ungDungIds.value?.length"
-                *ngIf="visibleDialogFields().showUngDung"
-              >
-                <label class="app-form-field__label">Ứng dụng đang chạy</label>
-                <p-autoComplete
-                  styleClass="w-full"
-                  panelStyleClass="app-autocomplete-panel"
-                  [ngModel]="ungDungSearchQuery()"
-                  (ngModelChange)="ungDungSearchQuery.set($event)"
-                  [ngModelOptions]="{ standalone: true }"
-                  [suggestions]="ungDungSuggestions()"
-                  (completeMethod)="onUngDungAutocomplete($event)"
-                  (onSelect)="onUngDungSelect($event.value)"
-                  [dropdown]="true"
-                  [forceSelection]="false"
-                  appendTo="body"
-                  placeholder="Tìm và thêm ứng dụng..."
-                ></p-autoComplete>
-
-                <div class="app-ungdung-table">
-                  <table class="app-ungdung-table__table">
-                    <tbody>
-                      <tr
-                        *ngFor="let item of selectedUngDungItems()"
-                        class="app-ungdung-table__row"
-                      >
-                        <td class="app-ungdung-table__name">{{ item.label }}</td>
-                        <td class="app-ungdung-table__action">
-                          <button
-                            type="button"
-                            class="action-btn action-btn--delete"
-                            (click)="removeUngDung(item.value)"
-                          >
-                            <i class="pi pi-times"></i>
-                          </button>
-                        </td>
+                <div class="device-table-wrap" *ngIf="category.items.length > 0">
+                  <table class="device-table">
+                    <thead>
+                      <tr>
+                        <th class="device-table__order">TT</th>
+                        <th>Tên thiết bị</th>
+                        <th>Đơn vị sử dụng</th>
+                        <th>Hãng / Model</th>
+                        <th>Cấu hình</th>
+                        <th>Hệ điều hành / Ứng dụng</th>
+                        <th class="device-table__quantity">Hiện dùng</th>
+                        <th>Tình trạng</th>
+                        <th class="device-table__actions">Thao tác</th>
                       </tr>
-                      <tr *ngIf="!selectedUngDungItems().length">
-                        <td class="app-ungdung-table__empty" colspan="2">
-                          Chưa có ứng dụng nào được chọn
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let item of category.items; let itemIndex = index">
+                        <td class="device-table__order">({{ itemIndex + 1 }})</td>
+                        <td>
+                          <strong class="device-table__name">{{ displayDeviceName(item) }}</strong>
+                          <small *ngIf="item.ghiChu" class="device-table__subtext">
+                            {{ item.ghiChu }}
+                          </small>
+                        </td>
+                        <td>{{ item.donViSuDung || 'Chưa khai báo' }}</td>
+                        <td>{{ manufacturerLabel(item) }}</td>
+                        <td>
+                          <span class="device-table__clamp" [pTooltip]="item.cauHinh || ''">
+                            {{ item.cauHinh || '—' }}
+                          </span>
+                        </td>
+                        <td>
+                          <span>{{ item.heDieuHanh || '—' }}</span>
+                          <small
+                            class="device-table__subtext"
+                            *ngIf="item.ungDungIds.length > 0"
+                          >
+                            {{ resolveUngDungLabels(item.ungDungIds) }}
+                          </small>
+                        </td>
+                        <td class="device-table__quantity">
+                          <strong>{{ item.soLuongHienDung }}</strong>
+                          <small *ngIf="item.soLuongHong > 0">
+                            {{ item.soLuongHong }} hỏng
+                          </small>
+                        </td>
+                        <td>
+                          <span
+                            class="status-pill"
+                            [class.status-pill--muted]="!item.tinhTrang"
+                          >
+                            {{ item.tinhTrang || 'Chưa cập nhật' }}
+                          </span>
+                        </td>
+                        <td class="device-table__actions">
+                          <div class="action-btns">
+                            <button
+                              type="button"
+                              class="action-btn action-btn--edit"
+                              pTooltip="Chỉnh sửa"
+                              tooltipPosition="top"
+                              (click)="openEditDialog(item)"
+                            ><i class="pi pi-pencil"></i></button>
+                            <button
+                              type="button"
+                              class="action-btn action-btn--delete"
+                              pTooltip="Xóa"
+                              tooltipPosition="top"
+                              (click)="remove(item)"
+                            ><i class="pi pi-trash"></i></button>
+                          </div>
                         </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
+
+                <div class="category-empty" *ngIf="category.items.length === 0">
+                  <span class="category-empty__icon"><i class="pi pi-inbox"></i></span>
+                  <span>
+                    <strong>Chưa có {{ category.label | lowercase }}</strong>
+                    <small>Thêm từng thiết bị để khai báo hãng, cấu hình và đơn vị sử dụng.</small>
+                  </span>
+                  <button
+                    pButton
+                    type="button"
+                    class="p-button-sm p-button-text"
+                    icon="pi pi-plus"
+                    label="Thêm thiết bị đầu tiên"
+                    (click)="openCreateForCategory(category)"
+                  ></button>
+                </div>
               </div>
-            </ng-container>
+            </ng-template>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <app-empty-state
+      *ngIf="!loading() && deviceGroups().length === 0"
+      title="Không tìm thấy thiết bị phù hợp"
+      message="Thử thay đổi từ khóa hoặc loại thiết bị đang lọc."
+      icon="pi-search"
+      actionLabel="Xóa bộ lọc"
+      actionIcon="pi pi-filter-slash"
+      (action)="resetFilters()"
+    ></app-empty-state>
+  </div>
+</app-section-card>
+
+<p-dialog
+  [visible]="formDialogVisible()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="false"
+  [dismissableMask]="true"
+  [style]="{ width: isTongHop() ? 'min(720px, 96vw)' : 'min(920px, 96vw)' }"
+  styleClass="app-thiet-bi-dialog"
+  appendTo="body"
+  (onHide)="closeDialog()"
+>
+  <ng-template pTemplate="header">
+    <div class="app-dialog-header device-dialog-header">
+      <span class="app-dialog-title">
+        <span class="device-dialog-header__icon"><i class="pi pi-desktop"></i></span>
+        <span>
+          {{ dialogTitle() }}
+          <small *ngIf="selectedLoaiThietBi()">
+            {{ selectedLoaiThietBi()?.label }}
+          </small>
+        </span>
+      </span>
+      <button
+        type="button"
+        class="app-dialog-close"
+        aria-label="Đóng"
+        (click)="closeDialog()"
+      >
+        <i class="pi pi-times" aria-hidden="true"></i>
+      </button>
+    </div>
+  </ng-template>
+
+  <form [formGroup]="form" class="app-dialog-form" (ngSubmit)="save()">
+    <div class="app-dialog-body-standard device-dialog-body">
+      <section class="form-section">
+        <div class="form-section__heading">
+          <span class="form-section__step">1</span>
+          <span>
+            <strong>Phân loại</strong>
+            <small>Chọn đúng dòng tương ứng trên biểu mẫu trang thiết bị.</small>
+          </span>
+        </div>
+
+        <div class="app-form-row">
+          <div
+            class="app-form-field app-form-field--full"
+            [class.has-value]="form.controls.loaiThietBiId.value !== null"
+            [class.has-error]="form.controls.loaiThietBiId.invalid && form.controls.loaiThietBiId.touched"
+          >
+            <label class="app-form-field__label required">Loại thiết bị</label>
+            <p-treeSelect
+              inputId="loaiThietBiSelect"
+              [options]="loaiThietBiTreeOptions()"
+              selectionMode="single"
+              [filter]="true"
+              filterPlaceholder="Tìm loại thiết bị..."
+              panelStyleClass="app-tree-select-panel"
+              placeholder="Chọn loại thiết bị"
+              [showClear]="false"
+              [disabled]="selectedId() !== null"
+              appendTo="body"
+              [ngModel]="loaiThietBiSelectedNode()"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="onLoaiThietBiTreeSelect($event)"
+              (onBlur)="form.controls.loaiThietBiId.markAsTouched()"
+            ></p-treeSelect>
+            <div
+              class="app-form-field__feedback"
+              [class.is-visible]="form.controls.loaiThietBiId.invalid && form.controls.loaiThietBiId.touched"
+              aria-live="polite"
+            >
+              <small class="app-form-field__error">Loại thiết bị là bắt buộc.</small>
+            </div>
           </div>
+        </div>
 
-          <div class="mb-2 mt-5">
-            <span
-              class="text-xs font-semibold uppercase tracking-wide text-[var(--app-text-muted)]"
-            >
-              Số lượng &amp; Tình trạng
-            </span>
-            <div class="mt-1 border-t border-[var(--app-border)]"></div>
-          </div>
+        <div class="form-mode-hint" *ngIf="selectedLoaiThietBi()">
+          <i
+            class="pi"
+            [ngClass]="isTongHop() ? 'pi-calculator' : 'pi-list-check'"
+          ></i>
+          <span *ngIf="isTongHop()">
+            Đây là loại <strong>tổng hợp</strong>. Bạn chỉ cần nhập số lượng đang sử dụng,
+            tình trạng chung và ghi chú.
+          </span>
+          <span *ngIf="!isTongHop()">
+            Đây là loại <strong>chi tiết</strong>. Mỗi thiết bị được khai báo thành một hồ sơ riêng.
+          </span>
+        </div>
+      </section>
 
-          <div class="app-form-row">
+      <section class="form-section" *ngIf="!isTongHop()">
+        <div class="form-section__heading">
+          <span class="form-section__step">2</span>
+          <span>
+            <strong>Thông tin nhận diện</strong>
+            <small>Tên gọi và nơi trực tiếp quản lý, sử dụng thiết bị.</small>
+          </span>
+        </div>
+
+        <div class="app-form-row two-columns">
+          <div
+            class="app-form-field"
+            [class.has-value]="form.controls.tenThietBi.value"
+            [class.has-error]="form.controls.tenThietBi.invalid && form.controls.tenThietBi.touched"
+          >
+            <label class="app-form-field__label required">Tên thiết bị</label>
+            <input
+              pInputText
+              class="app-form-field__input"
+              type="text"
+              formControlName="tenThietBi"
+              placeholder="Ví dụ: Máy chủ cơ sở dữ liệu"
+            />
             <div
-              class="app-form-field"
-              [class.has-value]="form.controls.soLuongTong.value != null"
+              class="app-form-field__feedback"
+              [class.is-visible]="form.controls.tenThietBi.invalid && form.controls.tenThietBi.touched"
             >
-              <label class="app-form-field__label">SL Tổng</label>
-              <p-inputNumber
-                styleClass="w-full"
-                inputStyleClass="w-full"
-                [useGrouping]="false"
-                formControlName="soLuongTong"
-                placeholder="0"
-                [min]="0"
-              ></p-inputNumber>
-            </div>
-
-            <div
-              class="app-form-field"
-              [class.has-value]="form.controls.soLuongHienDung.value != null"
-              [class.has-error]="form.controls.soLuongHienDung.invalid && form.controls.soLuongHienDung.touched"
-            >
-              <label class="app-form-field__label required">SL Hiện dùng</label>
-              <p-inputNumber
-                styleClass="w-full"
-                inputStyleClass="w-full"
-                [useGrouping]="false"
-                formControlName="soLuongHienDung"
-                placeholder="0"
-                [min]="0"
-              ></p-inputNumber>
-            </div>
-
-            <div
-              class="app-form-field"
-              [class.has-value]="form.controls.soLuongHong.value != null"
-            >
-              <label class="app-form-field__label">SL Hỏng</label>
-              <p-inputNumber
-                styleClass="w-full"
-                inputStyleClass="w-full"
-                [useGrouping]="false"
-                formControlName="soLuongHong"
-                placeholder="0"
-                [min]="0"
-              ></p-inputNumber>
-            </div>
-
-            <div
-              class="app-form-field"
-              [class.has-value]="form.controls.tinhTrang.value"
-            >
-              <label class="app-form-field__label">Tình trạng</label>
-              <input
-                pInputText
-                class="app-form-field__input"
-                type="text"
-                formControlName="tinhTrang"
-                placeholder="Mô tả tình trạng thiết bị"
-              />
-            </div>
-
-            <div
-              class="app-form-field app-form-field--full"
-              [class.has-value]="form.controls.ghiChu.value"
-            >
-              <label class="app-form-field__label">Ghi chú</label>
-              <input
-                pInputText
-                class="app-form-field__input"
-                type="text"
-                formControlName="ghiChu"
-                placeholder="Nhập ghi chú"
-              />
+              <small class="app-form-field__error">Tên thiết bị là bắt buộc.</small>
             </div>
           </div>
 
           <div
-            class="app-form-field__feedback"
-            [class.is-visible]="soLuongError()"
-            aria-live="polite"
+            class="app-form-field"
+            [class.has-value]="form.controls.donViSuDung.value"
+            [class.has-error]="form.controls.donViSuDung.invalid && form.controls.donViSuDung.touched"
           >
-            <small class="app-form-field__error"
-              >Tổng số lượng hiện dùng và hỏng không được vượt quá SL
-              tổng.</small
+            <label class="app-form-field__label required">Đơn vị sử dụng</label>
+            <p-dropdown
+              styleClass="w-full"
+              [panelStyleClass]="selectPanelStyleClass"
+              formControlName="donViSuDung"
+              [options]="donViSuDungOptions()"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Chọn đơn vị sử dụng"
+              [filter]="true"
+              appendTo="body"
+            ></p-dropdown>
+            <div
+              class="app-form-field__feedback"
+              [class.is-visible]="form.controls.donViSuDung.invalid && form.controls.donViSuDung.touched"
             >
+              <small class="app-form-field__error">Đơn vị sử dụng là bắt buộc.</small>
+            </div>
+          </div>
+
+          <div class="app-form-field" [class.has-value]="form.controls.hangSanXuat.value">
+            <label class="app-form-field__label">Hãng sản xuất</label>
+            <p-autoComplete
+              styleClass="w-full"
+              panelStyleClass="app-autocomplete-panel"
+              formControlName="hangSanXuat"
+              [suggestions]="hangSanXuatSuggestions()"
+              (completeMethod)="onHangSanXuatAutocomplete($event)"
+              [dropdown]="true"
+              [forceSelection]="false"
+              appendTo="body"
+              placeholder="Chọn hoặc nhập hãng"
+            ></p-autoComplete>
+          </div>
+
+          <div class="app-form-field" [class.has-value]="form.controls.model.value">
+            <label class="app-form-field__label">Model</label>
+            <p-autoComplete
+              styleClass="w-full"
+              panelStyleClass="app-autocomplete-panel"
+              formControlName="model"
+              [suggestions]="modelSuggestions()"
+              (completeMethod)="onModelAutocomplete($event)"
+              [dropdown]="true"
+              [forceSelection]="false"
+              appendTo="body"
+              placeholder="Chọn hoặc nhập model"
+            ></p-autoComplete>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section" *ngIf="!isTongHop()">
+        <div class="form-section__heading">
+          <span class="form-section__step">3</span>
+          <span>
+            <strong>Cấu hình và phần mềm</strong>
+            <small>Thông tin kỹ thuật phục vụ tổng hợp và tra cứu.</small>
+          </span>
+        </div>
+
+        <div class="app-form-row two-columns">
+          <div class="app-form-field app-form-field--full" [class.has-value]="form.controls.cauHinh.value">
+            <label class="app-form-field__label">Cấu hình</label>
+            <textarea
+              pInputTextarea
+              class="app-form-field__input"
+              formControlName="cauHinh"
+              rows="3"
+              placeholder="CPU, RAM, dung lượng lưu trữ, thông số chính..."
+            ></textarea>
+          </div>
+
+          <div class="app-form-field" [class.has-value]="form.controls.heDieuHanh.value">
+            <label class="app-form-field__label">Hệ điều hành</label>
+            <p-autoComplete
+              styleClass="w-full"
+              panelStyleClass="app-autocomplete-panel"
+              formControlName="heDieuHanh"
+              [suggestions]="heDieuHanhSuggestions()"
+              (completeMethod)="onHeDieuHanhAutocomplete($event)"
+              [dropdown]="true"
+              [forceSelection]="false"
+              appendTo="body"
+              placeholder="Chọn hoặc nhập hệ điều hành"
+            ></p-autoComplete>
+          </div>
+
+          <div
+            class="app-form-field app-form-field--full app-form-field--ungdung"
+            [class.has-value]="form.controls.ungDungIds.value?.length"
+          >
+            <label class="app-form-field__label">Ứng dụng đang chạy</label>
+            <p-autoComplete
+              styleClass="w-full"
+              panelStyleClass="app-autocomplete-panel"
+              [ngModel]="ungDungSearchQuery()"
+              (ngModelChange)="ungDungSearchQuery.set($event)"
+              [ngModelOptions]="{ standalone: true }"
+              [suggestions]="ungDungSuggestions()"
+              (completeMethod)="onUngDungAutocomplete($event)"
+              (onSelect)="onUngDungSelect($event.value)"
+              [dropdown]="true"
+              [forceSelection]="false"
+              appendTo="body"
+              placeholder="Tìm và thêm ứng dụng..."
+            ></p-autoComplete>
+
+            <div class="app-ungdung-table">
+              <table class="app-ungdung-table__table">
+                <tbody>
+                  <tr *ngFor="let item of selectedUngDungItems()" class="app-ungdung-table__row">
+                    <td class="app-ungdung-table__name">{{ item.label }}</td>
+                    <td class="app-ungdung-table__action">
+                      <button
+                        type="button"
+                        class="action-btn action-btn--delete"
+                        aria-label="Bỏ ứng dụng"
+                        (click)="removeUngDung(item.value)"
+                      ><i class="pi pi-times"></i></button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="!selectedUngDungItems().length">
+                    <td class="app-ungdung-table__empty" colspan="2">
+                      Chưa chọn ứng dụng đang chạy
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="form-section__heading">
+          <span class="form-section__step">{{ isTongHop() ? '2' : '4' }}</span>
+          <span>
+            <strong>Số lượng và tình trạng</strong>
+            <small *ngIf="isTongHop()">Số lượng đang sử dụng sẽ được đưa lên dòng tổng hợp của biểu mẫu.</small>
+            <small *ngIf="!isTongHop()">Theo dõi số lượng thực tế và tình trạng của thiết bị.</small>
+          </span>
+        </div>
+
+        <div
+          class="app-form-row"
+          [class.three-columns]="!isTongHop()"
+          [class.aggregate-form-grid]="isTongHop()"
+        >
+          <div class="app-form-field" *ngIf="!isTongHop()" [class.has-value]="form.controls.soLuongTong.value != null">
+            <label class="app-form-field__label">Số lượng tổng</label>
+            <p-inputNumber
+              styleClass="w-full"
+              inputStyleClass="w-full"
+              [useGrouping]="true"
+              formControlName="soLuongTong"
+              placeholder="0"
+              [min]="0"
+            ></p-inputNumber>
+          </div>
+
+          <div
+            *ngIf="isTongHop()"
+            class="dialog-quantity-field"
+          >
+            <label for="dialogAggregateQuantity">Số lượng hiện đang sử dụng <span>*</span></label>
+            <div class="aggregate-stepper aggregate-stepper--dialog">
+              <button
+                type="button"
+                aria-label="Giảm số lượng"
+                (click)="adjustFormQuantity(-1)"
+              ><i class="pi pi-minus"></i></button>
+              <input
+                id="dialogAggregateQuantity"
+                type="number"
+                inputmode="numeric"
+                min="0"
+                formControlName="soLuongHienDung"
+              />
+              <button
+                type="button"
+                aria-label="Tăng số lượng"
+                (click)="adjustFormQuantity(1)"
+              ><i class="pi pi-plus"></i></button>
+            </div>
+          </div>
+
+          <div
+            *ngIf="!isTongHop()"
+            class="app-form-field"
+            [class.has-value]="form.controls.soLuongHienDung.value != null"
+            [class.has-error]="form.controls.soLuongHienDung.invalid && form.controls.soLuongHienDung.touched"
+          >
+            <label class="app-form-field__label required">Số lượng hiện đang sử dụng</label>
+            <p-inputNumber
+              styleClass="w-full"
+              inputStyleClass="w-full"
+              [useGrouping]="true"
+              formControlName="soLuongHienDung"
+              placeholder="0"
+              [min]="0"
+            ></p-inputNumber>
+          </div>
+
+          <div class="app-form-field" *ngIf="!isTongHop()" [class.has-value]="form.controls.soLuongHong.value != null">
+            <label class="app-form-field__label">Số lượng hỏng</label>
+            <p-inputNumber
+              styleClass="w-full"
+              inputStyleClass="w-full"
+              [useGrouping]="true"
+              formControlName="soLuongHong"
+              placeholder="0"
+              [min]="0"
+            ></p-inputNumber>
+          </div>
+
+          <div class="app-form-field" [class.has-value]="form.controls.tinhTrang.value">
+            <label class="app-form-field__label">Tình trạng sử dụng</label>
+            <input
+              pInputText
+              class="app-form-field__input"
+              type="text"
+              formControlName="tinhTrang"
+              placeholder="Ví dụ: Tốt, đang bảo trì..."
+            />
+          </div>
+
+          <div class="app-form-field app-form-field--full" [class.has-value]="form.controls.ghiChu.value">
+            <label class="app-form-field__label">Ghi chú</label>
+            <textarea
+              pInputTextarea
+              class="app-form-field__input"
+              formControlName="ghiChu"
+              rows="2"
+              placeholder="Thông tin cần lưu ý khi tổng hợp báo cáo"
+            ></textarea>
           </div>
         </div>
 
-        <div class="app-dialog-actions">
-          <button
-            pButton
-            type="button"
-            severity="secondary"
-            label="Hủy"
-            (click)="closeDialog()"
-          ></button>
-          <button
-            pButton
-            type="button"
-            severity="secondary"
-            icon="pi pi-pencil"
-            label="Điền mẫu"
-            (click)="fillSampleData()"
-            pTooltip="Điền dữ liệu mẫu để test nhanh"
-            tooltipPosition="top"
-          ></button>
-          <button
-            pButton
-            type="button"
-            [loading]="saving()"
-            [label]="selectedId() ? 'Cập nhật' : 'Thêm mới'"
-            (click)="save()"
-          ></button>
+        <div
+          class="app-form-field__feedback"
+          [class.is-visible]="hasSoLuongError()"
+          aria-live="polite"
+        >
+          <small class="app-form-field__error">
+            Tổng số lượng hiện dùng và hỏng không được vượt quá số lượng tổng.
+          </small>
         </div>
-      </form>
-    </p-dialog>
-
-    <app-empty-state
-      class="mt-3"
-      *ngIf="!loading() && items().length === 0"
-      title="Chưa có dữ liệu thiết bị"
-      message="Chưa có bản ghi nào cho đơn vị hiện tại. Bạn có thể tạo mới ở form bên trên."
-      icon="pi-desktop"
-      actionLabel="Tải lại"
-      actionIcon="pi pi-refresh"
-      (action)="load()"
-    ></app-empty-state>
-
-    <div
-      class="app-table-wrap app-table-wrap--spacious mt-3"
-      *ngIf="!loading() && filteredItems().length > 0"
-    >
-      <table class="app-admin-table p-datatable-sm" [class]="tableStyleClass">
-        <thead>
-          <tr>
-            <th [class]="tableHeaderCellClass">Loại TB</th>
-            <th [class]="tableHeaderCellClass">Tên TB</th>
-            <th [class]="tableHeaderCellClass">Hãng SX</th>
-            <th [class]="tableHeaderCellClass">SL tổng</th>
-            <th [class]="tableHeaderCellClass">SL hiện dùng</th>
-            <th [class]="tableHeaderCellClass">SL hỏng</th>
-            <th [class]="tableHeaderCellClass">HĐH</th>
-            <th [class]="tableHeaderCellClass">Tình trạng</th>
-            <th [class]="tableHeaderCellClass">Ứng dụng</th>
-            <th [class]="tableHeaderCellClass">Tác vụ</th>
-          </tr>
-        </thead>
-        <tbody>
-          <ng-container *ngFor="let group of groupedFilteredItems()">
-            <tr class="thiet-bi-group-row">
-              <td [attr.colspan]="10" [class]="tableBodyCellClass">
-                <button
-                  type="button"
-                  class="thiet-bi-group-toggle"
-                  (click)="toggleGroup(group.parentLabel)"
-                >
-                  <i
-                    class="pi"
-                    [ngClass]="isGroupExpanded(group.parentLabel) ? 'pi-chevron-down' : 'pi-chevron-right'"
-                    aria-hidden="true"
-                  ></i>
-                  <span
-                    >{{ toRoman(group.index) }}. {{ group.parentLabel }}</span
-                  >
-                </button>
-              </td>
-            </tr>
-
-            <tr
-              class="thiet-bi-quick-add-row"
-              *ngIf="isGroupExpanded(group.parentLabel)"
-            >
-              <td [class]="tableBodyCellClass">—</td>
-              <td [class]="tableBodyCellClass">
-                <input
-                  pInputText
-                  type="text"
-                  class="thiet-bi-quick-add-input"
-                  [ngModel]="quickAddDraft(group.parentLabel).tenThietBi"
-                  (ngModelChange)="updateQuickAddDraft(group.parentLabel, { tenThietBi: $event })"
-                  [ngModelOptions]="{ standalone: true }"
-                  placeholder="Thêm nhanh tên thiết bị..."
-                />
-              </td>
-              <td [class]="tableBodyCellClass">—</td>
-              <td [class]="tableBodyCellClass">—</td>
-              <td [class]="tableBodyCellClass">
-                <p-inputNumber
-                  [ngModel]="quickAddDraft(group.parentLabel).soLuongHienDung"
-                  (ngModelChange)="updateQuickAddDraft(group.parentLabel, { soLuongHienDung: $event ?? 0 })"
-                  [ngModelOptions]="{ standalone: true }"
-                  [useGrouping]="false"
-                  [min]="0"
-                  styleClass="thiet-bi-quick-add-number"
-                ></p-inputNumber>
-              </td>
-              <td [class]="tableBodyCellClass">—</td>
-              <td [class]="tableBodyCellClass">—</td>
-              <td [class]="tableBodyCellClass">
-                <input
-                  pInputText
-                  type="text"
-                  class="thiet-bi-quick-add-input"
-                  [ngModel]="quickAddDraft(group.parentLabel).tinhTrang"
-                  (ngModelChange)="updateQuickAddDraft(group.parentLabel, { tinhTrang: $event })"
-                  [ngModelOptions]="{ standalone: true }"
-                  placeholder="Tình trạng"
-                />
-              </td>
-              <td [class]="tableBodyCellClass">—</td>
-              <td [class]="tableBodyCellClass">
-                <button
-                  type="button"
-                  class="action-btn"
-                  pTooltip="Thêm dòng"
-                  tooltipPosition="top"
-                  (click)="addQuickItem(group.parentLabel)"
-                  [disabled]="saving()"
-                ><i class="pi pi-plus"></i></button>
-              </td>
-            </tr>
-
-            <ng-container *ngIf="isGroupExpanded(group.parentLabel)">
-              <ng-container *ngFor="let row of group.rows">
-                <tr [class]="tableRowClass">
-                  <td [class]="tableBodyCellClass">
-                    {{ resolveLoaiThietBiLabel(row.item.loaiThietBiId) }}
-                  </td>
-                  <td [class]="tableBodyCellClass">
-                    <div class="thiet-bi-name-cell">
-                      <button
-                        *ngIf="row.children.length > 0"
-                        type="button"
-                        class="thiet-bi-row-toggle"
-                        (click)="toggleRow(row.key)"
-                      >
-                        <i
-                          class="pi"
-                          [ngClass]="isRowExpanded(row.key) ? 'pi-chevron-down' : 'pi-chevron-right'"
-                          aria-hidden="true"
-                        ></i>
-                      </button>
-                      <span>{{ row.item.tenThietBi || '—' }}</span>
-                    </div>
-                  </td>
-                  <td [class]="tableBodyCellClass">
-                    {{ row.item.hangSanXuat || '—' }}
-                  </td>
-                  <td [class]="tableBodyCellClass">
-                    {{ row.item.soLuongTong }}
-                  </td>
-                  <td [class]="tableBodyCellClass">
-                    {{ row.item.soLuongHienDung }}
-                  </td>
-                  <td [class]="tableBodyCellClass">
-                    {{ row.item.soLuongHong }}
-                  </td>
-                  <td [class]="tableBodyCellClass">
-                    {{ row.item.heDieuHanh || '—' }}
-                  </td>
-                  <td [class]="tableBodyCellClass">
-                    {{ row.item.tinhTrang || '—' }}
-                  </td>
-                  <td [class]="tableBodyCellClass">
-                    {{ resolveUngDungLabels(row.item.ungDungIds) }}
-                  </td>
-                  <td [class]="tableBodyCellClass">
-                    <div class="action-btns">
-                      <button
-                        type="button"
-                        class="action-btn action-btn--edit"
-                        pTooltip="Chỉnh sửa"
-                        tooltipPosition="top"
-                        (click)="openEditDialog(row.item)"
-                      ><i class="pi pi-pencil"></i></button>
-                      <button
-                        type="button"
-                        class="action-btn action-btn--delete"
-                        pTooltip="Xóa"
-                        tooltipPosition="top"
-                        (click)="remove(row.item)"
-                      ><i class="pi pi-trash"></i></button>
-                    </div>
-                  </td>
-                </tr>
-
-                <tr
-                  class="thiet-bi-child-row"
-                  *ngFor="let child of row.children"
-                  [hidden]="!isRowExpanded(row.key)"
-                >
-                  <td [class]="tableBodyCellClass">
-                    {{ resolveLoaiThietBiLabel(child.loaiThietBiId) }}
-                  </td>
-                  <td [class]="tableBodyCellClass">
-                    {{ child.tenThietBi || '—' }}
-                  </td>
-                  <td [class]="tableBodyCellClass">
-                    {{ child.hangSanXuat || '—' }}
-                  </td>
-                  <td [class]="tableBodyCellClass">{{ child.soLuongTong }}</td>
-                  <td [class]="tableBodyCellClass">
-                    {{ child.soLuongHienDung }}
-                  </td>
-                  <td [class]="tableBodyCellClass">{{ child.soLuongHong }}</td>
-                  <td [class]="tableBodyCellClass">
-                    {{ child.heDieuHanh || '—' }}
-                  </td>
-                  <td [class]="tableBodyCellClass">
-                    {{ child.tinhTrang || '—' }}
-                  </td>
-                  <td [class]="tableBodyCellClass">
-                    {{ resolveUngDungLabels(child.ungDungIds) }}
-                  </td>
-                  <td [class]="tableBodyCellClass">
-                    <div class="action-btns">
-                      <button
-                        type="button"
-                        class="action-btn action-btn--edit"
-                        pTooltip="Chỉnh sửa"
-                        tooltipPosition="top"
-                        (click)="openEditDialog(child)"
-                      ><i class="pi pi-pencil"></i></button>
-                      <button
-                        type="button"
-                        class="action-btn action-btn--delete"
-                        pTooltip="Xóa"
-                        tooltipPosition="top"
-                        (click)="remove(child)"
-                      ><i class="pi pi-trash"></i></button>
-                    </div>
-                  </td>
-                </tr>
-              </ng-container>
-            </ng-container>
-          </ng-container>
-        </tbody>
-      </table>
+      </section>
     </div>
-  </div>
-</app-section-card>
+
+    <div class="app-dialog-actions device-dialog-actions">
+      <span class="device-dialog-actions__hint">
+        <i class="pi pi-info-circle"></i>
+        Có thể chỉnh sửa lại bất cứ lúc nào trước khi nộp báo cáo.
+      </span>
+      <div>
+        <button
+          pButton
+          type="button"
+          severity="secondary"
+          label="Hủy"
+          (click)="closeDialog()"
+        ></button>
+        <button
+          pButton
+          type="submit"
+          icon="pi pi-check"
+          [loading]="saving()"
+          [label]="dialogSubmitLabel()"
+        ></button>
+      </div>
+    </div>
+  </form>
+</p-dialog>

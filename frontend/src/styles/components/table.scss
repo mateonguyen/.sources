@@ -303,7 +303,7 @@ p-treetable.app-ref-loai-treetable,
 .app-ref-loai-treetable .col-name { width: 34%; }
 .app-ref-loai-treetable .col-code {
   width: 13%;
-  font-family: "Monaco", "Menlo", "Ubuntu Mono", "Courier New", monospace;
+  font-family: var(--app-font-family-base);
   color: var(--app-text-muted);
   font-size: var(--app-font-size-ui-table-body);
 }

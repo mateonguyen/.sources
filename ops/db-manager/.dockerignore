@@ -1,0 +1,10 @@
+**/bin
+**/obj
+state
+backups
+logs
+config/environments.json
+*.dmp
+*.log
+.git
+.gitignore

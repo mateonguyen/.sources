@@ -1,0 +1,131 @@
+@page "/migrations"
+@rendermode InteractiveServer
+@inject IOptionsMonitor<OpsOptions> Options
+@inject IMigrationInspectionService MigrationService
+
+<PageTitle>Flyway · ThucLuc Ops Console</PageTitle>
+
+<section class="page-heading">
+    <div>
+        <span class="eyebrow">PHIÊN BẢN DATABASE</span>
+        <h1>Flyway migration</h1>
+        <p>So sánh lịch sử trên database với các file SQL hiện có trước khi triển khai backend.</p>
+    </div>
+</section>
+
+<section class="migration-toolbar panel-card">
+    <label class="form-field">
+        <span>Môi trường</span>
+        <select @bind="SelectedEnvironmentKey">
+            @foreach (var environment in Environments)
+            {
+                <option value="@environment.Key">@environment.DisplayName · @environment.Oracle.ServiceName</option>
+            }
+        </select>
+    </label>
+    <button class="button button--primary" disabled="@(IsInspecting || SelectedEnvironment is null)" @onclick="InspectAsync">
+        @(IsInspecting ? "Đang kiểm tra..." : "Kiểm tra Flyway")
+    </button>
+</section>
+
+<section class="guard-panel guard-panel--neutral migration-guard">
+    <span class="guard-panel__icon">✓</span>
+    <div>
+        <strong>Migration được chạy từ màn Phát hành</strong>
+        <p>Trang này dùng để kiểm tra version. Khi triển khai Backend, hệ thống tự sao lưu Oracle và chạy Flyway từ đúng gói release.</p>
+    </div>
+</section>
+
+@if (!string.IsNullOrWhiteSpace(ErrorMessage))
+{
+    <div class="form-message form-message--error">@ErrorMessage</div>
+}
+
+@if (Inspection is not null)
+{
+    <section class="migration-summary">
+        <article class="panel-card metric-card">
+            <span>DATABASE</span>
+            <strong>@(Inspection.CurrentVersion is null ? "Chưa có" : $"V{Inspection.CurrentVersion}")</strong>
+            <small>@Inspection.Schema</small>
+        </article>
+        <article class="panel-card metric-card">
+            <span>ĐANG CHỜ</span>
+            <strong>@Inspection.Pending.Count</strong>
+            <small>versioned migration</small>
+        </article>
+        <article class="panel-card metric-card">
+            <span>REPEATABLE</span>
+            <strong>@Inspection.RepeatableFiles.Count</strong>
+            <small>file R__</small>
+        </article>
+    </section>
+
+    <section class="panel-card migration-list">
+        <header>
+            <div>
+                <h2>Kết quả đối chiếu</h2>
+                <p>@Inspection.Message</p>
+            </div>
+            <span>@Inspection.CheckedAt.ToString("HH:mm:ss dd/MM/yyyy")</span>
+        </header>
+        <table>
+            <thead><tr><th>Version</th><th>Migration</th><th>Trạng thái</th></tr></thead>
+            <tbody>
+                @foreach (var migration in Inspection.Files)
+                {
+                    <tr>
+                        <td><code>V@migration.Version</code></td>
+                        <td><strong>@migration.Description</strong><small>@migration.FileName</small></td>
+                        <td><span class="operation-label @GetMigrationClass(migration)">@GetMigrationLabel(migration)</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </section>
+}
+
+@code {
+    private IReadOnlyList<ManagedEnvironmentOptions> Environments => Options.CurrentValue.Environments
+        .Where(environment => environment.Enabled && environment.Safety.AllowMigrate)
+        .ToList();
+    private string SelectedEnvironmentKey { get; set; } = string.Empty;
+    private MigrationInspection? Inspection { get; set; }
+    private bool IsInspecting { get; set; }
+    private string ErrorMessage { get; set; } = string.Empty;
+    private ManagedEnvironmentOptions? SelectedEnvironment => Environments.FirstOrDefault(environment =>
+        string.Equals(environment.Key, SelectedEnvironmentKey, StringComparison.OrdinalIgnoreCase));
+
+    protected override void OnInitialized()
+    {
+        SelectedEnvironmentKey = Environments.FirstOrDefault()?.Key ?? string.Empty;
+    }
+
+    private async Task InspectAsync()
+    {
+        if (SelectedEnvironment is null) return;
+        IsInspecting = true;
+        Inspection = null;
+        ErrorMessage = string.Empty;
+        try
+        {
+            Inspection = await MigrationService.InspectAsync(SelectedEnvironment);
+        }
+        catch (Exception exception)
+        {
+            ErrorMessage = exception.GetBaseException().Message;
+        }
+        finally
+        {
+            IsInspecting = false;
+        }
+    }
+
+    private static string GetMigrationClass(MigrationFile migration) => !migration.Applied
+        ? "waiting"
+        : migration.Succeeded ? "succeeded" : "failed";
+
+    private static string GetMigrationLabel(MigrationFile migration) => !migration.Applied
+        ? "Đang chờ"
+        : migration.Succeeded ? "Đã chạy" : "Lỗi";
+}

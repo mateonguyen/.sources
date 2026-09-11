@@ -35,7 +35,7 @@ describe('AuthService', () => {
     const loginPromise = service.login('admin', 'Admin@123');
 
     const request = httpMock.expectOne(
-      'http://localhost:5283/api/v1/auth/login',
+      '/api/v1/auth/login',
     );
     request.flush({
       success: true,

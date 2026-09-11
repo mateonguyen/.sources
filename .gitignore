@@ -106,3 +106,16 @@ desktop.ini
 # Infrastructure / Local dev secrets
 # ──────────────────────────────────────────────
 infra/.env
+infra/production/*.env
+infra/production/secrets/
+*.pfx
+**/id_ed25519
+**/known_hosts
+
+# Operations / DbManager local state and secrets
+ops/db-manager/**/appsettings.Local.json
+ops/db-manager/config/environments.json
+ops/db-manager/backups/
+ops/db-manager/logs/
+ops/db-manager/state/
+*.dmp

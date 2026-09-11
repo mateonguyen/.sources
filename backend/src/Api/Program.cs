@@ -168,7 +168,8 @@ app.UseSwaggerUI(options =>
     options.SwaggerEndpoint("/swagger/snapshot/swagger.json", "Snapshot");
 });
 
-if (!app.Environment.IsEnvironment("Testing"))
+var useHttpsRedirection = builder.Configuration.GetValue("Web:UseHttpsRedirection", true);
+if (!app.Environment.IsEnvironment("Testing") && useHttpsRedirection)
 {
     app.UseHttpsRedirection();
 }

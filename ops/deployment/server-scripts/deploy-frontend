@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+source /opt/thucluc-ops/lib/common.sh
+
+version="${1:-}"
+validate_version "$version"
+require_command docker
+
+app_dir="$(resolve_component_app_dir frontend)"
+image="thucluc-frontend:$version"
+archive="$app_dir/releases/frontend-$version.tar"
+current_file="$(component_state_file "$app_dir" frontend current)"
+previous_file="$(component_state_file "$app_dir" frontend previous)"
+
+require_file "$app_dir/compose.yml"
+require_file "$app_dir/.env"
+require_file "$archive"
+
+exec 9>/run/lock/thucluc-frontend-deploy.lock
+flock --exclusive 9
+
+docker load --input "$archive"
+docker image inspect "$image" >/dev/null
+
+current_version=""
+if [[ -f "$current_file" ]]; then
+  current_version="$(tr -d '[:space:]' < "$current_file")"
+elif current_version="$(detect_component_version "$app_dir" frontend thucluc-frontend)"; then
+  :
+fi
+
+export THUCLUC_FRONTEND_IMAGE="$image"
+export RELEASE_VERSION="$version"
+docker compose \
+  --project-directory "$app_dir" \
+  --env-file "$app_dir/.env" \
+  --file "$app_dir/compose.yml" \
+  up --detach --no-deps --wait frontend
+
+set_env_value "$app_dir/.env" THUCLUC_FRONTEND_IMAGE "$image"
+set_env_value "$app_dir/.env" RELEASE_VERSION "$version"
+
+if [[ -n "$current_version" && "$current_version" != "$version" ]]; then
+  printf '%s\n' "$current_version" > "$previous_file"
+fi
+printf '%s\n' "$version" > "$current_file"
+echo "Frontend đã chạy phiên bản $version."

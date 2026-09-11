@@ -1,9 +1,12 @@
 :root {
-  --app-font-family-base: "Source Sans 3", "Segoe UI", Arial, sans-serif;
-  --app-font-family-heading:
-    "Merriweather", "Source Sans 3", "Times New Roman", serif;
-  --app-font-family-mono:
-    "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+  --app-font-family-base: "Google Sans", sans-serif;
+  --app-font-family-heading: var(--app-font-family-base);
+  --app-font-family-mono: var(--app-font-family-base);
+  // PrimeNG reads this token for controls, overlays, tables and dialogs.
+  --font-family: var(--app-font-family-base);
+  --font-feature-settings: normal;
+  font-family: var(--app-font-family-base);
+  font-feature-settings: normal;
 
   --app-font-size-xs: 0.8125rem;
   --app-font-size-sm: 0.875rem;

@@ -15,9 +15,16 @@ public sealed class FakeFileStorageService : IFileStorageService
         return Task.FromResult(objectKey);
     }
 
-    public Task<string> GetPresignedDownloadUrlAsync(string objectKey, TimeSpan ttl, CancellationToken cancellationToken = default)
+    public Task<string> GetPresignedDownloadUrlAsync(
+        string objectKey,
+        TimeSpan ttl,
+        CancellationToken cancellationToken = default,
+        string? downloadFileName = null)
     {
-        return Task.FromResult($"https://fake-storage.local/download/{Uri.EscapeDataString(objectKey)}?ttl={(int)ttl.TotalSeconds}");
+        var fileNameQuery = string.IsNullOrWhiteSpace(downloadFileName)
+            ? string.Empty
+            : $"&fileName={Uri.EscapeDataString(downloadFileName)}";
+        return Task.FromResult($"https://fake-storage.local/download/{Uri.EscapeDataString(objectKey)}?ttl={(int)ttl.TotalSeconds}{fileNameQuery}");
     }
 
     public Task DeleteAsync(string objectKey, CancellationToken cancellationToken = default)

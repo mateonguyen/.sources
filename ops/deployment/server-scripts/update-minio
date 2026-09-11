@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+source /opt/thucluc-ops/lib/common.sh
+
+version="${1:-}"
+validate_version "$version"
+require_command docker
+
+app_dir=/opt/thucluc/infra
+env_file="$app_dir/.env"
+archive="$app_dir/releases/minio-$version.tar"
+new_image="thucluc-minio:$version"
+require_file "$app_dir/compose.yml"
+require_file "$env_file"
+require_file "$archive"
+
+recent_backup="$(find "$app_dir/backups" -type f -name completed-at.txt -mmin -1440 -print -quit 2>/dev/null || true)"
+if [[ -z "$recent_backup" ]]; then
+  echo "Không có backup MinIO hoàn tất trong 24 giờ gần nhất; từ chối update." >&2
+  exit 6
+fi
+
+exec 9>/run/lock/thucluc-infra-update.lock
+flock --exclusive 9
+
+docker load --input "$archive"
+docker image inspect "$new_image" >/dev/null
+old_image="$(sed -n 's/^MINIO_IMAGE=//p' "$env_file" | tail -n 1)"
+if [[ -z "$old_image" ]]; then
+  echo "Không tìm thấy MINIO_IMAGE trong $env_file." >&2
+  exit 3
+fi
+
+printf '%s\n' "$old_image" > "$app_dir/.minio-previous-image"
+set_env_value "$env_file" MINIO_IMAGE "$new_image"
+export MINIO_IMAGE="$new_image"
+if ! docker compose \
+  --project-directory "$app_dir" \
+  --env-file "$env_file" \
+  --file "$app_dir/compose.yml" \
+  up --detach --no-deps --wait minio
+then
+  echo "Update MinIO lỗi. Không tự hạ version vì có thể không tương thích dữ liệu; cần DBA/Ops kiểm tra thủ công." >&2
+  exit 5
+fi
+
+echo "MinIO đã chạy image $new_image; backup dùng để bảo vệ: $recent_backup"

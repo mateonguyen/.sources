@@ -1,0 +1,162 @@
+<app-section-card
+  title="So sánh báo cáo"
+  subtitle="Màn chuyên biệt để đối chiếu chênh lệch dữ liệu giữa 2 kỳ theo từng đơn vị."
+>
+  <div class="ssbc-filter-box">
+    <div class="ssbc-filters">
+      <div class="app-field">
+        <label>Đơn vị</label>
+        <p-dropdown
+          [options]="donViOptions"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="selectedDonViId"
+          [ngModelOptions]="{ standalone: true }"
+          appendTo="body"
+          placeholder="Chọn đơn vị"
+          (onChange)="onDonViChange()"
+        ></p-dropdown>
+      </div>
+
+      <div class="app-field">
+        <label>Kỳ nguồn</label>
+        <p-dropdown
+          [options]="kyOptions"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="fromKyBaoCaoId"
+          [ngModelOptions]="{ standalone: true }"
+          appendTo="body"
+          placeholder="Chọn kỳ nguồn"
+        ></p-dropdown>
+      </div>
+
+      <div class="app-field">
+        <label>Kỳ đích</label>
+        <p-dropdown
+          [options]="kyOptions"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="toKyBaoCaoId"
+          [ngModelOptions]="{ standalone: true }"
+          appendTo="body"
+          placeholder="Chọn kỳ đích"
+        ></p-dropdown>
+      </div>
+
+      <div class="ssbc-actions">
+        <button
+          pButton
+          type="button"
+          icon="pi pi-sort-alt"
+          class="p-button-outlined p-button-sm"
+          pTooltip="Đảo kỳ nguồn và kỳ đích"
+          tooltipPosition="left"
+          (click)="swapKy()"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-sliders-h"
+          label="So sánh"
+          [loading]="comparing"
+          (click)="compare()"
+        ></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="relative min-h-48 mt-4">
+    <app-loading-overlay
+      [active]="loading"
+      label="Đang tải dữ liệu so sánh..."
+    ></app-loading-overlay>
+
+    <app-empty-state
+      *ngIf="!loading && options.length === 0"
+      title="Chưa có dữ liệu để so sánh"
+      message="Mỗi đơn vị cần có ít nhất 2 kỳ đã nộp/khóa thì mới so sánh được."
+      icon="pi-search"
+    ></app-empty-state>
+
+    <app-empty-state
+      *ngIf="!loading && options.length > 0 && !compareResult"
+      title="Chọn điều kiện để bắt đầu so sánh"
+      message="Chọn đơn vị, kỳ nguồn và kỳ đích rồi bấm So sánh."
+      icon="pi-chart-line"
+    ></app-empty-state>
+
+    <div *ngIf="!loading && compareResult" class="ssbc-result">
+      <div class="ssbc-result-meta">
+        <strong>{{ compareResult.tenDonVi }}</strong>
+        <span
+          >{{ compareResult.fromKyCode }} → {{ compareResult.toKyCode }}</span
+        >
+        <span class="ssbc-metric-pill"
+          >{{ changedModuleCount }} module đổi</span
+        >
+        <span class="ssbc-metric-pill ssbc-metric-pill--up"
+          >Tăng: {{ upModuleCount }}</span
+        >
+        <span class="ssbc-metric-pill ssbc-metric-pill--down"
+          >Giảm: {{ downModuleCount }}</span
+        >
+        <label class="ssbc-toggle">
+          <input
+            type="checkbox"
+            [(ngModel)]="onlyChanged"
+            [ngModelOptions]="{ standalone: true }"
+          />
+          Chỉ hiển thị module có thay đổi
+        </label>
+      </div>
+
+      <div class="ssbc-sort-row">
+        <div class="app-field ssbc-sort-field">
+          <label>Sắp xếp kết quả</label>
+          <p-dropdown
+            [options]="sortOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="sortMode"
+            [ngModelOptions]="{ standalone: true }"
+            appendTo="body"
+          ></p-dropdown>
+        </div>
+      </div>
+
+      <p-table [value]="displayedModules" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Module</th>
+            <th class="ssbc-col-narrow">{{ compareResult.fromKyCode }}</th>
+            <th class="ssbc-col-narrow">{{ compareResult.toKyCode }}</th>
+            <th class="ssbc-col-narrow">Chênh lệch</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-row>
+          <tr>
+            <td>{{ row.moduleCode }}</td>
+            <td class="ssbc-col-narrow">{{ row.fromCount }}</td>
+            <td class="ssbc-col-narrow">{{ row.toCount }}</td>
+            <td class="ssbc-col-narrow">
+              <span
+                [class.ssbc-delta-up]="row.delta > 0"
+                [class.ssbc-delta-down]="row.delta < 0"
+              >
+                {{ row.delta > 0 ? '+' : '' }}{{ row.delta }}
+              </span>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <div
+        *ngIf="onlyChanged && displayedModules.length === 0"
+        class="ssbc-empty-note"
+      >
+        Hai kỳ không có chênh lệch dữ liệu theo module.
+      </div>
+    </div>
+  </div>
+</app-section-card>

@@ -131,6 +131,7 @@ public sealed class BaoCaoPdfResultDto
 {
     public long SnapshotId { get; set; }
     public string FileName { get; set; } = string.Empty;
+    public string PreviewUrl { get; set; } = string.Empty;
     public string DownloadUrl { get; set; } = string.Empty;
 }
 
@@ -170,4 +171,18 @@ public sealed class SnapshotCompareDto
     public long ToSnapshotId { get; set; }
 
     public IReadOnlyCollection<SnapshotModuleCompareItemDto> Modules { get; set; } = [];
+}
+
+public sealed class SnapshotCompareKyOptionDto
+{
+    public long KyBaoCaoId { get; set; }
+    public string KyCode { get; set; } = string.Empty;
+    public DateTime? LastSubmittedAt { get; set; }
+}
+
+public sealed class SnapshotCompareOptionDto
+{
+    public long DonViId { get; set; }
+    public string TenDonVi { get; set; } = string.Empty;
+    public IReadOnlyCollection<SnapshotCompareKyOptionDto> KyOptions { get; set; } = [];
 }

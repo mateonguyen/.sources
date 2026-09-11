@@ -5,7 +5,9 @@ param(
     [string]$DbSchema = "CAND_QLCNTT",
     [string]$DbUser = "CAND_QLCNTT",
     [string]$DbPassword = "123456",
-    [string]$FlywayImage = "flyway/flyway:10-alpine"
+    [string]$FlywayImage = "flyway/flyway:10-alpine",
+    [ValidateSet("migrate", "repair")]
+    [string]$MigrationAction = "migrate"
 )
 
 $ErrorActionPreference = "Stop"
@@ -17,7 +19,7 @@ if (-not (Test-Path $sqlDir)) {
 
 $jdbcUrl = "jdbc:oracle:thin:@//$DbHost`:$DbPort/$ServiceName"
 
-Write-Host "Running Flyway migrate against $jdbcUrl (schema=$DbSchema)..." -ForegroundColor Cyan
+Write-Host "Running Flyway $MigrationAction against $jdbcUrl (schema=$DbSchema)..." -ForegroundColor Cyan
 
 docker run --rm `
     -v "${sqlDir}:/flyway/sql" `
@@ -26,10 +28,10 @@ docker run --rm `
     "-user=$DbUser" `
     "-password=$DbPassword" `
     "-schemas=$DbSchema" `
-    migrate
+    $MigrationAction
 
 if ($LASTEXITCODE -ne 0) {
-    throw "Flyway migrate failed with exit code $LASTEXITCODE"
+    throw "Flyway $MigrationAction failed with exit code $LASTEXITCODE"
 }
 
-Write-Host "Flyway migrate completed successfully." -ForegroundColor Green
+Write-Host "Flyway $MigrationAction completed successfully." -ForegroundColor Green

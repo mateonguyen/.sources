@@ -1,0 +1,122 @@
+.ssbc-filter-box {
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background: linear-gradient(180deg, #ffffff 0%, #fbf7ef 100%);
+  padding: 12px;
+}
+
+.ssbc-filters {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1.4fr 1fr 1fr auto;
+  align-items: end;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 680px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ssbc-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+
+  @media (max-width: 680px) {
+    justify-content: flex-start;
+  }
+}
+
+.ssbc-result {
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  padding: 12px;
+  background: var(--app-surface);
+}
+
+.ssbc-result-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--app-text-muted);
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+
+  strong {
+    font-size: 0.92rem;
+    color: var(--app-text-strong);
+  }
+}
+
+.ssbc-metric-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid #c6d8ff;
+  background: #eef4ff;
+  color: #1d4f91;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.ssbc-metric-pill--up {
+  border-color: #c8e6c9;
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.ssbc-metric-pill--down {
+  border-color: #ffcdd2;
+  background: #ffebee;
+  color: #c62828;
+}
+
+.ssbc-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: #475569;
+  user-select: none;
+
+  input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.ssbc-col-narrow {
+  width: 120px;
+  text-align: center;
+}
+
+.ssbc-sort-row {
+  margin: 2px 0 10px;
+}
+
+.ssbc-sort-field {
+  max-width: 320px;
+}
+
+.ssbc-delta-up {
+  color: #2e7d32;
+  font-weight: 700;
+}
+
+.ssbc-delta-down {
+  color: #c62828;
+  font-weight: 700;
+}
+
+.ssbc-empty-note {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--app-text-muted);
+}

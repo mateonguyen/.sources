@@ -1,0 +1,43 @@
+name: thucluc-ops
+
+services:
+  ops-console:
+    image: ${THUCLUC_OPS_IMAGE:?THUCLUC_OPS_IMAGE is required}
+    container_name: thucluc-ops-console
+    user: "0:0"
+    network_mode: host
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://0.0.0.0:${OPS_CONSOLE_PORT:-8088}
+      THUCLUC_OPS_CONFIG_PATH: /config/environments.json
+      THUCLUC_OPS_STATE_PATH: /state
+      THUCLUC_OPS_RELEASE_PATH: /releases
+      Ops__BackupRoot: /backups
+      Ops__MigrationSqlPath: /flyway-sql
+      Ops__ExecutionMode: Local
+      Ops__LocalDeployment__RootDirectory: /opt/thucluc-test
+      Ops__Authentication__Enabled: "true"
+      Ops__Authentication__AdminUser: ${OPS_ADMIN_USER:-admin}
+      Ops__Authentication__PasswordHashFile: /run/secrets/admin-password-hash
+      AllowedHosts: "*"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/thucluc-test:/opt/thucluc-test
+      - ./config:/config
+      - ./state:/state
+      - ./releases:/releases
+      - ./backups:/backups
+      - ./flyway-sql:/flyway-sql:ro
+      # Oracle chạy trực tiếp trên máy TEST. Chỉ mount đọc để miniapp lấy file
+      # Data Pump sau khi export; miniapp không được sửa/xóa file phía Oracle.
+      - /u01/app/oracle/admin/orcl/dpdump:/u01/app/oracle/admin/orcl/dpdump:ro
+      - ./secrets/admin-password-hash:/run/secrets/admin-password-hash:ro
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:${OPS_CONSOLE_PORT:-8088}/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true

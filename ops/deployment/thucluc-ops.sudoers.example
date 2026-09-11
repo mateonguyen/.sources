@@ -1,0 +1,11 @@
+# Cài file này bằng visudo, không copy khi chưa thay đúng tên user và đúng vai trò máy chủ.
+# Ví dụ: visudo -f /etc/sudoers.d/thucluc-ops
+
+# Máy chủ backend:
+# thucluc-ops ALL=(root) NOPASSWD: /opt/thucluc-ops/bin/stage-backend-release, /opt/thucluc-ops/bin/deploy-backend, /opt/thucluc-ops/bin/rollback-backend, /opt/thucluc-ops/bin/status-backend, /opt/thucluc-ops/bin/logs-backend
+
+# Máy chủ frontend:
+# thucluc-ops ALL=(root) NOPASSWD: /opt/thucluc-ops/bin/stage-frontend-release, /opt/thucluc-ops/bin/deploy-frontend, /opt/thucluc-ops/bin/rollback-frontend, /opt/thucluc-ops/bin/status-frontend, /opt/thucluc-ops/bin/logs-frontend
+
+# Máy chủ infra:
+# thucluc-ops ALL=(root) NOPASSWD: /opt/thucluc-ops/bin/status-infra, /opt/thucluc-ops/bin/backup-minio, /opt/thucluc-ops/bin/stage-gotenberg-release, /opt/thucluc-ops/bin/stage-minio-release, /opt/thucluc-ops/bin/update-gotenberg, /opt/thucluc-ops/bin/update-minio

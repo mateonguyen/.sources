@@ -1,0 +1,125 @@
+{
+  "Ops": {
+    "MigrationSqlPath": "../../../../backend/db/flyway/sql",
+    "BackupRootLinux": "/var/lib/thucluc-db-manager/backups",
+    "BackupRootWindows": "D:\\ThucLucData\\DbBackups",
+    "DataPumpExportVersion": "COMPATIBLE",
+    "UseHttpsRedirection": false,
+    "ProtectKeysWithDpapi": true,
+    "RequireEncryptedDataProtectionKeys": true,
+    "DataProtectionCertificatePath": "/run/secrets/data-protection.pfx",
+    "DataProtectionCertificatePasswordFile": "/run/secrets/data-protection-pfx-password",
+    "AllowProductionOperations": false,
+    "SshKnownHostsPath": "/run/secrets/known_hosts",
+    "SshConnectTimeoutSeconds": 10,
+    "RemoteCommandTimeoutSeconds": 120,
+    "LongRunningCommandTimeoutSeconds": 7200,
+    "ArtifactUploadTimeoutSeconds": 1800,
+    "DiskWarningPercent": 80,
+    "Environments": [
+      {
+        "Key": "source",
+        "DisplayName": "Cơ sở dữ liệu nguồn",
+        "Tier": "Source",
+        "Enabled": true,
+        "Oracle": {
+          "Host": "localhost",
+          "Port": 1521,
+          "ServiceName": "XEPDB1",
+          "Schema": "CAND_QLCNTT",
+          "DataPumpDirectory": "THUCLUC_DP",
+          "UserEnvironmentVariable": "THUCLUC_OPS_SOURCE_DB_USER",
+          "PasswordEnvironmentVariable": "THUCLUC_OPS_SOURCE_DB_PASSWORD"
+        },
+        "Safety": {
+          "AllowBackup": true,
+          "AllowRestore": false,
+          "AllowMigrate": true
+        }
+      },
+      {
+        "Key": "target",
+        "DisplayName": "Cơ sở dữ liệu đích",
+        "Tier": "Target",
+        "Enabled": true,
+        "Oracle": {
+          "Host": "target-db.internal",
+          "Port": 1521,
+          "ServiceName": "TARGETPDB",
+          "Schema": "",
+          "DataPumpDirectory": "THUCLUC_DP",
+          "UserEnvironmentVariable": "THUCLUC_OPS_TARGET_DB_USER",
+          "PasswordEnvironmentVariable": "THUCLUC_OPS_TARGET_DB_PASSWORD"
+        },
+        "Safety": {
+          "AllowBackup": false,
+          "AllowRestore": true,
+          "AllowMigrate": true
+        }
+      }
+    ],
+    "Hosts": [
+      {
+        "Key": "backend",
+        "DisplayName": "Máy chủ Backend",
+        "Role": "Backend",
+        "Tier": "Test",
+        "EnvironmentKey": "test",
+        "Host": "backend.internal",
+        "Port": 22,
+        "Username": "thucluc-ops",
+        "IdentityFile": "/run/secrets/id_ed25519",
+        "ScriptDirectory": "/opt/thucluc-ops/bin",
+        "Enabled": true,
+        "AllowedActions": [
+          "StatusBackend",
+          "StageBackendRelease",
+          "DeployBackend",
+          "RollbackBackend",
+          "LogsBackend"
+        ]
+      },
+      {
+        "Key": "frontend",
+        "DisplayName": "Máy chủ Frontend",
+        "Role": "Frontend",
+        "Tier": "Test",
+        "EnvironmentKey": "test",
+        "Host": "frontend.internal",
+        "Port": 22,
+        "Username": "thucluc-ops",
+        "IdentityFile": "/run/secrets/id_ed25519",
+        "ScriptDirectory": "/opt/thucluc-ops/bin",
+        "Enabled": true,
+        "AllowedActions": [
+          "StatusFrontend",
+          "StageFrontendRelease",
+          "DeployFrontend",
+          "RollbackFrontend",
+          "LogsFrontend"
+        ]
+      },
+      {
+        "Key": "infra",
+        "DisplayName": "Máy chủ Hạ tầng",
+        "Role": "Infra",
+        "Tier": "Test",
+        "EnvironmentKey": "test",
+        "Host": "infra.internal",
+        "Port": 22,
+        "Username": "thucluc-ops",
+        "IdentityFile": "/run/secrets/id_ed25519",
+        "ScriptDirectory": "/opt/thucluc-ops/bin",
+        "Enabled": true,
+        "AllowedActions": [
+          "StatusInfra",
+          "BackupMinio",
+          "StageGotenbergRelease",
+          "StageMinioRelease",
+          "UpdateGotenberg",
+          "UpdateMinio"
+        ]
+      }
+    ]
+  }
+}

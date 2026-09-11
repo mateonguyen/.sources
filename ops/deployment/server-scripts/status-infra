@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+source /opt/thucluc-ops/lib/common.sh
+
+app_dir=/opt/thucluc/infra
+require_file "$app_dir/compose.yml"
+require_file "$app_dir/.env"
+docker compose \
+  --project-directory "$app_dir" \
+  --env-file "$app_dir/.env" \
+  --file "$app_dir/compose.yml" \
+  ps
+
+for volume_path in "$app_dir/minio-data" "$app_dir/backups"; do
+  if [[ -d "$volume_path" ]]; then
+    df -P "$volume_path" | awk -v path="$volume_path" 'NR == 2 { gsub(/%/, "", $5); printf "DISK|%s|%s|%s\n", path, $5, $4 }'
+  fi
+done

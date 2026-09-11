@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
@@ -16,7 +18,6 @@ import { KyBaoCaoApi, KyBaoCaoDto } from '../ky-bao-cao/ky-bao-cao.api';
 import {
   SnapshotApi,
   SnapshotBreakdownDto,
-  SnapshotCompareDto,
   SnapshotDto,
 } from '../snapshot/snapshot.api';
 
@@ -42,9 +43,10 @@ type BadgeTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
   templateUrl: './tra-cuu-bao-cao.page.html',
   styleUrls: ['./tra-cuu-bao-cao.page.scss'],
 })
-export class TraCuuBaoCaoPage implements OnInit {
+export class TraCuuBaoCaoPage implements OnInit, OnDestroy {
+  @ViewChild('previewFrame') previewFrame?: ElementRef<HTMLIFrameElement>;
+
   loading = false;
-  comparing = false;
   downloadingId: number | null = null;
   allKy: KyBaoCaoDto[] = [];
   selectedKyId: number | null = null;
@@ -53,16 +55,23 @@ export class TraCuuBaoCaoPage implements OnInit {
   filterStatus: number | null = null;
   filterText = '';
   latestOnly = true;
-  compareDonViId: number | null = null;
-  compareFromKyId: number | null = null;
-  compareToKyId: number | null = null;
-  compareResult: SnapshotCompareDto | null = null;
+  filterTextInput = '';
 
   showBreakdownDialog = false;
   breakdownLoading = false;
   breakdownLoadingId: number | null = null;
   breakdown: SnapshotBreakdownDto | null = null;
   exportingId: number | null = null;
+  showPreviewDialog = false;
+  previewLoading = false;
+  previewLoadingId: number | null = null;
+  previewSnapshot: SnapshotDto | null = null;
+  previewPdfUrl: SafeResourceUrl | null = null;
+  previewInlineUrl: string | null = null;
+  previewDownloadUrl: string | null = null;
+  private previewObjectUrl: string | null = null;
+
+  private filterDebounceHandle: ReturnType<typeof setTimeout> | null = null;
 
   readonly moduleLabels: Record<string, string> = {
     NHAN_LUC_CNTT: 'Nhân lực CNTT',
@@ -108,26 +117,23 @@ export class TraCuuBaoCaoPage implements OnInit {
     private readonly kyBaoCaoApi: KyBaoCaoApi,
     private readonly snapshotApi: SnapshotApi,
     private readonly notification: NotificationService,
+    private readonly router: Router,
+    private readonly sanitizer: DomSanitizer,
   ) {}
 
   ngOnInit(): void {
     void this.loadKy();
   }
 
-  get kyOptions(): { label: string; value: number }[] {
-    return this.allKy.map((k) => ({ label: k.tenKy || k.kyCode, value: k.id }));
+  ngOnDestroy(): void {
+    if (this.filterDebounceHandle) {
+      clearTimeout(this.filterDebounceHandle);
+      this.filterDebounceHandle = null;
+    }
   }
 
-  get donViOptions(): { label: string; value: number }[] {
-    const seen = new Set<number>();
-    return this.allSnapshots
-      .filter((x) => {
-        if (seen.has(x.donViId)) return false;
-        seen.add(x.donViId);
-        return true;
-      })
-      .map((x) => ({ label: x.tenDonVi, value: x.donViId }))
-      .sort((a, b) => a.label.localeCompare(b.label, 'vi'));
+  get kyOptions(): { label: string; value: number }[] {
+    return this.allKy.map((k) => ({ label: k.tenKy || k.kyCode, value: k.id }));
   }
 
   get filteredSnapshots(): SnapshotDto[] {
@@ -159,6 +165,10 @@ export class TraCuuBaoCaoPage implements OnInit {
     return rows;
   }
 
+  get filteredCountLabel(): string {
+    return `${this.filteredSnapshots.length} bản ghi`;
+  }
+
   statusLabel(trangThai: number): string {
     return this.statusMap[trangThai]?.label ?? `#${trangThai}`;
   }
@@ -174,8 +184,6 @@ export class TraCuuBaoCaoPage implements OnInit {
       if (this.allKy.length > 0) {
         const moKy = this.allKy.find((k) => k.trangThai === 2);
         this.selectedKyId = (moKy ?? this.allKy[0]).id;
-        this.compareFromKyId = this.selectedKyId;
-        this.compareToKyId = this.allKy[1]?.id ?? this.selectedKyId;
         await this.loadSnapshots();
       }
     } catch {
@@ -198,9 +206,6 @@ export class TraCuuBaoCaoPage implements OnInit {
         }
         this.allSnapshots = await this.snapshotApi.getByKy(this.selectedKyId);
       }
-      if (!this.compareDonViId && this.allSnapshots.length > 0) {
-        this.compareDonViId = this.allSnapshots[0].donViId;
-      }
     } catch {
       this.notification.show('error', 'Không thể tải danh sách báo cáo.');
     } finally {
@@ -217,7 +222,9 @@ export class TraCuuBaoCaoPage implements OnInit {
   }
 
   /** Tổng bản ghi của 1 đơn vị con trong breakdown. */
-  breakdownUnitTotal(unit: { moduleCounts: { recordCount: number }[] }): number {
+  breakdownUnitTotal(unit: {
+    moduleCounts: { recordCount: number }[];
+  }): number {
     return unit.moduleCounts.reduce(
       (sum, m) => sum + Math.max(m.recordCount, 0),
       0,
@@ -264,8 +271,122 @@ export class TraCuuBaoCaoPage implements OnInit {
     }
   }
 
+  async openPreview(snapshot: SnapshotDto): Promise<void> {
+    this.previewLoadingId = snapshot.id;
+    this.previewSnapshot = snapshot;
+    this.previewLoading = true;
+    this.previewPdfUrl = null;
+    this.previewInlineUrl = null;
+    this.previewDownloadUrl = null;
+    this.revokePreviewObjectUrl();
+    this.showPreviewDialog = true;
+    try {
+      const [inlineResult, exportResult] = await Promise.all([
+        this.snapshotApi.getPdf(snapshot.id),
+        this.snapshotApi.getExport(snapshot.id, 'pdf'),
+      ]);
+      this.previewInlineUrl = inlineResult.downloadUrl;
+      this.previewDownloadUrl = exportResult.downloadUrl;
+      const previewResponse = await fetch(inlineResult.previewUrl || inlineResult.downloadUrl);
+      if (!previewResponse.ok) {
+        throw new Error('PREVIEW_FETCH_FAILED');
+      }
+
+      const previewBlob = await previewResponse.blob();
+      this.previewObjectUrl = URL.createObjectURL(previewBlob);
+      this.previewPdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+        this.previewObjectUrl,
+      );
+    } catch {
+      this.showPreviewDialog = false;
+      this.notification.show('error', 'Không thể tải file PDF để xem trước.');
+    } finally {
+      this.previewLoading = false;
+      this.previewLoadingId = null;
+    }
+  }
+
+  closePreview(): void {
+    this.showPreviewDialog = false;
+    this.previewSnapshot = null;
+    this.previewPdfUrl = null;
+    this.previewInlineUrl = null;
+    this.previewDownloadUrl = null;
+    this.revokePreviewObjectUrl();
+  }
+
+  private revokePreviewObjectUrl(): void {
+    if (this.previewObjectUrl) {
+      URL.revokeObjectURL(this.previewObjectUrl);
+      this.previewObjectUrl = null;
+    }
+  }
+
+  onFilterTextChange(value: string): void {
+    this.filterTextInput = value;
+    if (this.filterDebounceHandle) {
+      clearTimeout(this.filterDebounceHandle);
+    }
+
+    this.filterDebounceHandle = setTimeout(() => {
+      this.filterText = value;
+      this.filterDebounceHandle = null;
+    }, 220);
+  }
+
+  applyFilterImmediately(): void {
+    if (this.filterDebounceHandle) {
+      clearTimeout(this.filterDebounceHandle);
+      this.filterDebounceHandle = null;
+    }
+    this.filterText = this.filterTextInput;
+  }
+
+  clearFilters(): void {
+    this.filterStatus = null;
+    this.filterText = '';
+    this.filterTextInput = '';
+    this.latestOnly = this.viewMode === 'latest';
+  }
+
+  downloadPreviewPdf(): void {
+    if (this.previewDownloadUrl) {
+      window.open(this.previewDownloadUrl, '_blank');
+    }
+  }
+
+  printPreviewPdf(): void {
+    const frameWindow = this.previewFrame?.nativeElement?.contentWindow;
+    if (frameWindow) {
+      try {
+        frameWindow.focus();
+        frameWindow.print();
+        return;
+      } catch {
+        // Cross-origin iframe may block print. Fall back to new tab.
+      }
+    }
+
+    if (this.previewInlineUrl) {
+      window.open(this.previewInlineUrl, '_blank');
+      this.notification.show(
+        'info',
+        'Đã mở PDF ở tab mới, vui lòng bấm Ctrl+P để in.',
+      );
+    }
+  }
+
+  openPreviewInNewTab(): void {
+    if (this.previewInlineUrl) {
+      window.open(this.previewInlineUrl, '_blank');
+    }
+  }
+
   /** Tải biểu mẫu báo cáo (Excel theo mẫu H05) từ dữ liệu đã chốt. */
-  async downloadExport(snapshot: SnapshotDto, format: 'xlsx' | 'pdf'): Promise<void> {
+  async downloadExport(
+    snapshot: SnapshotDto,
+    format: 'xlsx' | 'pdf',
+  ): Promise<void> {
     this.exportingId = snapshot.id;
     try {
       const result = await this.snapshotApi.getExport(snapshot.id, format);
@@ -281,47 +402,14 @@ export class TraCuuBaoCaoPage implements OnInit {
   }
 
   onKyChange(): void {
-    this.compareResult = null;
     void this.loadSnapshots();
   }
 
   onViewModeChange(): void {
-    this.compareResult = null;
     void this.loadSnapshots();
   }
 
-  async compareTwoKy(): Promise<void> {
-    if (!this.compareDonViId || !this.compareFromKyId || !this.compareToKyId) {
-      this.notification.show(
-        'warning',
-        'Vui lòng chọn đơn vị và 2 kỳ báo cáo để so sánh.',
-      );
-      return;
-    }
-
-    if (this.compareFromKyId === this.compareToKyId) {
-      this.notification.show(
-        'warning',
-        'Hai kỳ báo cáo so sánh phải khác nhau.',
-      );
-      return;
-    }
-
-    this.comparing = true;
-    try {
-      this.compareResult = await this.snapshotApi.compareTwoKy(
-        this.compareDonViId,
-        this.compareFromKyId,
-        this.compareToKyId,
-      );
-    } catch {
-      this.compareResult = null;
-      this.notification.show(
-        'error',
-        'Không thể so sánh 2 kỳ báo cáo của đơn vị đã chọn.',
-      );
-    } finally {
-      this.comparing = false;
-    }
+  goToComparePage(): void {
+    void this.router.navigateByUrl('/so-sanh-bao-cao');
   }
 }

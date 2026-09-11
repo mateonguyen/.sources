@@ -173,7 +173,7 @@
 
   &__ky-code {
     font-size: 0.75rem;
-    font-family: monospace;
+    font-family: var(--app-font-family-base);
     color: #64748b;
     margin-top: 0.125rem;
   }
@@ -390,5 +390,5 @@
   border: 1px solid #e2e8f0;
   border-radius: var(--app-radius);
   padding: 0.125rem 0.5rem;
-  font-family: monospace;
+  font-family: var(--app-font-family-base);
 }

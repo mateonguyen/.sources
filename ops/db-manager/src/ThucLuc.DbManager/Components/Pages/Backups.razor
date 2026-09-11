@@ -1,0 +1,1392 @@
+@page "/backups"
+@rendermode InteractiveServer
+@inject IOptionsMonitor<OpsOptions> Options
+@inject IOracleBackupService BackupService
+@inject IBackupUploadService BackupUploadService
+@inject IOracleDirectorySetupService DirectorySetupService
+@inject IOracleSchemaProvisioningService SchemaProvisioningService
+@inject IOracleRestoreService RestoreService
+
+<PageTitle>Sao lưu và phục hồi · Quản trị dữ liệu</PageTitle>
+
+<section class="page-heading page-heading--compact">
+    <div>
+        <h1>Sao lưu &amp; phục hồi</h1>
+        <p>Chọn cơ sở dữ liệu nguồn, tạo bản sao và phục hồi vào cơ sở dữ liệu đích.</p>
+    </div>
+</section>
+
+<section class="quick-connections" id="connections">
+    <header class="quick-connections__header">
+        <div>
+            <h2>Kết nối cơ sở dữ liệu</h2>
+            <p>Nhập máy chủ và service đang kết nối được. Với DB đích, bạn có thể chọn hoặc tạo database con ngay bên dưới.</p>
+        </div>
+    </header>
+    <div class="quick-connections__grid">
+        <DatabaseConnectionEditor Environment="@_sourceConnection" Disabled="@ConnectionsBusy" Saved="SourceConnectionSavedAsync" />
+        <DatabaseConnectionEditor Environment="@_targetConnection" IsTarget="true" Disabled="@ConnectionsBusy"
+                                  SuggestedPdbName="@SuggestedPdbName" PdbBusyChanged="SetPdbBusy"
+                                  Saved="TargetConnectionSavedAsync" />
+    </div>
+</section>
+
+<section class="backup-layout">
+    <article class="backup-create-card">
+        <header class="backup-card__header">
+            <div>
+                <span class="backup-step">01</span>
+                <h2>Tạo bản sao lưu</h2>
+                <p>Miniapp sẽ tự kiểm tra kết nối và điều kiện Oracle trước khi chạy.</p>
+            </div>
+        </header>
+
+        @if (_availableEnvironments.Count == 0)
+        {
+            <div class="backup-empty">
+                <strong>Chưa có DB nguồn được phép sao lưu</strong>
+                <p>Lưu kết nối DB nguồn trong khu vực phía trên để bắt đầu.</p>
+                <a class="button button--secondary" href="#connections">Thiết lập phía trên</a>
+            </div>
+        }
+        else
+        {
+            <div class="backup-source-row">
+                <label class="form-field">
+                    <span>DB nguồn</span>
+                    <select @bind="_selectedEnvironmentKey" disabled="@_isBackingUp">
+                        @foreach (var environment in _availableEnvironments)
+                        {
+                            <option value="@environment.Key">@environment.DisplayName</option>
+                        }
+                    </select>
+                </label>
+
+                @if (SelectedEnvironment is not null)
+                {
+                    <div class="backup-source-meta">
+                        <div><small>Địa chỉ</small><strong>@SelectedEnvironment.Oracle.Host:@SelectedEnvironment.Oracle.Port/@SelectedEnvironment.Oracle.ServiceName</strong></div>
+                        <div><small>Schema</small><strong>@SelectedEnvironment.Oracle.Schema</strong></div>
+                        <div><small>Oracle Directory</small><strong>@SelectedEnvironment.Oracle.DataPumpDirectory</strong></div>
+                    </div>
+                }
+
+                <button class="button button--primary backup-run-button"
+                        disabled="@(_isBackingUp || _isPreparingPdb)"
+                        @onclick="CreateBackupAsync">
+                    @GetCreateBackupButtonText()
+                </button>
+            </div>
+
+            <div class="backup-auto-checks">
+                <strong>Tự kiểm tra khi chạy:</strong>
+                <span>Kết nối Oracle</span>
+                <span>Quyền export</span>
+                <span>Oracle Data Pump</span>
+                <span>@GetBackupFormatLabel()</span>
+                <span>File và SHA-256</span>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(_message))
+        {
+            <div class="form-message @(_succeeded ? "form-message--success" : "form-message--error")" role="status">
+                @_message
+                @if (CanOfferSysSetup && !_showSysSetup)
+                {
+                    <button class="button button--secondary" @onclick="ShowSysSetup">Thiết lập bằng SYS</button>
+                }
+            </div>
+        }
+
+        @if (_showSysSetup)
+        {
+            <section class="sys-setup-panel">
+                <div class="sys-setup-panel__heading">
+                    <div>
+                        <strong>Cấp quyền sao lưu lần đầu</strong>
+                        <small>Dùng SYS một lần để cấp READ, WRITE trên DATA_PUMP_DIR cho @SelectedEnvironment?.Oracle.Schema.</small>
+                    </div>
+                    <button class="link-button" disabled="@_isSettingUpDirectory" @onclick="HideSysSetup">Đóng</button>
+                </div>
+                <div class="sys-setup-panel__form">
+                    <label class="form-field">
+                        <span>Tài khoản quản trị</span>
+                        <input value="SYS (SYSDBA)" disabled />
+                    </label>
+                    <label class="form-field">
+                        <span>Mật khẩu SYS</span>
+                        <input type="password" @bind="_sysPassword" autocomplete="new-password"
+                               placeholder="Chỉ dùng cho lần thiết lập này" />
+                    </label>
+                    <button class="button button--primary"
+                            disabled="@_isSettingUpDirectory"
+                            @onclick="SetupDirectoryAsync">
+                        @(_isSettingUpDirectory ? "Đang thiết lập..." : "Cấp quyền và tiếp tục")
+                    </button>
+                </div>
+                <p>Miniapp không lưu mật khẩu SYS. Sau khi cấp quyền, các lần sao lưu vẫn dùng tài khoản DB thông thường.</p>
+            </section>
+        }
+    </article>
+
+    <aside class="backup-restore-card">
+        <header class="backup-card__header">
+            <div>
+                <span class="backup-step">02</span>
+                <h2>Phục hồi vào DB đích</h2>
+                <p>Chọn bản sao và DB đích. Chỉ tạo schema khi bạn chủ động chọn.</p>
+            </div>
+            <div class="restore-header-actions">
+                <span class="restore-status-badge">DB ĐÍCH</span>
+                <button class="button button--secondary upload-toggle" disabled="@_isUploading" @onclick="ToggleUploadPanel">
+                    @(_showUploadPanel ? "Đóng" : "+ Tải file .dmp")
+                </button>
+            </div>
+        </header>
+
+        @if (_showUploadPanel)
+        {
+            <section class="backup-upload-panel">
+                <div class="backup-upload-panel__heading">
+                    <strong>Thêm bản sao từ máy trạm</strong>
+                    <small>File được nhận vào inbox, tính SHA-256 rồi chuyển sang kho phục hồi.</small>
+                </div>
+                <div class="backup-upload-form">
+                    <label class="form-field">
+                        <span>Schema nguồn trong file <b>*</b></span>
+                        <input @bind="_uploadSourceSchema" disabled="@_isUploading" placeholder="Ví dụ: CAND_QLCNTT" />
+                    </label>
+                    <label class="form-field backup-file-field">
+                        <span>File Oracle Data Pump <b>*</b></span>
+                        <InputFile @key="_uploadInputKey" OnChange="SelectUploadFile" accept=".dmp,application/octet-stream" disabled="@_isUploading" />
+                        <small>@GetUploadFileDescription()</small>
+                    </label>
+                    <button class="button button--primary" disabled="@(!CanUploadBackup)" @onclick="UploadBackupAsync">
+                        @(_isUploading ? "Đang tải lên..." : "Đưa vào kho phục hồi")
+                    </button>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(_uploadMessage))
+                {
+                    <div class="quick-connection-message @(_uploadMessageIsError ? "error" : "success")">@_uploadMessage</div>
+                }
+            </section>
+        }
+
+        @if (SuccessfulBackups.Count == 0)
+        {
+            <div class="backup-empty">
+                <strong>Chưa có bản sao hợp lệ</strong>
+                <p>Hãy tạo thành công một bản sao lưu trước khi chuẩn bị phục hồi.</p>
+            </div>
+        }
+        else if (_restoreEnvironments.Count == 0)
+        {
+            <div class="backup-empty">
+                <strong>Chưa có kết nối đích</strong>
+                <p>Lưu máy chủ và Service/PDB của DB đích trong khu vực phía trên.</p>
+                <a class="button button--secondary" href="#connections">Thiết lập phía trên</a>
+            </div>
+        }
+        else if (_restoreSucceeded)
+        {
+            <section class="restore-complete" role="status">
+                <div class="restore-complete__heading">
+                    <span>✓</span>
+                    <div>
+                        <h3>Phục hồi thành công</h3>
+                        <p>@_restoreCompletionMessage</p>
+                    </div>
+                </div>
+
+                <div class="restore-complete__summary">
+                    <div><small>Schema nguồn</small><strong>@_completedSourceSchema</strong></div>
+                    <div><small>Schema đích</small><strong>@_completedTargetSchema</strong></div>
+                    <div><small>Service/PDB</small><strong>@_completedServiceName</strong></div>
+                    @if (_restoredObjectCount.HasValue)
+                    {
+                        <div><small>Đối tượng sau phục hồi</small><strong>@_restoredObjectCount.Value</strong></div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(_restoreSafetyBackupId))
+                    {
+                        <div><small>Bản sao trước khi thay thế</small><strong>@_restoreSafetyBackupId</strong></div>
+                    }
+                </div>
+
+                @if (_restoreWarnings.Count > 0)
+                {
+                    <div class="restore-complete__warning">
+                        <strong>Có lưu ý sau phục hồi</strong>
+                        @foreach (var warning in _restoreWarnings)
+                        {
+                            <p>@warning</p>
+                        }
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(_restoreLogPath))
+                {
+                    <p class="restore-complete__log">Nhật ký: <code>@_restoreLogPath</code></p>
+                }
+
+                <div class="restore-complete__actions">
+                    <button class="button button--secondary" @onclick="ResetRestoreCompletion">
+                        Thực hiện phục hồi khác
+                    </button>
+                </div>
+            </section>
+        }
+        else
+        {
+            <fieldset class="restore-form" disabled="@(_isRestoring || _isInspectingRestore || _isPreparingPdb)">
+                <label class="form-field restore-form__wide">
+                    <span>Bản sao lưu <b>*</b></span>
+                    <select @bind="_selectedBackupId" @bind:after="RestoreBackupChanged">
+                        @foreach (var backup in SuccessfulBackups)
+                        {
+                            <option value="@backup.Id">@GetBackupOptionLabel(backup)</option>
+                        }
+                    </select>
+                </label>
+
+                <label class="form-field restore-form__wide">
+                    <span>DB đích <b>*</b></span>
+                    <select value="@_selectedRestoreEnvironmentKey" @onchange="RestoreEnvironmentChanged">
+                        @foreach (var environment in _restoreEnvironments)
+                        {
+                            <option value="@environment.Key">@environment.DisplayName · @environment.Oracle.ServiceName</option>
+                        }
+                    </select>
+                </label>
+
+                <label class="form-field restore-form__wide">
+                    <span>Schema đích <b>*</b></span>
+                    <input @bind="_restoreSchemaName" @bind:after="RestoreSchemaChanged" placeholder="Ví dụ: CAND_QLCNTT" />
+                    <small>Nhập tên schema cần nhận dữ liệu, dù schema đã có hay sẽ được tạo mới.</small>
+                </label>
+
+                @if (SelectedBackup is not null && SelectedRestoreEnvironment is not null)
+                {
+                    <div class="restore-route restore-form__wide">
+                        <div><small>Nguồn</small><strong>@SelectedBackup.Schema</strong></div>
+                        <span>→</span>
+                        <div><small>Đích</small><strong>@GetRestoreSchemaLabel()</strong></div>
+                    </div>
+                }
+
+                <label class="form-field restore-form__wide">
+                    <span>Cách xử lý schema đích <b>*</b></span>
+                    <select @bind="_restoreMode" @bind:after="RestoreModeChanged">
+                        <option value="@RestoreTargetMode.ExistingEmpty">Dùng schema trống đã có</option>
+                        <option value="@RestoreTargetMode.CreateNew">Tạo schema mới</option>
+                        <option value="@RestoreTargetMode.ReplaceExisting">Thay thế toàn bộ schema đang có</option>
+                    </select>
+                    <small>@GetRestoreModeDescription()</small>
+                </label>
+
+                @if (_restoreMode == RestoreTargetMode.ExistingEmpty)
+                {
+                    <label class="form-field restore-form__wide">
+                        <span>Mật khẩu schema hiện có <b>*</b></span>
+                        <input type="password" @bind="_restoreSchemaPassword" @bind:after="ExistingSchemaPasswordChanged" autocomplete="new-password"
+                               placeholder="Mật khẩu của schema đích" />
+                        <small>Tên đăng nhập chính là tên schema đích. Mật khẩu được lưu mã hóa sau khi phục hồi thành công.</small>
+                    </label>
+                    @if (_existingRestoreInspection is not null)
+                    {
+                        <div class="restore-inspection restore-form__wide">
+                            <span>✓</span>
+                            <p>
+                                Đúng DB <strong>@_existingRestoreInspection.DatabaseName</strong>
+                                (Oracle @_existingRestoreInspection.DatabaseVersion · COMPATIBLE @_existingRestoreInspection.DatabaseCompatibility ·
+                                TSTZ @FormatTimeZoneVersion(_existingRestoreInspection.TimeZoneFileVersion)) ·
+                                Schema trống · Oracle Directory <strong>@_existingRestoreInspection.DataPumpDirectoryName</strong>
+                            </p>
+                        </div>
+                    }
+                    <button class="button button--secondary restore-check-button restore-form__wide"
+                            disabled="@_isInspectingRestore"
+                            @onclick="InspectExistingRestoreTargetAsync">
+                        @(_isInspectingRestore ? "Đang kiểm tra..." : "Kiểm tra DB đích")
+                    </button>
+                }
+                else
+                {
+                    <section class="restore-schema-fields @(_restoreMode == RestoreTargetMode.ReplaceExisting ? "restore-schema-fields--danger" : "") restore-form__wide">
+                        <div class="restore-schema-fields__heading">
+                            <div>
+                                <strong>@(_restoreMode == RestoreTargetMode.ReplaceExisting ? "Thông tin thay thế schema" : "Thông tin tạo schema")</strong>
+                                <small>SYS chỉ dùng trong lần phục hồi này và không được lưu.</small>
+                            </div>
+                        </div>
+                        @if (_restoreMode == RestoreTargetMode.ReplaceExisting)
+                        {
+                            <div class="restore-danger-note">
+                                Hệ thống sẽ sao lưu schema hiện tại. Chỉ khi bản sao hoàn tất, schema mới bị xóa và tạo lại.
+                            </div>
+                        }
+                        <div class="restore-schema-fields__grid">
+                            <label class="form-field">
+                                <span>Mật khẩu SYS <b>*</b></span>
+                                <input type="password" @bind="_restoreSysPassword" autocomplete="new-password"
+                                       placeholder="Kết nối SYSDBA" />
+                            </label>
+                            @if (_restoreInspection is not null)
+                            {
+                                <label class="form-field">
+                                    <span>Tablespace dữ liệu <b>*</b></span>
+                                    <select @bind="_restoreTablespace">
+                                        @foreach (var tablespace in _restoreInspection.AvailableTablespaces)
+                                        {
+                                            <option value="@tablespace">@tablespace</option>
+                                        }
+                                    </select>
+                                </label>
+                            }
+                            <label class="form-field">
+                                <span>@(_restoreMode == RestoreTargetMode.ReplaceExisting ? "Mật khẩu schema sau phục hồi" : "Mật khẩu schema mới") <b>*</b></span>
+                                <input type="password" @bind="_restoreSchemaPassword" autocomplete="new-password"
+                                        placeholder="Theo chính sách mật khẩu của Oracle" />
+                            </label>
+                            <label class="form-field">
+                                <span>Nhập lại mật khẩu schema <b>*</b></span>
+                                <input type="password" @bind="_restoreSchemaPasswordConfirmation" autocomplete="new-password"
+                                        placeholder="Nhập lại cùng mật khẩu" />
+                            </label>
+                            @if (_restoreMode == RestoreTargetMode.ReplaceExisting)
+                            {
+                                <label class="form-field restore-schema-fields__full">
+                                    <span>Nhập tên schema để xác nhận <b>*</b></span>
+                                    <input @bind="_replacementConfirmation"
+                                           autocomplete="off"
+                                           placeholder="Nhập chính xác @GetRestoreSchemaLabel()" />
+                                    <small>Đây là thao tác xóa toàn bộ dữ liệu hiện tại của schema.</small>
+                                </label>
+                            }
+                        </div>
+
+                        @if (_restoreInspection is not null)
+                        {
+                            <div class="restore-inspection">
+                                <span>✓</span>
+                                <p>
+                                    Đúng @GetDatabaseScopeLabel(_restoreInspection) <strong>@_restoreInspection.ContainerName</strong>
+                                     (Oracle @_restoreInspection.DatabaseVersion · COMPATIBLE @_restoreInspection.DatabaseCompatibility ·
+                                     TSTZ @FormatTimeZoneVersion(_restoreInspection.TimeZoneFileVersion)) ·
+                                     Schema <strong>@_restoreSchemaName.ToUpperInvariant()</strong>
+                                     @(_restoreInspection.SchemaExists ? "đã tồn tại" : "chưa tồn tại") ·
+                                     @_restoreInspection.ObjectCount đối tượng ·
+                                     TEMP <strong>@_restoreInspection.TemporaryTablespace</strong>
+                                </p>
+                            </div>
+                        }
+
+                        <button class="button button--secondary restore-check-button"
+                                disabled="@_isInspectingRestore"
+                                @onclick="InspectRestoreTargetAsync">
+                            @(_isInspectingRestore ? "Đang kiểm tra..." : "Kiểm tra DB đích")
+                        </button>
+                    </section>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(_restoreMessage))
+                {
+                    <div class="form-message @(_restoreMessageIsError ? "form-message--error" : "form-message--success") restore-form__wide">
+                        @_restoreMessage
+                        @if (CanCreateCompatibleBackup)
+                        {
+                            <button class="button button--secondary"
+                                    disabled="@_isBackingUp"
+                                    @onclick="CreateCompatibleBackupAsync">
+                                @(_isBackingUp ? "Đang tạo lại..." : GetCompatibleBackupButtonText())
+                            </button>
+                        }
+                    </div>
+                }
+
+                <label class="restore-confirm restore-form__wide">
+                    <input type="checkbox" @bind="_restoreConfirmed" />
+                    <span>@GetRestoreConfirmationText()</span>
+                </label>
+
+                <div class="restore-action restore-form__wide">
+                    <p>Hệ thống kiểm tra file, chuyển dump vào Oracle Directory rồi mới chạy Data Pump.</p>
+                    <button class="button @(_restoreMode == RestoreTargetMode.ReplaceExisting ? "button--danger" : "button--primary")"
+                            disabled="@(!CanRunRestore)" @onclick="RestoreAsync">
+                        @GetRestoreButtonText()
+                    </button>
+                </div>
+            </fieldset>
+        }
+    </aside>
+</section>
+
+<section class="backup-history-card">
+    <header class="backup-history__header">
+        <div>
+            <h2>Các bản sao gần đây</h2>
+            <p>File dump được lưu cục bộ cùng log và mã kiểm tra SHA-256.</p>
+        </div>
+        <button class="button button--secondary" disabled="@_isBackingUp" @onclick="LoadBackupsAsync">Làm mới</button>
+    </header>
+
+    @if (_backups.Count == 0)
+    {
+        <div class="backup-history__empty">Chưa có bản sao lưu nào.</div>
+    }
+    else
+    {
+        <div class="backup-table-wrap">
+            <table class="backup-table">
+                <thead>
+                    <tr>
+                        <th>DB nguồn</th>
+                        <th>Schema</th>
+                        <th>Thời gian</th>
+                        <th>Dung lượng</th>
+                        <th>Trạng thái</th>
+                        <th>File</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var backup in _backups)
+                    {
+                        <tr>
+                            <td><strong>@GetBackupSourceLabel(backup)</strong><small>@backup.DatabaseEndpoint</small></td>
+                            <td>@backup.Schema</td>
+                            <td>@backup.StartedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@FormatSize(backup.SizeBytes)</td>
+                            <td><span class="backup-state @GetStateClass(backup.State)">@GetStateLabel(backup.State)</span></td>
+                            <td title="@GetFileLocation(backup)">@backup.DumpFileName</td>
+                        </tr>
+                        @if (!string.IsNullOrWhiteSpace(backup.Error))
+                        {
+                            <tr class="backup-error-row"><td colspan="6">@backup.Error</td></tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+@code {
+    private List<ManagedEnvironmentOptions> _availableEnvironments = [];
+    private readonly List<ManagedEnvironmentOptions> _knownEnvironments = [];
+    private IReadOnlyList<BackupManifest> _backups = [];
+    private List<ManagedEnvironmentOptions> _restoreEnvironments = [];
+    private ManagedEnvironmentOptions _sourceConnection = new();
+    private ManagedEnvironmentOptions _targetConnection = new();
+    private string? _selectedEnvironmentKey;
+    private string? _selectedBackupId;
+    private string? _selectedRestoreEnvironmentKey;
+    private string? _message;
+    private bool _isBackingUp;
+    private bool _isPreparingPdb;
+    private bool _isSettingUpDirectory;
+    private bool _succeeded;
+    private bool _showSysSetup;
+    private string _sysPassword = string.Empty;
+    private RestoreTargetMode _restoreMode = RestoreTargetMode.ExistingEmpty;
+    private bool _isInspectingRestore;
+    private string _restoreSysPassword = string.Empty;
+    private string _restoreSchemaPassword = string.Empty;
+    private string _restoreSchemaPasswordConfirmation = string.Empty;
+    private string _restoreTablespace = string.Empty;
+    private string _restoreSchemaName = string.Empty;
+    private OracleSchemaInspection? _restoreInspection;
+    private OracleRestoreTargetInspection? _existingRestoreInspection;
+    private string? _restoreMessage;
+    private bool _restoreMessageIsError;
+    private bool _restoreConfirmed;
+    private bool _targetSchemaKnownNonEmpty;
+    private string _replacementConfirmation = string.Empty;
+    private bool _isRestoring;
+    private bool _restoreSucceeded;
+    private string _restoreCompletionMessage = string.Empty;
+    private string _completedSourceSchema = string.Empty;
+    private string _completedTargetSchema = string.Empty;
+    private string _completedServiceName = string.Empty;
+    private string? _restoreSafetyBackupId;
+    private string? _restoreLogPath;
+    private IReadOnlyList<string> _restoreWarnings = [];
+    private int? _restoredObjectCount;
+    private bool _showUploadPanel;
+    private bool _isUploading;
+    private bool _uploadMessageIsError;
+    private string _uploadSourceSchema = string.Empty;
+    private string? _uploadMessage;
+    private IBrowserFile? _uploadFile;
+    private int _uploadInputKey;
+
+    private ManagedEnvironmentOptions? SelectedEnvironment => _availableEnvironments.FirstOrDefault(
+        environment => string.Equals(environment.Key, _selectedEnvironmentKey, StringComparison.OrdinalIgnoreCase));
+
+    private IReadOnlyList<BackupManifest> SuccessfulBackups => _backups
+        .Where(backup => backup.State == BackupState.Succeeded)
+        .ToList();
+
+    private BackupManifest? SelectedBackup => SuccessfulBackups.FirstOrDefault(backup =>
+        string.Equals(backup.Id, _selectedBackupId, StringComparison.OrdinalIgnoreCase));
+
+    private ManagedEnvironmentOptions? SelectedRestoreEnvironment => _restoreEnvironments.FirstOrDefault(environment =>
+        string.Equals(environment.Key, _selectedRestoreEnvironmentKey, StringComparison.OrdinalIgnoreCase));
+
+    private bool ConnectionsBusy => _isBackingUp || _isRestoring || _isInspectingRestore || _isSettingUpDirectory || _isPreparingPdb;
+
+    private string SuggestedPdbName => !string.IsNullOrWhiteSpace(_restoreSchemaName)
+        ? _restoreSchemaName
+        : SelectedBackup?.Schema ?? _sourceConnection.Oracle.Schema;
+
+    private void SetPdbBusy(bool busy) => _isPreparingPdb = busy;
+
+    private bool CanRunRestore => !_isRestoring
+        && !_isPreparingPdb
+        && !_isInspectingRestore
+        && _restoreConfirmed
+        && !IsSelectedBackupIncompatible
+        && !IsSelectedBackupTimeZoneIncompatible
+        && !(_restoreMode == RestoreTargetMode.ExistingEmpty && _targetSchemaKnownNonEmpty)
+        && SelectedBackup is not null
+        && SelectedRestoreEnvironment is not null
+        && !string.IsNullOrWhiteSpace(_restoreSchemaName)
+        && (_restoreMode switch
+        {
+            RestoreTargetMode.CreateNew => _restoreInspection is { SchemaExists: false }
+                && !string.IsNullOrWhiteSpace(_restoreTablespace)
+                && !string.IsNullOrWhiteSpace(_restoreSysPassword)
+                && !string.IsNullOrWhiteSpace(_restoreSchemaPassword)
+                && string.Equals(_restoreSchemaPassword, _restoreSchemaPasswordConfirmation, StringComparison.Ordinal),
+            RestoreTargetMode.ReplaceExisting => _restoreInspection is { SchemaExists: true }
+                && !string.IsNullOrWhiteSpace(_restoreTablespace)
+                && !string.IsNullOrWhiteSpace(_restoreSysPassword)
+                && !string.IsNullOrWhiteSpace(_restoreSchemaPassword)
+                && string.Equals(_restoreSchemaPassword, _restoreSchemaPasswordConfirmation, StringComparison.Ordinal)
+                && string.Equals(
+                    _replacementConfirmation.Trim(),
+                    _restoreSchemaName.Trim(),
+                    StringComparison.OrdinalIgnoreCase),
+            _ => !string.IsNullOrWhiteSpace(_restoreSchemaPassword)
+                && _existingRestoreInspection is { ObjectCount: 0 }
+        });
+
+    private bool IsSelectedBackupIncompatible =>
+        OracleDumpVersionReader.GetRelease(SelectedBackup?.DataPumpVersion) is { } dumpRelease
+        && OracleDumpVersionReader.GetRelease(GetTargetDatabaseCompatibility()) is { } targetRelease
+        && dumpRelease > targetRelease;
+
+    private bool IsSelectedBackupTimeZoneIncompatible =>
+        SelectedBackup?.SourceTimeZoneVersion is { } sourceTimeZone
+        && GetTargetTimeZoneVersion() is { } targetTimeZone
+        && sourceTimeZone > targetTimeZone;
+
+    private bool CanCreateCompatibleBackup => IsSelectedBackupIncompatible
+        && SelectedEnvironment is not null
+        && SelectedBackup is not null
+        && string.Equals(
+            SelectedEnvironment.Oracle.Schema,
+            SelectedBackup.Schema,
+            StringComparison.OrdinalIgnoreCase);
+
+    private bool CanOfferSysSetup => !_succeeded
+        && !string.IsNullOrWhiteSpace(_message)
+        && _message.Contains("Oracle Directory", StringComparison.OrdinalIgnoreCase)
+        && SelectedEnvironment is not null;
+
+    private bool CanUploadBackup => !_isUploading
+        && _uploadFile is not null
+        && !string.IsNullOrWhiteSpace(_uploadSourceSchema);
+
+    protected override async Task OnInitializedAsync()
+    {
+        _knownEnvironments.AddRange(Options.CurrentValue.Environments.Select(CloneEnvironment));
+        var configuredSource = _knownEnvironments.FirstOrDefault(environment =>
+                environment.Safety.AllowBackup && !environment.Safety.AllowRestore)
+            ?? _knownEnvironments.FirstOrDefault(environment =>
+                string.Equals(environment.Tier, "Development", StringComparison.OrdinalIgnoreCase))
+            ?? _knownEnvironments.FirstOrDefault(environment => environment.Safety.AllowBackup);
+        var configuredTarget = _knownEnvironments.FirstOrDefault(environment =>
+                environment.Safety.AllowRestore
+                && !string.Equals(environment.Key, configuredSource?.Key, StringComparison.OrdinalIgnoreCase));
+
+        _sourceConnection = NormalizeRole(
+            configuredSource ?? CreateDefaultEnvironment("source", isTarget: false),
+            isTarget: false);
+        _targetConnection = NormalizeRole(
+            configuredTarget ?? CreateDefaultEnvironment("target", isTarget: true),
+            isTarget: true);
+        UpsertEnvironment(_sourceConnection);
+        UpsertEnvironment(_targetConnection);
+        _uploadSourceSchema = _sourceConnection.Oracle.Schema;
+        ReloadEnvironmentLists();
+        await LoadBackupsAsync();
+    }
+
+    private Task SourceConnectionSavedAsync(ManagedEnvironmentOptions environment)
+    {
+        _sourceConnection = CloneEnvironment(environment);
+        if (string.IsNullOrWhiteSpace(_uploadSourceSchema))
+        {
+            _uploadSourceSchema = environment.Oracle.Schema;
+        }
+        UpsertEnvironment(environment);
+        ReloadEnvironmentLists();
+        return Task.CompletedTask;
+    }
+
+    private Task TargetConnectionSavedAsync(ManagedEnvironmentOptions environment)
+    {
+        var schemaName = _restoreSchemaName;
+        _targetConnection = CloneEnvironment(environment);
+        UpsertEnvironment(environment);
+        ReloadEnvironmentLists();
+        _selectedRestoreEnvironmentKey = environment.Key;
+        _restoreSchemaName = string.IsNullOrWhiteSpace(schemaName) ? environment.Oracle.Schema : schemaName;
+        ResetRestoreSchemaFields(clearOption: false);
+        return Task.CompletedTask;
+    }
+
+    private void UpsertEnvironment(ManagedEnvironmentOptions environment)
+    {
+        var index = _knownEnvironments.FindIndex(item =>
+            string.Equals(item.Key, environment.Key, StringComparison.OrdinalIgnoreCase));
+        if (index >= 0)
+        {
+            _knownEnvironments[index] = CloneEnvironment(environment);
+        }
+        else
+        {
+            _knownEnvironments.Add(CloneEnvironment(environment));
+        }
+    }
+
+    private void ReloadEnvironmentLists()
+    {
+        _availableEnvironments = _knownEnvironments
+            .Where(environment => environment.Enabled
+                && environment.Safety.AllowBackup
+                && string.Equals(environment.Key, _sourceConnection.Key, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        if (_availableEnvironments.All(environment =>
+                !string.Equals(environment.Key, _selectedEnvironmentKey, StringComparison.OrdinalIgnoreCase)))
+        {
+            _selectedEnvironmentKey = _availableEnvironments.FirstOrDefault()?.Key;
+        }
+
+        _restoreEnvironments = _knownEnvironments
+            .Where(environment => environment.Enabled
+                && environment.Safety.AllowRestore
+                && string.Equals(environment.Key, _targetConnection.Key, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        if (_restoreEnvironments.All(environment =>
+                !string.Equals(environment.Key, _selectedRestoreEnvironmentKey, StringComparison.OrdinalIgnoreCase)))
+        {
+            _selectedRestoreEnvironmentKey = _restoreEnvironments.FirstOrDefault()?.Key;
+        }
+
+        _restoreSchemaName = SelectedRestoreEnvironment?.Oracle.Schema ?? string.Empty;
+    }
+
+    private async Task CreateBackupAsync()
+    {
+        var environment = SelectedEnvironment;
+        if (environment is null || _isBackingUp || _isPreparingPdb)
+        {
+            return;
+        }
+
+        _isBackingUp = true;
+        _succeeded = false;
+        _message = $"Đang kiểm tra và tạo bản sao lưu cho {environment.DisplayName}. Không đóng ứng dụng...";
+        try
+        {
+            var targetVersion = GetTargetDataPumpVersion();
+            var result = string.IsNullOrWhiteSpace(targetVersion)
+                ? await BackupService.CreateAsync(environment)
+                : await BackupService.CreateForTargetAsync(
+                    environment,
+                    targetVersion,
+                    GetTargetTimeZoneVersion());
+            _succeeded = result.Succeeded;
+            _message = string.IsNullOrWhiteSpace(targetVersion)
+                ? result.Message
+                : $"{result.Message} Định dạng đã được tạo tương thích Oracle {targetVersion} theo DB đích.";
+        }
+        catch (InvalidOperationException exception)
+        {
+            _message = exception.Message;
+        }
+        finally
+        {
+            _isBackingUp = false;
+            await LoadBackupsAsync();
+        }
+    }
+
+    private async Task CreateCompatibleBackupAsync()
+    {
+        var environment = SelectedEnvironment;
+        var dataPumpVersion = GetTargetDataPumpVersion();
+        if (environment is null || string.IsNullOrWhiteSpace(dataPumpVersion) || _isBackingUp)
+        {
+            return;
+        }
+
+        _isBackingUp = true;
+        _succeeded = false;
+        _message = $"Đang tạo bản sao tương thích Oracle {dataPumpVersion} từ {environment.DisplayName}...";
+        try
+        {
+            var result = await BackupService.CreateForTargetAsync(
+                environment,
+                dataPumpVersion,
+                GetTargetTimeZoneVersion());
+            _succeeded = result.Succeeded;
+            _message = result.Message;
+            await LoadBackupsAsync();
+            _selectedBackupId = result.Manifest.Id;
+            _restoreMessageIsError = false;
+            _restoreMessage =
+                $"Đã tạo và chọn bản sao tương thích Oracle {dataPumpVersion}. " +
+                "Bạn có thể tiếp tục kiểm tra schema đích và phục hồi.";
+            _restoreConfirmed = false;
+        }
+        catch (InvalidOperationException exception)
+        {
+            _message = exception.Message;
+            ShowRestoreError(exception.Message);
+        }
+        finally
+        {
+            _isBackingUp = false;
+        }
+    }
+
+    private async Task LoadBackupsAsync()
+    {
+        _backups = await BackupService.GetRecentAsync();
+        if (SuccessfulBackups.All(backup => !string.Equals(backup.Id, _selectedBackupId, StringComparison.OrdinalIgnoreCase)))
+        {
+            _selectedBackupId = SuccessfulBackups.FirstOrDefault()?.Id;
+        }
+    }
+
+    private void ToggleUploadPanel()
+    {
+        _showUploadPanel = !_showUploadPanel;
+        _uploadMessage = null;
+        _uploadMessageIsError = false;
+    }
+
+    private void SelectUploadFile(InputFileChangeEventArgs args)
+    {
+        _uploadMessage = null;
+        _uploadMessageIsError = false;
+        var file = args.File;
+        if (!string.Equals(Path.GetExtension(file.Name), ".dmp", StringComparison.OrdinalIgnoreCase))
+        {
+            _uploadFile = null;
+            _uploadMessage = "Chỉ chấp nhận file Oracle Data Pump có đuôi .dmp.";
+            _uploadMessageIsError = true;
+            return;
+        }
+
+        if (file.Size <= 0 || file.Size > BackupUploadService.MaximumFileSizeBytes)
+        {
+            _uploadFile = null;
+            _uploadMessage = $"File phải lớn hơn 0 và không vượt quá {FormatSize(BackupUploadService.MaximumFileSizeBytes)}.";
+            _uploadMessageIsError = true;
+            return;
+        }
+
+        _uploadFile = file;
+    }
+
+    private async Task UploadBackupAsync()
+    {
+        if (!CanUploadBackup || _uploadFile is null) return;
+
+        _isUploading = true;
+        _uploadMessage = $"Đang tải {_uploadFile.Name} vào kho. Không đóng trình duyệt...";
+        _uploadMessageIsError = false;
+        try
+        {
+            await using var stream = _uploadFile.OpenReadStream(BackupUploadService.MaximumFileSizeBytes);
+            var result = await BackupUploadService.ImportAsync(
+                stream,
+                _uploadFile.Name,
+                _uploadFile.Size,
+                _uploadSourceSchema);
+            await LoadBackupsAsync();
+            _selectedBackupId = result.Manifest.Id;
+            _uploadMessage = $"{result.Message} Đã sẵn sàng để chọn phục hồi.";
+            _uploadFile = null;
+            _uploadInputKey++;
+        }
+        catch (Exception exception)
+        {
+            _uploadMessage = exception.Message;
+            _uploadMessageIsError = true;
+        }
+        finally
+        {
+            _isUploading = false;
+        }
+    }
+
+    private void RestoreEnvironmentChanged(ChangeEventArgs args)
+    {
+        _selectedRestoreEnvironmentKey = Convert.ToString(args.Value);
+        _restoreSchemaName = SelectedRestoreEnvironment?.Oracle.Schema ?? string.Empty;
+        ResetRestoreSchemaFields(clearOption: false);
+    }
+
+    private void RestoreModeChanged()
+    {
+        ResetRestoreSchemaFields(clearOption: false);
+    }
+
+    private void RestoreBackupChanged()
+    {
+        _restoreConfirmed = false;
+        if (IsSelectedBackupIncompatible)
+        {
+            ShowRestoreError(GetBackupCompatibilityMessage());
+        }
+        else if (IsSelectedBackupTimeZoneIncompatible)
+        {
+            ShowRestoreError(GetTimeZoneCompatibilityMessage());
+        }
+        else
+        {
+            _restoreMessage = null;
+            _restoreMessageIsError = false;
+        }
+    }
+
+    private void RestoreSchemaChanged()
+    {
+        _restoreInspection = null;
+        _existingRestoreInspection = null;
+        _restoreTablespace = string.Empty;
+        _restoreMessage = null;
+        _restoreMessageIsError = false;
+        _restoreConfirmed = false;
+        _targetSchemaKnownNonEmpty = false;
+        _replacementConfirmation = string.Empty;
+    }
+
+    private void ExistingSchemaPasswordChanged()
+    {
+        _existingRestoreInspection = null;
+        _restoreConfirmed = false;
+        _restoreMessage = null;
+        _restoreMessageIsError = false;
+    }
+
+    private async Task InspectExistingRestoreTargetAsync()
+    {
+        var configuredEnvironment = SelectedRestoreEnvironment;
+        if (configuredEnvironment is null || _isInspectingRestore || _isPreparingPdb) return;
+        if (string.IsNullOrWhiteSpace(_restoreSchemaName))
+        {
+            ShowRestoreError("Hãy nhập tên schema đích.");
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(_restoreSchemaPassword))
+        {
+            ShowRestoreError("Hãy nhập mật khẩu schema đích.");
+            return;
+        }
+
+        _isInspectingRestore = true;
+        _existingRestoreInspection = null;
+        try
+        {
+            _existingRestoreInspection = await RestoreService.InspectExistingAsync(
+                CloneEnvironment(configuredEnvironment),
+                _restoreSchemaName,
+                _restoreSchemaPassword);
+            _targetSchemaKnownNonEmpty = _existingRestoreInspection.ObjectCount > 0;
+            if (_targetSchemaKnownNonEmpty)
+            {
+                ShowRestoreError(
+                    $"Schema {_restoreSchemaName.ToUpperInvariant()} đang có {_existingRestoreInspection.ObjectCount} đối tượng. " +
+                    "Hãy chọn thay thế toàn bộ schema nếu muốn phục hồi đè dữ liệu.");
+            }
+            else if (IsSelectedBackupIncompatible)
+            {
+                ShowRestoreError(GetBackupCompatibilityMessage());
+            }
+            else if (IsSelectedBackupTimeZoneIncompatible)
+            {
+                ShowRestoreError(GetTimeZoneCompatibilityMessage());
+            }
+            else
+            {
+                _restoreMessageIsError = false;
+                _restoreMessage =
+                    $"Đã xác nhận schema trống trên Oracle {_existingRestoreInspection.DatabaseVersion} " +
+                    $"(COMPATIBLE {_existingRestoreInspection.DatabaseCompatibility}). Sẵn sàng phục hồi.";
+            }
+        }
+        catch (InvalidOperationException exception)
+        {
+            ShowRestoreError(exception.Message);
+        }
+        finally
+        {
+            _isInspectingRestore = false;
+        }
+    }
+
+    private async Task InspectRestoreTargetAsync()
+    {
+        var configuredEnvironment = SelectedRestoreEnvironment;
+        if (configuredEnvironment is null || _isInspectingRestore || _isPreparingPdb)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(_restoreSchemaName))
+        {
+            ShowRestoreError("Hãy nhập tên schema đích.");
+            return;
+        }
+
+        var environment = CloneEnvironment(configuredEnvironment);
+        environment.Oracle.Schema = _restoreSchemaName.Trim();
+
+        _restoreInspection = null;
+        _restoreMessage = null;
+        _restoreMessageIsError = false;
+
+        if (string.IsNullOrWhiteSpace(_restoreSysPassword))
+        {
+            ShowRestoreError("Hãy nhập mật khẩu SYS để kiểm tra DB đích.");
+            return;
+        }
+
+        _isInspectingRestore = true;
+        try
+        {
+            _restoreInspection = await SchemaProvisioningService.InspectAsync(environment, _restoreSysPassword);
+            _restoreTablespace = !string.IsNullOrWhiteSpace(_restoreInspection.CurrentDefaultTablespace)
+                && _restoreInspection.AvailableTablespaces.Contains(
+                    _restoreInspection.CurrentDefaultTablespace,
+                    StringComparer.OrdinalIgnoreCase)
+                    ? _restoreInspection.CurrentDefaultTablespace
+                    : _restoreInspection.RecommendedTablespace;
+            _targetSchemaKnownNonEmpty = _restoreInspection.SchemaExists && _restoreInspection.ObjectCount > 0;
+            if (_restoreMode == RestoreTargetMode.CreateNew
+                && _restoreInspection.SchemaExists
+                && _restoreInspection.ObjectCount == 0)
+            {
+                _restoreMode = RestoreTargetMode.ExistingEmpty;
+                _existingRestoreInspection = new OracleRestoreTargetInspection(
+                    _restoreInspection.DatabaseName,
+                    _restoreInspection.DatabaseVersion,
+                    _restoreInspection.DatabaseCompatibility,
+                    _restoreInspection.TimeZoneFileVersion,
+                    _restoreInspection.ObjectCount,
+                    _restoreInspection.DataPumpDirectoryName ?? environment.Oracle.DataPumpDirectory);
+                _restoreSysPassword = string.Empty;
+                _restoreConfirmed = false;
+                _restoreMessageIsError = false;
+                _restoreMessage =
+                    $"Schema {environment.Oracle.Schema.ToUpperInvariant()} đã được tạo và đang trống. " +
+                    "Hệ thống đã chuyển sang chế độ dùng schema trống; giữ nguyên mật khẩu schema để tiếp tục phục hồi.";
+            }
+            else if (_restoreMode == RestoreTargetMode.CreateNew && _restoreInspection.SchemaExists)
+            {
+                ShowRestoreError(
+                    $"Schema {environment.Oracle.Schema.ToUpperInvariant()} đã tồn tại và có " +
+                    $"{_restoreInspection.ObjectCount} đối tượng. Chọn dùng schema trống hoặc thay thế toàn bộ schema.");
+            }
+            else if (_restoreMode == RestoreTargetMode.ReplaceExisting && !_restoreInspection.SchemaExists)
+            {
+                ShowRestoreError(
+                    $"Schema {environment.Oracle.Schema.ToUpperInvariant()} chưa tồn tại. Hãy chọn tạo schema mới.");
+            }
+            else if (_restoreMode == RestoreTargetMode.ReplaceExisting)
+            {
+                _restoreMessageIsError = false;
+                _restoreMessage =
+                    $"Đã kiểm tra đúng {GetDatabaseScopeLabel(_restoreInspection)} {_restoreInspection.ContainerName}. Schema có " +
+                    $"{_restoreInspection.ObjectCount} đối tượng; hệ thống sẽ sao lưu trước khi thay thế.";
+            }
+            else if (_restoreMode == RestoreTargetMode.ExistingEmpty && _restoreInspection.SchemaExists)
+            {
+                _restoreMessage =
+                    $"Đã kiểm tra đúng {GetDatabaseScopeLabel(_restoreInspection)} {_restoreInspection.ContainerName} " +
+                    $"(Oracle {_restoreInspection.DatabaseVersion}, COMPATIBLE {_restoreInspection.DatabaseCompatibility}). " +
+                    "Schema đang trống và sẵn sàng phục hồi.";
+            }
+            else
+            {
+                _restoreMessage =
+                    $"Đã kiểm tra đúng {GetDatabaseScopeLabel(_restoreInspection)} {_restoreInspection.ContainerName} " +
+                    $"(Oracle {_restoreInspection.DatabaseVersion}, COMPATIBLE {_restoreInspection.DatabaseCompatibility}). " +
+                    "Schema chưa có và sẽ chỉ được tạo khi bắt đầu phục hồi.";
+            }
+
+            if (IsSelectedBackupIncompatible)
+            {
+                ShowRestoreError(GetBackupCompatibilityMessage());
+                _restoreConfirmed = false;
+            }
+            else if (IsSelectedBackupTimeZoneIncompatible)
+            {
+                ShowRestoreError(GetTimeZoneCompatibilityMessage());
+                _restoreConfirmed = false;
+            }
+        }
+        catch (InvalidOperationException exception)
+        {
+            ShowRestoreError(exception.Message);
+            _restoreSysPassword = string.Empty;
+        }
+        finally
+        {
+            _isInspectingRestore = false;
+        }
+    }
+
+    private async Task RestoreAsync()
+    {
+        var backup = SelectedBackup;
+        var environment = SelectedRestoreEnvironment;
+        if (!CanRunRestore || backup is null || environment is null)
+        {
+            return;
+        }
+
+        _isRestoring = true;
+        _restoreSucceeded = false;
+        _restoreCompletionMessage = string.Empty;
+        _restoreWarnings = [];
+        _restoreSafetyBackupId = null;
+        _restoreLogPath = null;
+        _restoredObjectCount = null;
+        _restoreMessage = "Đang kiểm tra file và phục hồi dữ liệu. Không đóng ứng dụng...";
+        _restoreMessageIsError = false;
+        try
+        {
+            var result = await RestoreService.RestoreAsync(new RestoreRequest(
+                backup,
+                CloneEnvironment(environment),
+                _restoreSchemaName,
+                _restoreMode,
+                _restoreSysPassword,
+                _restoreSchemaPassword,
+                _restoreTablespace,
+                _replacementConfirmation));
+            _restoreSucceeded = result.Succeeded;
+            _restoreCompletionMessage = result.Message;
+            _completedSourceSchema = backup.Schema;
+            _completedTargetSchema = _restoreSchemaName.Trim().ToUpperInvariant();
+            _completedServiceName = environment.Oracle.ServiceName;
+            _restoreSafetyBackupId = result.SafetyBackup?.Id;
+            _restoreLogPath = result.LogPath;
+            _restoreWarnings = result.Warnings ?? [];
+            _restoredObjectCount = result.RestoredObjectCount;
+            _restoreMessage = null;
+            _restoreConfirmed = false;
+            _restoreSysPassword = string.Empty;
+            _restoreSchemaPassword = string.Empty;
+            _restoreSchemaPasswordConfirmation = string.Empty;
+            _replacementConfirmation = string.Empty;
+        }
+        catch (TargetSchemaNotEmptyException exception)
+        {
+            _targetSchemaKnownNonEmpty = true;
+            _restoreConfirmed = false;
+            ShowRestoreError(
+                $"Schema {exception.Schema} đang có {exception.ObjectCount} đối tượng. " +
+                "Chọn ‘Thay thế toàn bộ schema đang có’ nếu bạn muốn sao lưu rồi thay thế dữ liệu này.");
+        }
+        catch (InvalidOperationException exception)
+        {
+            ShowRestoreError(exception.Message);
+        }
+        finally
+        {
+            _isRestoring = false;
+            await LoadBackupsAsync();
+        }
+    }
+
+    private void ResetRestoreSchemaFields(bool clearOption)
+    {
+        if (clearOption)
+        {
+            _restoreMode = RestoreTargetMode.ExistingEmpty;
+        }
+
+        _restoreSysPassword = string.Empty;
+        _restoreSchemaPassword = string.Empty;
+        _restoreSchemaPasswordConfirmation = string.Empty;
+        _restoreTablespace = string.Empty;
+        _restoreInspection = null;
+        _existingRestoreInspection = null;
+        _restoreMessage = null;
+        _restoreMessageIsError = false;
+        _restoreConfirmed = false;
+        _targetSchemaKnownNonEmpty = false;
+        _replacementConfirmation = string.Empty;
+        ClearRestoreCompletion();
+    }
+
+    private void ResetRestoreCompletion()
+    {
+        ResetRestoreSchemaFields(clearOption: true);
+    }
+
+    private void ClearRestoreCompletion()
+    {
+        _restoreSucceeded = false;
+        _restoreCompletionMessage = string.Empty;
+        _completedSourceSchema = string.Empty;
+        _completedTargetSchema = string.Empty;
+        _completedServiceName = string.Empty;
+        _restoreSafetyBackupId = null;
+        _restoreLogPath = null;
+        _restoreWarnings = [];
+        _restoredObjectCount = null;
+    }
+
+    private string GetRestoreModeDescription() => _restoreMode switch
+    {
+        RestoreTargetMode.CreateNew => "Dùng khi schema chưa tồn tại; cần SYS để tạo tài khoản và cấp quyền.",
+        RestoreTargetMode.ReplaceExisting => "Tự sao lưu schema hiện tại, sau đó xóa, tạo lại và nhập bản sao đã chọn.",
+        _ => "Chỉ phục hồi khi schema đã tồn tại nhưng chưa có đối tượng dữ liệu."
+    };
+
+    private static string GetDatabaseScopeLabel(OracleSchemaInspection inspection) =>
+        inspection.IsContainerDatabase ? "PDB" : "DB";
+
+    private static string FormatTimeZoneVersion(int? version) =>
+        version?.ToString() ?? "chưa xác định";
+
+    private string? GetTargetDataPumpVersion()
+    {
+        var version = GetTargetDatabaseCompatibility();
+        if (string.IsNullOrWhiteSpace(version)) return null;
+        var parts = version.Split('.', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length >= 2 ? $"{parts[0]}.{parts[1]}" : parts[0];
+    }
+
+    private string? GetTargetDatabaseCompatibility() =>
+        _restoreInspection?.DatabaseCompatibility ?? _existingRestoreInspection?.DatabaseCompatibility;
+
+    private string? GetTargetDatabaseVersion() =>
+        _restoreInspection?.DatabaseVersion ?? _existingRestoreInspection?.DatabaseVersion;
+
+    private int? GetTargetTimeZoneVersion() =>
+        _restoreInspection?.TimeZoneFileVersion ?? _existingRestoreInspection?.TimeZoneFileVersion;
+
+    private string GetBackupFormatLabel()
+    {
+        var targetVersion = GetTargetDataPumpVersion();
+        return string.IsNullOrWhiteSpace(targetVersion)
+            ? "Định dạng theo DB nguồn"
+            : $"Tương thích DB đích Oracle {targetVersion}";
+    }
+
+    private string GetCreateBackupButtonText()
+    {
+        if (_isBackingUp) return "Đang tạo bản sao...";
+        var targetVersion = GetTargetDataPumpVersion();
+        return string.IsNullOrWhiteSpace(targetVersion)
+            ? "Tạo bản sao lưu"
+            : $"Tạo bản sao cho Oracle {targetVersion}";
+    }
+
+    private string GetBackupCompatibilityMessage() =>
+        $"Bản sao đang chọn dùng định dạng Oracle {SelectedBackup?.DataPumpVersion}, " +
+        $"mới hơn mức COMPATIBLE {GetTargetDatabaseCompatibility()} " +
+        $"của DB đích Oracle {GetTargetDatabaseVersion()}. " +
+        $"Hãy tạo lại bản sao tương thích Oracle {GetTargetDataPumpVersion()}; file cũ không thể chuyển đổi sau khi đã export.";
+
+    private string GetCompatibleBackupButtonText() =>
+        $"Tạo bản sao tương thích Oracle {GetTargetDataPumpVersion()}";
+
+    private string GetTimeZoneCompatibilityMessage() =>
+        $"Không thể dùng bản sao hiện tại: TSTZ nguồn {SelectedBackup?.SourceTimeZoneVersion} > " +
+        $"đích {GetTargetTimeZoneVersion()}. VERSION của Data Pump không thay đổi timezone file. " +
+        "DBA cần nâng timezone file của DB đích lên cùng hoặc cao hơn DB nguồn.";
+
+    private string GetRestoreConfirmationText() => _restoreMode switch
+    {
+        RestoreTargetMode.CreateNew => "Tôi xác nhận đúng DB đích và đồng ý tạo schema mới.",
+        RestoreTargetMode.ReplaceExisting =>
+            $"Tôi xác nhận sao lưu rồi xóa toàn bộ schema {GetRestoreSchemaLabel()} trước khi phục hồi.",
+        _ => "Tôi xác nhận đúng DB đích và schema đích đang trống."
+    };
+
+    private string GetRestoreButtonText()
+    {
+        if (_isRestoring)
+        {
+            return _restoreMode == RestoreTargetMode.ReplaceExisting
+                ? "Đang sao lưu và thay thế..."
+                : "Đang phục hồi...";
+        }
+
+        return _restoreMode == RestoreTargetMode.ReplaceExisting
+            ? "Sao lưu và thay thế schema"
+            : "Bắt đầu phục hồi";
+    }
+
+    private void ShowRestoreError(string message)
+    {
+        _restoreMessage = message;
+        _restoreMessageIsError = true;
+    }
+
+    private void ShowSysSetup()
+    {
+        _sysPassword = string.Empty;
+        _showSysSetup = true;
+    }
+
+    private void HideSysSetup()
+    {
+        _sysPassword = string.Empty;
+        _showSysSetup = false;
+    }
+
+    private async Task SetupDirectoryAsync()
+    {
+        var environment = SelectedEnvironment;
+        if (environment is null || _isSettingUpDirectory)
+        {
+            return;
+        }
+
+        _isSettingUpDirectory = true;
+        _succeeded = false;
+        var continueBackup = false;
+        try
+        {
+            var result = await DirectorySetupService.GrantDefaultDirectoryAsync(environment, _sysPassword);
+            environment.Oracle.DataPumpDirectory = result.DirectoryName;
+            _message = $"Đã cấp quyền {result.DirectoryName} cho {environment.Oracle.Schema}. Đang tiếp tục tạo bản sao lưu...";
+            _succeeded = true;
+            _showSysSetup = false;
+            continueBackup = true;
+        }
+        catch (InvalidOperationException exception)
+        {
+            _message = exception.Message;
+        }
+        finally
+        {
+            _sysPassword = string.Empty;
+            _isSettingUpDirectory = false;
+        }
+
+        if (continueBackup)
+        {
+            await CreateBackupAsync();
+        }
+    }
+
+    private static string GetStateClass(BackupState state) => state switch
+    {
+        BackupState.Succeeded => "success",
+        BackupState.Failed => "failed",
+        _ => "running"
+    };
+
+    private static string GetStateLabel(BackupState state) => state switch
+    {
+        BackupState.Succeeded => "Hoàn tất",
+        BackupState.Failed => "Thất bại",
+        _ => "Đang chạy"
+    };
+
+    private static string FormatSize(long? bytes) => bytes switch
+    {
+        null => "—",
+        >= 1024L * 1024 * 1024 => $"{bytes.Value / (1024d * 1024 * 1024):0.##} GB",
+        >= 1024L * 1024 => $"{bytes.Value / (1024d * 1024):0.##} MB",
+        >= 1024L => $"{bytes.Value / 1024d:0.##} KB",
+        _ => $"{bytes} B"
+    };
+
+    private static string GetFileLocation(BackupManifest backup) => string.IsNullOrWhiteSpace(backup.OracleDirectoryPath)
+        ? backup.DumpFileName
+        : $"Máy chủ Oracle: {backup.OracleDirectoryPath.TrimEnd('/', '\\')}/{backup.DumpFileName}";
+
+    private static string GetBackupOptionLabel(BackupManifest backup) =>
+        $"{GetBackupSourceLabel(backup)} · {backup.Schema} · {backup.StartedAt.ToLocalTime():dd/MM/yyyy HH:mm}";
+
+    private static string GetBackupSourceLabel(BackupManifest backup) =>
+        backup.IsSafetyBackup
+            ? "Bản sao an toàn"
+            : string.Equals(backup.EnvironmentKey, "uploaded", StringComparison.OrdinalIgnoreCase)
+            ? "File tải lên"
+            : "Bản sao từ nguồn";
+
+    private string GetUploadFileDescription() => _uploadFile is null
+        ? $"Chọn một file .dmp, tối đa {FormatSize(BackupUploadService.MaximumFileSizeBytes)}."
+        : $"{_uploadFile.Name} · {FormatSize(_uploadFile.Size)}";
+
+    private string GetRestoreSchemaLabel() => string.IsNullOrWhiteSpace(_restoreSchemaName)
+        ? "Chưa nhập"
+        : _restoreSchemaName.Trim().ToUpperInvariant();
+
+    private static ManagedEnvironmentOptions CreateDefaultEnvironment(string key, bool isTarget) => new()
+    {
+        Key = key,
+        DisplayName = isTarget ? "Cơ sở dữ liệu đích" : "Cơ sở dữ liệu nguồn",
+        Tier = isTarget ? "Target" : "Source",
+        Enabled = true,
+        Oracle = new OracleEnvironmentOptions
+        {
+            Port = 1521,
+            DataPumpDirectory = "DATA_PUMP_DIR"
+        },
+        Safety = new EnvironmentSafetyOptions
+        {
+            AllowBackup = !isTarget,
+            AllowRestore = isTarget,
+            AllowMigrate = true
+        }
+    };
+
+    private static ManagedEnvironmentOptions NormalizeRole(ManagedEnvironmentOptions environment, bool isTarget)
+    {
+        var normalized = CloneEnvironment(environment);
+        normalized.DisplayName = isTarget ? "Cơ sở dữ liệu đích" : "Cơ sở dữ liệu nguồn";
+        normalized.Tier = isTarget ? "Target" : "Source";
+        normalized.Safety.AllowBackup = !isTarget;
+        normalized.Safety.AllowRestore = isTarget;
+        return normalized;
+    }
+
+    private static ManagedEnvironmentOptions CloneEnvironment(ManagedEnvironmentOptions source) => new()
+    {
+        Key = source.Key,
+        DisplayName = source.DisplayName,
+        Tier = source.Tier,
+        Enabled = source.Enabled,
+        Oracle = new OracleEnvironmentOptions
+        {
+            Host = source.Oracle.Host,
+            Port = source.Oracle.Port,
+            ServiceName = source.Oracle.ServiceName,
+            Schema = source.Oracle.Schema,
+            DataPumpDirectory = source.Oracle.DataPumpDirectory,
+            UserEnvironmentVariable = source.Oracle.UserEnvironmentVariable,
+            PasswordEnvironmentVariable = source.Oracle.PasswordEnvironmentVariable
+        },
+        Safety = new EnvironmentSafetyOptions
+        {
+            AllowBackup = source.Safety.AllowBackup,
+            AllowRestore = source.Safety.AllowRestore,
+            AllowMigrate = source.Safety.AllowMigrate
+        }
+    };
+}

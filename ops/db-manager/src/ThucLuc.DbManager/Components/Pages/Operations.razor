@@ -1,0 +1,67 @@
+@page "/operations"
+@rendermode InteractiveServer
+@inject IOperationJournal Journal
+
+<PageTitle>Lịch sử thao tác · Quản trị dữ liệu</PageTitle>
+
+<section class="page-heading">
+    <div>
+        <span class="eyebrow">THEO DÕI</span>
+        <h1>Lịch sử thao tác</h1>
+        <p>Theo dõi deploy, rollback, sao lưu, phục hồi và cập nhật hạ tầng.</p>
+    </div>
+    <button class="button button--secondary" @onclick="Refresh">Làm mới</button>
+</section>
+
+@if (Entries.Count == 0)
+{
+    <section class="empty-state">
+        <span class="empty-state__icon">≡</span>
+        <strong>Chưa có thao tác nào</strong>
+        <p>Lịch sử sẽ xuất hiện khi các chức năng xử lý dữ liệu được bật.</p>
+    </section>
+}
+else
+{
+    <section class="operation-list">
+        @foreach (var entry in Entries)
+        {
+            <article class="operation-item">
+                <span class="operation-state @entry.State.ToString().ToLowerInvariant()"></span>
+                <div>
+                    <strong>@entry.Operation · @GetOperationRole(entry)</strong>
+                    <small>@entry.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")</small>
+                </div>
+                <p>@entry.Summary</p>
+                <span class="operation-label">@GetStateLabel(entry.State)</span>
+            </article>
+        }
+    </section>
+}
+
+@code {
+    private IReadOnlyList<OperationEntry> Entries { get; set; } = [];
+
+    protected override void OnInitialized() => Refresh();
+
+    private void Refresh() => Entries = Journal.GetRecent();
+
+    private static string GetStateLabel(OperationState state) => state switch
+    {
+        OperationState.Running => "Đang chạy",
+        OperationState.Succeeded => "Hoàn tất",
+        OperationState.Failed => "Thất bại",
+        OperationState.Blocked => "Đã chặn",
+        _ => "Đang chờ"
+    };
+
+    private static string GetOperationRole(OperationEntry entry)
+    {
+        if (entry.Operation.Contains("Nhập file", StringComparison.OrdinalIgnoreCase)) return "FILE TẢI LÊN";
+        if (entry.Operation.Contains("Phục hồi", StringComparison.OrdinalIgnoreCase)
+            || entry.Operation.Contains("Khởi tạo schema", StringComparison.OrdinalIgnoreCase)) return "ĐÍCH";
+        if (entry.Operation.Contains("Sao lưu", StringComparison.OrdinalIgnoreCase)
+            || entry.Operation.Contains("Directory", StringComparison.OrdinalIgnoreCase)) return "NGUỒN";
+        return entry.EnvironmentKey.ToUpperInvariant();
+    }
+}

@@ -32,7 +32,13 @@ public sealed class DonViDataScopeService : IDonViDataScopeService
     public async Task<DonViDataScope> GetScopeAsync(CancellationToken cancellationToken = default)
     {
         var currentUser = _currentUserService.GetCurrentUser();
-        if (currentUser.DonViId <= 0 || currentUser.HasPermission(Permissions.SystemAdmin))
+        // Full access theo VAI TRO (khong theo cap don vi): SYSTEM_ADMIN hoac bat ky ai
+        // duoc cap quyen "ky_bao_cao:approve" (quy uoc dung lai o ~18 Service.cs khac lam
+        // quyen "xem toan bo khong phan biet don vi" - xem HasCrossDonViPermission trong
+        // cac Service nghiep vu, vi du DuAnCnttService).
+        if (currentUser.DonViId <= 0
+            || currentUser.HasPermission(Permissions.SystemAdmin)
+            || currentUser.HasPermission(Permissions.KyBaoCao.Approve))
         {
             return new DonViDataScope { HasFullAccess = true };
         }
@@ -40,19 +46,12 @@ public sealed class DonViDataScopeService : IDonViDataScopeService
         var currentDonVi = await _dbContext.DonVis
             .AsNoTracking()
             .Where(x => x.Id == currentUser.DonViId)
-            .Select(x => new { x.Id, x.ParentId, x.CapDonVi })
+            .Select(x => new { x.Id, x.ParentId })
             .FirstOrDefaultAsync(cancellationToken);
 
         if (currentDonVi is null)
         {
             return new DonViDataScope { HasFullAccess = false, AllowedDonViIds = Array.Empty<long>() };
-        }
-
-        // Don vi goc cap quan ly (khong co parent/cap CUC) co the xem toan bo.
-        if (!currentDonVi.ParentId.HasValue
-            || string.Equals(currentDonVi.CapDonVi, "CUC", StringComparison.OrdinalIgnoreCase))
-        {
-            return new DonViDataScope { HasFullAccess = true };
         }
 
         var allUnits = await _dbContext.DonVis

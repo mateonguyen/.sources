@@ -8,7 +8,7 @@
     [resizable]="false"
     [closable]="false"
     [dismissableMask]="true"
-    [style]="{ width: 'min(760px, 96vw)' }"
+    [style]="{ width: 'min(820px, 96vw)' }"
     styleClass="app-httt-dialog"
     appendTo="body"
     (onHide)="closeSoftwareDialog()"
@@ -17,8 +17,7 @@
       <div class="app-dialog-header">
         <span class="app-dialog-title">
           <i class="pi pi-server" aria-hidden="true"></i>
-          {{ selectedSoftwareId() ? 'Cập nhật' : 'Thêm mới' }} PM/CSDL {{
-          isTuPhatTrien() ? 'tự phát triển' : 'dùng chung' }}
+          {{ selectedSoftwareId() ? 'Cập nhật' : 'Thêm mới' }} PM/CSDL
         </span>
         <button
           type="button"
@@ -37,6 +36,29 @@
         <div class="httt-section-head">
           <span>Thông tin cơ bản</span>
           <div class="httt-section-divider"></div>
+        </div>
+
+        <div class="httt-software-type-card">
+          <span class="httt-software-type-card__index">1</span>
+          <div class="httt-software-type-card__content">
+            <label for="loaiPhanMem">Nhóm trong biểu mẫu <span class="required">*</span></label>
+            <small>Chọn đúng nhóm để hệ thống hiển thị đúng trường và xuất đúng tiểu mục.</small>
+            <p-dropdown
+              inputId="loaiPhanMem"
+              formControlName="loaiPhanMem"
+              [options]="loaiPhanMemOptions()"
+              optionLabel="label"
+              optionValue="value"
+              styleClass="w-full"
+              [panelStyleClass]="selectPanelStyleClass"
+              appendTo="body"
+            ></p-dropdown>
+            <span
+              class="app-form-error"
+              *ngIf="softwareForm.controls.loaiPhanMem.invalid && softwareForm.controls.loaiPhanMem.touched"
+              >Cần phân loại bản ghi trước khi lưu.</span
+            >
+          </div>
         </div>
 
         <div class="app-form-row">
@@ -111,153 +133,109 @@
           </div>
         </div>
 
-        <!-- ── Thông tin kỹ thuật (chỉ DUNG_CHUNG) ───────────────────────── -->
-        <ng-container *ngIf="!isTuPhatTrien()">
-          <div class="httt-section-head">
-            <span>Thông tin kỹ thuật</span>
-            <div class="httt-section-divider"></div>
-          </div>
+        <!-- ── Thông tin bổ sung ──────────────────────────────────────────── -->
+        <div class="httt-section-head">
+          <span>Thông tin bổ sung</span>
+          <div class="httt-section-divider"></div>
+        </div>
 
-          <div class="app-form-row">
-            <div
-              class="app-form-field app-form-field--full"
-              [class.has-value]="softwareForm.controls.ungDungCnMoi.value"
+        <div class="app-form-row" *ngIf="isTuPhatTrien()">
+          <div
+            class="app-form-field app-form-field--full"
+            [class.has-value]="softwareForm.controls.donViPhatTrien.value"
+          >
+            <label class="app-form-field__label"
+              >Đơn vị nghiên cứu, phát triển</label
             >
-              <label class="app-form-field__label"
-                >Ứng dụng công nghệ mới, hiện đại</label
-              >
-              <input
-                pInputText
-                type="text"
-                formControlName="ungDungCnMoi"
-                class="app-form-field__input"
-              />
-            </div>
+            <input
+              pInputText
+              type="text"
+              formControlName="donViPhatTrien"
+              class="app-form-field__input"
+            />
           </div>
+        </div>
 
-          <div class="app-form-row">
-            <div
-              class="app-form-field app-form-field--full"
-              [class.has-value]="softwareForm.controls.phamViHoatDongKyThuat.value"
+        <div class="app-form-row">
+          <div
+            class="app-form-field app-form-field--full"
+            [class.has-value]="softwareForm.controls.ungDungCnMoi.value"
+          >
+            <label class="app-form-field__label"
+              >Ứng dụng công nghệ mới, hiện đại</label
             >
-              <label class="app-form-field__label"
-                >Phạm vi hoạt động trên hệ thống mạng</label
-              >
-              <input
-                pInputText
-                type="text"
-                formControlName="phamViHoatDongKyThuat"
-                class="app-form-field__input"
-              />
-            </div>
+            <input
+              pInputText
+              type="text"
+              formControlName="ungDungCnMoi"
+              class="app-form-field__input"
+            />
           </div>
+        </div>
 
-          <div class="app-form-row">
-            <div
-              class="app-form-field app-form-field--full"
-              [class.has-value]="softwareForm.controls.khaNangTichHop.value"
+        <div class="app-form-row" *ngIf="isTuPhatTrien()">
+          <div
+            class="app-form-field app-form-field--full"
+            [class.has-value]="softwareForm.controls.phamViHoatDong.value"
+          >
+            <label class="app-form-field__label"
+              >Phạm vi, lĩnh vực nghiệp vụ khai thác sử dụng</label
             >
-              <label class="app-form-field__label"
-                >Khả năng tích hợp, kết nối liên thông, chia sẻ, dùng
-                chung</label
-              >
-              <input
-                pInputText
-                type="text"
-                formControlName="khaNangTichHop"
-                class="app-form-field__input"
-              />
-            </div>
+            <input
+              pInputText
+              type="text"
+              formControlName="phamViHoatDong"
+              class="app-form-field__input"
+            />
           </div>
-        </ng-container>
+        </div>
 
-        <!-- ── Thông tin phát triển (chỉ TU_PHAT_TRIEN) ──────────────────── -->
-        <ng-container *ngIf="isTuPhatTrien()">
-          <div class="httt-section-head">
-            <span>Thông tin phát triển</span>
-            <div class="httt-section-divider"></div>
-          </div>
-
-          <div class="app-form-row">
-            <div
-              class="app-form-field app-form-field--full"
-              [class.has-value]="softwareForm.controls.donViPhatTrien.value"
+        <div class="app-form-row" *ngIf="!isTuPhatTrien()">
+          <div
+            class="app-form-field app-form-field--full"
+            [class.has-value]="softwareForm.controls.phamViHoatDongKyThuat.value"
+          >
+            <label class="app-form-field__label"
+              >Phạm vi hoạt động trên hệ thống mạng</label
             >
-              <label class="app-form-field__label"
-                >Đơn vị nghiên cứu, phát triển</label
-              >
-              <input
-                pInputText
-                type="text"
-                formControlName="donViPhatTrien"
-                class="app-form-field__input"
-              />
-            </div>
+            <input
+              pInputText
+              type="text"
+              formControlName="phamViHoatDongKyThuat"
+              class="app-form-field__input"
+            />
           </div>
+        </div>
 
-          <div class="app-form-row">
-            <div
-              class="app-form-field app-form-field--full"
-              [class.has-value]="softwareForm.controls.ungDungCnMoi.value"
+        <div class="app-form-row">
+          <div
+            class="app-form-field app-form-field--full"
+            [class.has-value]="softwareForm.controls.khaNangTichHop.value"
+          >
+            <label class="app-form-field__label"
+              >Khả năng tích hợp, kết nối liên thông, chia sẻ, dùng
+              chung</label
             >
-              <label class="app-form-field__label"
-                >Ứng dụng công nghệ mới, hiện đại</label
-              >
-              <input
-                pInputText
-                type="text"
-                formControlName="ungDungCnMoi"
-                class="app-form-field__input"
-              />
-            </div>
+            <input
+              pInputText
+              type="text"
+              formControlName="khaNangTichHop"
+              class="app-form-field__input"
+            />
           </div>
+        </div>
 
-          <div class="app-form-row">
-            <div
-              class="app-form-field app-form-field--full"
-              [class.has-value]="softwareForm.controls.phamViHoatDong.value"
+        <div class="app-form-row" *ngIf="isTuPhatTrien()">
+          <label class="app-checkbox-label">
+            <p-checkbox
+              formControlName="daCongNhanSangKien"
+              [binary]="true"
+            ></p-checkbox>
+            <span class="select-none text-sm"
+              >Đã được Hội đồng xét, công nhận sáng kiến, sáng tạo BCA</span
             >
-              <label class="app-form-field__label"
-                >Phạm vi, lĩnh vực nghiệp vụ khai thác sử dụng</label
-              >
-              <input
-                pInputText
-                type="text"
-                formControlName="phamViHoatDong"
-                class="app-form-field__input"
-              />
-            </div>
-          </div>
-
-          <div class="app-form-row">
-            <div
-              class="app-form-field app-form-field--full"
-              [class.has-value]="softwareForm.controls.khaNangTichHop.value"
-            >
-              <label class="app-form-field__label"
-                >Khả năng tích hợp liên thông</label
-              >
-              <input
-                pInputText
-                type="text"
-                formControlName="khaNangTichHop"
-                class="app-form-field__input"
-              />
-            </div>
-          </div>
-
-          <div class="app-form-row">
-            <label class="app-checkbox-label">
-              <p-checkbox
-                formControlName="daCongNhanSangKien"
-                [binary]="true"
-              ></p-checkbox>
-              <span class="select-none text-sm"
-                >Đã được Hội đồng xét, công nhận sáng kiến, sáng tạo BCA</span
-              >
-            </label>
-          </div>
-        </ng-container>
+          </label>
+        </div>
 
         <!-- ── Ghi chú ────────────────────────────────────────────────────── -->
         <div class="app-form-row">
@@ -491,10 +469,28 @@
   <!-- ── Main page: wrapped in app-section-card ───────────────────── -->
   <app-section-card
     title="HỆ THỐNG THÔNG TIN"
-    subtitle="Quản lý phần mềm / CSDL và danh mục HTTT tiêu chuẩn"
+    subtitle="Nhập liệu theo 3 tiểu mục của biểu mẫu: dùng chung, tự phát triển và HTTT tiêu chuẩn"
     styleClass="httt-main-card"
   >
-    <!-- ── Tab navigation with badges ──────────────────────────────── -->
+    <div class="httt-unclassified-alert" *ngIf="unclassifiedItems().length > 0">
+      <div class="httt-unclassified-alert__icon">
+        <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+      </div>
+      <div class="httt-unclassified-alert__body">
+        <strong>{{ unclassifiedItems().length }} bản ghi cũ cần phân loại</strong>
+        <span>Dữ liệu này được tạo khi hệ thống chưa tách hai nhóm PM/CSDL. Hãy phân loại để báo cáo vào đúng tiểu mục.</span>
+        <button
+          type="button"
+          class="httt-unclassified-action"
+          (click)="openSoftwareEditDialog(unclassifiedItems()[0])"
+        >
+          Phân loại bản ghi đầu tiên
+          <i class="pi pi-arrow-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Ba tiểu mục bám đúng cấu trúc biểu mẫu ─────────────────── -->
     <div class="httt-tabs-header">
       <button
         type="button"
@@ -502,7 +498,11 @@
         [class.is-active]="activeTab() === 'DUNG_CHUNG'"
         (click)="setActiveTab('DUNG_CHUNG')"
       >
-        <span class="httt-tab-label">PM/CSDL DÙNG CHUNG</span>
+        <span class="httt-tab-index">(1)</span>
+        <span class="httt-tab-copy">
+          <span class="httt-tab-label">PM/CSDL DÙNG CHUNG</span>
+          <small>Cục nghiệp vụ triển khai</small>
+        </span>
         <span class="httt-tab-badge">{{ dungChungCount() }}</span>
       </button>
       <button
@@ -511,7 +511,11 @@
         [class.is-active]="activeTab() === 'TU_PHAT_TRIEN'"
         (click)="setActiveTab('TU_PHAT_TRIEN')"
       >
-        <span class="httt-tab-label">PM/CSDL TỰ PHÁT TRIỂN</span>
+        <span class="httt-tab-index">(2)</span>
+        <span class="httt-tab-copy">
+          <span class="httt-tab-label">PM/CSDL TỰ PHÁT TRIỂN</span>
+          <small>Đơn vị tự nghiên cứu, phát triển</small>
+        </span>
         <span class="httt-tab-badge">{{ tuPhatTrienCount() }}</span>
       </button>
       <button
@@ -520,7 +524,11 @@
         [class.is-active]="activeTab() === 'HTTT_TIEU_CHUAN'"
         (click)="setActiveTab('HTTT_TIEU_CHUAN')"
       >
-        <span class="httt-tab-label">HTTT TIÊU CHUẨN</span>
+        <span class="httt-tab-index">(3)</span>
+        <span class="httt-tab-copy">
+          <span class="httt-tab-label">HTTT TIÊU CHUẨN</span>
+          <small>Định mức trang thiết bị chuyên dùng</small>
+        </span>
         <span class="httt-tab-badge">{{ standardCount() }}</span>
       </button>
     </div>
@@ -528,12 +536,12 @@
     <!-- ── Tab content panels ──────────────────────────────────────── -->
     <div class="httt-tabs-content">
       <ng-container [ngSwitch]="activeTab()">
-        <!-- ── Tab: PM/CSDL Dùng chung ──────────────────────────── -->
+        <!-- ── Tab (1): PM/CSDL dùng chung ─────────────────────── -->
         <ng-container *ngSwitchCase="'DUNG_CHUNG'">
           <div class="httt-tab-panel">
             <div class="httt-toolbar">
               <div class="httt-toolbar-left">
-                <label class="httt-filter-label">Tên PM/CSDL</label>
+                <label class="httt-filter-label">Tìm trong PM/CSDL dùng chung</label>
                 <span class="httt-filter-input-shell">
                   <i class="pi pi-search" aria-hidden="true"></i>
                   <input
@@ -551,18 +559,18 @@
                 <button
                   pButton
                   type="button"
-                  icon="pi pi-search"
-                  label="Tải dữ liệu"
-                  class="p-button-info"
+                  icon="pi pi-refresh"
+                  label="Làm mới"
+                  severity="secondary"
                   [loading]="loading()"
                   (click)="load()"
                 ></button>
                 <button
                   pButton
                   type="button"
-                  icon="pi pi-times"
-                  severity="secondary"
-                  label="Xóa bộ lọc"
+                  icon="pi pi-filter-slash"
+                  class="p-button-text"
+                  label="Xóa lọc"
                   [disabled]="!filterTenPhanMem()"
                   (click)="filterTenPhanMem.set('')"
                 ></button>
@@ -570,7 +578,7 @@
                   pButton
                   type="button"
                   icon="pi pi-plus"
-                  label="Thêm PM/CSDL dùng chung"
+                  label="Thêm dùng chung"
                   class="p-button-primary"
                   (click)="openSoftwareCreateDialog('DUNG_CHUNG')"
                 ></button>
@@ -590,7 +598,7 @@
                 >
                   <i class="pi pi-inbox" aria-hidden="true"></i>
                   <p>Chưa có dữ liệu</p>
-                  <small>PM/CSDL dùng chung</small>
+                  <small>PM/CSDL do các Cục nghiệp vụ triển khai dùng chung</small>
                 </div>
 
                 <div
@@ -599,24 +607,28 @@
                 >
                   <p-table
                     [value]="dungChungItems()"
-                    styleClass="p-datatable-sm app-admin-table"
+                    styleClass="p-datatable-sm app-admin-table httt-software-table"
                     [tableStyleClass]="tableStyleClass"
+                    [tableStyle]="{ 'min-width': '78rem' }"
                   >
                     <ng-template pTemplate="header">
                       <tr>
+                        <th [class]="tableHeaderCellClass" class="httt-col-stt">STT</th>
                         <th [class]="tableHeaderCellClass">Tên PM/CSDL</th>
                         <th [class]="tableHeaderCellClass">
                           Đơn vị quản lý/sử dụng
                         </th>
                         <th [class]="tableHeaderCellClass">Năm triển khai</th>
-                        <th [class]="tableHeaderCellClass">CN mới</th>
-                        <th [class]="tableHeaderCellClass">Tích hợp</th>
+                        <th [class]="tableHeaderCellClass">Ứng dụng công nghệ mới</th>
+                        <th [class]="tableHeaderCellClass">Phạm vi trên hệ thống mạng</th>
+                        <th [class]="tableHeaderCellClass">Tích hợp, liên thông, chia sẻ</th>
                         <th [class]="tableHeaderCellClass">Ghi chú</th>
-                        <th [class]="tableHeaderCellClass">Tác vụ</th>
+                        <th [class]="tableHeaderCellClass" class="httt-col-action">Thao tác</th>
                       </tr>
                     </ng-template>
-                    <ng-template pTemplate="body" let-item>
+                    <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
                       <tr [class]="tableRowClass">
+                        <td [class]="tableBodyCellClass" class="httt-col-stt">{{ rowIndex + 1 }}</td>
                         <td [class]="tableBodyCellClass">
                           <span class="font-medium">{{ item.tenPhanMem }}</span>
                         </td>
@@ -628,6 +640,9 @@
                         </td>
                         <td [class]="tableBodyCellClass">
                           {{ item.ungDungCnMoi || '—' }}
+                        </td>
+                        <td [class]="tableBodyCellClass">
+                          {{ item.phamViHoatDongKyThuat || '—' }}
                         </td>
                         <td [class]="tableBodyCellClass">
                           {{ item.khaNangTichHop || '—' }}
@@ -662,12 +677,12 @@
           </div>
         </ng-container>
 
-        <!-- ── Tab: PM/CSDL Tự phát triển ─────────────────────────── -->
+        <!-- ── Tab (2): PM/CSDL tự phát triển ───────────────────── -->
         <ng-container *ngSwitchCase="'TU_PHAT_TRIEN'">
           <div class="httt-tab-panel">
             <div class="httt-toolbar">
               <div class="httt-toolbar-left">
-                <label class="httt-filter-label">Tên PM/CSDL</label>
+                <label class="httt-filter-label">Tìm trong PM/CSDL tự phát triển</label>
                 <span class="httt-filter-input-shell">
                   <i class="pi pi-search" aria-hidden="true"></i>
                   <input
@@ -685,18 +700,18 @@
                 <button
                   pButton
                   type="button"
-                  icon="pi pi-search"
-                  label="Tải dữ liệu"
-                  class="p-button-info"
+                  icon="pi pi-refresh"
+                  label="Làm mới"
+                  severity="secondary"
                   [loading]="loading()"
                   (click)="load()"
                 ></button>
                 <button
                   pButton
                   type="button"
-                  icon="pi pi-times"
-                  severity="secondary"
-                  label="Xóa bộ lọc"
+                  icon="pi pi-filter-slash"
+                  class="p-button-text"
+                  label="Xóa lọc"
                   [disabled]="!filterTenPhanMem()"
                   (click)="filterTenPhanMem.set('')"
                 ></button>
@@ -704,14 +719,14 @@
                   pButton
                   type="button"
                   icon="pi pi-plus"
-                  label="Thêm PM/CSDL tự phát triển"
+                  label="Thêm tự phát triển"
                   class="p-button-primary"
                   (click)="openSoftwareCreateDialog('TU_PHAT_TRIEN')"
                 ></button>
               </div>
             </div>
 
-            <div class="httt-content-card">
+            <div class="httt-content-card httt-content-card--flat">
               <div class="httt-content">
                 <app-loading-overlay
                   [active]="loading()"
@@ -724,7 +739,7 @@
                 >
                   <i class="pi pi-inbox" aria-hidden="true"></i>
                   <p>Chưa có dữ liệu</p>
-                  <small>PM/CSDL tự phát triển</small>
+                  <small>PM/CSDL do đơn vị tự nghiên cứu, phát triển</small>
                 </div>
 
                 <div
@@ -733,60 +748,45 @@
                 >
                   <p-table
                     [value]="tuPhatTrienItems()"
-                    styleClass="p-datatable-sm app-admin-table"
+                    styleClass="p-datatable-sm app-admin-table httt-software-table"
                     [tableStyleClass]="tableStyleClass"
+                    [tableStyle]="{ 'min-width': '94rem' }"
                   >
                     <ng-template pTemplate="header">
                       <tr>
+                        <th [class]="tableHeaderCellClass" class="httt-col-stt">STT</th>
                         <th [class]="tableHeaderCellClass">Tên PM/CSDL</th>
-                        <th [class]="tableHeaderCellClass">
-                          Đơn vị phát triển
-                        </th>
-                        <th [class]="tableHeaderCellClass">
-                          Đơn vị quản lý/sử dụng
-                        </th>
+                        <th [class]="tableHeaderCellClass">Đơn vị nghiên cứu, phát triển</th>
+                        <th [class]="tableHeaderCellClass">Đơn vị quản lý/sử dụng</th>
                         <th [class]="tableHeaderCellClass">Năm triển khai</th>
-                        <th [class]="tableHeaderCellClass">Phạm vi</th>
-                        <th [class]="tableHeaderCellClass">Sáng kiến</th>
-                        <th [class]="tableHeaderCellClass">Tác vụ</th>
+                        <th [class]="tableHeaderCellClass">Ứng dụng công nghệ mới</th>
+                        <th [class]="tableHeaderCellClass">Phạm vi, lĩnh vực nghiệp vụ</th>
+                        <th [class]="tableHeaderCellClass">Khả năng tích hợp liên thông</th>
+                        <th [class]="tableHeaderCellClass">Công nhận sáng kiến</th>
+                        <th [class]="tableHeaderCellClass">Ghi chú</th>
+                        <th [class]="tableHeaderCellClass" class="httt-col-action">Thao tác</th>
                       </tr>
                     </ng-template>
-                    <ng-template pTemplate="body" let-item>
+                    <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
                       <tr [class]="tableRowClass">
+                        <td [class]="tableBodyCellClass" class="httt-col-stt">{{ rowIndex + 1 }}</td>
+                        <td [class]="tableBodyCellClass"><span class="font-medium">{{ item.tenPhanMem }}</span></td>
+                        <td [class]="tableBodyCellClass">{{ item.donViPhatTrien || '—' }}</td>
+                        <td [class]="tableBodyCellClass">{{ item.donViQuanLy || '—' }}</td>
+                        <td [class]="tableBodyCellClass">{{ item.namTrienKhai || '—' }}</td>
+                        <td [class]="tableBodyCellClass">{{ item.ungDungCnMoi || '—' }}</td>
+                        <td [class]="tableBodyCellClass">{{ item.phamViHoatDong || '—' }}</td>
+                        <td [class]="tableBodyCellClass">{{ item.khaNangTichHop || '—' }}</td>
                         <td [class]="tableBodyCellClass">
-                          <span class="font-medium">{{ item.tenPhanMem }}</span>
+                          <span class="httt-bool-pill" [class.is-yes]="item.daCongNhanSangKien">
+                            {{ resolveBool(item.daCongNhanSangKien) }}
+                          </span>
                         </td>
-                        <td [class]="tableBodyCellClass">
-                          {{ item.donViPhatTrien || '—' }}
-                        </td>
-                        <td [class]="tableBodyCellClass">
-                          {{ item.donViQuanLy || '—' }}
-                        </td>
-                        <td [class]="tableBodyCellClass">
-                          {{ item.namTrienKhai || '—' }}
-                        </td>
-                        <td [class]="tableBodyCellClass">
-                          {{ item.phamViHoatDong || '—' }}
-                        </td>
-                        <td [class]="tableBodyCellClass">
-                          {{ resolveBool(item.daCongNhanSangKien) }}
-                        </td>
+                        <td [class]="tableBodyCellClass">{{ item.ghiChu || '—' }}</td>
                         <td [class]="tableBodyCellClass">
                           <div class="action-btns">
-                            <button
-                              type="button"
-                              class="action-btn action-btn--edit"
-                              pTooltip="Chỉnh sửa"
-                              tooltipPosition="top"
-                              (click)="openSoftwareEditDialog(item)"
-                            ><i class="pi pi-pencil"></i></button>
-                            <button
-                              type="button"
-                              class="action-btn action-btn--delete"
-                              pTooltip="Xóa"
-                              tooltipPosition="top"
-                              (click)="removeSoftware(item)"
-                            ><i class="pi pi-trash"></i></button>
+                            <button type="button" class="action-btn action-btn--edit" pTooltip="Chỉnh sửa" tooltipPosition="top" (click)="openSoftwareEditDialog(item)"><i class="pi pi-pencil"></i></button>
+                            <button type="button" class="action-btn action-btn--delete" pTooltip="Xóa" tooltipPosition="top" (click)="removeSoftware(item)"><i class="pi pi-trash"></i></button>
                           </div>
                         </td>
                       </tr>
@@ -811,9 +811,9 @@
                 <button
                   pButton
                   type="button"
-                  icon="pi pi-search"
-                  label="Tải dữ liệu"
-                  class="p-button-info"
+                  icon="pi pi-refresh"
+                  label="Làm mới"
+                  severity="secondary"
                   [loading]="loading()"
                   (click)="load()"
                 ></button>
@@ -868,8 +868,7 @@
                   <i class="pi pi-inbox" aria-hidden="true"></i>
                   <p>Chưa có danh mục cấu hình</p>
                   <small
-                    >Liên hệ quản trị viên để thiết lập danh mục HTTT tiêu
-                    chuẩn</small
+                    >Bấm “Thêm dòng” để khai báo HTTT tiêu chuẩn theo biểu mẫu</small
                   >
                 </div>
 

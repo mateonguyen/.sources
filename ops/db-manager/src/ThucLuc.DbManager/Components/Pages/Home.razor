@@ -1,0 +1,239 @@
+@page "/"
+@rendermode InteractiveServer
+@inject IOptionsMonitor<OpsOptions> Options
+@inject IPreflightService PreflightService
+
+<PageTitle>Tổng quan · Quản trị dữ liệu</PageTitle>
+
+<section class="page-heading">
+    <div>
+        <span class="eyebrow">TỔNG QUAN</span>
+        <h1>Kết nối cơ sở dữ liệu</h1>
+        <p>Kiểm tra cơ sở dữ liệu nguồn và đích trước khi sao lưu hoặc phục hồi.</p>
+    </div>
+    <button class="button button--primary" disabled="@IsCheckingAll" @onclick="CheckAllAsync">
+        <span>↻</span>
+        @(IsCheckingAll ? "Đang kiểm tra..." : "Kiểm tra kết nối")
+    </button>
+</section>
+
+@if (Environments.Count == 0)
+{
+    <section class="empty-state">
+        <span class="empty-state__icon">⚙</span>
+        <strong>Chưa cấu hình môi trường</strong>
+        <p>Thiết lập kết nối nguồn và đích ngay trong màn hình Sao lưu &amp; phục hồi.</p>
+        <a class="button button--primary" href="/backups">Mở Sao lưu &amp; phục hồi</a>
+    </section>
+}
+else
+{
+    <section class="environment-grid">
+        @foreach (var environment in Environments)
+        {
+            var report = GetReport(environment.Key);
+            <article class="environment-card @GetCardClass(report)">
+                <header class="environment-card__header">
+                    <div>
+                        <span class="tier-badge">@GetRoleLabel(environment)</span>
+                        <h2>@GetRoleName(environment)</h2>
+                    </div>
+                    <span class="health-badge @GetHealthClass(report)">@GetHealthLabel(environment, report)</span>
+                </header>
+
+                <dl class="environment-meta environment-meta--compact">
+                    <div>
+                        <dt>Địa chỉ</dt>
+                        <dd>@environment.Oracle.Host:@environment.Oracle.Port</dd>
+                    </div>
+                    <div>
+                        <dt>Service</dt>
+                        <dd>@environment.Oracle.ServiceName</dd>
+                    </div>
+                    <div>
+                        <dt>Schema</dt>
+                        <dd>@(string.IsNullOrWhiteSpace(environment.Oracle.Schema) ? "Khai báo khi phục hồi" : environment.Oracle.Schema)</dd>
+                    </div>
+                </dl>
+
+                @if (report is not null)
+                {
+                    var visibleChecks = GetVisibleChecks(report);
+                    @if (visibleChecks.Count == 0)
+                    {
+                        <div class="connection-summary connection-summary--success">
+                            <span>✓</span>
+                            <div><strong>Kết nối và công cụ đã đầy đủ</strong><small>Có thể chuyển sang bước sao lưu dữ liệu.</small></div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="check-list">
+                            @foreach (var check in visibleChecks)
+                            {
+                                <div class="check-list__item">
+                                    <span class="check-icon check-icon--@check.Status.ToString().ToLowerInvariant()">@GetCheckIcon(check.Status)</span>
+                                    <div>
+                                        <strong>@check.Name</strong>
+                                        <p>@check.Message</p>
+                                        @if (!string.IsNullOrWhiteSpace(check.Detail))
+                                        {
+                                            <small>@check.Detail</small>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="card-placeholder">
+                        Bấm “Kiểm tra” để thử kết nối. Việc kiểm tra không thay đổi dữ liệu.
+                    </div>
+                }
+
+                <footer class="environment-card__footer">
+                    <span>@GetCheckedAt(report)</span>
+                    <button class="button button--secondary"
+                            disabled="@(!environment.Enabled || IsChecking(environment.Key))"
+                            @onclick="() => CheckAsync(environment)">
+                        @(IsChecking(environment.Key) ? "Đang kiểm tra..." : "Kiểm tra")
+                    </button>
+                </footer>
+            </article>
+        }
+    </section>
+}
+
+<section class="workflow-panel">
+    <div class="workflow-panel__heading">
+        <div>
+            <span class="eyebrow">CÁC BƯỚC THỰC HIỆN</span>
+            <h2>Sao chép dữ liệu từ nguồn sang đích</h2>
+        </div>
+        <span class="workflow-panel__status">Chưa thực hiện</span>
+    </div>
+    <ol class="workflow">
+        <li class="workflow__step workflow__step--current">
+            <span>1</span>
+            <div><strong>Nhập kết nối</strong><small>Nguồn và đích</small></div>
+        </li>
+        <li class="workflow__step">
+            <span>2</span>
+            <div><strong>Kiểm tra kết nối</strong><small>Không thay đổi dữ liệu</small></div>
+        </li>
+        <li class="workflow__step">
+            <span>3</span>
+            <div><strong>Sao lưu nguồn</strong><small>Tạo file dữ liệu</small></div>
+        </li>
+        <li class="workflow__step">
+            <span>4</span>
+            <div><strong>Phục hồi vào đích</strong><small>Tạo hoặc thay thế schema khi cần</small></div>
+        </li>
+    </ol>
+</section>
+
+@code {
+    private readonly Dictionary<string, PreflightReport> _reports = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _checking = new(StringComparer.OrdinalIgnoreCase);
+
+    private IReadOnlyList<ManagedEnvironmentOptions> Environments => Options.CurrentValue.Environments;
+    private bool IsCheckingAll { get; set; }
+
+    private async Task CheckAllAsync()
+    {
+        IsCheckingAll = true;
+        try
+        {
+            foreach (var environment in Environments.Where(item => item.Enabled))
+            {
+                await CheckAsync(environment);
+            }
+        }
+        finally
+        {
+            IsCheckingAll = false;
+        }
+    }
+
+    private async Task CheckAsync(ManagedEnvironmentOptions environment)
+    {
+        if (!_checking.Add(environment.Key))
+        {
+            return;
+        }
+
+        try
+        {
+            _reports[environment.Key] = await PreflightService.CheckAsync(environment);
+        }
+        finally
+        {
+            _checking.Remove(environment.Key);
+        }
+    }
+
+    private PreflightReport? GetReport(string key) => _reports.GetValueOrDefault(key);
+    private bool IsChecking(string key) => _checking.Contains(key);
+
+    private static string GetCardClass(PreflightReport? report) => report?.Status switch
+    {
+        CheckStatus.Success => "environment-card--success",
+        CheckStatus.Warning => "environment-card--warning",
+        CheckStatus.Error => "environment-card--error",
+        _ => string.Empty
+    };
+
+    private static string GetHealthClass(PreflightReport? report)
+    {
+        var server = GetCheck(report, "Máy chủ DB");
+        var login = GetCheck(report, "Đăng nhập DB");
+        if (server?.Status == CheckStatus.Error || login?.Status == CheckStatus.Error) return "error";
+        return report?.Status.ToString().ToLowerInvariant() ?? "idle";
+    }
+
+    private static string GetHealthLabel(ManagedEnvironmentOptions environment, PreflightReport? report)
+    {
+        if (!environment.Enabled) return "Đã tắt";
+        if (report is null) return "Chưa kiểm tra";
+
+        var server = GetCheck(report, "Máy chủ DB");
+        var login = GetCheck(report, "Đăng nhập DB");
+        if (server?.Status == CheckStatus.Error) return "Không thấy máy chủ";
+        if (login?.Status == CheckStatus.Error) return "Không đăng nhập được";
+        if (login?.Status == CheckStatus.Success) return "Đã kết nối";
+        if (server?.Status == CheckStatus.Success) return "Đã thấy máy chủ";
+
+        return report.Status switch
+        {
+            CheckStatus.Success => "Sẵn sàng",
+            CheckStatus.Warning => "Cần bổ sung",
+            _ => "Thiếu thông tin"
+        };
+    }
+
+    private static IReadOnlyList<PreflightCheck> GetVisibleChecks(PreflightReport report) => report.Checks
+        .Where(check => check.Status != CheckStatus.Success)
+        .ToList();
+
+    private static PreflightCheck? GetCheck(PreflightReport? report, string name) => report?.Checks
+        .FirstOrDefault(check => string.Equals(check.Name, name, StringComparison.Ordinal));
+
+    private static string GetRoleLabel(ManagedEnvironmentOptions environment) =>
+        environment.Safety.AllowRestore ? "ĐÍCH" : "NGUỒN";
+
+    private static string GetRoleName(ManagedEnvironmentOptions environment) =>
+        environment.Safety.AllowRestore ? "Cơ sở dữ liệu đích" : "Cơ sở dữ liệu nguồn";
+
+    private static string GetCheckIcon(CheckStatus status) => status switch
+    {
+        CheckStatus.Success => "✓",
+        CheckStatus.Warning => "!",
+        _ => "×"
+    };
+
+    private static string GetCheckedAt(PreflightReport? report) => report is null
+        ? "Chưa có kết quả"
+        : $"Kiểm tra lúc {report.CheckedAt:HH:mm:ss dd/MM/yyyy}";
+}

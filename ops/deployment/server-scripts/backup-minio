@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+source /opt/thucluc-ops/lib/common.sh
+
+app_dir=/opt/thucluc/infra
+require_file "$app_dir/.env"
+bucket="$(sed -n 's/^MINIO_BUCKET_NAME=//p' "$app_dir/.env" | tail -n 1)"
+if [[ ! "$bucket" =~ ^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$ ]]; then
+  echo "MINIO_BUCKET_NAME không hợp lệ." >&2
+  exit 2
+fi
+
+backup_id="${1:-$(date -u +%Y%m%d-%H%M%S)}"
+validate_version "$backup_id"
+
+exec 9>/run/lock/thucluc-minio-backup.lock
+flock --exclusive 9
+
+export BACKUP_ID="$backup_id"
+docker compose \
+  --project-directory "$app_dir" \
+  --env-file "$app_dir/.env" \
+  --file "$app_dir/compose.yml" \
+  run --rm --no-deps minio-client
+
+require_file "$app_dir/backups/$backup_id/completed-at.txt"
+echo "MinIO backup đã hoàn tất: $app_dir/backups/$backup_id"

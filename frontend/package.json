@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
+    "postbuild": "node scripts/remove-primeng-inter.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessNoSandbox"
@@ -19,11 +20,7 @@
     "@angular/platform-browser": "^17.3.0",
     "@angular/platform-browser-dynamic": "^17.3.0",
     "@angular/router": "^17.3.0",
-    "@fontsource/jetbrains-mono": "^5.2.8",
-    "@fontsource/literata": "^5.2.8",
-    "@fontsource/merriweather": "^5.2.11",
-    "@fontsource/noto-serif": "^5.2.9",
-    "@fontsource/source-sans-3": "^5.2.9",
+    "@fontsource/google-sans": "^5.3.1",
     "primeflex": "^3.3.1",
     "primeicons": "^7.0.0",
     "primeng": "^17.18.15",

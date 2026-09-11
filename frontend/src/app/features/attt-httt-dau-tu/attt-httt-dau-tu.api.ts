@@ -11,8 +11,8 @@ interface ApiResponse<T> {
 export interface AtttHtttDauTuDto {
   id: number;
   donViId: number;
-  kyBaoCaoCode: string | null;
   htttId: number;
+  loaiHaTang: string;
   chuQuan: string | null;
   donViVanHanh: string | null;
   capDoDeXuat: string | null;
@@ -25,6 +25,7 @@ export interface AtttHtttDauTuDto {
 export interface UpsertAtttHtttDauTuRequest {
   donViId: number;
   htttId: number;
+  loaiHaTang: string;
   chuQuan: string | null;
   donViVanHanh: string | null;
   capDoDeXuat: string | null;
@@ -40,16 +41,11 @@ export class AtttHtttDauTuApi {
 
   getAll(options?: {
     donViId?: number;
-    kyCode?: string;
   }): Promise<AtttHtttDauTuDto[]> {
     let params = new HttpParams();
     if (options?.donViId != null) {
       params = params.set('donViId', String(options.donViId));
     }
-    if (options?.kyCode) {
-      params = params.set('kyCode', options.kyCode);
-    }
-
     return firstValueFrom(
       this.httpClient.get<ApiResponse<AtttHtttDauTuDto[]>>(
         `${API_BASE_URL}/attt-httt-dau-tu`,

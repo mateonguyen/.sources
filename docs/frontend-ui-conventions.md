@@ -36,7 +36,10 @@ This is the default visual baseline for internal government-facing screens.
   - `--app-text: #1a2533`
   - `--app-text-muted: #4a5a6a`
 - Typography:
-  - `--app-font-family-base: Noto Sans`
+  - `--app-font-family-base: Google Sans`
+  - Use Google Sans for body text, headings, form controls, tables and code-like values; do not introduce a second text font.
+  - Bundle the Latin and Vietnamese WOFF2 subsets from the local `@fontsource/google-sans` package. Do not load fonts from Google Fonts or another internet URL.
+  - Keep the SIL Open Font License text at `frontend/src/assets/licenses/google-sans-OFL.txt` when distributing the frontend.
   - `--app-font-size-title: 1.75rem`
   - `--app-font-size-section: 1.375rem`
   - `--app-font-size-body: 0.9375rem`

@@ -1,0 +1,217 @@
+@page "/infrastructure"
+@rendermode InteractiveServer
+@inject IOptionsMonitor<OpsOptions> Options
+@inject IHostExecutor HostExecutor
+@inject IOpsJobQueue Jobs
+
+<PageTitle>Hạ tầng và MinIO · ThucLuc Ops Console</PageTitle>
+
+<section class="page-heading">
+    <div>
+        <span class="eyebrow">DỊCH VỤ DÙNG CHUNG</span>
+        <h1>Hạ tầng và MinIO</h1>
+        <p>Kiểm tra container hạ tầng và tạo bản mirror các object MinIO.</p>
+    </div>
+</section>
+
+@if (InfraHost is null)
+{
+    <section class="empty-state">
+        <span class="empty-state__icon">◆</span>
+        <strong>Chưa cấu hình máy chủ hạ tầng</strong>
+        <p>Thêm một máy chủ có <code>Role = Infra</code> và cấp các action <code>StatusInfra</code>, <code>BackupMinio</code>.</p>
+    </section>
+}
+else
+{
+    <section class="infra-grid">
+        <article class="panel-card infra-card">
+            <header>
+                <div>
+                    <span class="eyebrow">CONTAINER</span>
+                    <h2>Trạng thái hạ tầng</h2>
+                </div>
+                <button class="button button--secondary" disabled="@IsChecking" @onclick="CheckStatusAsync">
+                    @(IsChecking ? "Đang kiểm tra..." : "Kiểm tra")
+                </button>
+            </header>
+            <dl class="host-meta">
+                <div><dt>Máy chủ</dt><dd>@InfraHost.Host:@InfraHost.Port</dd></div>
+                <div><dt>Tài khoản</dt><dd>@InfraHost.Username</dd></div>
+            </dl>
+            @if (DiskVolumes.Count > 0)
+            {
+                <div class="disk-grid">
+                    @foreach (var disk in DiskVolumes)
+                    {
+                        var warning = disk.UsedPercent >= Options.CurrentValue.DiskWarningPercent;
+                        <div class="disk-meter @(warning ? "disk-meter--warning" : string.Empty)">
+                            <div>
+                                <strong>@GetDiskLabel(disk.Path)</strong>
+                                <span>@disk.UsedPercent% đã dùng · còn @FormatKilobytes(disk.AvailableKilobytes)</span>
+                            </div>
+                            <div class="disk-meter__track">
+                                <span style="width: @Math.Clamp(disk.UsedPercent, 0, 100)%"></span>
+                            </div>
+                            @if (warning)
+                            {
+                                <small>Đã vượt ngưỡng cảnh báo @Options.CurrentValue.DiskWarningPercent%.</small>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(StatusOutput))
+            {
+                <pre class="command-output">@StatusOutput</pre>
+            }
+        </article>
+
+        <article class="panel-card infra-card">
+            <header>
+                <div>
+                    <span class="eyebrow">DỮ LIỆU FILE</span>
+                    <h2>Backup MinIO</h2>
+                </div>
+            </header>
+            <div class="infra-card__body">
+                <p>Job tạo thư mục backup theo thời gian trên ổ đĩa backup của máy chủ infra.</p>
+                <div class="guard-panel guard-panel--warning">
+                    <span class="guard-panel__icon">!</span>
+                    <div>
+                        <strong>Bản mirror không thay thế replication</strong>
+                        <p>Luồng hiện tại sao chép trạng thái object đang có. Cần tiếp tục kiểm thử restore và thiết kế lưu lịch sử/version.</p>
+                    </div>
+                </div>
+                <label class="release-confirm infra-confirm">
+                    <input type="checkbox" @bind="BackupConfirmed" />
+                    Tôi xác nhận dung lượng ổ backup đã được kiểm tra.
+                </label>
+            </div>
+            <footer class="infra-card__footer">
+                <span>Backup chạy nền và được ghi vào Lịch sử thao tác.</span>
+                <button class="button button--primary" disabled="@(!CanBackup)" @onclick="EnqueueBackup">
+                    Tạo backup MinIO
+                </button>
+            </footer>
+        </article>
+    </section>
+}
+
+@if (!string.IsNullOrWhiteSpace(Message))
+{
+    <div class="form-message @(MessageIsError ? "form-message--error" : "form-message--success") release-message">
+        @Message
+    </div>
+}
+
+@code {
+    private ManagedHostOptions? InfraHost => Options.CurrentValue.Hosts.SingleOrDefault(host =>
+        host.Enabled && string.Equals(host.Role, "Infra", StringComparison.OrdinalIgnoreCase));
+    private bool IsChecking { get; set; }
+    private bool BackupConfirmed { get; set; }
+    private string StatusOutput { get; set; } = string.Empty;
+    private IReadOnlyList<DiskVolumeStatus> DiskVolumes { get; set; } = [];
+    private string Message { get; set; } = string.Empty;
+    private bool MessageIsError { get; set; }
+
+    private bool CanBackup => BackupConfirmed
+        && InfraHost is not null
+        && InfraHost.AllowedActions.Contains(nameof(HostAction.BackupMinio), StringComparer.OrdinalIgnoreCase)
+        && (Options.CurrentValue.AllowProductionOperations
+            || !string.Equals(InfraHost.Tier, "Production", StringComparison.OrdinalIgnoreCase));
+
+    private async Task CheckStatusAsync()
+    {
+        if (InfraHost is null) return;
+        IsChecking = true;
+        try
+        {
+            var connection = await HostExecutor.CheckAsync(InfraHost);
+            if (!connection.Succeeded)
+            {
+                throw new InvalidOperationException(connection.Detail ?? connection.Message);
+            }
+
+            var result = await HostExecutor.ExecuteAsync(InfraHost, HostAction.StatusInfra);
+            if (!result.Succeeded)
+            {
+                throw new InvalidOperationException(string.IsNullOrWhiteSpace(result.Error) ? result.Output : result.Error);
+            }
+
+            StatusOutput = result.Output;
+            DiskVolumes = ParseDiskVolumes(result.Output);
+            Message = "Đã đọc trạng thái container hạ tầng.";
+            MessageIsError = false;
+        }
+        catch (Exception exception)
+        {
+            StatusOutput = string.Empty;
+            DiskVolumes = [];
+            Message = exception.GetBaseException().Message;
+            MessageIsError = true;
+        }
+        finally
+        {
+            IsChecking = false;
+        }
+    }
+
+    private void EnqueueBackup()
+    {
+        if (!CanBackup || InfraHost is null) return;
+        var host = InfraHost;
+        var entry = Jobs.Enqueue(
+            "Sao lưu MinIO",
+            string.IsNullOrWhiteSpace(host.EnvironmentKey) ? "infra" : host.EnvironmentKey,
+            "Đang chờ tạo bản mirror MinIO.",
+            async cancellationToken =>
+            {
+                var connection = await HostExecutor.CheckAsync(host, cancellationToken);
+                if (!connection.Succeeded)
+                {
+                    throw new InvalidOperationException(connection.Detail ?? connection.Message);
+                }
+
+                var result = await HostExecutor.ExecuteAsync(host, HostAction.BackupMinio, cancellationToken: cancellationToken);
+                if (!result.Succeeded)
+                {
+                    throw new InvalidOperationException(string.IsNullOrWhiteSpace(result.Error) ? result.Output : result.Error);
+                }
+                return string.IsNullOrWhiteSpace(result.Output) ? "Backup MinIO hoàn tất." : result.Output;
+            });
+
+        BackupConfirmed = false;
+        Message = $"Đã đưa backup MinIO vào hàng đợi: {entry.Id}.";
+        MessageIsError = false;
+    }
+
+    private static IReadOnlyList<DiskVolumeStatus> ParseDiskVolumes(string output) => output
+        .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Select(line => line.Split('|'))
+        .Where(parts => parts.Length == 4
+            && string.Equals(parts[0], "DISK", StringComparison.Ordinal)
+            && int.TryParse(parts[2], out _)
+            && long.TryParse(parts[3], out _))
+        .Select(parts => new DiskVolumeStatus(parts[1], int.Parse(parts[2]), long.Parse(parts[3])))
+        .ToList();
+
+    private static string GetDiskLabel(string path) => path.EndsWith("/backups", StringComparison.Ordinal)
+        ? "Ổ backup"
+        : "Ổ dữ liệu MinIO";
+
+    private static string FormatKilobytes(long kilobytes)
+    {
+        var bytes = kilobytes * 1024d;
+        string[] units = ["B", "KB", "MB", "GB", "TB"];
+        var unit = 0;
+        while (bytes >= 1024 && unit < units.Length - 1)
+        {
+            bytes /= 1024;
+            unit++;
+        }
+        return $"{bytes:0.#} {units[unit]}";
+    }
+
+    private sealed record DiskVolumeStatus(string Path, int UsedPercent, long AvailableKilobytes);
+}

@@ -7,6 +7,7 @@ public sealed class AtttHtttDauTuHis : AuditableEntityBase
     public long SourceId { get; set; }
     public long DonViId { get; set; }
     public long HtttId { get; set; }
+    public string LoaiHaTang { get; set; } = "KHAC";
     public string? ChuQuan { get; set; }
     public string? DonViVanHanh { get; set; }
     public string? CapDoDeXuat { get; set; }

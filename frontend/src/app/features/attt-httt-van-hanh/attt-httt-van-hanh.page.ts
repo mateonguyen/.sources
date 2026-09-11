@@ -8,10 +8,10 @@ import {
 } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
-import { CheckboxModule } from 'primeng/checkbox';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { AuthService } from '../../core/auth/auth.service';
@@ -64,6 +64,12 @@ const LOAI_HA_TANG_OPTIONS: SelectOption[] = [
   { label: 'Khác', value: 'KHAC' },
 ];
 
+const TRANG_THAI_TRIEN_KHAI_OPTIONS: SelectOption[] = [
+  { label: 'Chưa triển khai', value: 'CHUA_TRIEN_KHAI' },
+  { label: 'Đang triển khai', value: 'DANG_TRIEN_KHAI' },
+  { label: 'Đã triển khai đầy đủ', value: 'DA_TRIEN_KHAI_DAY_DU' },
+];
+
 @Component({
   selector: 'app-attt-httt-van-hanh-page',
   standalone: true,
@@ -78,9 +84,9 @@ const LOAI_HA_TANG_OPTIONS: SelectOption[] = [
     LoadingOverlayComponent,
     DialogModule,
     DropdownModule,
-    CheckboxModule,
     CalendarModule,
     InputTextModule,
+    InputTextareaModule,
     ButtonModule,
     TableModule,
     TooltipModule,
@@ -99,7 +105,6 @@ export class AtttHtttVanHanhPage {
 
   readonly items = signal<AtttHtttVanHanhDto[]>([]);
   readonly htttCatalog = signal<HeThongThongTinDto[]>([]);
-  readonly unitOptions = signal<SelectOption[]>([]);
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly dialogVisible = signal(false);
@@ -110,6 +115,7 @@ export class AtttHtttVanHanhPage {
   readonly capDoOptions = CAP_DO_OPTIONS;
   readonly tinhTrangOptions = TINH_TRANG_OPTIONS;
   readonly loaiHaTangOptions = LOAI_HA_TANG_OPTIONS;
+  readonly trangThaiTrienKhaiOptions = TRANG_THAI_TRIEN_KHAI_OPTIONS;
 
   readonly htttOptions = computed<SelectOption<number>[]>(() =>
     this.htttCatalog().map((h) => ({ label: h.tenPhanMem, value: h.id })),
@@ -147,18 +153,21 @@ export class AtttHtttVanHanhPage {
   readonly form = this.fb.group({
     htttId: [null as number | null, Validators.required],
     loaiHaTang: ['BCANET' as string, Validators.required],
-    chuQuan: [null as string | null],
-    donViVanHanh: [null as string | null],
-    capDoDeXuat: [null as string | null],
-    tinhTrangPheDuyet: [null as string | null],
-    quyetDinhPheDuyet: [null as string | null],
-    quyCheAttt: [null as string | null],
+    chuQuan: [null as string | null, Validators.required],
+    donViVanHanh: [null as string | null, Validators.required],
+    capDoDeXuat: [null as string | null, Validators.required],
+    tinhTrangPheDuyet: [null as string | null, Validators.required],
+    quyetDinhPheDuyet: [null as string | null, Validators.maxLength(200)],
+    quyCheAttt: [null as string | null, Validators.maxLength(200)],
     duKienNgayPheDuyet: [null as Date | null],
-    daTrienKhaiPhuongAn: [false],
+    trangThaiTrienKhaiPhuongAn: ['CHUA_TRIEN_KHAI' as string, Validators.required],
+    noiDungPhuongAnDaTrienKhai: [null as string | null, Validators.maxLength(2000)],
     duKienNgayTrienKhai: [null as Date | null],
-    kiemTraDanhGia: [null as string | null],
-    ghiChu: [null as string | null],
+    kiemTraDanhGia: [null as string | null, Validators.maxLength(500)],
+    ghiChu: [null as string | null, Validators.maxLength(2000)],
   });
+
+  private readonly unitNames = new Map<number, string>();
 
   constructor(
     private readonly authService: AuthService,
@@ -169,6 +178,10 @@ export class AtttHtttVanHanhPage {
     private readonly notificationService: NotificationService,
     private readonly confirmDialog: ConfirmDialogWrapperService,
   ) {
+    this.form.controls.tinhTrangPheDuyet.valueChanges.subscribe(() => this.updateConditionalValidators());
+    this.form.controls.trangThaiTrienKhaiPhuongAn.valueChanges.subscribe(() => this.updateConditionalValidators());
+    this.form.controls.htttId.valueChanges.subscribe((htttId) => this.syncLinkedSystemUnits(htttId));
+    this.updateConditionalValidators();
     void this.initialize();
   }
 
@@ -186,7 +199,7 @@ export class AtttHtttVanHanhPage {
       this.items.set(items);
 
       if (donVi) {
-        this.unitOptions.set(this.buildUnitOptions(donVi));
+        this.indexUnitNames(donVi);
       }
     } finally {
       this.loading.set(false);
@@ -214,23 +227,24 @@ export class AtttHtttVanHanhPage {
       this.form.patchValue({
         htttId: item.htttId,
         loaiHaTang: item.loaiHaTang ?? this.activeTab(),
-        chuQuan: item.chuQuan,
-        donViVanHanh: item.donViVanHanh,
         capDoDeXuat: item.capDoDeXuat,
         tinhTrangPheDuyet: item.tinhTrangPheDuyet,
         quyetDinhPheDuyet: item.quyetDinhPheDuyet,
         quyCheAttt: item.quyCheAttt,
         duKienNgayPheDuyet: this.parseDate(item.duKienNgayPheDuyet),
-        daTrienKhaiPhuongAn: item.daTrienKhaiPhuongAn,
+        trangThaiTrienKhaiPhuongAn: item.trangThaiTrienKhaiPhuongAn
+          ?? (item.daTrienKhaiPhuongAn ? 'DA_TRIEN_KHAI_DAY_DU' : 'CHUA_TRIEN_KHAI'),
+        noiDungPhuongAnDaTrienKhai: item.noiDungPhuongAnDaTrienKhai,
         duKienNgayTrienKhai: this.parseDate(item.duKienNgayTrienKhai),
         kiemTraDanhGia: item.kiemTraDanhGia,
         ghiChu: item.ghiChu,
       });
+      this.syncLinkedSystemUnits(item.htttId);
     } else {
       this.selectedId.set(null);
       this.form.reset({
         loaiHaTang: this.activeTab(),
-        daTrienKhaiPhuongAn: false,
+        trangThaiTrienKhaiPhuongAn: 'CHUA_TRIEN_KHAI',
       });
     }
     this.form.markAsPristine();
@@ -263,7 +277,9 @@ export class AtttHtttVanHanhPage {
         quyetDinhPheDuyet: raw.quyetDinhPheDuyet?.trim() || null,
         quyCheAttt: raw.quyCheAttt?.trim() || null,
         duKienNgayPheDuyet: this.formatDate(raw.duKienNgayPheDuyet),
-        daTrienKhaiPhuongAn: raw.daTrienKhaiPhuongAn ?? false,
+        daTrienKhaiPhuongAn: raw.trangThaiTrienKhaiPhuongAn === 'DA_TRIEN_KHAI_DAY_DU',
+        trangThaiTrienKhaiPhuongAn: raw.trangThaiTrienKhaiPhuongAn ?? null,
+        noiDungPhuongAnDaTrienKhai: raw.noiDungPhuongAnDaTrienKhai?.trim() || null,
         duKienNgayTrienKhai: this.formatDate(raw.duKienNgayTrienKhai),
         kiemTraDanhGia: raw.kiemTraDanhGia?.trim() || null,
         ghiChu: raw.ghiChu?.trim() || null,
@@ -315,12 +331,73 @@ export class AtttHtttVanHanhPage {
     return TINH_TRANG_OPTIONS.find((o) => o.value === tinhTrang)?.label ?? tinhTrang ?? '—';
   }
 
-  private buildUnitOptions(donVi: DonViDto): SelectOption[] {
-    const options: SelectOption[] = [{ label: donVi.tenDonVi, value: donVi.tenDonVi }];
-    for (const child of donVi.children) {
-      options.push({ label: child.tenDonVi, value: child.tenDonVi });
-    }
-    return options;
+  resolveTrangThaiTrienKhai(trangThai: string | null, legacyCompleted = false): string {
+    const effective = trangThai ?? (legacyCompleted ? 'DA_TRIEN_KHAI_DAY_DU' : 'CHUA_TRIEN_KHAI');
+    return TRANG_THAI_TRIEN_KHAI_OPTIONS.find((o) => o.value === effective)?.label ?? effective;
+  }
+
+  getChuQuanHttt(htttId: number, fallback?: string | null): string {
+    const system = this.htttCatalog().find((item) => item.id === htttId);
+    return (system ? this.unitNames.get(system.donViId) : null) ?? fallback ?? '—';
+  }
+
+  getDonViVanHanhHttt(htttId: number, fallback?: string | null): string {
+    return this.htttCatalog().find((item) => item.id === htttId)?.donViQuanLy?.trim() || fallback || '—';
+  }
+
+  formatDisplayDate(value: string | null): string {
+    if (!value) return '—';
+    const [year, month, day] = value.split('-');
+    return year && month && day ? `${day}/${month}/${year}` : value;
+  }
+
+  isApproved(): boolean {
+    return this.form.controls.tinhTrangPheDuyet.value === 'DA_PHE_DUYET';
+  }
+
+  isDeploymentComplete(): boolean {
+    return this.form.controls.trangThaiTrienKhaiPhuongAn.value === 'DA_TRIEN_KHAI_DAY_DU';
+  }
+
+  requiresDeploymentDetails(): boolean {
+    const value = this.form.controls.trangThaiTrienKhaiPhuongAn.value;
+    return value === 'DANG_TRIEN_KHAI' || value === 'DA_TRIEN_KHAI_DAY_DU';
+  }
+
+  private indexUnitNames(donVi: DonViDto): void {
+    this.unitNames.set(donVi.id, donVi.tenDonVi);
+    for (const child of donVi.children ?? []) this.indexUnitNames(child);
+  }
+
+  private syncLinkedSystemUnits(htttId: number | null): void {
+    const system = htttId == null
+      ? null
+      : this.htttCatalog().find((item) => item.id === htttId);
+    this.form.patchValue({
+      chuQuan: system ? (this.unitNames.get(system.donViId) ?? null) : null,
+      donViVanHanh: system?.donViQuanLy?.trim() || null,
+    }, { emitEvent: false });
+  }
+
+  private updateConditionalValidators(): void {
+    const decision = this.form.controls.quyetDinhPheDuyet;
+    const approvalDate = this.form.controls.duKienNgayPheDuyet;
+    const deploymentDetails = this.form.controls.noiDungPhuongAnDaTrienKhai;
+    const deploymentDate = this.form.controls.duKienNgayTrienKhai;
+
+    decision.setValidators(this.isApproved()
+      ? [Validators.required, Validators.maxLength(200)]
+      : [Validators.maxLength(200)]);
+    approvalDate.setValidators(this.isApproved() ? [] : [Validators.required]);
+    deploymentDetails.setValidators(this.requiresDeploymentDetails()
+      ? [Validators.required, Validators.maxLength(2000)]
+      : [Validators.maxLength(2000)]);
+    deploymentDate.setValidators(this.isDeploymentComplete() ? [] : [Validators.required]);
+
+    decision.updateValueAndValidity({ emitEvent: false });
+    approvalDate.updateValueAndValidity({ emitEvent: false });
+    deploymentDetails.updateValueAndValidity({ emitEvent: false });
+    deploymentDate.updateValueAndValidity({ emitEvent: false });
   }
 
   private parseDate(value: string | null | undefined): Date | null {

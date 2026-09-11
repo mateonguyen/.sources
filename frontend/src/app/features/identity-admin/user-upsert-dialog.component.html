@@ -107,7 +107,7 @@
           >
           <p-dropdown
             id="donViId"
-            [panelStyleClass]="selectPanelStyleClass"
+            [panelStyleClass]="unitSelectPanelStyleClass"
             [options]="donViOptions"
             optionLabel="label"
             optionValue="value"
@@ -115,11 +115,35 @@
             placeholder="Chọn đơn vị"
             appendTo="body"
             [filter]="true"
-            filterBy="label"
+            filterBy="searchText"
             filterPlaceholder="Tìm đơn vị..."
             [virtualScroll]="true"
-            [virtualScrollItemSize]="38"
-          ></p-dropdown>
+            [virtualScrollItemSize]="58"
+            scrollHeight="360px"
+          >
+            <ng-template pTemplate="selectedItem" let-option>
+              <div class="user-unit-selected" *ngIf="option">
+                <span class="user-unit-selected__name">{{ option.name }}</span>
+                <span class="user-unit-selected__code">
+                  {{ option.abbreviation || option.code }}
+                </span>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="item" let-option>
+              <div class="user-unit-option">
+                <div class="user-unit-option__name">{{ option.name }}</div>
+                <div class="user-unit-option__meta">
+                  <span class="user-unit-option__code">{{ option.code }}</span>
+                  <span *ngIf="option.abbreviation">
+                    · {{ option.abbreviation }}
+                  </span>
+                  <span *ngIf="option.parentName">
+                    · Thuộc {{ option.parentName }}
+                  </span>
+                </div>
+              </div>
+            </ng-template>
+          </p-dropdown>
           <div
             class="app-form-field__feedback"
             [class.is-visible]="isInvalid('donViId')"

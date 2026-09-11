@@ -1,0 +1,46 @@
+@page "/login"
+@attribute [AllowAnonymous]
+@layout LoginLayout
+
+<PageTitle>Đăng nhập · ThucLuc Ops Console</PageTitle>
+
+<main class="login-shell">
+    <section class="login-card">
+        <div class="login-brand">TL</div>
+        <span class="eyebrow">THỰC LỰC V2</span>
+        <h1>Ops Console</h1>
+        <p>Đăng nhập để cài đặt, cập nhật và theo dõi hệ thống trên máy chủ TEST.</p>
+
+        @if (Error == "1")
+        {
+            <div class="form-message form-message--error">Tài khoản hoặc mật khẩu không đúng.</div>
+        }
+
+        <form method="post" action="/auth/login" class="login-form">
+            <input type="hidden" name="returnUrl" value="@SafeReturnUrl" />
+            <label class="form-field">
+                <span>Tài khoản quản trị</span>
+                <input name="userName" autocomplete="username" autofocus required />
+            </label>
+            <label class="form-field">
+                <span>Mật khẩu</span>
+                <input name="password" type="password" autocomplete="current-password" required />
+            </label>
+            <button type="submit" class="button button--primary">Đăng nhập</button>
+        </form>
+    </section>
+</main>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? Error { get; set; }
+
+    [SupplyParameterFromQuery]
+    public string? ReturnUrl { get; set; }
+
+    private string SafeReturnUrl => !string.IsNullOrWhiteSpace(ReturnUrl)
+        && ReturnUrl.StartsWith('/')
+        && !ReturnUrl.StartsWith("//", StringComparison.Ordinal)
+            ? ReturnUrl
+            : "/";
+}

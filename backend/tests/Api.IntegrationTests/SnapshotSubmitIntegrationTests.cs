@@ -403,6 +403,82 @@ public sealed class SnapshotSubmitIntegrationTests : IClassFixture<ApiTestWebApp
         document.RootElement.GetProperty("data").GetProperty("children").EnumerateArray().ToList().Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task SubmitCurrent_Should_Snapshot_AtttHtttDauTu_And_Keep_Live_Data_Editable()
+    {
+        await _factory.ResetDataAsync();
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+
+        var seeded = await _factory.ExecuteDbContextAsync(async dbContext =>
+        {
+            var ky = await dbContext.KyBaoCaos.FirstAsync(x => x.Id == 6001);
+            var mau = await dbContext.MauBaoCaos.FirstAsync(x => x.Id == ky.MauBaoCaoId);
+            mau.DanhSachModule = "[\"ATTT_HTTT_DAU_TU\"]";
+
+            var donViId = await dbContext.Users
+                .Where(x => x.UserName == "donvi.user")
+                .Select(x => x.DonViId)
+                .FirstAsync();
+            var donVi = await dbContext.DonVis.FirstAsync(x => x.Id == donViId);
+            donVi.CheDoNhapLieu = "TU_NHAP";
+
+            var httt = new ThucLuc.Domain.Entities.Business.HeThongThongTin
+            {
+                DonViId = donViId,
+                TenPhanMem = "HTTT kiểm thử snapshot đầu tư",
+                LoaiPhanMem = ThucLuc.Domain.Enums.LoaiPhanMemCodes.DungChung,
+                PhamViHoatDongKyThuat = "BCANet",
+                ValidFrom = DateTime.UtcNow,
+                VersionNo = 1,
+            };
+            dbContext.HeThongThongTins.Add(httt);
+            await dbContext.SaveChangesAsync();
+
+            var live = new ThucLuc.Domain.Entities.Business.AtttHtttDauTu
+            {
+                DonViId = donViId,
+                HtttId = httt.Id,
+                ChuQuan = "Giá trị tại thời điểm nộp",
+                CapDoDeXuat = "3",
+                DaLongGhepThuyetMinh = true,
+            };
+            dbContext.AtttHtttDauTus.Add(live);
+            await dbContext.SaveChangesAsync();
+
+            return (LiveId: live.Id, DonViId: donViId, KyCode: ky.KyCode);
+        });
+
+        var response = await client.PostAsJsonAsync("/api/v1/snapshot/submit-current", new
+        {
+            kyBaoCaoId = 6001,
+            donViId = seeded.DonViId,
+            ghiChu = "snapshot ATTT HTTT đầu tư",
+        });
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        await _factory.ExecuteDbContextAsync(async dbContext =>
+        {
+            var live = await dbContext.AtttHtttDauTus.FirstAsync(x => x.Id == seeded.LiveId);
+            live.ChuQuan = "Giá trị live sau khi nộp";
+            await dbContext.SaveChangesAsync();
+        });
+
+        var values = await _factory.ExecuteDbContextAsync(async dbContext =>
+        {
+            var live = await dbContext.AtttHtttDauTus
+                .AsNoTracking()
+                .FirstAsync(x => x.Id == seeded.LiveId);
+            var history = await dbContext.AtttHtttDauTuHis
+                .AsNoTracking()
+                .SingleAsync(x => x.SourceId == seeded.LiveId && x.KyBaoCaoCode == seeded.KyCode);
+            return (LiveValue: live.ChuQuan, HistoryValue: history.ChuQuan, history.SnapshotBatchId);
+        });
+
+        values.LiveValue.Should().Be("Giá trị live sau khi nộp");
+        values.HistoryValue.Should().Be("Giá trị tại thời điểm nộp");
+        values.SnapshotBatchId.Should().NotBeNull();
+    }
+
     private static async Task<long> CreateDraftAsync(HttpClient client, string snapshotJson)
     {
         var createResponse = await client.PostAsJsonAsync("/api/v1/snapshot/create-draft", new

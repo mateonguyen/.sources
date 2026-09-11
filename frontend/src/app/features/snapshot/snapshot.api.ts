@@ -49,6 +49,7 @@ export interface SubmitCurrentSnapshotRequest {
 export interface SnapshotPdfResultDto {
   snapshotId: number;
   fileName: string;
+  previewUrl: string;
   downloadUrl: string;
 }
 
@@ -86,6 +87,18 @@ export interface SnapshotCompareDto {
   toKyCode: string;
   toSnapshotId: number;
   modules: SnapshotModuleCompareItemDto[];
+}
+
+export interface SnapshotCompareKyOptionDto {
+  kyBaoCaoId: number;
+  kyCode: string;
+  lastSubmittedAt?: string;
+}
+
+export interface SnapshotCompareOptionDto {
+  donViId: number;
+  tenDonVi: string;
+  kyOptions: SnapshotCompareKyOptionDto[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -136,6 +149,22 @@ export class SnapshotApi {
         `${API_BASE_URL}/snapshot/${id}`,
       ),
     ).then((response) => response.data);
+  }
+
+  getPreviewJson(id: number): Promise<string> {
+    return firstValueFrom(
+      this.httpClient.get<ApiResponse<string>>(
+        `${API_BASE_URL}/snapshot/${id}/preview-json`,
+      ),
+    ).then((response) => response.data ?? '');
+  }
+
+  getCompareOptions(): Promise<SnapshotCompareOptionDto[]> {
+    return firstValueFrom(
+      this.httpClient.get<ApiResponse<SnapshotCompareOptionDto[]>>(
+        `${API_BASE_URL}/snapshot/compare-options`,
+      ),
+    ).then((response) => response.data ?? []);
   }
 
   submitCurrent(payload: SubmitCurrentSnapshotRequest): Promise<SnapshotDto> {
@@ -190,7 +219,10 @@ export class SnapshotApi {
   }
 
   /** Xuất biểu mẫu báo cáo (mẫu H05) từ dữ liệu đã chốt. */
-  getExport(id: number, format: 'xlsx' | 'pdf'): Promise<SnapshotExportResultDto> {
+  getExport(
+    id: number,
+    format: 'xlsx' | 'pdf',
+  ): Promise<SnapshotExportResultDto> {
     return firstValueFrom(
       this.httpClient.get<ApiResponse<SnapshotExportResultDto>>(
         `${API_BASE_URL}/snapshot/${id}/export`,

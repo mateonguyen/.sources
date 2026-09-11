@@ -1,0 +1,92 @@
+{
+  "Ops": {
+    "ExecutionMode": "Local",
+    "AllowProductionOperations": false,
+    "RequireEncryptedDataProtectionKeys": false,
+    "DiskWarningPercent": 85,
+    "LocalDeployment": {
+      "RootDirectory": "/opt/thucluc-test",
+      "ComposeFile": "compose.yml",
+      "EnvironmentFile": ".env",
+      "BackendService": "backend",
+      "FrontendService": "frontend",
+      "GotenbergService": "gotenberg"
+    },
+    "Environments": [
+      {
+        "Key": "test",
+        "DisplayName": "Cơ sở dữ liệu TEST",
+        "Tier": "Test",
+        "Enabled": true,
+        "Oracle": {
+          "Host": "127.0.0.1",
+          "Port": 1521,
+          "ServiceName": "CAND_QLCNTT",
+          "Schema": "CAND_QLCNTT",
+          "DataPumpDirectory": "THUCLUC_DP",
+          "UserEnvironmentVariable": "",
+          "PasswordEnvironmentVariable": ""
+        },
+        "Safety": {
+          "AllowBackup": true,
+          "AllowRestore": true,
+          "AllowMigrate": true
+        }
+      }
+    ],
+    "Hosts": [
+      {
+        "Key": "backend-local",
+        "DisplayName": "Backend trên máy hiện tại",
+        "Role": "Backend",
+        "Tier": "Test",
+        "EnvironmentKey": "test",
+        "Host": "local",
+        "Port": 0,
+        "Username": "local",
+        "Enabled": true,
+        "AllowedActions": [
+          "StatusBackend",
+          "StageBackendRelease",
+          "DeployBackend",
+          "RollbackBackend",
+          "LogsBackend"
+        ]
+      },
+      {
+        "Key": "frontend-local",
+        "DisplayName": "Frontend trên máy hiện tại",
+        "Role": "Frontend",
+        "Tier": "Test",
+        "EnvironmentKey": "test",
+        "Host": "local",
+        "Port": 0,
+        "Username": "local",
+        "Enabled": true,
+        "AllowedActions": [
+          "StatusFrontend",
+          "StageFrontendRelease",
+          "DeployFrontend",
+          "RollbackFrontend",
+          "LogsFrontend"
+        ]
+      },
+      {
+        "Key": "infra-local",
+        "DisplayName": "Hạ tầng trên máy hiện tại",
+        "Role": "Infra",
+        "Tier": "Test",
+        "EnvironmentKey": "test",
+        "Host": "local",
+        "Port": 0,
+        "Username": "local",
+        "Enabled": true,
+        "AllowedActions": [
+          "StatusInfra",
+          "StageGotenbergRelease",
+          "UpdateGotenberg"
+        ]
+      }
+    ]
+  }
+}

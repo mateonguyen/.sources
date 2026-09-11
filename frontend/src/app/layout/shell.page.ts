@@ -190,6 +190,12 @@ export class ShellPage implements OnInit, OnDestroy {
           icon: 'pi pi-search',
           permission: 'snapshot:read',
         },
+        {
+          label: 'So sánh báo cáo',
+          route: '/so-sanh-bao-cao',
+          icon: 'pi pi-chart-line',
+          permission: 'snapshot:read',
+        },
       ],
     },
     {

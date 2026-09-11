@@ -147,7 +147,7 @@
 
 // Kinh phÃ­ cell
 .du-an-table__kinh-phi {
-  font-family: 'Courier New', monospace;
+  font-family: var(--app-font-family-base);
   font-weight: 600;
   font-size: 0.875rem;
   color: var(--app-success-500);
@@ -171,11 +171,17 @@
 
 // Column widths
 ::ng-deep .du-an-table {
+  .p-datatable-table {
+    width: 100%;
+    table-layout: fixed;
+  }
+
   .col-stt { width: 52px; text-align: center; }
+  .col-ten-du-an { width: auto; }
   .col-thoi-gian { width: 150px; }
-  .col-kinh-phi { width: 160px; text-align: right; }
-  .col-nguon-von { width: 170px; }
-  .col-thao-tac { width: 80px; }
+  .col-kinh-phi { width: 220px; text-align: right; white-space: nowrap; }
+  .col-nguon-von { width: 190px; }
+  .col-thao-tac { width: 96px; white-space: nowrap; }
 }
 
 // Table footer

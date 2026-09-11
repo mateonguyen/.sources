@@ -1,0 +1,294 @@
+@page "/servers"
+@rendermode InteractiveServer
+@inject IOptionsMonitor<OpsOptions> Options
+@inject IHostExecutor HostExecutor
+
+<PageTitle>Máy chủ · ThucLuc Ops Console</PageTitle>
+
+<section class="page-heading">
+    <div>
+        <span class="eyebrow">HẠ TẦNG TRIỂN KHAI</span>
+        <h1>Máy chủ</h1>
+        <p>Kiểm tra kết nối SSH tới máy chủ backend, frontend và hạ tầng.</p>
+    </div>
+    <button class="button button--primary"
+            disabled="@(IsCheckingAll || Hosts.Count == 0)"
+            @onclick="CheckAllAsync">
+        @(IsCheckingAll ? "Đang kiểm tra..." : "Kiểm tra tất cả")
+    </button>
+</section>
+
+@if (IsLocal)
+{
+<section class="guard-panel guard-panel--neutral">
+    <span class="guard-panel__icon">✓</span>
+    <div>
+        <strong>Chế độ một máy chủ đang bật</strong>
+        <p>Ops Console thao tác Docker trực tiếp trên máy hiện tại; không cần SSH hoặc cấu hình máy chủ riêng.</p>
+    </div>
+</section>
+}
+else
+{
+<section class="guard-panel guard-panel--neutral">
+    <span class="guard-panel__icon">✓</span>
+    <div>
+        <strong>Chỉ kiểm tra, không thay đổi máy chủ</strong>
+        <p>Trang này dùng SSH key và kiểm tra host key nghiêm ngặt. Các thao tác deploy sau này chỉ gọi script nằm trong danh sách cho phép.</p>
+    </div>
+</section>
+}
+
+@if (Hosts.Count == 0)
+{
+    <section class="empty-state">
+        <span class="empty-state__icon">▤</span>
+        <strong>Chưa khai báo máy chủ</strong>
+        <p>Thêm mục <code>Ops:Hosts</code> vào file cấu hình. Có thể bắt đầu từ <code>config/environments.example.json</code>.</p>
+    </section>
+}
+else
+{
+    <section class="host-grid">
+        @foreach (var host in Hosts)
+        {
+            var result = GetResult(host.Key);
+            <article class="host-card @GetCardClass(host, result)">
+                <header class="host-card__header">
+                    <div>
+                        <span class="tier-badge">@GetRoleLabel(host.Role)</span>
+                        <h2>@host.DisplayName</h2>
+                    </div>
+                    <span class="health-badge @GetHealthClass(host, result)">@GetHealthLabel(host, result)</span>
+                </header>
+
+                @if (IsLocal)
+                {
+                    <dl class="host-meta">
+                        <div><dt>Kết nối</dt><dd>Docker cục bộ</dd></div>
+                        <div><dt>Thư mục</dt><dd>@Options.CurrentValue.LocalDeployment.RootDirectory</dd></div>
+                        <div><dt>Môi trường</dt><dd>@host.EnvironmentKey · @host.Tier</dd></div>
+                    </dl>
+                }
+                else
+                {
+                <dl class="host-meta">
+                    <div>
+                        <dt>SSH</dt>
+                        <dd>@host.Username@@@host.Host:@host.Port</dd>
+                    </div>
+                    <div>
+                        <dt>Script</dt>
+                        <dd>@host.ScriptDirectory</dd>
+                    </div>
+                    <div>
+                        <dt>Môi trường</dt>
+                        <dd>@host.EnvironmentKey · @host.Tier</dd>
+                    </div>
+                </dl>
+                }
+
+                <div class="host-actions-list">
+                    <strong>Thao tác được cấp</strong>
+                    @if (host.AllowedActions.Count == 0)
+                    {
+                        <span class="muted-text">Chưa cấp thao tác thay đổi.</span>
+                    }
+                    else
+                    {
+                        <div class="tag-list">
+                            @foreach (var action in host.AllowedActions)
+                            {
+                                <span>@action</span>
+                            }
+                        </div>
+                    }
+                </div>
+
+                @if (result is not null)
+                {
+                    <div class="form-message @(result.Succeeded ? "form-message--success" : "form-message--error") host-result">
+                        <strong>@result.Message</strong>
+                        @if (!string.IsNullOrWhiteSpace(result.Detail))
+                        {
+                            <small>@result.Detail</small>
+                        }
+                    </div>
+                }
+
+                @if (_commandOutputs.TryGetValue(host.Key, out var commandOutput)
+                    && !string.IsNullOrWhiteSpace(commandOutput))
+                {
+                    <pre class="command-output host-command-output">@commandOutput</pre>
+                }
+
+                <footer class="host-card__footer">
+                    <span>@GetCheckedAt(host.Key)</span>
+                    <div class="host-card__buttons">
+                        <button class="button button--secondary"
+                                disabled="@(!host.Enabled || IsChecking(host.Key))"
+                                @onclick="() => CheckAsync(host)">
+                            @(IsChecking(host.Key) ? "Đang kiểm tra..." : IsLocal ? "Kiểm tra Docker" : "Kiểm tra SSH")
+                        </button>
+                        @if (GetStatusAction(host) is { } statusAction
+                            && IsAllowed(host, statusAction))
+                        {
+                            <button class="button button--secondary"
+                                    disabled="@IsRunningAction(host.Key)"
+                                    @onclick="() => RunActionAsync(host, statusAction)">
+                                Trạng thái dịch vụ
+                            </button>
+                        }
+                        @if (GetLogsAction(host) is { } logsAction
+                            && IsAllowed(host, logsAction))
+                        {
+                            <button class="button button--secondary"
+                                    disabled="@IsRunningAction(host.Key)"
+                                    @onclick="() => RunActionAsync(host, logsAction)">
+                                Log gần nhất
+                            </button>
+                        }
+                    </div>
+                </footer>
+            </article>
+        }
+    </section>
+}
+
+@code {
+    private readonly Dictionary<string, HostConnectionResult> _results = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, DateTimeOffset> _checkedAt = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _checking = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _runningActions = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, string> _commandOutputs = new(StringComparer.OrdinalIgnoreCase);
+
+    private IReadOnlyList<ManagedHostOptions> Hosts => Options.CurrentValue.Hosts;
+    private bool IsLocal => string.Equals(Options.CurrentValue.ExecutionMode, "Local", StringComparison.OrdinalIgnoreCase);
+    private bool IsCheckingAll { get; set; }
+
+    private async Task CheckAllAsync()
+    {
+        IsCheckingAll = true;
+        try
+        {
+            foreach (var host in Hosts.Where(item => item.Enabled))
+            {
+                await CheckAsync(host);
+            }
+        }
+        finally
+        {
+            IsCheckingAll = false;
+        }
+    }
+
+    private async Task CheckAsync(ManagedHostOptions host)
+    {
+        if (!_checking.Add(host.Key))
+        {
+            return;
+        }
+
+        try
+        {
+            _results[host.Key] = await HostExecutor.CheckAsync(host);
+            _checkedAt[host.Key] = DateTimeOffset.Now;
+        }
+        finally
+        {
+            _checking.Remove(host.Key);
+        }
+    }
+
+    private HostConnectionResult? GetResult(string key) => _results.GetValueOrDefault(key);
+    private bool IsChecking(string key) => _checking.Contains(key);
+    private bool IsRunningAction(string key) => _runningActions.Contains(key);
+
+    private async Task RunActionAsync(ManagedHostOptions host, HostAction action)
+    {
+        if (!_runningActions.Add(host.Key)) return;
+        try
+        {
+            var connection = await HostExecutor.CheckAsync(host);
+            if (!connection.Succeeded)
+            {
+                throw new InvalidOperationException(connection.Detail ?? connection.Message);
+            }
+
+            var result = await HostExecutor.ExecuteAsync(host, action);
+            if (!result.Succeeded)
+            {
+                throw new InvalidOperationException(string.IsNullOrWhiteSpace(result.Error) ? result.Output : result.Error);
+            }
+
+            _commandOutputs[host.Key] = result.Output;
+            _results[host.Key] = new HostConnectionResult(true, "Đã đọc thông tin từ máy chủ.");
+            _checkedAt[host.Key] = DateTimeOffset.Now;
+        }
+        catch (Exception exception)
+        {
+            _commandOutputs.Remove(host.Key);
+            _results[host.Key] = new HostConnectionResult(false, "Không thể đọc thông tin máy chủ.", exception.GetBaseException().Message);
+            _checkedAt[host.Key] = DateTimeOffset.Now;
+        }
+        finally
+        {
+            _runningActions.Remove(host.Key);
+        }
+    }
+
+    private static HostAction? GetStatusAction(ManagedHostOptions host) => host.Role.ToLowerInvariant() switch
+    {
+        "backend" => HostAction.StatusBackend,
+        "frontend" => HostAction.StatusFrontend,
+        "infra" => HostAction.StatusInfra,
+        _ => null
+    };
+
+    private static HostAction? GetLogsAction(ManagedHostOptions host) => host.Role.ToLowerInvariant() switch
+    {
+        "backend" => HostAction.LogsBackend,
+        "frontend" => HostAction.LogsFrontend,
+        _ => null
+    };
+
+    private static bool IsAllowed(ManagedHostOptions host, HostAction action) => host.AllowedActions
+        .Contains(action.ToString(), StringComparer.OrdinalIgnoreCase);
+
+    private static string GetRoleLabel(string role) => role.ToLowerInvariant() switch
+    {
+        "backend" => "BACKEND",
+        "frontend" => "FRONTEND",
+        "infra" => "HẠ TẦNG",
+        _ => "MÁY CHỦ"
+    };
+
+    private static string GetCardClass(ManagedHostOptions host, HostConnectionResult? result)
+    {
+        if (!host.Enabled || result is null) return string.Empty;
+        return result.Succeeded ? "host-card--success" : "host-card--error";
+    }
+
+    private static string GetHealthClass(ManagedHostOptions host, HostConnectionResult? result)
+    {
+        if (!host.Enabled || result is null) return "idle";
+        return result.Succeeded ? "success" : "error";
+    }
+
+    private string GetHealthLabel(ManagedHostOptions host, HostConnectionResult? result)
+    {
+        if (IsLocal)
+        {
+            if (!host.Enabled) return "Đã tắt";
+            if (result is null) return "Chưa kiểm tra";
+            return result.Succeeded ? "Docker sẵn sàng" : "Docker lỗi";
+        }
+        if (!host.Enabled) return "Đã tắt";
+        if (result is null) return "Chưa kiểm tra";
+        return result.Succeeded ? "SSH sẵn sàng" : "Kết nối lỗi";
+    }
+
+    private string GetCheckedAt(string key) => _checkedAt.TryGetValue(key, out var checkedAt)
+        ? $"Kiểm tra lúc {checkedAt:HH:mm:ss dd/MM/yyyy}"
+        : "Chưa có kết quả";
+}

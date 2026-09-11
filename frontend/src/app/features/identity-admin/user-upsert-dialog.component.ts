@@ -58,6 +58,11 @@ export interface UserUpsertSubmitPayload {
 interface SelectOption {
   label: string;
   value: number;
+  searchText?: string;
+  name?: string;
+  code?: string;
+  abbreviation?: string | null;
+  parentName?: string | null;
 }
 
 @Component({
@@ -80,6 +85,7 @@ export class UserUpsertDialogComponent implements OnChanges {
   readonly dialogContentStyleClass = APP_DIALOG_CONTENT_STYLE_CLASS;
   readonly dialogMaskStyleClass = APP_DIALOG_MASK_STYLE_CLASS;
   readonly selectPanelStyleClass = APP_SELECT_PANEL_STYLE_CLASS;
+  readonly unitSelectPanelStyleClass = `${APP_SELECT_PANEL_STYLE_CLASS} app-user-unit-select-panel`;
 
 
   @Input() visible = false;

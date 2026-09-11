@@ -267,6 +267,7 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, Applicatio
         {
             entity.ToTable("BIZ_HE_THONG_THONG_TIN");
             entity.HasKey(x => x.Id);
+            entity.Property(x => x.LoaiPhanMem).HasMaxLength(20).IsRequired();
             entity.Property(x => x.TenPhanMem).HasMaxLength(200).IsRequired();
             entity.Property(x => x.DonViPhatTrien).HasMaxLength(200);
             entity.Property(x => x.DonViQuanLy).HasMaxLength(300);
@@ -280,6 +281,7 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, Applicatio
         {
             entity.ToTable("BIZ_HE_THONG_THONG_TIN_HIS");
             entity.HasKey(x => x.Id);
+            entity.Property(x => x.LoaiPhanMem).HasMaxLength(20).IsRequired();
             entity.Property(x => x.TenPhanMem).HasMaxLength(200).IsRequired();
             entity.Property(x => x.DonViPhatTrien).HasMaxLength(200);
             entity.Property(x => x.DonViQuanLy).HasMaxLength(300);
@@ -567,12 +569,14 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, Applicatio
             entity.ToTable("BIZ_ATTT_HTTT_VAN_HANH");
             entity.HasKey(x => x.Id);
             entity.Property(x => x.LoaiHaTang).HasMaxLength(20);
-            entity.Property(x => x.ChuQuan).HasMaxLength(200);
-            entity.Property(x => x.DonViVanHanh).HasMaxLength(200);
+            entity.Property(x => x.ChuQuan).HasMaxLength(300);
+            entity.Property(x => x.DonViVanHanh).HasMaxLength(300);
             entity.Property(x => x.CapDoDeXuat).HasMaxLength(20);
             entity.Property(x => x.TinhTrangPheDuyet).HasMaxLength(50);
             entity.Property(x => x.QuyetDinhPheDuyet).HasMaxLength(200);
             entity.Property(x => x.QuyCheAttt).HasMaxLength(200).HasColumnName("QUY_CHE_ATTT");
+            entity.Property(x => x.TrangThaiTrienKhaiPhuongAn).HasMaxLength(40);
+            entity.Property(x => x.NoiDungPhuongAnDaTrienKhai).HasMaxLength(2000);
             entity.Property(x => x.KiemTraDanhGia).HasMaxLength(500);
             entity.Property(x => x.GhiChu).HasMaxLength(2000);
         });
@@ -583,12 +587,14 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, Applicatio
             entity.HasKey(x => x.Id);
             entity.Property(x => x.KyBaoCaoCode).HasMaxLength(50).IsRequired();
             entity.Property(x => x.LoaiHaTang).HasMaxLength(20);
-            entity.Property(x => x.ChuQuan).HasMaxLength(200);
-            entity.Property(x => x.DonViVanHanh).HasMaxLength(200);
+            entity.Property(x => x.ChuQuan).HasMaxLength(300);
+            entity.Property(x => x.DonViVanHanh).HasMaxLength(300);
             entity.Property(x => x.CapDoDeXuat).HasMaxLength(20);
             entity.Property(x => x.TinhTrangPheDuyet).HasMaxLength(50);
             entity.Property(x => x.QuyetDinhPheDuyet).HasMaxLength(200);
             entity.Property(x => x.QuyCheAttt).HasMaxLength(200);
+            entity.Property(x => x.TrangThaiTrienKhaiPhuongAn).HasMaxLength(40);
+            entity.Property(x => x.NoiDungPhuongAnDaTrienKhai).HasMaxLength(2000);
             entity.Property(x => x.KiemTraDanhGia).HasMaxLength(500);
             entity.Property(x => x.GhiChu).HasMaxLength(2000);
             entity.HasIndex(x => new { x.DonViId, x.KyBaoCaoCode });
@@ -598,6 +604,7 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, Applicatio
         {
             entity.ToTable("BIZ_ATTT_HTTT_DAU_TU");
             entity.HasKey(x => x.Id);
+            entity.Property(x => x.LoaiHaTang).HasMaxLength(20).IsRequired();
             entity.Property(x => x.ChuQuan).HasMaxLength(200);
             entity.Property(x => x.DonViVanHanh).HasMaxLength(200);
             entity.Property(x => x.CapDoDeXuat).HasMaxLength(20);
@@ -609,6 +616,7 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser, Applicatio
         {
             entity.ToTable("BIZ_ATTT_HTTT_DAU_TU_HIS");
             entity.HasKey(x => x.Id);
+            entity.Property(x => x.LoaiHaTang).HasMaxLength(20).IsRequired();
             entity.Property(x => x.KyBaoCaoCode).HasMaxLength(50).IsRequired();
             entity.Property(x => x.ChuQuan).HasMaxLength(200);
             entity.Property(x => x.DonViVanHanh).HasMaxLength(200);

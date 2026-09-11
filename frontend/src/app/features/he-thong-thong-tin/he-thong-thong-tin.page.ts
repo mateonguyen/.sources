@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { startWith } from 'rxjs';
 import {
   FormBuilder,
   FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { startWith } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DialogModule } from 'primeng/dialog';
@@ -26,7 +26,6 @@ import {
 } from '../don-vi/don-vi.api';
 import { NotificationService } from '../../core/ui/notification.service';
 import { ConfirmDialogWrapperService } from '../../shared/ui/confirm-dialog-wrapper.service';
-import { FilterBarComponent } from '../../shared/ui/filter-bar.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
 import { SectionCardComponent } from '../../shared/ui/section-card.component';
 import { TongHopModeBannerComponent } from '../../shared/ui/tong-hop-mode-banner.component';
@@ -41,11 +40,13 @@ import {
   HeThongThongTinApi,
   HeThongThongTinDto,
   HtttTieuChuanDto,
+  LoaiPhanMemCode,
   UpsertHeThongThongTinRequest,
   UpsertHtttTieuChuanRequest,
 } from './he-thong-thong-tin.api';
 
-type HtttTabKey = 'DUNG_CHUNG' | 'TU_PHAT_TRIEN' | 'HTTT_TIEU_CHUAN';
+type SoftwareTabKey = Exclude<LoaiPhanMemCode, 'CHUA_PHAN_LOAI'>;
+type HtttTabKey = SoftwareTabKey | 'HTTT_TIEU_CHUAN';
 
 interface SelectOption<TValue extends string | number> {
   label: string;
@@ -98,7 +99,10 @@ export class HeThongThongTinPage {
   readonly tableBodyCellClass = APP_TABLE_BODY_CELL_CLASS;
 
   readonly softwareForm = this.formBuilder.group({
-    loaiPhanMem: ['DUNG_CHUNG', [Validators.required]],
+    loaiPhanMem: [
+      'DUNG_CHUNG' as LoaiPhanMemCode,
+      [Validators.required, Validators.pattern(/^(DUNG_CHUNG|TU_PHAT_TRIEN)$/)],
+    ],
     tenPhanMem: ['', [Validators.required]],
     donViPhatTrien: [''],
     donViQuanLy: ['', [Validators.required]],
@@ -131,6 +135,7 @@ export class HeThongThongTinPage {
 
   softwareItems = signal<HeThongThongTinDto[]>([]);
   standardItems = signal<HtttTieuChuanDto[]>([]);
+  softwareTypeCatalogValues = signal<CodeValueDto[]>([]);
   standardCatalogValues = signal<CodeValueDto[]>([]);
   donViTree = signal<DonViDto[]>([]);
   donViFallbackOptions = signal<Array<SelectOption<string>>>([]);
@@ -149,11 +154,35 @@ export class HeThongThongTinPage {
     () => this.authService.profile()?.donViId ?? null,
   );
 
+  readonly loaiPhanMemOptions = computed<Array<SelectOption<SoftwareTabKey>>>(() => {
+    const catalogOptions = this.softwareTypeCatalogValues()
+      .filter(
+        (item): item is CodeValueDto & { value: SoftwareTabKey } =>
+          item.isActive !== false &&
+          (item.value === 'DUNG_CHUNG' || item.value === 'TU_PHAT_TRIEN'),
+      )
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map((item) => ({ label: item.name, value: item.value }));
+
+    return catalogOptions.length === 2
+      ? catalogOptions
+      : [
+          {
+            label: 'PM/CSDL do các Cục nghiệp vụ triển khai dùng chung',
+            value: 'DUNG_CHUNG',
+          },
+          {
+            label: 'PM/CSDL do đơn vị tự nghiên cứu, phát triển',
+            value: 'TU_PHAT_TRIEN',
+          },
+        ];
+  });
+
   private readonly loaiPhanMemValue = toSignal(
     this.softwareForm.controls.loaiPhanMem.valueChanges.pipe(
       startWith(this.softwareForm.controls.loaiPhanMem.value),
     ),
-    { initialValue: 'DUNG_CHUNG' as string | null },
+    { initialValue: 'DUNG_CHUNG' as LoaiPhanMemCode | null },
   );
 
   readonly isTuPhatTrien = computed(
@@ -167,23 +196,23 @@ export class HeThongThongTinPage {
   readonly activeSectionTitle = computed(() => {
     const tab = this.activeTab();
     if (tab === 'DUNG_CHUNG') {
-      return 'PM/CSDL Dung chung';
+      return 'PM/CSDL dùng chung';
     }
     if (tab === 'TU_PHAT_TRIEN') {
-      return 'PM/CSDL Tu phat trien';
+      return 'PM/CSDL tự phát triển';
     }
-    return 'HTTT tieu chuan CAND';
+    return 'HTTT tiêu chuẩn CAND';
   });
 
   readonly activeSectionDescription = computed(() => {
     const tab = this.activeTab();
     if (tab === 'DUNG_CHUNG') {
-      return 'Cuc nghiep vu trien khai dung chung.';
+      return 'Do các Cục nghiệp vụ triển khai để các đơn vị khai thác, dùng chung.';
     }
     if (tab === 'TU_PHAT_TRIEN') {
-      return 'Don vi dia phuong nghien cuu va phat trien.';
+      return 'Do đơn vị, địa phương tự nghiên cứu hoặc tổ chức phát triển.';
     }
-    return 'Thong ke so luong trien khai theo cap don vi.';
+    return 'Thống kê số lượng triển khai theo từng cấp đơn vị.';
   });
 
   readonly dungChungItems = computed(() => {
@@ -203,6 +232,12 @@ export class HeThongThongTinPage {
         (item) => !filter || item.tenPhanMem.toLowerCase().includes(filter),
       );
   });
+
+  readonly unclassifiedItems = computed(() =>
+    this.softwareItems().filter(
+      (item) => item.loaiPhanMem === 'CHUA_PHAN_LOAI',
+    ),
+  );
 
   readonly dungChungCount = computed(
     () =>
@@ -241,15 +276,6 @@ export class HeThongThongTinPage {
     private readonly notificationService: NotificationService,
     private readonly confirmDialog: ConfirmDialogWrapperService,
   ) {
-    this.softwareForm.controls.loaiPhanMem.valueChanges.subscribe((value) => {
-      if (value !== 'TU_PHAT_TRIEN') {
-        this.softwareForm.patchValue(
-          { donViPhatTrien: '', daCongNhanSangKien: false },
-          { emitEvent: false },
-        );
-      }
-    });
-
     void this.initialize();
   }
 
@@ -259,12 +285,16 @@ export class HeThongThongTinPage {
       const [
         softwareItems,
         standardItems,
+        softwareTypeCode,
         standardCode,
         donViTree,
         donViParents,
       ] = await Promise.all([
         this.heThongApi.getAll().catch(() => []),
         this.heThongApi.getAllTieuChuan().catch(() => []),
+        this.codesApi
+          .getByCode('LOAI_PHAN_MEM_CSDL')
+          .catch(() => null as CodeDto | null),
         this.codesApi
           .getByCode('HTTT_TIEU_CHUAN_CAND')
           .catch(() => null as CodeDto | null),
@@ -274,6 +304,7 @@ export class HeThongThongTinPage {
 
       this.softwareItems.set(softwareItems);
       this.standardItems.set(standardItems);
+      this.softwareTypeCatalogValues.set(softwareTypeCode?.values ?? []);
       const standardCatalogValues =
         standardCode && standardCode.values.length > 0
           ? standardCode.values
@@ -316,9 +347,9 @@ export class HeThongThongTinPage {
     }
   }
 
-  openSoftwareCreateDialog(loaiPhanMem: string = 'DUNG_CHUNG'): void {
+  openSoftwareCreateDialog(loaiPhanMem: SoftwareTabKey): void {
     this.resetSoftwareForm();
-    this.softwareForm.patchValue({ loaiPhanMem });
+    this.softwareForm.controls.loaiPhanMem.setValue(loaiPhanMem);
     this.formDialogVisible.set(true);
   }
 
@@ -397,9 +428,15 @@ export class HeThongThongTinPage {
     this.savingSoftware.set(true);
     try {
       const raw = this.softwareForm.getRawValue();
+      const loaiPhanMem = raw.loaiPhanMem;
+      if (loaiPhanMem !== 'DUNG_CHUNG' && loaiPhanMem !== 'TU_PHAT_TRIEN') {
+        this.softwareForm.controls.loaiPhanMem.markAsTouched();
+        return;
+      }
+
       const payload: UpsertHeThongThongTinRequest = {
         donViId,
-        loaiPhanMem: String(raw.loaiPhanMem ?? 'DUNG_CHUNG'),
+        loaiPhanMem,
         tenPhanMem: String(raw.tenPhanMem ?? '').trim(),
         donViPhatTrien: this.isTuPhatTrien()
           ? this.normalizeText(raw.donViPhatTrien)
@@ -409,8 +446,12 @@ export class HeThongThongTinPage {
           raw.namTrienKhai === null || raw.namTrienKhai === undefined
             ? null
             : Number(raw.namTrienKhai),
-        phamViHoatDong: this.normalizeText(raw.phamViHoatDong),
-        phamViHoatDongKyThuat: this.normalizeText(raw.phamViHoatDongKyThuat),
+        phamViHoatDong: this.isTuPhatTrien()
+          ? this.normalizeText(raw.phamViHoatDong)
+          : null,
+        phamViHoatDongKyThuat: this.isTuPhatTrien()
+          ? null
+          : this.normalizeText(raw.phamViHoatDongKyThuat),
         ungDungCnMoi: this.normalizeText(raw.ungDungCnMoi),
         khaNangTichHop: this.normalizeText(raw.khaNangTichHop),
         daCongNhanSangKien:
@@ -432,6 +473,7 @@ export class HeThongThongTinPage {
         );
       }
 
+      this.activeTab.set(loaiPhanMem);
       this.closeSoftwareDialog();
       await this.load();
     } finally {
@@ -520,11 +562,12 @@ export class HeThongThongTinPage {
 
   resetSoftwareForm(): void {
     this.selectedSoftwareId.set(null);
+    const activeTab = this.activeTab();
     this.softwareForm.reset({
       loaiPhanMem:
-        this.activeTab() === 'HTTT_TIEU_CHUAN'
+        activeTab === 'HTTT_TIEU_CHUAN'
           ? 'DUNG_CHUNG'
-          : this.activeTab(),
+          : activeTab,
       tenPhanMem: '',
       donViPhatTrien: '',
       donViQuanLy: '',

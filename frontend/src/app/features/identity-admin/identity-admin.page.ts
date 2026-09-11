@@ -423,14 +423,38 @@ export class IdentityAdminPage {
   // (5000+ dong sau khi doi nguon du lieu) o MOI vong change-detection, gay
   // giat/delay khi mo dropdown "Don vi" trong dialog cap nhat nguoi dung.
   // Gio tinh 1 lan sau khi load xong (xem buildUserDonViOptions()).
-  userDonViOptions: Array<{ label: string; value: number }> = [];
+  userDonViOptions: Array<{
+    label: string;
+    value: number;
+    searchText: string;
+    name: string;
+    code: string;
+    abbreviation: string | null;
+    parentName: string | null;
+  }> = [];
   userRoleOptions: Array<{ label: string; value: number }> = [];
 
   private buildUserDonViOptions(): void {
     const byId = new Map(this.donVis.map((dv) => [dv.id, dv]));
     this.userDonViOptions = this.donVis
       .filter((dv) => dv.isActive)
-      .map((dv) => ({ label: this.buildDonViLabel(dv, byId), value: dv.id }))
+      .map((dv) => {
+        const parentName =
+          dv.parentId != null ? byId.get(dv.parentId)?.tenDonVi ?? null : null;
+        return {
+          label: this.buildDonViLabel(dv, byId),
+          value: dv.id,
+          // Chỉ tìm theo chính đơn vị. Không đưa tên đơn vị cha vào đây vì
+          // một từ khóa cấp trên sẽ làm toàn bộ đơn vị con cùng khớp.
+          searchText: [dv.tenDonVi, dv.tenVietTat, dv.maDonVi]
+            .filter(Boolean)
+            .join(' '),
+          name: dv.tenDonVi,
+          code: dv.maDonVi,
+          abbreviation: dv.tenVietTat ?? null,
+          parentName,
+        };
+      })
       .sort((a, b) => a.label.localeCompare(b.label));
   }
 

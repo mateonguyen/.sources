@@ -1,8 +1,8 @@
 ﻿// Font system vars — active khi ra ngoài dialog context
 :host {
   --surface-input: var(--app-surface, #ffffff);
-  --form-value-font: var(--app-font-family-heading, "Merriweather", serif);
-  --form-label-font: var(--app-font-family-mono, ui-monospace, monospace);
+  --form-value-font: var(--app-font-family-base);
+  --form-label-font: var(--app-font-family-base);
   display: block;
 }
 

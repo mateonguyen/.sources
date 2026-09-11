@@ -1,0 +1,62 @@
+name: thucluc-infra
+
+services:
+  minio:
+    image: ${MINIO_IMAGE:?Set MINIO_IMAGE to the tested immutable tag}
+    container_name: thucluc-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD}
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - ./minio-data:/data
+      - ./backups:/backup
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  minio-client:
+    image: ${MINIO_MC_IMAGE:?Set MINIO_MC_IMAGE to the tested immutable tag}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -eu
+        mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD" >/dev/null
+        mc ready local
+        mkdir -p "/backup/$$BACKUP_ID"
+        mc mirror --overwrite "local/$$MINIO_BUCKET_NAME" "/backup/$$BACKUP_ID/$$MINIO_BUCKET_NAME"
+        date -u +%Y-%m-%dT%H:%M:%SZ > "/backup/$$BACKUP_ID/completed-at.txt"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:?Set MINIO_BUCKET_NAME}
+      BACKUP_ID: ${BACKUP_ID:-manual}
+    volumes:
+      - ./backups:/backup
+    profiles: ["tools"]
+    security_opt:
+      - no-new-privileges:true
+
+  gotenberg:
+    image: ${GOTENBERG_IMAGE:-gotenberg/gotenberg:8}
+    container_name: thucluc-gotenberg
+    ports:
+      - "${GOTENBERG_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true

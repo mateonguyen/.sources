@@ -1,10 +1,13 @@
 using ThucLuc.Domain.Common.Base;
+using ThucLuc.Domain.Enums;
 
 namespace ThucLuc.Domain.Entities.Business;
 
 public sealed class HeThongThongTin : AuditableSoftDeleteEntityBase
 {
     public long DonViId { get; set; }
+
+    public string LoaiPhanMem { get; set; } = LoaiPhanMemCodes.ChuaPhanLoai;
 
     public string TenPhanMem { get; set; } = string.Empty;
 

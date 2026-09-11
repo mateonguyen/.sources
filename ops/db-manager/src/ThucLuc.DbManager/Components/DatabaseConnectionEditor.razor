@@ -1,0 +1,234 @@
+@inject IEnvironmentConfigurationService ConfigurationService
+@inject IOracleCredentialStore CredentialStore
+@inject IPreflightService PreflightService
+
+<article class="quick-connection-card">
+    <header class="quick-connection-card__header">
+        <div>
+            <span>@(IsTarget ? "DB ĐÍCH" : "DB NGUỒN")</span>
+            <strong>@(IsTarget ? "Kết nối đích" : "Kết nối nguồn")</strong>
+        </div>
+        <span class="credential-status @(_hasCredential ? "configured" : null)">
+            @(IsTarget ? "Chỉ cần máy chủ" : _hasCredential ? "Đã có tài khoản" : "Chưa có tài khoản")
+        </span>
+    </header>
+
+    <fieldset class="quick-connection-form" disabled="@(Disabled || _saving || _pdbBusy)">
+        <label class="form-field quick-host">
+            <span>Máy chủ <b>*</b></span>
+            <input @bind="_model.Oracle.Host" placeholder="localhost hoặc 10.0.0.20" />
+        </label>
+        <label class="form-field quick-port">
+            <span>Port <b>*</b></span>
+            <input type="number" min="1" max="65535" @bind="_model.Oracle.Port" />
+        </label>
+        <label class="form-field quick-service">
+            <span>Service kết nối <b>*</b></span>
+            <input @bind="_model.Oracle.ServiceName" placeholder="XEPDB1" />
+        </label>
+        @if (!IsTarget)
+        {
+            <label class="form-field quick-schema">
+                <span>Schema <b>*</b></span>
+                <input @bind="_model.Oracle.Schema" placeholder="CAND_QLCNTT" />
+            </label>
+            <label class="form-field quick-directory">
+                <span>Oracle Directory</span>
+                <input @bind="_model.Oracle.DataPumpDirectory" placeholder="DATA_PUMP_DIR" />
+            </label>
+            <label class="form-field quick-user">
+                <span>Tên đăng nhập <b>*</b></span>
+                <input @bind="_userName" autocomplete="off"
+                       placeholder="@(_hasCredential ? "Để trống nếu không đổi" : "Tài khoản schema nguồn")" />
+            </label>
+            <label class="form-field quick-password">
+                <span>Mật khẩu <b>*</b></span>
+                <input type="password" @bind="_password" autocomplete="new-password"
+                       placeholder="@(_hasCredential ? "Để trống nếu không đổi" : "Mật khẩu DB")" />
+            </label>
+        }
+        <button class="button button--secondary quick-save" disabled="@_saving" @onclick="SaveAsync">
+            @(_saving ? "Đang kiểm tra..." : "Lưu & kiểm tra")
+        </button>
+    </fieldset>
+
+    @if (IsTarget)
+    {
+        <OraclePdbPicker Environment="@_model" SuggestedPdbName="@SuggestedPdbName"
+                         Disabled="@(Disabled || _saving)" Selected="UsePdbAsync" BusyChanged="PdbBusyChangedAsync" />
+    }
+
+    @if (!string.IsNullOrWhiteSpace(_message))
+    {
+        <div class="quick-connection-message @(_messageIsError ? "error" : "success")">@_message</div>
+    }
+</article>
+
+@code {
+    [Parameter, EditorRequired]
+    public ManagedEnvironmentOptions Environment { get; set; } = new();
+
+    [Parameter]
+    public bool IsTarget { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public string SuggestedPdbName { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<bool> PdbBusyChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<ManagedEnvironmentOptions> Saved { get; set; }
+
+    private ManagedEnvironmentOptions _model = new();
+    private string? _loadedKey;
+    private string _userName = string.Empty;
+    private string _password = string.Empty;
+    private bool _hasCredential;
+    private bool _saving;
+    private bool _pdbBusy;
+    private string? _message;
+    private bool _messageIsError;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (string.Equals(_loadedKey, Environment.Key, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        _loadedKey = Environment.Key;
+        _model = Clone(Environment);
+        _hasCredential = await CredentialStore.ContainsAsync(Environment.Key);
+    }
+
+    private async Task SaveAsync()
+    {
+        if (Disabled || _saving || _pdbBusy) return;
+        _saving = true;
+        _message = null;
+        _messageIsError = false;
+        try
+        {
+            if (string.IsNullOrWhiteSpace(_model.Oracle.Host)
+                || string.IsNullOrWhiteSpace(_model.Oracle.ServiceName))
+            {
+                throw new InvalidOperationException("Cần nhập máy chủ và Service/PDB.");
+            }
+
+            if (!IsTarget && string.IsNullOrWhiteSpace(_model.Oracle.Schema))
+            {
+                throw new InvalidOperationException("DB nguồn cần có tên schema để sao lưu.");
+            }
+
+            var hasUserName = !string.IsNullOrWhiteSpace(_userName);
+            var hasPassword = !string.IsNullOrWhiteSpace(_password);
+            if (hasUserName != hasPassword)
+            {
+                throw new InvalidOperationException("Cần nhập đủ tên đăng nhập và mật khẩu.");
+            }
+
+            if (!IsTarget && !_hasCredential && !hasUserName)
+            {
+                throw new InvalidOperationException("DB nguồn cần tài khoản schema để sao lưu.");
+            }
+
+            _model.Enabled = true;
+            NormalizeSecretVariableNames(_model);
+            await ConfigurationService.SaveAsync(_model);
+            if (hasUserName && hasPassword)
+            {
+                await CredentialStore.SaveAsync(_model.Key, new OracleCredential(_userName, _password));
+                _hasCredential = true;
+                _userName = string.Empty;
+                _password = string.Empty;
+            }
+
+            await Saved.InvokeAsync(Clone(_model));
+
+            var report = await PreflightService.CheckAsync(_model);
+            var connectionError = report.Checks.FirstOrDefault(check => check.Status == CheckStatus.Error);
+            if (connectionError is not null)
+            {
+                _messageIsError = true;
+                _message = $"Đã lưu cấu hình nhưng kiểm tra thất bại: {connectionError.Message}";
+            }
+            else if (IsTarget)
+            {
+                _message = "Đã lưu và kết nối được tới máy chủ Oracle đích.";
+            }
+            else
+            {
+                _message = "Đã lưu và đăng nhập Oracle nguồn thành công.";
+            }
+        }
+        catch (Exception exception)
+        {
+            _message = exception.Message;
+            _messageIsError = true;
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private async Task PdbBusyChangedAsync(bool busy)
+    {
+        _pdbBusy = busy;
+        await PdbBusyChanged.InvokeAsync(busy);
+    }
+
+    private async Task UsePdbAsync(OraclePdbSelection selection)
+    {
+        // Save a clone only after the service has verified a fresh network connection
+        // reaches the selected PDB. A save failure must not silently change restore's target.
+        var updated = Clone(_model);
+        updated.Oracle.ServiceName = selection.ServiceName;
+        updated.Enabled = true;
+        NormalizeSecretVariableNames(updated);
+        await ConfigurationService.SaveAsync(updated);
+        _model = updated;
+        _messageIsError = false;
+        _message = $"{selection.Message} Đã lưu service {selection.ServiceName} làm kết nối đích. " +
+            "Tiếp tục kiểm tra và phục hồi schema ở phần bên dưới.";
+        await Saved.InvokeAsync(Clone(updated));
+    }
+
+    private static void NormalizeSecretVariableNames(ManagedEnvironmentOptions environment)
+    {
+        var token = new string(environment.Key
+            .ToUpperInvariant()
+            .Select(character => char.IsAsciiLetterOrDigit(character) ? character : '_')
+            .ToArray());
+        environment.Oracle.UserEnvironmentVariable = $"THUCLUC_OPS_{token}_DB_USER";
+        environment.Oracle.PasswordEnvironmentVariable = $"THUCLUC_OPS_{token}_DB_PASSWORD";
+    }
+
+    private static ManagedEnvironmentOptions Clone(ManagedEnvironmentOptions source) => new()
+    {
+        Key = source.Key,
+        DisplayName = source.DisplayName,
+        Tier = source.Tier,
+        Enabled = source.Enabled,
+        Oracle = new OracleEnvironmentOptions
+        {
+            Host = source.Oracle.Host,
+            Port = source.Oracle.Port,
+            ServiceName = source.Oracle.ServiceName,
+            Schema = source.Oracle.Schema,
+            DataPumpDirectory = source.Oracle.DataPumpDirectory,
+            UserEnvironmentVariable = source.Oracle.UserEnvironmentVariable,
+            PasswordEnvironmentVariable = source.Oracle.PasswordEnvironmentVariable
+        },
+        Safety = new EnvironmentSafetyOptions
+        {
+            AllowBackup = source.Safety.AllowBackup,
+            AllowRestore = source.Safety.AllowRestore,
+            AllowMigrate = source.Safety.AllowMigrate
+        }
+    };
+}

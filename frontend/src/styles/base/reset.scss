@@ -17,6 +17,18 @@ body {
   );
 }
 
+button,
+input,
+select,
+textarea,
+code,
+pre,
+kbd,
+samp,
+.p-component {
+  font-family: var(--app-font-family-base);
+}
+
 h1,
 h2,
 h3,

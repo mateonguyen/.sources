@@ -73,6 +73,16 @@ public sealed class BaoCaoSnapshotController : ControllerBase
         return Ok(ApiResponseFactory.Success(result));
     }
 
+    [HttpGet("compare-options")]
+    [HasPermission(Permissions.BaoCaoSnapshot.Read)]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyCollection<SnapshotCompareOptionDto>>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<IReadOnlyCollection<SnapshotCompareOptionDto>>>> GetCompareOptions(
+        CancellationToken cancellationToken)
+    {
+        var result = await _snapshotService.GetCompareOptionsAsync(cancellationToken);
+        return Ok(ApiResponseFactory.Success(result));
+    }
+
     [HttpGet("build")]
     [HasPermission(Permissions.BaoCaoSnapshot.Read)]
     [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
@@ -82,6 +92,17 @@ public sealed class BaoCaoSnapshotController : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await _snapshotService.BuildSnapshotJsonAsync(kyId, donViId, cancellationToken);
+        return Ok(ApiResponseFactory.Success(result));
+    }
+
+    [HttpGet("{id:long}/preview-json")]
+    [HasPermission(Permissions.BaoCaoSnapshot.Read)]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<string>>> GetSnapshotPreviewJson(
+        long id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _snapshotService.GetSnapshotPreviewJsonAsync(id, cancellationToken);
         return Ok(ApiResponseFactory.Success(result));
     }
 

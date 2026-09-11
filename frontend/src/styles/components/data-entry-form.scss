@@ -631,17 +631,7 @@
   padding: 0.6rem 0.75rem !important;
   border-radius: var(--app-radius);
   color: var(--app-primary-700) !important;
-  font-family: var(
-    --app-font-family-mono,
-    "ui-monospace",
-    "SFMono-Regular",
-    "Menlo",
-    "Monaco",
-    "Consolas",
-    "Liberation Mono",
-    "Courier New",
-    monospace
-  ) !important;
+  font-family: var(--app-font-family-base) !important;
   transition:
     background-color 160ms ease,
     color 160ms ease;
@@ -803,17 +793,7 @@
   font-size: 0.78rem;
   line-height: 1.4;
   color: var(--app-danger-500);
-  font-family: var(
-    --app-font-family-mono,
-    ui-monospace,
-    "SFMono-Regular",
-    Menlo,
-    Monaco,
-    Consolas,
-    "Liberation Mono",
-    "Courier New",
-    monospace
-  );
+  font-family: var(--app-font-family-base);
   padding: 0 0.25rem;
   pointer-events: none;
 }

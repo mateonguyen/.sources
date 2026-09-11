@@ -1,0 +1,311 @@
+@page "/releases"
+@rendermode InteractiveServer
+@inject IReleasePackageService Packages
+@inject IReleaseDeploymentService Deployment
+
+<PageTitle>Phát hành · ThucLuc Ops Console</PageTitle>
+
+<section class="page-heading">
+    <div>
+        <span class="eyebrow">TRIỂN KHAI OFFLINE</span>
+        <h1>Phát hành ứng dụng</h1>
+        <p>Nhập một gói offline để cập nhật database, backend và frontend theo đúng thứ tự.</p>
+    </div>
+</section>
+
+<section class="release-upload panel-card">
+    <div>
+        <h2>1. Nhập gói release</h2>
+        <p>Chọn file <code>thucluc-release-&lt;version&gt;.zip</code> được tạo bởi <code>build-release.ps1</code>.</p>
+    </div>
+    <label class="button button--secondary release-file-button">
+        @(IsImporting ? "Đang kiểm tra..." : "Chọn file ZIP")
+        <InputFile OnChange="ImportAsync" accept=".zip" disabled="@IsImporting" />
+    </label>
+</section>
+
+@if (!string.IsNullOrWhiteSpace(Message))
+{
+    <div class="form-message @(MessageIsError ? "form-message--error" : "form-message--success") release-message">
+        @Message
+    </div>
+}
+
+@if (Bundles.Count == 0)
+{
+    <section class="empty-state">
+        <span class="empty-state__icon">↑</span>
+        <strong>Chưa có gói release</strong>
+        <p>Gói hợp lệ phải có manifest, checksum và ít nhất một image cần cập nhật.</p>
+    </section>
+}
+else
+{
+    <section class="release-layout">
+        <div class="panel-card release-list">
+            <h2>2. Chọn phiên bản</h2>
+            @foreach (var bundle in Bundles)
+            {
+                <button class="release-list__item @(SelectedVersion == bundle.Manifest.Version ? "selected" : string.Empty)"
+                        @onclick="() => Select(bundle.Manifest.Version)">
+                    <strong>@bundle.Manifest.Version</strong>
+                    <span>@bundle.Manifest.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+                    <small>@ShortSha(bundle.Manifest.CommitSha)</small>
+                </button>
+            }
+        </div>
+
+        @if (SelectedBundle is not null)
+        {
+            <div class="panel-card release-detail">
+                <div class="release-detail__heading">
+                    <div>
+                        <span class="eyebrow">RELEASE</span>
+                        <h2>@SelectedBundle.Manifest.Version</h2>
+                    </div>
+                    <span class="health-badge success">Đã xác minh</span>
+                </div>
+
+                <dl class="release-metadata">
+                    @if (SelectedBundle.HasBackend)
+                    {
+                        <div><dt>Backend</dt><dd>@SelectedBundle.Manifest.BackendImage</dd></div>
+                    }
+                    @if (SelectedBundle.HasFrontend)
+                    {
+                        <div><dt>Frontend</dt><dd>@SelectedBundle.Manifest.FrontendImage</dd></div>
+                    }
+                    @if (SelectedBundle.HasOpsConsole)
+                    {
+                        <div><dt>Ops Console</dt><dd>@SelectedBundle.Manifest.OpsConsoleImage</dd></div>
+                    }
+                    @if (SelectedBundle.HasFlyway)
+                    {
+                        <div><dt>Flyway</dt><dd>@SelectedBundle.Manifest.FlywayImage</dd></div>
+                    }
+                    @if (SelectedBundle.HasGotenberg)
+                    {
+                        <div><dt>Gotenberg</dt><dd>@SelectedBundle.Manifest.GotenbergImage</dd></div>
+                    }
+                    @if (SelectedBundle.HasMinio)
+                    {
+                        <div><dt>MinIO</dt><dd>@SelectedBundle.Manifest.MinioImage</dd></div>
+                    }
+                    <div><dt>Oracle tối thiểu</dt><dd>@SelectedBundle.Manifest.MinimumOracleVersion</dd></div>
+                    <div><dt>Flyway SQL</dt><dd>@SelectedBundle.Manifest.Migrations.Count file</dd></div>
+                    <div><dt>Commit</dt><dd>@SelectedBundle.Manifest.CommitSha</dd></div>
+                    <div><dt>SHA gói</dt><dd>@ShortSha(SelectedBundle.PackageSha256)</dd></div>
+                </dl>
+
+                <div class="guard-panel guard-panel--neutral release-warning">
+                    <span class="guard-panel__icon">✓</span>
+                    <div>
+                        <strong>Một job, chạy đúng thứ tự an toàn</strong>
+                        <p>Khi chọn Backend: tự động sao lưu database → chạy Flyway → cập nhật Backend → cập nhật Frontend.</p>
+                    </div>
+                </div>
+
+                <fieldset class="release-options">
+                    <legend>3. Chọn thành phần</legend>
+                    @if (SelectedBundle.HasBackend)
+                    {
+                        <label><input type="checkbox" @bind="DeployBackend" /> Backend</label>
+                    }
+                    @if (SelectedBundle.HasFrontend)
+                    {
+                        <label><input type="checkbox" @bind="DeployFrontend" /> Frontend</label>
+                    }
+                    @if (SelectedBundle.HasGotenberg)
+                    {
+                        <label><input type="checkbox" @bind="UpdateGotenberg" /> Gotenberg</label>
+                    }
+                    @if (SelectedBundle.HasMinio)
+                    {
+                        <label><input type="checkbox" @bind="UpdateMinio" /> MinIO</label>
+                    }
+                    @if (DeployBackend)
+                    {
+                        <div class="release-confirm">
+                            Database sẽ được sao lưu và chạy tự động @SelectedBundle.Manifest.Migrations.Count migration trong gói trước khi cập nhật Backend.
+                        </div>
+                    }
+                    @if (UpdateMinio)
+                    {
+                        <div class="release-confirm">
+                            Ops Console sẽ tạo backup MinIO hoàn tất trước khi nạp và update image mới.
+                        </div>
+                    }
+                    <label class="form-field release-version-confirmation">
+                        <span>Nhập version để xác nhận</span>
+                        <input @bind="Confirmation" @bind:event="oninput" placeholder="@SelectedBundle.Manifest.Version" autocomplete="off" />
+                    </label>
+                </fieldset>
+
+                <div class="release-actions">
+                    <span>Job vẫn tiếp tục nếu đóng trình duyệt; kết quả được lưu trong Lịch sử thao tác.</span>
+                    <button class="button button--primary" disabled="@(!CanDeploy)" @onclick="EnqueueDeployment">
+                        Đưa vào hàng đợi triển khai
+                    </button>
+                </div>
+            </div>
+        }
+    </section>
+}
+
+<section class="panel-card rollback-panel">
+    <div>
+        <span class="eyebrow">KHÔI PHỤC ỨNG DỤNG</span>
+        <h2>Rollback về image liền trước</h2>
+        <p>Máy chủ giữ lại version trước lần deploy gần nhất. Rollback database không được thực hiện tự động.</p>
+    </div>
+    <div class="rollback-options">
+        <label><input type="checkbox" @bind="RollbackBackend" /> Backend</label>
+        <label><input type="checkbox" @bind="RollbackFrontend" /> Frontend</label>
+        @if (RollbackBackend)
+        {
+            <label class="release-confirm">
+                <input type="checkbox" @bind="RollbackDatabaseCompatible" />
+                Tôi xác nhận schema hiện tại vẫn tương thích với backend cũ.
+            </label>
+        }
+        <label class="form-field rollback-confirmation">
+            <span>Nhập ROLLBACK để xác nhận</span>
+            <input @bind="RollbackConfirmation" @bind:event="oninput" autocomplete="off" />
+        </label>
+        <button class="button button--danger" disabled="@(!CanRollback)" @onclick="EnqueueRollback">
+            Đưa vào hàng đợi rollback
+        </button>
+    </div>
+</section>
+
+@code {
+    private const long MaxReleaseBytes = 12L * 1024 * 1024 * 1024;
+    private IReadOnlyList<ReleaseBundle> Bundles { get; set; } = [];
+    private string? SelectedVersion { get; set; }
+    private bool IsImporting { get; set; }
+    private bool DeployBackend { get; set; } = true;
+    private bool DeployFrontend { get; set; } = true;
+    private bool UpdateGotenberg { get; set; }
+    private bool UpdateMinio { get; set; }
+    private string Confirmation { get; set; } = string.Empty;
+    private string Message { get; set; } = string.Empty;
+    private bool MessageIsError { get; set; }
+    private bool RollbackBackend { get; set; }
+    private bool RollbackFrontend { get; set; }
+    private bool RollbackDatabaseCompatible { get; set; }
+    private string RollbackConfirmation { get; set; } = string.Empty;
+
+    private ReleaseBundle? SelectedBundle => Bundles.FirstOrDefault(bundle => bundle.Manifest.Version == SelectedVersion);
+    private bool CanDeploy => SelectedBundle is not null
+        && (DeployBackend || DeployFrontend || UpdateGotenberg || UpdateMinio)
+        && (!DeployBackend || SelectedBundle.HasFlyway)
+        && string.Equals(Confirmation.Trim(), SelectedBundle.Manifest.Version, StringComparison.Ordinal);
+    private bool CanRollback => (RollbackBackend || RollbackFrontend)
+        && (!RollbackBackend || RollbackDatabaseCompatible)
+        && string.Equals(RollbackConfirmation.Trim(), "ROLLBACK", StringComparison.Ordinal);
+
+    protected override void OnInitialized()
+    {
+        Reload();
+        DeployBackend = SelectedBundle?.HasBackend == true;
+        DeployFrontend = SelectedBundle?.HasFrontend == true;
+    }
+
+    private async Task ImportAsync(InputFileChangeEventArgs args)
+    {
+        IsImporting = true;
+        Message = string.Empty;
+        try
+        {
+            var file = args.File;
+            if (file.Size > MaxReleaseBytes)
+            {
+                throw new InvalidOperationException("Gói release vượt quá giới hạn 12 GB.");
+            }
+
+            await using var stream = file.OpenReadStream(MaxReleaseBytes);
+            var result = await Packages.ImportAsync(file.Name, stream);
+            Message = result.Message;
+            MessageIsError = !result.Succeeded;
+            Reload();
+            if (result.Bundle is not null)
+            {
+                Select(result.Bundle.Manifest.Version);
+            }
+        }
+        catch (Exception exception)
+        {
+            Message = exception.GetBaseException().Message;
+            MessageIsError = true;
+        }
+        finally
+        {
+            IsImporting = false;
+        }
+    }
+
+    private void EnqueueDeployment()
+    {
+        if (!CanDeploy || SelectedBundle is null) return;
+        try
+        {
+            var entry = Deployment.Enqueue(new ReleaseDeploymentSelection(
+                SelectedBundle.Manifest.Version,
+                DeployBackend,
+                DeployFrontend,
+                UpdateGotenberg,
+                UpdateMinio));
+            Message = $"Đã đưa job {entry.Id} vào hàng đợi. Mở Lịch sử thao tác để theo dõi.";
+            MessageIsError = false;
+            Confirmation = string.Empty;
+        }
+        catch (Exception exception)
+        {
+            Message = exception.GetBaseException().Message;
+            MessageIsError = true;
+        }
+    }
+
+    private void EnqueueRollback()
+    {
+        if (!CanRollback) return;
+        try
+        {
+            var entry = Deployment.EnqueueRollback(new ReleaseRollbackSelection(
+                RollbackBackend,
+                RollbackFrontend));
+            Message = $"Đã đưa job rollback {entry.Id} vào hàng đợi. Mở Lịch sử thao tác để theo dõi.";
+            MessageIsError = false;
+            RollbackConfirmation = string.Empty;
+            RollbackDatabaseCompatible = false;
+        }
+        catch (Exception exception)
+        {
+            Message = exception.GetBaseException().Message;
+            MessageIsError = true;
+        }
+    }
+
+    private void Reload()
+    {
+        Bundles = Packages.GetAll();
+        if (SelectedVersion is null || Bundles.All(bundle => bundle.Manifest.Version != SelectedVersion))
+        {
+            SelectedVersion = Bundles.FirstOrDefault()?.Manifest.Version;
+        }
+    }
+
+    private void Select(string version)
+    {
+        SelectedVersion = version;
+        DeployBackend = SelectedBundle?.HasBackend == true;
+        DeployFrontend = SelectedBundle?.HasFrontend == true;
+        Confirmation = string.Empty;
+        UpdateGotenberg = false;
+        UpdateMinio = false;
+    }
+
+    private static string ShortSha(string value) => string.IsNullOrWhiteSpace(value)
+        ? "Không có"
+        : value.Length <= 12 ? value : value[..12];
+}

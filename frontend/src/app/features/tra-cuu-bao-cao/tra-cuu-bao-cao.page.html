@@ -1,169 +1,104 @@
 <app-section-card
   title="Tra cứu báo cáo"
-  subtitle="Màn theo dõi quản lý dựa trên báo cáo đã nộp; hỗ trợ xem báo cáo gần nhất và so sánh 2 kỳ theo đơn vị."
+  subtitle="Màn theo dõi quản lý dựa trên báo cáo đã nộp; hỗ trợ xem báo cáo gần nhất theo từng đơn vị."
 >
+  <button
+    sectionActions
+    pButton
+    type="button"
+    icon="pi pi-chart-line"
+    label="Mở màn so sánh"
+    class="p-button-outlined p-button-sm tcbc-header-compare-btn"
+    (click)="goToComparePage()"
+  ></button>
+
   <!-- Bộ lọc -->
-  <div class="tcbc-filters">
-    <div class="app-field tcbc-filter-mode">
-      <label>Chế độ tra cứu</label>
-      <p-dropdown
-        [options]="viewModeOptions"
-        optionLabel="label"
-        optionValue="value"
-        [(ngModel)]="viewMode"
-        [ngModelOptions]="{ standalone: true }"
-        appendTo="body"
-        (onChange)="onViewModeChange()"
-      ></p-dropdown>
-    </div>
-
-    <div class="app-field tcbc-filter-ky">
-      <label>Kỳ báo cáo</label>
-      <p-dropdown
-        [options]="kyOptions"
-        optionLabel="label"
-        optionValue="value"
-        [(ngModel)]="selectedKyId"
-        [ngModelOptions]="{ standalone: true }"
-        appendTo="body"
-        placeholder="Chọn kỳ báo cáo"
-        [disabled]="viewMode === 'latest'"
-        (onChange)="onKyChange()"
-      ></p-dropdown>
-    </div>
-
-    <div class="app-field tcbc-filter-status">
-      <label>Trạng thái</label>
-      <p-dropdown
-        [options]="statusOptions"
-        optionLabel="label"
-        optionValue="value"
-        [(ngModel)]="filterStatus"
-        [ngModelOptions]="{ standalone: true }"
-        appendTo="body"
-        placeholder="Tất cả trạng thái"
-      ></p-dropdown>
-    </div>
-
-    <div class="app-field tcbc-filter-search">
-      <label>Tìm kiếm đơn vị</label>
-      <input
-        pInputText
-        type="text"
-        [(ngModel)]="filterText"
-        [ngModelOptions]="{ standalone: true }"
-        placeholder="Nhập tên đơn vị..."
-      />
-    </div>
-
-    <div class="tcbc-filter-actions">
-      <label class="tcbc-toggle">
-        <input
-          type="checkbox"
-          [(ngModel)]="latestOnly"
+  <div class="tcbc-filter-shell">
+    <div class="tcbc-filters tcbc-filters-primary">
+      <div class="app-field tcbc-filter-mode">
+        <label>Chế độ tra cứu</label>
+        <p-dropdown
+          [options]="viewModeOptions"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="viewMode"
           [ngModelOptions]="{ standalone: true }"
+          appendTo="body"
+          (onChange)="onViewModeChange()"
+        ></p-dropdown>
+      </div>
+
+      <div class="app-field tcbc-filter-ky">
+        <label>Kỳ báo cáo</label>
+        <p-dropdown
+          [options]="kyOptions"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="selectedKyId"
+          [ngModelOptions]="{ standalone: true }"
+          appendTo="body"
+          placeholder="Chọn kỳ báo cáo"
           [disabled]="viewMode === 'latest'"
-        />
-        <span>Chỉ phiên bản mới nhất</span>
-      </label>
-      <button
-        pButton
-        type="button"
-        icon="pi pi-refresh"
-        class="p-button-secondary p-button-sm"
-        label="Làm mới"
-        (click)="onKyChange()"
-      ></button>
+          (onChange)="onKyChange()"
+        ></p-dropdown>
+      </div>
+
+      <div class="app-field tcbc-filter-status">
+        <label>Trạng thái</label>
+        <p-dropdown
+          [options]="statusOptions"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="filterStatus"
+          [ngModelOptions]="{ standalone: true }"
+          appendTo="body"
+          placeholder="Tất cả trạng thái"
+        ></p-dropdown>
+      </div>
     </div>
-  </div>
 
-  <div class="tcbc-compare-box mt-4">
-    <div class="tcbc-compare-title">So sánh 2 kỳ theo đơn vị</div>
-    <div class="tcbc-compare-controls">
-      <div class="app-field">
-        <label>Đơn vị</label>
-        <p-dropdown
-          [options]="donViOptions"
-          optionLabel="label"
-          optionValue="value"
-          [(ngModel)]="compareDonViId"
+    <div class="tcbc-filters-secondary">
+      <div class="app-field tcbc-filter-search">
+        <label>Tìm kiếm đơn vị</label>
+        <input
+          pInputText
+          type="text"
+          [ngModel]="filterTextInput"
+          (ngModelChange)="onFilterTextChange($event)"
+          (keydown.enter)="applyFilterImmediately()"
           [ngModelOptions]="{ standalone: true }"
-          appendTo="body"
-          placeholder="Chọn đơn vị"
-        ></p-dropdown>
+          placeholder="Nhập tên đơn vị..."
+        />
       </div>
 
-      <div class="app-field">
-        <label>Kỳ nguồn</label>
-        <p-dropdown
-          [options]="kyOptions"
-          optionLabel="label"
-          optionValue="value"
-          [(ngModel)]="compareFromKyId"
-          [ngModelOptions]="{ standalone: true }"
-          appendTo="body"
-          placeholder="Chọn kỳ nguồn"
-        ></p-dropdown>
-      </div>
-
-      <div class="app-field">
-        <label>Kỳ đích</label>
-        <p-dropdown
-          [options]="kyOptions"
-          optionLabel="label"
-          optionValue="value"
-          [(ngModel)]="compareToKyId"
-          [ngModelOptions]="{ standalone: true }"
-          appendTo="body"
-          placeholder="Chọn kỳ đích"
-        ></p-dropdown>
-      </div>
-
-      <div class="tcbc-compare-actions">
+      <div class="tcbc-filter-actions">
+        <span class="tcbc-count-pill">{{ filteredCountLabel }}</span>
+        <label class="tcbc-toggle">
+          <input
+            type="checkbox"
+            [(ngModel)]="latestOnly"
+            [ngModelOptions]="{ standalone: true }"
+            [disabled]="viewMode === 'latest'"
+          />
+          <span>Chỉ phiên bản mới nhất</span>
+        </label>
         <button
           pButton
           type="button"
-          icon="pi pi-sliders-h"
-          label="So sánh"
-          [loading]="comparing"
-          (click)="compareTwoKy()"
+          icon="pi pi-filter-slash"
+          class="p-button-text p-button-sm"
+          label="Xóa lọc"
+          (click)="clearFilters()"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-refresh"
+          class="p-button-secondary p-button-sm"
+          label="Làm mới"
+          (click)="onKyChange()"
         ></button>
       </div>
-    </div>
-
-    <div *ngIf="compareResult" class="tcbc-compare-result">
-      <div class="tcbc-compare-meta">
-        <strong>{{ compareResult.tenDonVi }}</strong>
-        <span>
-          {{ compareResult.fromKyCode }} → {{ compareResult.toKyCode }}
-        </span>
-      </div>
-
-      <p-table [value]="compareResult.modules" styleClass="p-datatable-sm">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Module</th>
-            <th class="tcbc-col-narrow">{{ compareResult.fromKyCode }}</th>
-            <th class="tcbc-col-narrow">{{ compareResult.toKyCode }}</th>
-            <th class="tcbc-col-narrow">Chênh lệch</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-row>
-          <tr>
-            <td>{{ row.moduleCode }}</td>
-            <td class="tcbc-col-narrow">{{ row.fromCount }}</td>
-            <td class="tcbc-col-narrow">{{ row.toCount }}</td>
-            <td class="tcbc-col-narrow">
-              <span
-                [class.tcbc-delta-up]="row.delta > 0"
-                [class.tcbc-delta-down]="row.delta < 0"
-              >
-                {{ row.delta > 0 ? '+' : '' }}{{ row.delta }}
-              </span>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
     </div>
   </div>
 
@@ -239,6 +174,17 @@
               <button
                 pButton
                 type="button"
+                icon="pi pi-eye"
+                class="p-button-outlined p-button-sm"
+                pTooltip="Xem trước PDF biểu mẫu"
+                tooltipPosition="left"
+                [loading]="previewLoadingId === row.id"
+                [disabled]="previewLoadingId !== null && previewLoadingId !== row.id"
+                (click)="openPreview(row)"
+              ></button>
+              <button
+                pButton
+                type="button"
                 icon="pi pi-file-excel"
                 class="p-button-outlined p-button-sm p-button-success"
                 pTooltip="Tải biểu mẫu Excel (mẫu H05)"
@@ -301,10 +247,7 @@
         </span>
       </div>
 
-      <div
-        *ngIf="breakdownChildren.length === 0"
-        class="tcbc-breakdown__empty"
-      >
+      <div *ngIf="breakdownChildren.length === 0" class="tcbc-breakdown__empty">
         Báo cáo này không có dữ liệu gộp từ đơn vị cấp dưới (đơn vị nộp ở chế độ
         Tự nhập hoặc không có đơn vị con).
       </div>
@@ -367,6 +310,65 @@
       label="Đóng"
       severity="secondary"
       (click)="closeBreakdown()"
+    ></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="showPreviewDialog"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  header="Xem trước biểu mẫu PDF"
+  styleClass="tcbc-preview-dialog"
+  [style]="{ width: '1100px', maxWidth: '96vw' }"
+  [contentStyle]="{ overflow: 'hidden', padding: '0', display: 'flex', flexDirection: 'column' }"
+  appendTo="body"
+  (onHide)="closePreview()"
+>
+  <div class="tcbc-preview">
+    <div *ngIf="previewSnapshot" class="tcbc-preview__meta">
+      <div class="tcbc-preview__meta-main">
+        <strong>{{ previewSnapshot.tenDonVi }}</strong>
+      </div>
+      <div class="tcbc-preview__meta-sub">
+        <span>{{ previewSnapshot.kyCode }}</span>
+        <span>v{{ previewSnapshot.phienBan }}</span>
+      </div>
+    </div>
+
+    <div *ngIf="previewLoading" class="tcbc-preview__loading">
+      <i class="pi pi-spin pi-spinner"></i> Đang tải file PDF...
+    </div>
+
+    <ng-container *ngIf="!previewLoading">
+      <div
+        *ngIf="previewPdfUrl; else previewUnavailable"
+        class="tcbc-preview__pdf-wrap"
+      >
+        <iframe
+          #previewFrame
+          class="tcbc-preview__pdf-frame"
+          [src]="previewPdfUrl"
+          title="Xem trước biểu mẫu PDF"
+        ></iframe>
+      </div>
+
+      <ng-template #previewUnavailable>
+        <div class="tcbc-preview__empty">
+          Không thể nhúng PDF trên trình duyệt này.
+        </div>
+      </ng-template>
+    </ng-container>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      type="button"
+      label="Đóng"
+      severity="secondary"
+      (click)="closePreview()"
     ></button>
   </ng-template>
 </p-dialog>

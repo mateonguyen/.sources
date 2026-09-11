@@ -56,7 +56,7 @@ public sealed class S3FileStorageService : IFileStorageService
         }
     }
 
-    public Task<string> GetPresignedDownloadUrlAsync(string objectKey, TimeSpan ttl, CancellationToken cancellationToken = default)
+    public Task<string> GetPresignedDownloadUrlAsync(string objectKey, TimeSpan ttl, CancellationToken cancellationToken = default, string? downloadFileName = null)
     {
         if (ttl <= TimeSpan.Zero || ttl > TimeSpan.FromHours(24))
         {
@@ -68,6 +68,15 @@ public sealed class S3FileStorageService : IFileStorageService
             .WithBucket(_options.BucketName)
             .WithObject(NormalizeKey(objectKey))
             .WithExpiry(expiresInSeconds);
+
+        if (!string.IsNullOrWhiteSpace(downloadFileName))
+        {
+            // Ép trình duyệt lưu file với tên thân thiện thay vì tên object key (guid).
+            request = request.WithHeaders(new Dictionary<string, string>
+            {
+                ["response-content-disposition"] = $"attachment; filename=\"{Uri.EscapeDataString(downloadFileName)}\"",
+            });
+        }
 
         return _minioClient.PresignedGetObjectAsync(request);
     }

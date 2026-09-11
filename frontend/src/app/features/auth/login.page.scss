@@ -112,51 +112,37 @@
 
 .login-field {
   position: relative;
+  display: grid;
+  grid-template-rows: 0.95rem 2.15rem;
+  gap: 0.08rem;
+  min-height: 3.5rem;
   border-bottom: 1px solid var(--app-primary-600);
-  padding: 0.45rem 0.8rem 0.35rem;
+  padding: 0.35rem 0.8rem 0.25rem;
   margin-bottom: 0;
-  overflow: hidden;
-  transition: background-color 170ms ease;
-}
-
-.login-field:not(:focus-within) {
-  background: #dbe2eb;
+  overflow: visible;
+  background: rgba(239, 241, 235, 0.92);
+  transition:
+    background-color 170ms ease,
+    border-color 170ms ease,
+    box-shadow 170ms ease;
 }
 
 .login-field:focus-within {
-  background: #eef4ff;
+  background: #f2f6fb;
   border-bottom-color: var(--app-primary-700);
+  box-shadow: inset 0 0 0 1px rgba(32, 73, 111, 0.08);
 }
 
 .login-field__label {
-  position: absolute;
-  left: 0.8rem;
-  top: 50%;
+  position: static;
+  align-self: end;
   margin: 0;
   font-family: var(--app-font-family-mono);
-  font-size: 1rem;
-  line-height: 1.2;
+  font-size: 0.74rem;
+  line-height: 1;
   font-weight: 700;
-  color: var(--app-primary-600);
-  letter-spacing: 0.01em;
-  pointer-events: none;
-  transition:
-    color 150ms ease,
-    transform 160ms ease,
-    top 160ms ease,
-    font-size 160ms ease;
-}
-
-.login-field:not(.has-value):not(:focus-within) .login-field__label {
-  transform: translateY(-30%);
-}
-
-.login-field:focus-within .login-field__label,
-.login-field.has-value .login-field__label {
-  top: 0.22rem;
-  font-size: 0.82rem;
   color: var(--app-primary-700);
-  transform: none;
+  letter-spacing: 0.01em;
 }
 
 .login-field__input {
@@ -165,47 +151,107 @@
   background: transparent !important;
   box-shadow: none !important;
   font-family: var(--app-font-family-mono);
-  min-height: 2.45rem !important;
-  height: 2.45rem !important;
-  line-height: 1.2 !important;
-  padding: 1.1rem 0 0 0 !important;
+  min-height: 2.15rem !important;
+  height: 2.15rem !important;
+  line-height: 2.15rem !important;
+  padding: 0 !important;
   color: var(--app-text-strong);
   font-weight: 600;
-  font-size: 1.06rem;
+  font-size: 1rem;
+  caret-color: var(--app-primary-700);
 }
 
 :host ::ng-deep .login-field__password {
-  display: block;
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  width: 100%;
   border: 0 !important;
   border-radius: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
-  min-height: 0 !important;
-  height: auto !important;
+  min-height: 2.15rem !important;
+  height: 2.15rem !important;
+  overflow: visible !important;
 }
 
 :host ::ng-deep .login-field__password .p-password-input {
+  flex: 1;
+  min-width: 0;
   border: 0 !important;
   border-radius: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
   font-family: var(--app-font-family-mono);
-  min-height: 2.45rem !important;
-  height: 2.45rem !important;
-  line-height: 1.2 !important;
-  padding: 1.1rem 0 0 0 !important;
+  min-height: 2.15rem !important;
+  height: 2.15rem !important;
+  line-height: 2.15rem !important;
+  padding: 0 2.4rem 0 0 !important;
   color: var(--app-text-strong);
   font-weight: 600;
-  font-size: 1.06rem;
+  font-size: 1rem;
 }
 
-:host ::ng-deep .login-field__password .p-password-toggle-mask-icon,
-:host ::ng-deep .login-field__password .p-icon-field-right {
+:host ::ng-deep .login-field__password .p-password-toggle-mask-icon {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
   color: var(--app-primary-600);
-  width: 1.75rem;
-  min-width: 1.75rem;
-  height: 2.45rem;
-  min-height: 2.45rem;
+  width: 2rem;
+  min-width: 2rem;
+  height: 2rem;
+  min-height: 2rem;
+}
+
+:host ::ng-deep .login-field__password .p-icon-field {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.login-field input:-webkit-autofill,
+.login-field input:-webkit-autofill:hover,
+.login-field input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--app-text-strong) !important;
+  caret-color: var(--app-primary-700);
+  box-shadow: 0 0 0 1000px #eff1eb inset !important;
+  transition: background-color 9999s ease-out 0s;
+}
+
+.login-field:focus-within input:-webkit-autofill,
+.login-field:focus-within input:-webkit-autofill:hover,
+.login-field:focus-within input:-webkit-autofill:focus {
+  box-shadow: 0 0 0 1000px #f2f6fb inset !important;
+}
+
+:host ::ng-deep .login-field__password .p-password-input:-webkit-autofill,
+:host ::ng-deep .login-field__password .p-password-input:-webkit-autofill:hover,
+:host ::ng-deep .login-field__password .p-password-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--app-text-strong) !important;
+  caret-color: var(--app-primary-700);
+  background-color: transparent !important;
+  box-shadow: 0 0 0 1000px #eff1eb inset !important;
+  transition: background-color 9999s ease-out 0s;
+}
+
+:host
+  ::ng-deep
+  .login-field:focus-within
+  .login-field__password
+  .p-password-input:-webkit-autofill,
+:host
+  ::ng-deep
+  .login-field:focus-within
+  .login-field__password
+  .p-password-input:-webkit-autofill:hover,
+:host
+  ::ng-deep
+  .login-field:focus-within
+  .login-field__password
+  .p-password-input:-webkit-autofill:focus {
+  box-shadow: 0 0 0 1000px #f2f6fb inset !important;
 }
 
 :host ::ng-deep .login-field__password .p-password-toggle-mask-icon:hover {

@@ -1,4 +1,5 @@
 using ThucLuc.Domain.Common.Base;
+using ThucLuc.Domain.Enums;
 
 namespace ThucLuc.Domain.Entities.Business;
 
@@ -7,6 +8,7 @@ public sealed class HeThongThongTinHis : AuditableEntityBase
     public long SourceId { get; set; }
 
     public long DonViId { get; set; }
+    public string LoaiPhanMem { get; set; } = LoaiPhanMemCodes.ChuaPhanLoai;
     public string TenPhanMem { get; set; } = string.Empty;
     public string? DonViPhatTrien { get; set; }
     public string? DonViQuanLy { get; set; }

@@ -1,0 +1,21 @@
+<CascadingAuthenticationState>
+<Router AppAssembly="typeof(Program).Assembly">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)">
+            <NotAuthorized>
+                <RedirectToLogin />
+            </NotAuthorized>
+        </AuthorizeRouteView>
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="typeof(MainLayout)">
+            <section class="empty-state">
+                <strong>Không tìm thấy trang</strong>
+                <p>Đường dẫn không tồn tại trong Trung tâm vận hành.</p>
+                <a class="button button--primary" href="/">Về tổng quan</a>
+            </section>
+        </LayoutView>
+    </NotFound>
+</Router>
+</CascadingAuthenticationState>

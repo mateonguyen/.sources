@@ -591,12 +591,12 @@
 
 .username-text {
   @apply font-semibold text-sm;
-  font-family: "Monaco", "Menlo", "Ubuntu Mono", "Courier New", monospace;
+  font-family: var(--app-font-family-base);
 }
 
 .perm-code-text,
 .role-code-text {
-  font-family: "Monaco", "Menlo", "Ubuntu Mono", "Courier New", monospace;
+  font-family: var(--app-font-family-base);
   color: var(--app-text-strong);
 }
 
@@ -700,5 +700,60 @@
 @media (max-width: 480px) {
   .data-toolbar {
     @apply flex-col items-start;
+  }
+}
+
+/* Dialog ATTT HTTT đầu tư được append vào body, nên phần PrimeNG phải đặt ở global scope. */
+.attt-upsert-dialog {
+  .p-dialog-header { padding: 0.8rem 0.95rem; border-bottom: 1px solid var(--app-border); }
+  .p-dialog-content { padding: 0.8rem 0.95rem; background: #fafaf9; }
+  .p-dialog-footer { padding: 0.68rem 0.95rem; border-top: 1px solid var(--app-border); }
+
+  .attt-form-field .p-dropdown,
+  .attt-form-field .p-calendar {
+    width: 100% !important;
+    height: 2.55rem !important;
+    min-height: 2.55rem !important;
+    border: 1px solid var(--app-border) !important;
+    border-radius: var(--app-radius) !important;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+
+  .attt-form-field .p-dropdown-label,
+  .attt-form-field .p-calendar .p-inputtext {
+    display: flex !important;
+    align-items: center !important;
+    height: 2.45rem !important;
+    padding: 0 0.7rem !important;
+    border: 0 !important;
+    background: transparent !important;
+    font-size: 0.76rem !important;
+    box-shadow: none !important;
+  }
+
+  .attt-form-field .p-dropdown-trigger,
+  .attt-form-field .p-datepicker-trigger {
+    width: 2.55rem !important;
+    height: 2.45rem !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: var(--app-primary-650, #1b4b70) !important;
+  }
+
+  .attt-form-field:focus-within .p-dropdown,
+  .attt-form-field:focus-within .p-calendar,
+  .attt-form-field > input:focus,
+  .attt-form-field > textarea:focus {
+    border-color: var(--app-primary-500) !important;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-primary-500) 14%, transparent) !important;
+    outline: 0;
+  }
+
+  .attt-form-field.has-error .p-dropdown,
+  .attt-form-field.has-error .p-calendar,
+  .attt-form-field.has-error > input,
+  .attt-form-field.has-error > textarea {
+    border-color: var(--app-danger-500) !important;
   }
 }

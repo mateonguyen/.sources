@@ -1,7 +1,7 @@
 ﻿:host {
-  --gpattt-header-font: "IBM Plex Mono", "JetBrains Mono", monospace;
-  --gpattt-value-font: "Merriweather", Georgia, serif;
-  --gpattt-cell-font: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --gpattt-header-font: var(--app-font-family-base);
+  --gpattt-value-font: var(--app-font-family-base);
+  --gpattt-cell-font: var(--app-font-family-base);
   --gpattt-computer-bg: #f3f8ff;
   --gpattt-server-bg: #f2fbf5;
   --gpattt-divider: #2563eb;

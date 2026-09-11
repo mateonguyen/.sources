@@ -1,0 +1,398 @@
+@inject IOraclePdbService PdbService
+
+<section class="pdb-picker" aria-busy="@_busy">
+    <button type="button" class="pdb-picker__toggle" disabled="@IsDisabled"
+            aria-expanded="@_expanded" @onclick="ToggleExpanded">
+        <span>@(_expanded ? "−" : "+") Nơi phục hồi dữ liệu</span>
+        <small>Chọn nơi có sẵn hoặc tạo mới cho ứng dụng</small>
+    </button>
+
+    @if (_expanded)
+    {
+        <fieldset class="pdb-picker__body" disabled="@IsDisabled">
+            <p class="pdb-picker__help">
+                Mỗi nơi phục hồi là một database con (PDB) có service riêng. Tên có thể giống schema để dễ nhớ;
+                service <strong>orcl</strong> hiện tại vẫn giữ nguyên.
+            </p>
+            <div class="pdb-picker__endpoint">
+                Máy chủ đang chọn: <strong>@Environment.Oracle.Host:@Environment.Oracle.Port</strong>
+                · Kết nối qua: <strong>@Environment.Oracle.ServiceName</strong>
+            </div>
+            <div class="pdb-picker__credentials">
+                <label class="form-field">
+                    <span>Mật khẩu SYS <b>*</b></span>
+                    <input type="password" @bind="_sysPassword" autocomplete="new-password"
+                           placeholder="Chỉ dùng cho lần chọn / tạo này" />
+                    <small>Không lưu mật khẩu. Bước kiểm tra chưa tạo hoặc thay đổi dữ liệu.</small>
+                </label>
+                <button type="button" class="button button--secondary"
+                        disabled="@(IsDisabled || string.IsNullOrEmpty(_sysPassword))" @onclick="InspectAsync">
+                    @(_busy && _operation == PickerOperation.Inspect ? "Đang kiểm tra..." : "Kiểm tra máy chủ")
+                </button>
+            </div>
+
+            @if (_inspection is { IsContainerDatabase: false })
+            {
+                <div class="pdb-picker__note">
+                    DB này không chia thành database con. Bạn dùng kết nối hiện tại để tạo schema / phục hồi,
+                    không cần chọn PDB.
+                </div>
+            }
+            else if (_inspection is not null)
+            {
+                <label class="form-field">
+                    <span>Bạn muốn</span>
+                    <select @bind="_mode" @bind:after="ResetConfirmation">
+                        <option value="existing">Dùng nơi phục hồi đã có</option>
+                        <option value="new">Tạo nơi phục hồi mới</option>
+                    </select>
+                </label>
+
+                @if (_mode == "existing")
+                {
+                    <label class="form-field">
+                        <span>Nơi phục hồi có sẵn <b>*</b></span>
+                        <select @bind="_selectedChoiceIndex">
+                            <option value="">-- Chọn đúng nơi của ứng dụng --</option>
+                            @for (var index = 0; index < _inspection.Pdbs.Count; index++)
+                            {
+                                var choice = _inspection.Pdbs[index];
+                                <option value="@index" disabled="@(!CanWrite(choice))">
+                                    @choice.Name · Service: @choice.ServiceName · @(CanWrite(choice) ? "Đang mở đọc / ghi" : choice.OpenMode)
+                                </option>
+                            }
+                        </select>
+                        <small>
+                            Chỉ chọn nơi thuộc ứng dụng này. Mục chưa sẵn sàng sẽ không chọn được.
+                        </small>
+                    </label>
+                    @if (_inspection.Pdbs.Count == 0)
+                    {
+                        <p class="pdb-picker__help">Chưa có nơi phục hồi dùng được. Chọn “Tạo nơi phục hồi mới” ở trên.</p>
+                    }
+                    <div class="pdb-picker__actions">
+                        <button type="button" class="button button--primary"
+                                disabled="@(IsDisabled || SelectedChoice is null || string.IsNullOrEmpty(_sysPassword))"
+                                @onclick="SelectAsync">
+                            @(_busy && _operation == PickerOperation.Select ? "Đang kiểm tra kết nối..." : "Dùng nơi này")
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="pdb-picker__new-grid">
+                        <label class="form-field">
+                            <span>Tên nơi phục hồi mới <b>*</b></span>
+                            <input @bind="_newPdbName" @bind:after="PdbNameChanged" maxlength="30"
+                                   placeholder="CAND_QLCNTT" autocomplete="off" />
+                            <small>Nên để giống tên schema. Tối đa 30 ký tự: chữ, số và dấu gạch dưới.</small>
+                        </label>
+                        <label class="form-field">
+                            <span>Giới hạn vùng dữ liệu ứng dụng (GB) <b>*</b></span>
+                            <input type="number" min="1" max="1024" @bind="_maxDataSizeGb" @bind:after="ResetConfirmation" />
+                            <small>Giới hạn cho vùng USERS chứa dữ liệu ứng dụng; không phải tổng dung lượng của PDB.</small>
+                        </label>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(_inspection.DefaultFileDestination))
+                    {
+                        <div class="pdb-picker__note">
+                            Cách lưu file đã được Oracle cấu hình: <strong>@_inspection.DefaultFileDestination</strong>.
+                            App dùng cấu hình này, bạn không cần nhập đường dẫn.
+                        </div>
+                    }
+                    else
+                    {
+                        <label class="form-field">
+                            <span>Thư mục chứa dữ liệu trên máy chủ <b>*</b></span>
+                            <input @bind="_createFileDestination" @bind:after="ResetConfirmation"
+                                   placeholder="Nhập đường dẫn thư mục đã có trên máy chủ Oracle" autocomplete="off" />
+                            <small>
+                                Oracle chưa cấu hình thư mục tự động. Cần một thư mục đã tồn tại và tài khoản chạy Oracle có quyền ghi.
+                                Đây không phải thư mục trên máy trạm; app không tự đoán hoặc tạo thư mục hệ điều hành.
+                            </small>
+                        </label>
+                    }
+                    <div class="pdb-picker__note">
+                        Nơi mới vẫn dùng Oracle hiện tại. Sau khi tạo xong, bạn tiếp tục tạo schema và phục hồi ở khối bên dưới.
+                    </div>
+                    <label class="pdb-picker__confirm">
+                        <input type="checkbox" @bind="_confirmedCreate" />
+                        <span>
+                            Tôi đồng ý tạo nơi phục hồi <strong>@NewPdbNameForDisplay</strong> trên
+                            <strong>@Environment.Oracle.Host:@Environment.Oracle.Port</strong> qua Service
+                            <strong>@Environment.Oracle.ServiceName</strong>.
+                            Chỉ tạo mới, không thay thế PDB hoặc Service đang có.
+                        </span>
+                    </label>
+                    <div class="pdb-picker__actions">
+                        <button type="button" class="button button--primary"
+                                disabled="@(IsDisabled || !CanCreate)" @onclick="CreateAsync">
+                            @(_busy && _operation == PickerOperation.Create ? "Đang tạo, vui lòng chờ..." : "Tạo và sử dụng")
+                        </button>
+                    </div>
+                }
+            }
+
+            <div class="pdb-picker__actions pdb-picker__actions--cancel">
+                <button type="button" class="link-button" @onclick="Cancel">Đóng</button>
+            </div>
+        </fieldset>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(_message))
+    {
+        <div class="form-message @(_messageIsError ? "form-message--error" : "form-message--success")"
+             role="status" aria-live="polite">@_message</div>
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired]
+    public ManagedEnvironmentOptions Environment { get; set; } = new();
+
+    [Parameter]
+    public string SuggestedPdbName { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public EventCallback<OraclePdbSelection> Selected { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> BusyChanged { get; set; }
+
+    private bool _expanded;
+    private bool _busy;
+    private PickerOperation _operation;
+    private string? _fingerprint;
+    private string _sysPassword = string.Empty;
+    private string _mode = "existing";
+    private string _selectedChoiceIndex = string.Empty;
+    private string _newPdbName = string.Empty;
+    private bool _nameEdited;
+    private string _createFileDestination = string.Empty;
+    private int _maxDataSizeGb = 2;
+    private bool _confirmedCreate;
+    private OraclePdbInspection? _inspection;
+    private string? _message;
+    private bool _messageIsError;
+
+    private bool IsDisabled => Disabled || _busy;
+    private string NewPdbNameForDisplay => string.IsNullOrWhiteSpace(_newPdbName) ? "(chưa nhập tên)" : _newPdbName.Trim().ToUpperInvariant();
+    private OraclePdbChoice? SelectedChoice => _inspection is not null
+        && int.TryParse(_selectedChoiceIndex, out var index)
+        && index >= 0 && index < _inspection.Pdbs.Count && CanWrite(_inspection.Pdbs[index])
+            ? _inspection.Pdbs[index]
+            : null;
+    private bool CanCreate => _inspection is { IsContainerDatabase: true }
+        && _confirmedCreate && !string.IsNullOrEmpty(_sysPassword)
+        && !string.IsNullOrWhiteSpace(_newPdbName) && _maxDataSizeGb is >= 1 and <= 1024
+        && (!string.IsNullOrWhiteSpace(_inspection.DefaultFileDestination) || !string.IsNullOrWhiteSpace(_createFileDestination));
+
+    protected override void OnParametersSet()
+    {
+        var fingerprint = Fingerprint(Environment);
+        if (!string.Equals(_fingerprint, fingerprint, StringComparison.Ordinal))
+        {
+            _fingerprint = fingerprint;
+            _sysPassword = string.Empty;
+            _inspection = null;
+            _selectedChoiceIndex = string.Empty;
+            _confirmedCreate = false;
+            _createFileDestination = string.Empty;
+            _message = null;
+            _mode = "existing";
+            _nameEdited = false;
+        }
+
+        if (!_nameEdited)
+        {
+            var suggestion = SuggestedPdbName.Trim().ToUpperInvariant();
+            if (!string.Equals(_newPdbName, suggestion, StringComparison.Ordinal))
+            {
+                _newPdbName = suggestion;
+                _confirmedCreate = false;
+            }
+        }
+    }
+
+    private void ToggleExpanded()
+    {
+        if (IsDisabled) return;
+        if (_expanded) Cancel();
+        else _expanded = true;
+    }
+
+    private void Cancel()
+    {
+        if (IsDisabled) return;
+        _expanded = false;
+        _sysPassword = string.Empty;
+        _inspection = null;
+        _selectedChoiceIndex = string.Empty;
+        _confirmedCreate = false;
+        _message = null;
+    }
+
+    private void ResetConfirmation() => _confirmedCreate = false;
+
+    private void PdbNameChanged()
+    {
+        _nameEdited = true;
+        _confirmedCreate = false;
+    }
+
+    private Task InspectAsync() => RunAsync(PickerOperation.Inspect, async (environment, password, fingerprint) =>
+    {
+        _inspection = null;
+        _selectedChoiceIndex = string.Empty;
+        _confirmedCreate = false;
+        var inspection = await PdbService.InspectAsync(environment, password);
+        EnsureCurrent(fingerprint);
+        _inspection = inspection;
+    });
+
+    private Task SelectAsync()
+    {
+        var choice = SelectedChoice;
+        if (choice is null) return Task.CompletedTask;
+        return RunAsync(PickerOperation.Select, async (environment, password, fingerprint) =>
+        {
+            var result = await PdbService.SelectAsync(environment, password, choice.Name, choice.ServiceName);
+            _sysPassword = string.Empty;
+            _confirmedCreate = false;
+            await DeliverSelectionAsync(result, fingerprint, created: false);
+        });
+    }
+
+    private Task CreateAsync()
+    {
+        if (!CanCreate) return Task.CompletedTask;
+        var pdbName = _newPdbName.Trim().ToUpperInvariant();
+        var directory = string.IsNullOrWhiteSpace(_inspection!.DefaultFileDestination) ? _createFileDestination.Trim() : null;
+        var maxDataSizeGb = _maxDataSizeGb;
+        return RunAsync(PickerOperation.Create, async (environment, password, fingerprint) =>
+        {
+            OraclePdbSelection result;
+            try
+            {
+                result = await PdbService.CreateAsync(environment, password, pdbName, directory, maxDataSizeGb);
+            }
+            catch (InvalidOperationException)
+            {
+                _confirmedCreate = false;
+                throw;
+            }
+            catch (Exception)
+            {
+                _confirmedCreate = false;
+                throw new InvalidOperationException("Không thể hoàn tất thao tác tạo nơi phục hồi.");
+            }
+
+            _sysPassword = string.Empty;
+            _inspection = null;
+            _confirmedCreate = false;
+            await DeliverSelectionAsync(result, fingerprint, created: true);
+        });
+    }
+
+    private async Task DeliverSelectionAsync(OraclePdbSelection selection, string fingerprint, bool created)
+    {
+        var completed = created ? $"Đã tạo database con {selection.PdbName}" : $"Đã kiểm tra kết nối tới database con {selection.PdbName}";
+        if (!string.Equals(fingerprint, Fingerprint(Environment), StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException($"{completed}, nhưng kết nối đích đã đổi trong lúc xử lý nên app chưa lưu Service {selection.ServiceName}. Hãy tải lại danh sách tại máy chủ vừa thao tác và chọn PDB này, không tạo lại.");
+        }
+
+        try
+        {
+            await Selected.InvokeAsync(selection);
+        }
+        catch (Exception)
+        {
+            throw new InvalidOperationException($"{completed}, nhưng chưa lưu được cấu hình kết nối đích. Service là {selection.ServiceName}. Hãy tải lại danh sách và chọn PDB này, không tạo lại.");
+        }
+
+        _message = $"{selection.Message} Tiếp tục tạo schema / phục hồi ở phần bên dưới.";
+        _messageIsError = false;
+    }
+
+    private async Task RunAsync(PickerOperation operation, Func<ManagedEnvironmentOptions, string, string, Task> action)
+    {
+        if (IsDisabled || string.IsNullOrEmpty(_sysPassword)) return;
+        var environment = Clone(Environment);
+        var fingerprint = Fingerprint(environment);
+        var password = _sysPassword;
+        _busy = true;
+        _operation = operation;
+        _message = null;
+        _messageIsError = false;
+        try
+        {
+            await BusyChanged.InvokeAsync(true);
+            await action(environment, password, fingerprint);
+        }
+        catch (InvalidOperationException exception)
+        {
+            _message = exception.Message;
+            _messageIsError = true;
+        }
+        catch (Exception)
+        {
+            _message = "Không thể hoàn tất thao tác với database con. Kiểm tra kết nối đích rồi thử lại.";
+            _messageIsError = true;
+        }
+        finally
+        {
+            _busy = false;
+            try
+            {
+                await BusyChanged.InvokeAsync(false);
+            }
+            catch (Exception)
+            {
+                _message = "Thao tác đã kết thúc nhưng giao diện chưa cập nhật được. Hãy tải lại trang và kiểm tra danh sách PDB trước khi tạo mới.";
+                _messageIsError = true;
+            }
+        }
+    }
+
+    private void EnsureCurrent(string fingerprint)
+    {
+        if (!string.Equals(fingerprint, Fingerprint(Environment), StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException("Kết nối đích đã đổi trong lúc kiểm tra. Hãy tải lại danh sách database con cho kết nối mới.");
+        }
+    }
+
+    private static bool CanWrite(OraclePdbChoice choice) => string.Equals(choice.OpenMode, "READ WRITE", StringComparison.OrdinalIgnoreCase);
+    private static string Fingerprint(ManagedEnvironmentOptions environment) => string.Join('\n',
+        environment.Key, environment.Oracle.Host, environment.Oracle.Port.ToString(System.Globalization.CultureInfo.InvariantCulture), environment.Oracle.ServiceName);
+
+    private static ManagedEnvironmentOptions Clone(ManagedEnvironmentOptions source) => new()
+    {
+        Key = source.Key,
+        DisplayName = source.DisplayName,
+        Tier = source.Tier,
+        Enabled = source.Enabled,
+        Oracle = new OracleEnvironmentOptions
+        {
+            Host = source.Oracle.Host,
+            Port = source.Oracle.Port,
+            ServiceName = source.Oracle.ServiceName,
+            Schema = source.Oracle.Schema,
+            DataPumpDirectory = source.Oracle.DataPumpDirectory,
+            UserEnvironmentVariable = source.Oracle.UserEnvironmentVariable,
+            PasswordEnvironmentVariable = source.Oracle.PasswordEnvironmentVariable
+        },
+        Safety = new EnvironmentSafetyOptions
+        {
+            AllowBackup = source.Safety.AllowBackup,
+            AllowRestore = source.Safety.AllowRestore,
+            AllowMigrate = source.Safety.AllowMigrate
+        }
+    };
+
+    private enum PickerOperation { Inspect, Select, Create }
+}

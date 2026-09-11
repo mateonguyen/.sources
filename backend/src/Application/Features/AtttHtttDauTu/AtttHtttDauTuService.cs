@@ -4,7 +4,6 @@ using ThucLuc.Application.Common.Exceptions;
 using ThucLuc.Application.Common.Models;
 using ThucLuc.Application.Security;
 using AtttHtttDauTuEntity = ThucLuc.Domain.Entities.Business.AtttHtttDauTu;
-using AtttHtttDauTuHisEntity = ThucLuc.Domain.Entities.Business.AtttHtttDauTuHis;
 
 namespace ThucLuc.Application.Features.AtttHtttDauTu;
 
@@ -21,6 +20,11 @@ public interface IAtttHtttDauTuService
 
 public sealed class AtttHtttDauTuService : IAtttHtttDauTuService
 {
+    private static readonly HashSet<string> LoaiHaTangCodes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "BCANET", "INTERNET", "KHAC"
+    };
+
     private readonly IApplicationDbContext _dbContext;
     private readonly ICurrentUserService _currentUserService;
     private readonly IDateTimeProvider _dateTimeProvider;
@@ -34,27 +38,17 @@ public sealed class AtttHtttDauTuService : IAtttHtttDauTuService
 
     public async Task<IReadOnlyCollection<AtttHtttDauTuDto>> GetAllAsync(AtttHtttDauTuQuery query, CancellationToken cancellationToken = default)
     {
-        if (!string.IsNullOrWhiteSpace(query.KyBaoCaoCode))
-        {
-            var hisQuery = _dbContext.AtttHtttDauTuHis.AsNoTracking()
-                .Where(x => x.KyBaoCaoCode == query.KyBaoCaoCode)
-                .Where(x => ApplyDonViScopePredicate(x.DonViId));
-
-            if (query.DonViId.HasValue)
-            {
-                hisQuery = hisQuery.Where(x => x.DonViId == query.DonViId.Value);
-            }
-
-            return await hisQuery.Select(MapHisToDto()).ToListAsync(cancellationToken);
-        }
-
-        var liveQuery = ApplyReadScope(_dbContext.AtttHtttDauTus);
+        var liveQuery = ApplyReadScope(_dbContext.AtttHtttDauTus.AsNoTracking());
         if (query.DonViId.HasValue)
         {
             liveQuery = liveQuery.Where(x => x.DonViId == query.DonViId.Value);
         }
 
-        return await liveQuery.Select(MapLiveToDto()).ToListAsync(cancellationToken);
+        return await liveQuery
+            .OrderBy(x => x.HtttId)
+            .ThenBy(x => x.Id)
+            .Select(MapLiveToDto())
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<AtttHtttDauTuDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
@@ -72,6 +66,14 @@ public sealed class AtttHtttDauTuService : IAtttHtttDauTuService
         {
             entity = await ApplyReadScope(_dbContext.AtttHtttDauTus).FirstOrDefaultAsync(x => x.Id == id.Value, cancellationToken)
                 ?? throw new AppException("ATTTDT_NOT_FOUND", "Không tìm thấy bản ghi ATTT HTTT đầu tư.", 404);
+
+            if (entity.DonViId != request.DonViId)
+            {
+                throw new AppException(
+                    "ATTTDT_DONVI_IMMUTABLE",
+                    "Không thể chuyển bản ghi ATTT HTTT đầu tư sang đơn vị khác.",
+                    422);
+            }
         }
         else
         {
@@ -79,15 +81,27 @@ public sealed class AtttHtttDauTuService : IAtttHtttDauTuService
             await _dbContext.AtttHtttDauTus.AddAsync(entity, cancellationToken);
         }
 
+        await EnsureValidHtttAsync(id, request, cancellationToken);
+
+        var loaiHaTang = NormalizeOptional(request.LoaiHaTang)?.ToUpperInvariant();
+        if (loaiHaTang is null || !LoaiHaTangCodes.Contains(loaiHaTang))
+        {
+            throw new AppException(
+                "ATTTDT_LOAI_HA_TANG_INVALID",
+                "Nhóm hạ tầng phải là BCANet, Internet hoặc Hệ thống khác.",
+                422);
+        }
+
         entity.DonViId = request.DonViId;
         entity.HtttId = request.HtttId;
+        entity.LoaiHaTang = loaiHaTang;
         entity.ChuQuan = NormalizeOptional(request.ChuQuan);
         entity.DonViVanHanh = NormalizeOptional(request.DonViVanHanh);
         entity.CapDoDeXuat = NormalizeOptional(request.CapDoDeXuat);
         entity.NgayPheDuyetHsdxcd = request.NgayPheDuyetHsdxcd;
         entity.QuyetDinhPheDuyet = NormalizeOptional(request.QuyetDinhPheDuyet);
         entity.DaLongGhepThuyetMinh = request.DaLongGhepThuyetMinh;
-        entity.GhiChu = request.GhiChu;
+        entity.GhiChu = NormalizeOptional(request.GhiChu);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return await GetByIdAsync(entity.Id, cancellationToken) ?? throw new InvalidOperationException();
@@ -130,10 +144,45 @@ public sealed class AtttHtttDauTuService : IAtttHtttDauTuService
     private static string? NormalizeOptional(string? value)
         => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
-    private bool ApplyDonViScopePredicate(long donViId)
+    private async Task EnsureValidHtttAsync(
+        long? id,
+        UpsertAtttHtttDauTuRequest request,
+        CancellationToken cancellationToken)
     {
-        var currentUser = _currentUserService.GetCurrentUser();
-        return HasCrossDonViPermission(currentUser) || currentUser.DonViId <= 0 || currentUser.DonViId == donViId;
+        var httt = await _dbContext.HeThongThongTins
+            .AsNoTracking()
+            .Where(x => x.Id == request.HtttId)
+            .Select(x => new { x.Id, x.DonViId })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (httt is null)
+        {
+            throw new AppException("ATTTDT_HTTT_NOT_FOUND", "Không tìm thấy hệ thống thông tin đã chọn.", 404);
+        }
+
+        if (httt.DonViId != request.DonViId)
+        {
+            throw new AppException(
+                "ATTTDT_HTTT_SCOPE_MISMATCH",
+                "Hệ thống thông tin đã chọn không thuộc đơn vị đang khai báo.",
+                422);
+        }
+
+        var duplicateExists = await _dbContext.AtttHtttDauTus
+            .AsNoTracking()
+            .AnyAsync(
+                x => x.DonViId == request.DonViId
+                    && x.HtttId == request.HtttId
+                    && (!id.HasValue || x.Id != id.Value),
+                cancellationToken);
+
+        if (duplicateExists)
+        {
+            throw new AppException(
+                "ATTTDT_HTTT_DUPLICATE",
+                "Hệ thống thông tin này đã có trong danh sách ATTT HTTT đầu tư.",
+                409);
+        }
     }
 
     private static System.Linq.Expressions.Expression<Func<AtttHtttDauTuEntity, AtttHtttDauTuDto>> MapLiveToDto()
@@ -141,24 +190,8 @@ public sealed class AtttHtttDauTuService : IAtttHtttDauTuService
         {
             Id = x.Id,
             DonViId = x.DonViId,
-            KyBaoCaoCode = null,
             HtttId = x.HtttId,
-            ChuQuan = x.ChuQuan,
-            DonViVanHanh = x.DonViVanHanh,
-            CapDoDeXuat = x.CapDoDeXuat,
-            NgayPheDuyetHsdxcd = x.NgayPheDuyetHsdxcd,
-            QuyetDinhPheDuyet = x.QuyetDinhPheDuyet,
-            DaLongGhepThuyetMinh = x.DaLongGhepThuyetMinh,
-            GhiChu = x.GhiChu
-        };
-
-    private static System.Linq.Expressions.Expression<Func<AtttHtttDauTuHisEntity, AtttHtttDauTuDto>> MapHisToDto()
-        => x => new AtttHtttDauTuDto
-        {
-            Id = x.SourceId,
-            DonViId = x.DonViId,
-            KyBaoCaoCode = x.KyBaoCaoCode,
-            HtttId = x.HtttId,
+            LoaiHaTang = x.LoaiHaTang,
             ChuQuan = x.ChuQuan,
             DonViVanHanh = x.DonViVanHanh,
             CapDoDeXuat = x.CapDoDeXuat,

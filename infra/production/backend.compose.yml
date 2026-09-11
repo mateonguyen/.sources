@@ -1,0 +1,42 @@
+name: thucluc-backend
+
+services:
+  backend:
+    image: ${THUCLUC_BACKEND_IMAGE:?Set THUCLUC_BACKEND_IMAGE to an immutable version tag}
+    container_name: thucluc-backend
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      Web__UseHttpsRedirection: "false"
+      ConnectionStrings__Oracle: ${ORACLE_CONNECTION_STRING:?Set ORACLE_CONNECTION_STRING}
+      Database__Schema: ${ORACLE_SCHEMA:?Set ORACLE_SCHEMA}
+      Jwt__Issuer: ${JWT_ISSUER:-thucluc-api}
+      Jwt__Audience: ${JWT_AUDIENCE:-thucluc-web}
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY}
+      Jwt__AccessTokenMinutes: ${JWT_ACCESS_TOKEN_MINUTES:-480}
+      Jwt__RefreshTokenDays: ${JWT_REFRESH_TOKEN_DAYS:-7}
+      Minio__ServiceUrl: ${MINIO_SERVICE_URL:?Set MINIO_SERVICE_URL}
+      Minio__AccessKey: ${MINIO_ACCESS_KEY:?Set MINIO_ACCESS_KEY}
+      Minio__SecretKey: ${MINIO_SECRET_KEY:?Set MINIO_SECRET_KEY}
+      Minio__BucketName: ${MINIO_BUCKET_NAME:-thuc-luc}
+      Minio__UseSsl: ${MINIO_USE_SSL:-false}
+      Pdf__UseGotenberg: ${PDF_USE_GOTENBERG:-true}
+      Pdf__GotenbergUrl: ${GOTENBERG_URL:?Set GOTENBERG_URL}
+      Cors__AllowedOrigins__0: ${FRONTEND_ORIGIN:?Set FRONTEND_ORIGIN}
+      Seed__ApplyOnStartup: "false"
+      Seed__ResetBeforeSeed: "false"
+      Version__BuildNumber: ${RELEASE_VERSION:-unknown}
+      Version__CommitSha: ${COMMIT_SHA:-unknown}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8080/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true

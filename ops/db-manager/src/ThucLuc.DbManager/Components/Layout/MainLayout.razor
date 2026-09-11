@@ -1,0 +1,65 @@
+@inherits LayoutComponentBase
+
+<div class="shell">
+    <aside class="sidebar">
+        <a class="brand" href="/">
+            <span class="brand__mark">TL</span>
+            <span>
+                <strong>OPS CONSOLE</strong>
+                <small>Thực Lực V2</small>
+            </span>
+        </a>
+
+        <nav class="navigation" aria-label="Điều hướng chính">
+            <NavLink href="/" Match="NavLinkMatch.All">
+                <span class="navigation__icon">⌂</span>
+                Tổng quan
+            </NavLink>
+            <NavLink href="/backups">
+                <span class="navigation__icon">▣</span>
+                Sao lưu &amp; phục hồi
+            </NavLink>
+            <NavLink href="/migrations">
+                <span class="navigation__icon">⇅</span>
+                Cập nhật cấu trúc
+            </NavLink>
+            <NavLink href="/releases">
+                <span class="navigation__icon">↑</span>
+                Phát hành
+            </NavLink>
+            <NavLink href="/servers">
+                <span class="navigation__icon">▤</span>
+                Máy chủ
+            </NavLink>
+            <NavLink href="/infrastructure">
+                <span class="navigation__icon">◆</span>
+                Hạ tầng &amp; MinIO
+            </NavLink>
+            <NavLink href="/operations">
+                <span class="navigation__icon">≡</span>
+                Lịch sử thao tác
+            </NavLink>
+        </nav>
+
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <strong class="topbar__title">Triển khai, sao lưu và vận hành hệ thống Thực Lực V2</strong>
+            </div>
+            <AuthorizeView>
+                <Authorized Context="auth">
+                    <form method="post" action="/auth/logout" class="topbar__account">
+                        <span>@auth.User.Identity?.Name</span>
+                        <button type="submit" class="button button--secondary">Đăng xuất</button>
+                    </form>
+                </Authorized>
+            </AuthorizeView>
+        </header>
+
+        <div class="content">
+            @Body
+        </div>
+    </main>
+</div>

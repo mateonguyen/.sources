@@ -82,8 +82,13 @@ export class HaTangMangPage {
         this.haTangMangApi.getAll(donViId),
         this.donViApi.getById(donViId),
       ]);
-      this.directChildCount.set(donVi.children.length);
-      this.row.set(this.buildRow(items[0] ?? null, donVi.children.length));
+      // GetById cua API khong populate donVi.children (luon rong theo thiet
+      // ke) - "So DV truc thuoc" phai lay tu soDonViCapPhong + soDonViCapXa
+      // (tong hop san co trong DTO), khong duoc dung .children.length.
+      const childCount =
+        (donVi.soDonViCapPhong ?? 0) + (donVi.soDonViCapXa ?? 0);
+      this.directChildCount.set(childCount);
+      this.row.set(this.buildRow(items[0] ?? null, childCount));
     } finally {
       this.loading.set(false);
     }

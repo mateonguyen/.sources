@@ -18,8 +18,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { TableModule } from 'primeng/table';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { TreeSelectModule } from 'primeng/treeselect';
@@ -31,14 +30,6 @@ import { ConfirmDialogWrapperService } from '../../shared/ui/confirm-dialog-wrap
 import { EmptyStateComponent } from '../../shared/ui/empty-state.component';
 import { FilterBarComponent } from '../../shared/ui/filter-bar.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
-import {
-  APP_MULTISELECT_PANEL_STYLE_CLASS,
-  APP_SELECT_PANEL_STYLE_CLASS,
-  APP_TABLE_BODY_CELL_CLASS,
-  APP_TABLE_HEADER_CELL_CLASS,
-  APP_TABLE_ROW_CLASS,
-  APP_TABLE_STYLE_CLASS,
-} from '../../shared/ui/primeng-pt';
 import { SectionCardComponent } from '../../shared/ui/section-card.component';
 import { TongHopModeBannerComponent } from '../../shared/ui/tong-hop-mode-banner.component';
 import {
@@ -66,22 +57,35 @@ interface LoaiThietBiOption {
   laTongHop: boolean;
 }
 
-interface GroupedThietBiRow {
-  item: ThietBiCnttDto;
-  children: ThietBiCnttDto[];
+interface ThietBiCategoryView {
+  id: number;
   key: string;
+  ordinal: number;
+  label: string;
+  maLoai: string;
+  laTongHop: boolean;
+  items: ThietBiCnttDto[];
+  recordCount: number;
+  currentCount: number;
+  brokenCount: number;
+  primaryItem: ThietBiCnttDto | null;
 }
 
-interface GroupedThietBiItems {
-  index: number;
-  parentLabel: string;
-  rows: GroupedThietBiRow[];
+interface ThietBiGroupView {
+  id: number;
+  key: string;
+  roman: string;
+  label: string;
+  categories: ThietBiCategoryView[];
+  recordCount: number;
+  currentCount: number;
+  configuredCount: number;
 }
 
-interface QuickAddDraft {
-  tenThietBi: string;
+interface AggregateDraft {
   soLuongHienDung: number;
   tinhTrang: string;
+  ghiChu: string;
 }
 
 @Component({
@@ -99,11 +103,10 @@ interface QuickAddDraft {
     AutoCompleteModule,
     DropdownModule,
     TreeSelectModule,
-    MultiSelectModule,
     InputNumberModule,
     InputTextModule,
+    InputTextareaModule,
     ButtonModule,
-    TableModule,
     TooltipModule,
     DialogModule,
   ],
@@ -111,12 +114,11 @@ interface QuickAddDraft {
   styleUrl: './thiet-bi-cntt.page.scss',
 })
 export class ThietBiCnttPage {
-  readonly selectPanelStyleClass = APP_SELECT_PANEL_STYLE_CLASS;
-  readonly multiSelectPanelStyleClass = APP_MULTISELECT_PANEL_STYLE_CLASS;
-  readonly tableStyleClass = APP_TABLE_STYLE_CLASS;
-  readonly tableHeaderCellClass = APP_TABLE_HEADER_CELL_CLASS;
-  readonly tableRowClass = APP_TABLE_ROW_CLASS;
-  readonly tableBodyCellClass = APP_TABLE_BODY_CELL_CLASS;
+  // Không dùng `overflow-hidden` của panel dùng chung: dropdown có ô cuộn
+  // danh sách riêng, lớp đó có thể làm phần option bị cắt khi panel nằm trong
+  // card. Overlay được append ra body và giữ class riêng để hiển thị ổn định.
+  readonly selectPanelStyleClass =
+    'device-select-panel rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] shadow-panel';
 
   private static soLuongValidator(
     control: AbstractControl,
@@ -147,9 +149,10 @@ export class ThietBiCnttPage {
   );
 
   readonly donViId = computed(() => this.authService.profile()?.donViId ?? 0);
+  readonly selectedLoaiId = signal<number | null>(null);
 
   readonly selectedLoaiThietBi = computed(() => {
-    const loaiThietBiId = this.form.controls.loaiThietBiId.value;
+    const loaiThietBiId = this.selectedLoaiId();
     return (
       this.loaiThietBiOptions().find((item) => item.value === loaiThietBiId) ??
       null
@@ -165,16 +168,12 @@ export class ThietBiCnttPage {
   // p-treeSelect) de giu nguyen kieu du lieu number|null cho loaiThietBiId
   // o moi noi khac trong file (rat nhieu cho dang gia dinh dieu nay).
   readonly loaiThietBiSelectedNode = computed(() => {
-    const id = this.form.controls.loaiThietBiId.value;
+    const id = this.selectedLoaiId();
     if (id === null) {
       return null;
     }
     return this.findLoaiThietBiTreeNode(this.loaiThietBiTreeOptions(), id);
   });
-
-  readonly soLuongError = computed(
-    () => this.form.hasError('soLuongVuotQua') && this.form.touched,
-  );
 
   items = signal<ThietBiCnttDto[]>([]);
   loading = signal(false);
@@ -182,9 +181,15 @@ export class ThietBiCnttPage {
   formDialogVisible = signal(false);
   selectedId = signal<number | null>(null);
   loaiThietBiOptions = signal<LoaiThietBiOption[]>([]);
+  loaiThietBiTree = signal<RefLoaiThietBiDto[]>([]);
   loaiThietBiTreeOptions = signal<TreeNode<{ id: number; laTongHop: boolean }>[]>([]);
   ungDungSearchQuery = signal('');
   ungDungSuggestions = signal<string[]>([]);
+  // Guong lai gia tri cua form.controls.ungDungIds duoi dang signal - vi
+  // computed() chi theo doi thay doi cua signal, doc truc tiep .value cua
+  // FormControl (reactive forms, khong phai signal) se khong bao gio kich
+  // hoat selectedUngDungItems tinh lai duoc.
+  ungDungIdsSignal = signal<number[]>([]);
   heThongThongTin = signal<HeThongThongTinOptionDto[]>([]);
   donViSuDungTree = signal<DonViDto[]>([]);
   hangSanXuatCatalog = signal<string[]>([]);
@@ -196,104 +201,124 @@ export class ThietBiCnttPage {
   heDieuHanhSuggestions = signal<string[]>([]);
   expandedGroups = signal<Record<string, boolean>>({});
   expandedRows = signal<Record<string, boolean>>({});
-  quickAddDrafts = signal<Record<string, QuickAddDraft>>({});
+  aggregateDrafts = signal<Record<number, AggregateDraft>>({});
+  savingAggregateId = signal<number | null>(null);
 
   filterLoaiThietBiId = signal<number | null>(null);
   filterTenThietBi = signal<string>('');
 
-  readonly filteredItems = computed(() => {
-    const loai = this.filterLoaiThietBiId();
-    const ten = this.filterTenThietBi().trim().toLowerCase();
-    return this.items().filter(
-      (item) =>
-        (loai === null || item.loaiThietBiId === loai) &&
-        (!ten || (item.tenThietBi ?? '').toLowerCase().includes(ten)),
-    );
-  });
+  readonly deviceGroups = computed<ThietBiGroupView[]>(() => {
+    const roots = this.sortLoaiNodes(this.loaiThietBiTree());
+    const allItems = this.items();
+    const selectedLoaiId = this.filterLoaiThietBiId();
+    const query = this.normalizeSearch(this.filterTenThietBi());
+    let ordinal = 0;
 
-  readonly groupedFilteredItems = computed<GroupedThietBiItems[]>(() => {
-    const groups = new Map<string, ThietBiCnttDto[]>();
-    for (const item of this.filteredItems()) {
-      const parent = this.resolveParentLoaiLabel(item);
-      if (!groups.has(parent)) {
-        groups.set(parent, []);
-      }
-      groups.get(parent)!.push(item);
-    }
+    return roots
+      .map<ThietBiGroupView | null>((root, rootIndex) => {
+        const rootMatches = this.matchesText(root.tenLoai, query);
+        const leafNodes =
+          root.children.length > 0 ? this.collectLeafNodes(root.children) : [root];
+        const categories = leafNodes
+          .map<ThietBiCategoryView | null>((leaf) => {
+            ordinal += 1;
+            const categoryItems = allItems.filter(
+              (item) => item.loaiThietBiId === leaf.id,
+            );
+            const categoryMatches = this.matchesText(
+              `${leaf.tenLoai} ${leaf.maLoai}`,
+              query,
+            );
+            const matchingItems = query
+              ? categoryItems.filter((item) =>
+                  this.matchesDeviceItem(item, query),
+                )
+              : categoryItems;
+            const matchesSelected =
+              selectedLoaiId === null || selectedLoaiId === leaf.id;
+            const matchesQuery =
+              !query || rootMatches || categoryMatches || matchingItems.length > 0;
 
-    return Array.from(groups.entries()).map(([parentLabel, items], idx) => {
-      const rows: GroupedThietBiRow[] = [];
-      for (const item of items) {
-        if (this.isChildName(item.tenThietBi) && rows.length > 0) {
-          rows[rows.length - 1].children.push(item);
-          continue;
+            if (!matchesSelected || !matchesQuery) {
+              return null;
+            }
+
+            const visibleItems =
+              query && !rootMatches && !categoryMatches
+                ? matchingItems
+                : categoryItems;
+
+            return {
+              id: leaf.id,
+              key: `category-${leaf.id}`,
+              ordinal,
+              label: this.cleanCatalogLabel(leaf.tenLoai),
+              maLoai: leaf.maLoai,
+              laTongHop: leaf.laTongHop,
+              items: visibleItems,
+              recordCount: visibleItems.length,
+              currentCount: visibleItems.reduce(
+                (sum, item) => sum + item.soLuongHienDung,
+                0,
+              ),
+              brokenCount: visibleItems.reduce(
+                (sum, item) => sum + item.soLuongHong,
+                0,
+              ),
+              primaryItem: visibleItems[0] ?? null,
+            } satisfies ThietBiCategoryView;
+          })
+          .filter(
+            (category): category is ThietBiCategoryView => category !== null,
+          );
+
+        if (categories.length === 0) {
+          return null;
         }
 
-        rows.push({
-          item,
-          children: [],
-          key: `${parentLabel}-${item.id}`,
-        });
-      }
-
-      return {
-        index: idx + 1,
-        parentLabel,
-        rows,
-      };
-    });
+        return {
+          id: root.id,
+          key: `group-${root.id}`,
+          roman: this.toRoman(rootIndex + 1),
+          label: this.cleanCatalogLabel(root.tenLoai),
+          categories,
+          recordCount: categories.reduce(
+            (sum, category) => sum + category.recordCount,
+            0,
+          ),
+          currentCount: categories.reduce(
+            (sum, category) => sum + category.currentCount,
+            0,
+          ),
+          configuredCount: categories.filter(
+            (category) => category.recordCount > 0,
+          ).length,
+        } satisfies ThietBiGroupView;
+      })
+      .filter((group): group is ThietBiGroupView => group !== null);
   });
 
-  readonly selectedLoaiKeyword = computed(() => {
-    const label = this.selectedLoaiThietBi()?.label?.toLowerCase() ?? '';
+  readonly summary = computed(() => {
+    const rows = this.items();
     return {
-      isMayChu: label.includes('máy chủ') || label.includes('server'),
-      isMang:
-        label.includes('router') ||
-        label.includes('switch') ||
-        label.includes('tường lửa') ||
-        label.includes('mạng'),
-      isBaoMat: label.includes('bảo mật') || label.includes('security'),
+      currentCount: rows.reduce(
+        (sum, item) => sum + item.soLuongHienDung,
+        0,
+      ),
+      configuredTypeCount: new Set(rows.map((item) => item.loaiThietBiId)).size,
+      totalTypeCount: this.loaiThietBiOptions().length,
+      detailCount: rows.filter(
+        (item) => !this.isLoaiTongHop(item.loaiThietBiId),
+      ).length,
+      brokenCount: rows.reduce((sum, item) => sum + item.soLuongHong, 0),
     };
   });
 
-  readonly visibleDialogFields = computed(() => {
-    const k = this.selectedLoaiKeyword();
-    if (k.isMayChu) {
-      return {
-        showModel: true,
-        showCauHinh: true,
-        showHeDieuHanh: true,
-        showDonViSuDung: true,
-        showUngDung: true,
-      };
-    }
-    if (k.isMang) {
-      return {
-        showModel: true,
-        showCauHinh: true,
-        showHeDieuHanh: false,
-        showDonViSuDung: true,
-        showUngDung: false,
-      };
-    }
-    if (k.isBaoMat) {
-      return {
-        showModel: true,
-        showCauHinh: true,
-        showHeDieuHanh: false,
-        showDonViSuDung: true,
-        showUngDung: false,
-      };
-    }
-    return {
-      showModel: true,
-      showCauHinh: true,
-      showHeDieuHanh: true,
-      showDonViSuDung: true,
-      showUngDung: true,
-    };
-  });
+  readonly hasActiveFilters = computed(
+    () =>
+      this.filterLoaiThietBiId() !== null ||
+      this.filterTenThietBi().trim().length > 0,
+  );
 
   readonly loaiThietBiFilterOptions = computed<
     Array<SelectOption<number | null>>
@@ -320,7 +345,7 @@ export class ThietBiCnttPage {
   // Danh sach ung dung da chon, dung de render dang bang trong dialog thay
   // vi p-multiSelect (kho nhin khi chon nhieu - chu bi cat/chong len nhau).
   readonly selectedUngDungItems = computed<Array<SelectOption<number>>>(() => {
-    const ids: number[] = this.form.controls.ungDungIds.value ?? [];
+    const ids: number[] = this.ungDungIdsSignal();
     const options = this.heThongOptions();
     return ids
       .map((id) => options.find((option) => option.value === id))
@@ -354,8 +379,10 @@ export class ThietBiCnttPage {
       const control = this.form.controls.ungDungIds;
       const current: number[] = control.value ?? [];
       if (!current.includes(option.value)) {
-        control.setValue([...current, option.value]);
+        const next = [...current, option.value];
+        control.setValue(next);
         control.markAsDirty();
+        this.ungDungIdsSignal.set(next);
       }
     }
     this.ungDungSearchQuery.set('');
@@ -363,8 +390,10 @@ export class ThietBiCnttPage {
 
   removeUngDung(id: number): void {
     const control = this.form.controls.ungDungIds;
-    control.setValue((control.value ?? []).filter((x: number) => x !== id));
+    const next = (control.value ?? []).filter((x: number) => x !== id);
+    control.setValue(next);
     control.markAsDirty();
+    this.ungDungIdsSignal.set(next);
   }
 
   readonly donViSuDungOptions = computed<Array<SelectOption<string>>>(() => {
@@ -390,8 +419,19 @@ export class ThietBiCnttPage {
     private readonly notificationService: NotificationService,
     private readonly confirmDialog: ConfirmDialogWrapperService,
   ) {
-    this.form.controls.loaiThietBiId.valueChanges.subscribe(() => {
+    this.form.controls.loaiThietBiId.valueChanges.subscribe((value) => {
+      this.selectedLoaiId.set(value);
       this.syncLoaiThietBiMode();
+    });
+    this.form.controls.soLuongHienDung.valueChanges.subscribe((value) => {
+      if (!this.isTongHop()) {
+        return;
+      }
+      this.form.controls.soLuongTong.setValue(Number(value ?? 0), {
+        emitEvent: false,
+      });
+      this.form.controls.soLuongHong.setValue(0, { emitEvent: false });
+      this.form.updateValueAndValidity({ emitEvent: false });
     });
     this.form.controls.hangSanXuat.valueChanges.subscribe(() => {
       this.refreshModelSuggestions('');
@@ -413,10 +453,12 @@ export class ThietBiCnttPage {
 
       this.items.set(items);
       this.applyCatalog(catalog);
+      this.loaiThietBiTree.set(loaiTree);
       this.loaiThietBiOptions.set(this.flattenLoaiThietBiTree(loaiTree));
       this.loaiThietBiTreeOptions.set(this.buildLoaiThietBiTreeNodes(loaiTree));
       this.heThongThongTin.set(heThongThongTin);
       this.donViSuDungTree.set(this.resolveUserDonViSubtree(donViTree));
+      this.syncAggregateDrafts();
       this.syncLoaiThietBiMode();
     } finally {
       this.loading.set(false);
@@ -432,6 +474,7 @@ export class ThietBiCnttPage {
       ]);
       this.items.set(items);
       this.applyCatalog(catalog);
+      this.syncAggregateDrafts();
     } finally {
       this.loading.set(false);
     }
@@ -462,9 +505,50 @@ export class ThietBiCnttPage {
     this.filterTenThietBi.set('');
   }
 
+  hasSoLuongError(): boolean {
+    return this.form.hasError('soLuongVuotQua') && this.form.touched;
+  }
+
+  dialogTitle(): string {
+    if (this.isTongHop()) {
+      return this.selectedId()
+        ? 'Cập nhật số lượng thiết bị'
+        : 'Khai báo số lượng thiết bị';
+    }
+    return this.selectedId() ? 'Cập nhật thiết bị' : 'Thêm thiết bị chi tiết';
+  }
+
+  dialogSubmitLabel(): string {
+    if (this.isTongHop()) {
+      return this.selectedId() ? 'Lưu thay đổi' : 'Lưu số lượng';
+    }
+    return this.selectedId() ? 'Lưu thay đổi' : 'Thêm thiết bị';
+  }
+
   openCreateDialog(): void {
     this.resetForm();
     this.formDialogVisible.set(true);
+  }
+
+  openCreateForCategory(category: ThietBiCategoryView): void {
+    this.resetForm();
+    const defaultQuantity = category.laTongHop ? 0 : 1;
+    this.form.patchValue({
+      loaiThietBiId: category.id,
+      soLuongTong: defaultQuantity,
+      soLuongHienDung: defaultQuantity,
+      soLuongHong: 0,
+    });
+    this.syncLoaiThietBiMode();
+    this.formDialogVisible.set(true);
+  }
+
+  async openCategoryEditor(category: ThietBiCategoryView): Promise<void> {
+    if (category.primaryItem) {
+      await this.openEditDialog(category.primaryItem);
+      return;
+    }
+    this.openCreateForCategory(category);
   }
 
   async openEditDialog(item: ThietBiCnttDto): Promise<void> {
@@ -476,59 +560,97 @@ export class ThietBiCnttPage {
     this.formDialogVisible.set(false);
   }
 
-  isGroupExpanded(parentLabel: string): boolean {
-    return this.expandedGroups()[parentLabel] ?? true;
+  isGroupExpanded(key: string): boolean {
+    return this.expandedGroups()[key] ?? true;
   }
 
-  toggleGroup(parentLabel: string): void {
+  toggleGroup(key: string): void {
     const current = this.expandedGroups();
     this.expandedGroups.set({
       ...current,
-      [parentLabel]: !(current[parentLabel] ?? true),
+      [key]: !(current[key] ?? true),
     });
   }
 
-  isRowExpanded(key: string): boolean {
-    return this.expandedRows()[key] ?? false;
+  isCategoryExpanded(key: string): boolean {
+    return this.expandedRows()[key] ?? true;
   }
 
-  toggleRow(key: string): void {
+  toggleCategory(key: string): void {
     const current = this.expandedRows();
     this.expandedRows.set({
       ...current,
-      [key]: !(current[key] ?? false),
+      [key]: !(current[key] ?? true),
     });
   }
 
-  quickAddDraft(parentLabel: string): QuickAddDraft {
+  setAllExpanded(expanded: boolean): void {
+    const groupState: Record<string, boolean> = {};
+    const categoryState: Record<string, boolean> = {};
+    for (const group of this.deviceGroups()) {
+      groupState[group.key] = expanded;
+      for (const category of group.categories) {
+        categoryState[category.key] = expanded;
+      }
+    }
+    this.expandedGroups.set(groupState);
+    this.expandedRows.set(categoryState);
+  }
+
+  aggregateDraft(category: ThietBiCategoryView): AggregateDraft {
     return (
-      this.quickAddDrafts()[parentLabel] ?? {
-        tenThietBi: '',
-        soLuongHienDung: 1,
-        tinhTrang: '',
+      this.aggregateDrafts()[category.id] ?? {
+        soLuongHienDung: category.currentCount,
+        tinhTrang: category.primaryItem?.tinhTrang ?? '',
+        ghiChu: category.primaryItem?.ghiChu ?? '',
       }
     );
   }
 
-  updateQuickAddDraft(
-    parentLabel: string,
-    patch: Partial<QuickAddDraft>,
+  updateAggregateDraft(
+    category: ThietBiCategoryView,
+    patch: Partial<AggregateDraft>,
   ): void {
-    const drafts = this.quickAddDrafts();
-    const current = this.quickAddDraft(parentLabel);
-    this.quickAddDrafts.set({
+    const current = this.aggregateDraft(category);
+    this.aggregateDrafts.update((drafts) => ({
       ...drafts,
-      [parentLabel]: {
+      [category.id]: {
         ...current,
         ...patch,
+        soLuongHienDung: Math.max(
+          0,
+          Number(patch.soLuongHienDung ?? current.soLuongHienDung),
+        ),
       },
+    }));
+  }
+
+  adjustAggregateDraft(
+    category: ThietBiCategoryView,
+    delta: number,
+  ): void {
+    this.updateAggregateDraft(category, {
+      soLuongHienDung: this.aggregateDraft(category).soLuongHienDung + delta,
     });
   }
 
-  async addQuickItem(parentLabel: string): Promise<void> {
-    const draft = this.quickAddDraft(parentLabel);
-    const ten = draft.tenThietBi.trim();
-    if (!ten || this.saving()) {
+  adjustFormQuantity(delta: number): void {
+    const current = Number(this.form.controls.soLuongHienDung.value ?? 0);
+    this.form.controls.soLuongHienDung.setValue(Math.max(0, current + delta));
+    this.form.controls.soLuongHienDung.markAsDirty();
+  }
+
+  hasAggregateChanges(category: ThietBiCategoryView): boolean {
+    const draft = this.aggregateDraft(category);
+    return (
+      draft.soLuongHienDung !== category.currentCount ||
+      draft.tinhTrang.trim() !== (category.primaryItem?.tinhTrang ?? '').trim() ||
+      draft.ghiChu.trim() !== (category.primaryItem?.ghiChu ?? '').trim()
+    );
+  }
+
+  async saveAggregate(category: ThietBiCategoryView): Promise<void> {
+    if (this.savingAggregateId() !== null) {
       return;
     }
 
@@ -541,70 +663,41 @@ export class ThietBiCnttPage {
       return;
     }
 
-    const loaiThietBiId = this.resolveLoaiByParent(parentLabel);
-    if (!loaiThietBiId) {
-      this.notificationService.show(
-        'error',
-        'Không xác định được loại thiết bị.',
-      );
-      return;
-    }
-
-    const soLuongHienDung = Number(draft.soLuongHienDung ?? 0);
-    this.saving.set(true);
+    const draft = this.aggregateDraft(category);
+    const quantity = Math.max(0, draft.soLuongHienDung);
+    const current = category.primaryItem;
+    this.savingAggregateId.set(category.id);
     try {
       const payload: UpsertThietBiCnttRequest = {
         donViId,
-        loaiThietBiId,
-        tenThietBi: ten,
+        loaiThietBiId: category.id,
+        tenThietBi: null,
         hangSanXuat: null,
         model: null,
         cauHinh: null,
         heDieuHanh: null,
         donViSuDung: null,
-        soLuongTong: soLuongHienDung,
-        soLuongHienDung,
+        soLuongTong: quantity,
+        soLuongHienDung: quantity,
         soLuongHong: 0,
         tinhTrang: this.normalizeText(draft.tinhTrang),
-        ghiChu: null,
+        ghiChu: this.normalizeText(draft.ghiChu),
         ungDungIds: [],
       };
 
-      await this.thietBiApi.create(payload);
+      if (current) {
+        await this.thietBiApi.update(current.id, payload);
+      } else {
+        await this.thietBiApi.create(payload);
+      }
       this.notificationService.show(
         'success',
-        'Thêm nhanh thiết bị thành công.',
+        `Đã lưu thông tin ${category.label}.`,
       );
-      this.updateQuickAddDraft(parentLabel, {
-        tenThietBi: '',
-        soLuongHienDung: 1,
-        tinhTrang: '',
-      });
       await this.load();
     } finally {
-      this.saving.set(false);
+      this.savingAggregateId.set(null);
     }
-  }
-
-  fillSampleData(): void {
-    const firstNonTongHop = this.loaiThietBiOptions().find((o) => !o.laTongHop);
-    const firstDonViSuDung = this.donViSuDungOptions()[0]?.value ?? '';
-    this.form.patchValue({
-      loaiThietBiId: firstNonTongHop?.value ?? null,
-      tenThietBi: 'Máy chủ Dell PowerEdge R740',
-      hangSanXuat: 'Dell',
-      model: 'PowerEdge R740',
-      cauHinh: 'CPU: Intel Xeon Silver 4214R, RAM: 32GB, HDD: 2TB SAS',
-      heDieuHanh: 'Windows Server 2019',
-      donViSuDung: firstDonViSuDung,
-      soLuongTong: 3,
-      soLuongHienDung: 2,
-      soLuongHong: 1,
-      tinhTrang: 'Hoạt động bình thường, 1 máy đang bảo trì',
-      ghiChu: '[Dữ liệu mẫu — xóa trước khi dùng thực]',
-      ungDungIds: [],
-    });
-    this.syncLoaiThietBiMode();
   }
 
   async save(): Promise<void> {
@@ -699,6 +792,7 @@ export class ThietBiCnttPage {
       ghiChu: detail.ghiChu ?? '',
       ungDungIds: detail.ungDungIds,
     });
+    this.ungDungIdsSignal.set(detail.ungDungIds ?? []);
     this.refreshModelSuggestions(detail.model ?? '');
     this.syncLoaiThietBiMode();
     this.ungDungSearchQuery.set('');
@@ -740,6 +834,7 @@ export class ThietBiCnttPage {
       ghiChu: '',
       ungDungIds: [],
     });
+    this.ungDungIdsSignal.set([]);
     this.refreshModelSuggestions('');
     this.syncLoaiThietBiMode();
     this.ungDungSearchQuery.set('');
@@ -761,6 +856,20 @@ export class ThietBiCnttPage {
       .filter((item) => ids.includes(item.id))
       .map((item) => item.tenPhanMem);
     return names.length > 0 ? names.join(', ') : ids.join(', ');
+  }
+
+  displayDeviceName(item: ThietBiCnttDto): string {
+    const name = item.tenThietBi?.trim();
+    if (!name) {
+      return this.cleanCatalogLabel(
+        this.resolveLoaiThietBiLabel(item.loaiThietBiId),
+      );
+    }
+    return name.replace(/^\(\d+\)\s*/, '');
+  }
+
+  manufacturerLabel(item: ThietBiCnttDto): string {
+    return [item.hangSanXuat, item.model].filter(Boolean).join(' · ') || '—';
   }
 
   toRoman(value: number): string {
@@ -796,7 +905,7 @@ export class ThietBiCnttPage {
     tree: RefLoaiThietBiDto[],
     ancestorLabels: string[] = [],
   ): LoaiThietBiOption[] {
-    return tree.flatMap((node) => {
+    return this.sortLoaiNodes(tree).flatMap((node) => {
       const pathLabels = [...ancestorLabels, node.tenLoai];
       if (node.children.length > 0) {
         return this.flattenLoaiThietBiTree(node.children, pathLabels);
@@ -823,7 +932,7 @@ export class ThietBiCnttPage {
   private buildLoaiThietBiTreeNodes(
     tree: RefLoaiThietBiDto[],
   ): TreeNode<{ id: number; laTongHop: boolean }>[] {
-    return tree.map((node) => ({
+    return this.sortLoaiNodes(tree).map((node) => ({
       key: String(node.id),
       label: node.tenLoai,
       data: { id: node.id, laTongHop: node.laTongHop },
@@ -863,9 +972,11 @@ export class ThietBiCnttPage {
 
   private syncLoaiThietBiMode(): void {
     const donViSuDungControl = this.form.controls.donViSuDung;
+    const tenThietBiControl = this.form.controls.tenThietBi;
 
     if (this.isTongHop()) {
       donViSuDungControl.clearValidators();
+      tenThietBiControl.clearValidators();
       this.form.patchValue(
         {
           tenThietBi: '',
@@ -874,37 +985,25 @@ export class ThietBiCnttPage {
           cauHinh: '',
           heDieuHanh: '',
           donViSuDung: '',
+          soLuongTong: Number(this.form.controls.soLuongHienDung.value ?? 0),
+          soLuongHong: 0,
           ungDungIds: [],
         },
         { emitEvent: false },
       );
+      this.ungDungIdsSignal.set([]);
     } else {
       donViSuDungControl.setValidators([Validators.required]);
+      tenThietBiControl.setValidators([Validators.required]);
     }
 
     donViSuDungControl.updateValueAndValidity({ emitEvent: false });
+    tenThietBiControl.updateValueAndValidity({ emitEvent: false });
+    this.form.updateValueAndValidity({ emitEvent: false });
   }
 
   private resolveDisplayName(item: ThietBiCnttDto): string {
     return item.tenThietBi ?? this.resolveLoaiThietBiLabel(item.loaiThietBiId);
-  }
-
-  private resolveParentLoaiLabel(item: ThietBiCnttDto): string {
-    const full = this.resolveLoaiThietBiLabel(item.loaiThietBiId);
-    const slashIndex = full.indexOf('/');
-    return slashIndex >= 0 ? full.slice(0, slashIndex).trim() : full;
-  }
-
-  private resolveLoaiByParent(parentLabel: string): number | null {
-    const match = this.loaiThietBiOptions().find((option) =>
-      option.label.startsWith(`${parentLabel} /`),
-    );
-    return match?.value ?? null;
-  }
-
-  private isChildName(value: string | null | undefined): boolean {
-    const text = (value ?? '').trim();
-    return /^\(\d+\)/.test(text);
   }
 
   private normalizeText(value: string | null | undefined): string | null {
@@ -1003,6 +1102,88 @@ export class ThietBiCnttPage {
 
   private normalizeLookup(value: string): string {
     return value.trim().toLowerCase();
+  }
+
+  private collectLeafNodes(nodes: RefLoaiThietBiDto[]): RefLoaiThietBiDto[] {
+    return this.sortLoaiNodes(nodes).flatMap((node) =>
+      node.children.length > 0 ? this.collectLeafNodes(node.children) : [node],
+    );
+  }
+
+  private sortLoaiNodes(nodes: RefLoaiThietBiDto[]): RefLoaiThietBiDto[] {
+    return [...nodes].sort(
+      (a, b) =>
+        a.sortOrder - b.sortOrder ||
+        a.tenLoai.localeCompare(b.tenLoai, 'vi', { sensitivity: 'base' }),
+    );
+  }
+
+  private cleanCatalogLabel(value: string): string {
+    const lastPart = value.split('/').at(-1)?.trim() ?? value.trim();
+    return lastPart.replace(/^\s*(?:[IVXLCDM]+|\d+)[.)]\s*/i, '').trim();
+  }
+
+  private normalizeSearch(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'D')
+      .trim()
+      .toLowerCase();
+  }
+
+  private matchesText(value: string | null | undefined, query: string): boolean {
+    return !query || this.normalizeSearch(value ?? '').includes(query);
+  }
+
+  private matchesDeviceItem(item: ThietBiCnttDto, query: string): boolean {
+    const applications = this.resolveUngDungLabels(item.ungDungIds);
+    return this.matchesText(
+      [
+        item.tenThietBi,
+        item.hangSanXuat,
+        item.model,
+        item.cauHinh,
+        item.heDieuHanh,
+        item.donViSuDung,
+        item.tinhTrang,
+        item.ghiChu,
+        applications,
+      ]
+        .filter(Boolean)
+        .join(' '),
+      query,
+    );
+  }
+
+  private isLoaiTongHop(loaiThietBiId: number): boolean {
+    return (
+      this.loaiThietBiOptions().find(
+        (option) => option.value === loaiThietBiId,
+      )?.laTongHop ?? false
+    );
+  }
+
+  private syncAggregateDrafts(): void {
+    const drafts: Record<number, AggregateDraft> = {};
+    for (const option of this.loaiThietBiOptions()) {
+      if (!option.laTongHop) {
+        continue;
+      }
+      const categoryItems = this.items().filter(
+        (item) => item.loaiThietBiId === option.value,
+      );
+      drafts[option.value] = {
+        soLuongHienDung: categoryItems.reduce(
+          (sum, item) => sum + item.soLuongHienDung,
+          0,
+        ),
+        tinhTrang: categoryItems[0]?.tinhTrang ?? '',
+        ghiChu: categoryItems[0]?.ghiChu ?? '',
+      };
+    }
+    this.aggregateDrafts.set(drafts);
   }
 
   private resolveUserDonViSubtree(tree: DonViDto[]): DonViDto[] {

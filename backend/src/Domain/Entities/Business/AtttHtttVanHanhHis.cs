@@ -16,6 +16,8 @@ public sealed class AtttHtttVanHanhHis : AuditableEntityBase
     public string? QuyCheAttt { get; set; }
     public DateOnly? DuKienNgayPheDuyet { get; set; }
     public bool DaTrienKhaiPhuongAn { get; set; }
+    public string? TrangThaiTrienKhaiPhuongAn { get; set; }
+    public string? NoiDungPhuongAnDaTrienKhai { get; set; }
     public DateOnly? DuKienNgayTrienKhai { get; set; }
     public string? KiemTraDanhGia { get; set; }
     public string? GhiChu { get; set; }

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+source /opt/thucluc-ops/lib/common.sh
+
+app_dir="$(resolve_component_app_dir frontend)"
+version="$(read_or_detect_component_version "$app_dir" frontend thucluc-frontend)"
+export THUCLUC_FRONTEND_IMAGE="thucluc-frontend:$version"
+export RELEASE_VERSION="$version"
+docker compose \
+  --project-directory "$app_dir" \
+  --env-file "$app_dir/.env" \
+  --file "$app_dir/compose.yml" \
+  logs --no-color --tail 200 frontend

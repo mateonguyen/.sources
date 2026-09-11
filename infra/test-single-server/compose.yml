@@ -1,0 +1,69 @@
+name: thucluc-test
+
+services:
+  backend:
+    image: ${THUCLUC_BACKEND_IMAGE:-thucluc-backend:test-20260908-1}
+    container_name: thucluc-backend-test
+    network_mode: host
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      Web__UseHttpsRedirection: "false"
+      ConnectionStrings__Oracle: ${ORACLE_CONNECTION_STRING}
+      Database__Schema: ${ORACLE_SCHEMA}
+      Jwt__Issuer: thucluc-api
+      Jwt__Audience: thucluc-web
+      Jwt__SigningKey: ${JWT_SIGNING_KEY}
+      Jwt__AccessTokenMinutes: "480"
+      Jwt__RefreshTokenDays: "7"
+      # URL này được trả về cho trình duyệt qua presigned link, nên phải là IP máy chủ.
+      Minio__ServiceUrl: ${MINIO_SERVICE_URL:-http://10.10.79.248:9000}
+      Minio__AccessKey: ${MINIO_ACCESS_KEY}
+      Minio__SecretKey: ${MINIO_SECRET_KEY}
+      Minio__BucketName: ${MINIO_BUCKET_NAME:-thuc-luc}
+      Minio__UseSsl: "false"
+      Pdf__UseGotenberg: "true"
+      # Chỉ backend gọi Gotenberg trong cùng máy chủ; không trả URL này về trình duyệt.
+      Pdf__GotenbergUrl: http://127.0.0.1:3000
+      Cors__AllowedOrigins__0: ${FRONTEND_ORIGIN}
+      Seed__ApplyOnStartup: "false"
+      Seed__ResetBeforeSeed: "false"
+      Version__BuildNumber: ${RELEASE_VERSION:-test-20260908-1}
+      Version__CommitSha: local-test
+    volumes:
+      - ./logs/backend:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8080/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  gotenberg:
+    image: ${THUCLUC_GOTENBERG_IMAGE:-thucluc-gotenberg:test-20260908-1}
+    container_name: thucluc-gotenberg-test
+    ports:
+      # Chỉ mở nội bộ máy chủ, không công khai cổng 3000 ra mạng LAN.
+      - "127.0.0.1:3000:3000"
+    restart: unless-stopped
+
+  frontend:
+    image: ${THUCLUC_FRONTEND_IMAGE:-thucluc-frontend:test-20260908-1}
+    container_name: thucluc-frontend-test
+    environment:
+      BACKEND_URL: http://host.docker.internal:8080
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - "8081:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/health/frontend"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped

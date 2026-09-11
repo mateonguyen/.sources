@@ -1,0 +1,40 @@
+name: thucluc-ops
+
+services:
+  ops-console:
+    image: ${THUCLUC_OPS_IMAGE:?Set THUCLUC_OPS_IMAGE to an immutable version tag}
+    container_name: thucluc-ops-console
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      THUCLUC_OPS_CONFIG_PATH: /config/environments.json
+      THUCLUC_OPS_STATE_PATH: /state
+      THUCLUC_OPS_RELEASE_PATH: /releases
+      Ops__BackupRoot: /backups
+      Ops__MigrationSqlPath: /flyway-sql
+      Ops__RequireEncryptedDataProtectionKeys: "true"
+      Ops__DataProtectionCertificatePath: /run/secrets/data-protection.pfx
+      Ops__DataProtectionCertificatePasswordFile: /run/secrets/data-protection-pfx-password
+      Ops__SshKnownHostsPath: /run/secrets/known_hosts
+      AllowedHosts: ${OPS_ALLOWED_HOSTS:-*}
+    ports:
+      - "${OPS_CONSOLE_BIND_IP:-127.0.0.1}:${OPS_CONSOLE_PORT:-8088}:8080"
+    volumes:
+      - ./config:/config
+      - ./state:/state
+      - ./releases:/releases
+      - ./backups:/backups
+      - ./flyway-sql:/flyway-sql:ro
+      - ./secrets/data-protection.pfx:/run/secrets/data-protection.pfx:ro
+      - ./secrets/data-protection-pfx-password:/run/secrets/data-protection-pfx-password:ro
+      - ./secrets/id_ed25519:/run/secrets/id_ed25519:ro
+      - ./secrets/known_hosts:/run/secrets/known_hosts:ro
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8080/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true

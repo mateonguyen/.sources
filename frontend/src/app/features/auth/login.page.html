@@ -19,10 +19,7 @@
     </div>
 
     <form [formGroup]="form" (ngSubmit)="submit()" class="p-fluid login-form">
-      <div
-        class="login-field"
-        [class.has-value]="!!form.controls.username.value"
-      >
+      <div class="login-field">
         <label for="username" class="login-field__label">Tên đăng nhập *</label>
         <input
           pInputText
@@ -30,15 +27,15 @@
           type="text"
           formControlName="username"
           autocomplete="username"
+          autocapitalize="none"
+          spellcheck="false"
+          aria-required="true"
           class="login-field__input"
         />
       </div>
 
-      <div
-        class="login-field"
-        [class.has-value]="!!form.controls.password.value"
-      >
-        <label for="password" class="login-field__label">Mật khẩu</label>
+      <div class="login-field">
+        <label for="password" class="login-field__label">Mật khẩu *</label>
         <p-password
           id="password"
           formControlName="password"
@@ -47,6 +44,7 @@
           styleClass="w-full login-field__password"
           inputStyleClass="w-full login-field__input"
           autocomplete="current-password"
+          aria-required="true"
         ></p-password>
       </div>
 
