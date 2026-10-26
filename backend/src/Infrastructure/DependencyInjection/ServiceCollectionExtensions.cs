@@ -100,6 +100,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IFileStorageService, S3FileStorageService>();
         services.AddScoped<IBaselineDataSeeder, BaselineDataSeeder>();
+        services.AddScoped<IDemoReportingDataSeeder, DemoReportingDataSeeder>();
         services.AddHttpClient<IPdfService, PdfService>((serviceProvider, httpClient) =>
         {
             var options = serviceProvider.GetRequiredService<IOptions<PdfOptions>>().Value;

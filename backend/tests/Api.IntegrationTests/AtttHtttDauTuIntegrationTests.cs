@@ -21,7 +21,7 @@ public sealed class AtttHtttDauTuIntegrationTests : IClassFixture<ApiTestWebAppl
     public async Task GetAll_Should_Return_Live_Data_Even_When_Legacy_KyCode_Is_Sent()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         var seeded = await _factory.ExecuteDbContextAsync(async dbContext =>
         {

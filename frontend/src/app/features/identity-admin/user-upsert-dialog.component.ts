@@ -93,6 +93,7 @@ export class UserUpsertDialogComponent implements OnChanges {
   @Input() submitting = false;
   @Input() donViOptions: SelectOption[] = [];
   @Input() roleOptions: SelectOption[] = [];
+  @Input() canAssignRoles = false;
   @Input() initialData: UserUpsertInitialData | null = null;
 
   @Output() visibleChange = new EventEmitter<boolean>();
@@ -160,7 +161,7 @@ export class UserUpsertDialogComponent implements OnChanges {
       isActive: !!raw.isActive,
       email: this.normalizeOptional(raw.email),
       soDienThoai: this.normalizeOptional(raw.soDienThoai),
-      roleId: raw.roleId,
+      roleId: this.canAssignRoles ? raw.roleId : null,
       mustChangePassword: this.initialData?.mustChangePassword ?? false,
     };
 

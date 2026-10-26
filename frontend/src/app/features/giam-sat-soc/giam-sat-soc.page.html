@@ -3,7 +3,7 @@
 
   <!-- ─── Header + Toolbar ─── -->
   <app-section-card
-    title="Giám Sát SOC"
+    title="Giám sát SOC"
     subtitle="Ma trận giám sát SOC theo loại mạng và lớp giám sát. Nhập trực tiếp vào ô, nhấn Lưu để ghi dữ liệu."
   >
     <div class="relative mt-1">
@@ -50,6 +50,7 @@
     *ngFor="let group of loaiMangGroups(); trackBy: trackByGroup"
     [title]="group.label"
     subtitle="Nhập số liệu giám sát theo từng lớp. Bật công tắc nếu đơn vị đã triển khai hệ thống SOC."
+    headerType="section"
   >
 
     <!-- CoHeThong toggle bar -->

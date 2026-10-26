@@ -1,0 +1,302 @@
+<div class="unit-catalog">
+    <app-loading-overlay [active]="loading || saving"></app-loading-overlay>
+
+    <div class="catalog-note">
+      <i class="pi pi-info-circle"></i>
+      <div>
+        <strong>Một bộ chuẩn, có thể bổ sung theo đơn vị</strong>
+        <span>Mục chuẩn dùng chung toàn hệ thống. Đơn vị được bổ sung giá trị còn thiếu để sử dụng riêng; giá trị bổ sung độc lập và không ảnh hưởng đến đơn vị khác.</span>
+      </div>
+    </div>
+
+    <ng-container *ngIf="activeTab === 'common'">
+      <div class="catalog-toolbar">
+        <div class="catalog-picker">
+          <label for="unitCatalogCode">Nhóm danh mục</label>
+          <p-dropdown
+            inputId="unitCatalogCode"
+            [options]="catalogs"
+            optionLabel="name"
+            optionValue="id"
+            [(ngModel)]="selectedCodeId"
+            placeholder="Chọn danh mục"
+            [filter]="true"
+            filterBy="name"
+            (onChange)="onCodeChange()"
+          ></p-dropdown>
+        </div>
+        <div class="catalog-search">
+          <i class="pi pi-search"></i>
+          <input
+            pInputText
+            [(ngModel)]="searchTerm"
+            placeholder="Tìm theo tên giá trị..."
+          />
+        </div>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-plus"
+          label="Bổ sung mục"
+          [disabled]="!selectedCodeId || !canCreateCatalog"
+          (click)="openCreateCommonDialog()"
+        ></button>
+      </div>
+
+      <div class="catalog-summary" *ngIf="selectedCode">
+        <div>
+          <strong>{{ selectedCode.name }}</strong>
+          <span>{{ codeValues.length }} mục đang cấu hình</span>
+        </div>
+        <div class="catalog-legend">
+          <span><i class="legend-dot legend-dot--standard"></i>Chuẩn hệ thống</span>
+          <span><i class="legend-dot legend-dot--local"></i>Đơn vị bổ sung</span>
+        </div>
+      </div>
+
+      <div class="catalog-table-wrap" *ngIf="filteredCodeValues.length; else noCodeValues">
+        <table class="catalog-table">
+          <thead>
+            <tr>
+              <th>Tên giá trị</th>
+              <th class="col-source">Nguồn</th>
+              <th class="col-status">Áp dụng</th>
+              <th class="col-actions">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of filteredCodeValues" [class.is-hidden]="item.isVisible === false">
+              <td>
+                <strong>{{ item.name }}</strong>
+                <small *ngIf="item.description">{{ item.description }}</small>
+              </td>
+              <td class="col-source">
+                <span class="source-badge" [class.source-badge--local]="item.isLocal">
+                  {{ item.isLocal ? 'Đơn vị bổ sung' : 'Chuẩn' }}
+                </span>
+                <small *ngIf="item.isRequired" class="required-note">Bắt buộc</small>
+              </td>
+              <td class="col-status">
+                <span class="visibility-badge" [class.is-off]="item.isVisible === false">
+                  {{ item.isVisible === false ? 'Đang ẩn' : 'Đang dùng' }}
+                </span>
+              </td>
+              <td class="col-actions">
+                <div class="row-actions">
+                  <ng-container *ngIf="item.isLocal; else standardCodeActions">
+                    <button *ngIf="canUpdateCatalog" class="icon-button" type="button" pTooltip="Sửa mục bổ sung" (click)="openEditCommonDialog(item)">
+                      <i class="pi pi-pencil"></i>
+                    </button>
+                    <button *ngIf="canDeleteCatalog" class="icon-button icon-button--danger" type="button" pTooltip="Ngừng áp dụng" (click)="deleteCommonValue(item)">
+                      <i class="pi pi-trash"></i>
+                    </button>
+                  </ng-container>
+                  <ng-template #standardCodeActions>
+                    <button
+                      *ngIf="canUpdateCatalog && !item.isLocal"
+                      class="text-button"
+                      type="button"
+                      [disabled]="item.isRequired"
+                      [pTooltip]="item.isRequired ? 'Mục chuẩn bắt buộc, không thể ẩn' : ''"
+                      (click)="toggleCommonVisibility(item)"
+                    >
+                      <i [class]="item.isVisible === false ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
+                      {{ item.isVisible === false ? 'Dùng lại' : 'Ẩn tại đơn vị' }}
+                    </button>
+                  </ng-template>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #noCodeValues>
+        <app-empty-state
+          title="Chưa có giá trị danh mục"
+          message="Chọn một nhóm danh mục hoặc bổ sung mục cho đơn vị."
+          icon="pi-list"
+        ></app-empty-state>
+      </ng-template>
+    </ng-container>
+
+    <ng-container *ngIf="activeTab === 'device'">
+      <div class="catalog-toolbar catalog-toolbar--device">
+        <div class="catalog-search">
+          <i class="pi pi-search"></i>
+          <input
+            pInputText
+            [(ngModel)]="searchTerm"
+            placeholder="Tìm nhóm hoặc loại thiết bị..."
+          />
+        </div>
+        <div class="toolbar-count">{{ deviceRows.length }} mục đang cấu hình</div>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-plus"
+          label="Bổ sung loại"
+          [disabled]="!canCreateDevice"
+          (click)="openCreateDeviceDialog()"
+        ></button>
+      </div>
+
+      <div class="catalog-table-wrap" *ngIf="filteredDeviceRows.length; else noDevices">
+        <table class="catalog-table">
+          <thead>
+            <tr>
+              <th>Nhóm / loại thiết bị</th>
+              <th class="col-source">Nguồn</th>
+              <th>Kiểu nhập liệu</th>
+              <th class="col-status">Áp dụng</th>
+              <th class="col-actions">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of filteredDeviceRows" [class.is-hidden]="item.isVisible === false">
+              <td>
+                <div class="tree-name" [style.padding-left.px]="item.depth * 22">
+                  <i [class]="item.children.length ? 'pi pi-folder' : 'pi pi-desktop'"></i>
+                  <strong>{{ item.tenLoai }}</strong>
+                </div>
+              </td>
+              <td class="col-source">
+                <span class="source-badge" [class.source-badge--local]="item.isLocal">
+                  {{ item.isLocal ? 'Đơn vị bổ sung' : 'Chuẩn' }}
+                </span>
+                <small *ngIf="item.isRequired" class="required-note">Bắt buộc</small>
+              </td>
+              <td>{{ item.laTongHop ? 'Nhập số lượng tổng hợp' : 'Nhập từng thiết bị' }}</td>
+              <td class="col-status">
+                <span class="visibility-badge" [class.is-off]="item.isVisible === false">
+                  {{ item.isVisible === false ? 'Đang ẩn' : 'Đang dùng' }}
+                </span>
+              </td>
+              <td class="col-actions">
+                <div class="row-actions">
+                  <button
+                    *ngIf="canCreateDevice"
+                    class="icon-button"
+                    type="button"
+                    pTooltip="Thêm loại con riêng"
+                    (click)="openCreateDeviceDialog(item)"
+                  ><i class="pi pi-plus"></i></button>
+                  <ng-container *ngIf="item.isLocal; else standardDeviceActions">
+                    <button *ngIf="canUpdateDevice" class="icon-button" type="button" pTooltip="Sửa loại bổ sung" (click)="openEditDeviceDialog(item)">
+                      <i class="pi pi-pencil"></i>
+                    </button>
+                    <button *ngIf="canDeleteDevice" class="icon-button icon-button--danger" type="button" pTooltip="Ngừng áp dụng" (click)="deleteDeviceValue(item)">
+                      <i class="pi pi-trash"></i>
+                    </button>
+                  </ng-container>
+                  <ng-template #standardDeviceActions>
+                    <button
+                      *ngIf="canUpdateDevice"
+                      class="text-button"
+                      type="button"
+                      [disabled]="item.isRequired"
+                      [pTooltip]="item.isRequired ? 'Mục chuẩn bắt buộc, không thể ẩn' : ''"
+                      (click)="toggleDeviceVisibility(item)"
+                    >
+                      <i [class]="item.isVisible === false ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
+                      {{ item.isVisible === false ? 'Dùng lại' : 'Ẩn tại đơn vị' }}
+                    </button>
+                  </ng-template>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #noDevices>
+        <app-empty-state
+          title="Chưa có loại thiết bị"
+          message="Bộ danh mục chuẩn và các loại do đơn vị bổ sung sẽ hiển thị tại đây."
+          icon="pi-desktop"
+        ></app-empty-state>
+      </ng-template>
+    </ng-container>
+</div>
+
+<p-dialog
+  [(visible)]="commonDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: 'min(640px, 96vw)' }"
+  [header]="commonDialogMode === 'create' ? 'Bổ sung mục tại đơn vị' : 'Cập nhật mục bổ sung'"
+  styleClass="unit-catalog-dialog"
+  appendTo="body"
+>
+  <div class="unit-dialog-form">
+    <div class="dialog-guidance dialog-field--full">
+      <i class="pi pi-link"></i>
+      <div>
+        <strong>Giá trị độc lập trong phạm vi đơn vị</strong>
+        <span>Mục bổ sung có vị trí ngang với mục chuẩn, chỉ dùng và thống kê cho đơn vị hiện tại; không làm thay đổi bộ chuẩn toàn hệ thống.</span>
+      </div>
+    </div>
+    <div class="dialog-field dialog-field--name">
+      <label for="commonName">Tên giá trị <span>*</span></label>
+      <input id="commonName" pInputText [(ngModel)]="commonForm.name" maxlength="200" placeholder="Nhập tên sử dụng tại đơn vị" />
+    </div>
+    <div class="dialog-field dialog-field--sort">
+      <label for="commonSort">Thứ tự hiển thị</label>
+      <p-inputNumber inputId="commonSort" [(ngModel)]="commonForm.sortOrder" [useGrouping]="false" [min]="0"></p-inputNumber>
+    </div>
+    <div class="dialog-field dialog-field--description dialog-field--full">
+      <label for="commonDescription">Mô tả</label>
+      <textarea id="commonDescription" pInputTextarea [(ngModel)]="commonForm.description" rows="3" maxlength="500" placeholder="Nhập mô tả nếu cần"></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" class="p-button-outlined p-button-secondary" label="Hủy" (click)="commonDialogVisible = false"></button>
+    <button pButton type="button" icon="pi pi-save" label="Lưu mục bổ sung" [loading]="saving" (click)="saveCommonValue()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="deviceDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: 'min(640px, 96vw)' }"
+  [header]="deviceDialogMode === 'create' ? 'Bổ sung loại thiết bị tại đơn vị' : 'Cập nhật loại thiết bị bổ sung'"
+  styleClass="unit-catalog-dialog"
+  appendTo="body"
+>
+  <div class="unit-dialog-form unit-dialog-form--device">
+    <div class="dialog-field dialog-field--full">
+      <label for="deviceName">Tên nhóm / loại thiết bị <span>*</span></label>
+      <input id="deviceName" pInputText [(ngModel)]="deviceForm.tenLoai" maxlength="200" placeholder="Nhập tên sử dụng tại đơn vị" />
+    </div>
+    <div class="dialog-field dialog-field--full">
+      <label for="deviceParent">Thuộc nhóm</label>
+      <p-dropdown
+        inputId="deviceParent"
+        [options]="deviceParentOptions"
+        optionLabel="label"
+        optionValue="value"
+        [(ngModel)]="deviceForm.parentId"
+        [filter]="true"
+        filterBy="label"
+        appendTo="body"
+      ></p-dropdown>
+      <small>Chỉ dùng để xác định vị trí trong cây loại thiết bị; không làm thay đổi tính độc lập của mục bổ sung.</small>
+    </div>
+    <div class="dialog-field">
+      <label for="deviceSort">Thứ tự</label>
+      <p-inputNumber inputId="deviceSort" [(ngModel)]="deviceForm.sortOrder" [useGrouping]="false"></p-inputNumber>
+    </div>
+    <label class="dialog-check">
+      <input type="checkbox" [(ngModel)]="deviceForm.laTongHop" />
+      <span>
+        Chỉ nhập số lượng tổng hợp
+        <small>Không yêu cầu khai báo từng thiết bị cụ thể.</small>
+      </span>
+    </label>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" class="p-button-outlined p-button-secondary" label="Hủy" (click)="deviceDialogVisible = false"></button>
+    <button pButton type="button" icon="pi pi-save" label="Lưu loại bổ sung" [loading]="saving" (click)="saveDeviceValue()"></button>
+  </ng-template>
+</p-dialog>

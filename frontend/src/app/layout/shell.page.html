@@ -31,7 +31,12 @@
     </a>
 
     <!-- ── Menu body (scrollable) ── -->
-    <div class="sidebar-menu" role="navigation" aria-label="Điều hướng chính">
+    <div
+      #sidebarMenuEl
+      class="sidebar-menu"
+      role="navigation"
+      aria-label="Điều hướng chính"
+    >
       <div class="sidebar-menu-search">
         <label for="sidebarMenuSearch">Tìm nhanh</label>
         <div class="sidebar-menu-search__field">
@@ -142,7 +147,7 @@
     </div>
   </aside>
 
-  <main class="content">
+  <main #contentEl class="content">
     <router-outlet></router-outlet>
   </main>
 </div>

@@ -1,0 +1,95 @@
+<section class="change-panel">
+  <div class="change-panel__head">
+    <div>
+      <h2>Biến động đơn vị và tài khoản</h2>
+      <p>Xem trước ảnh hưởng trước khi xác nhận. Báo cáo đã nộp vẫn thuộc đơn vị phát sinh.</p>
+    </div>
+  </div>
+
+  <div class="change-tabs" role="tablist" aria-label="Tác vụ biến động">
+    <button type="button" [class.active]="mode === 'merge'" (click)="setMode('merge')">Sáp nhập</button>
+    <button type="button" [class.active]="mode === 'split'" (click)="setMode('split')">Chia tách</button>
+    <button type="button" [class.active]="mode === 'users'" (click)="setMode('users')">Đổi đơn vị tài khoản</button>
+    <button type="button" [class.active]="mode === 'history'" (click)="setMode('history')">Lịch sử đơn vị</button>
+  </div>
+
+  <div class="change-form" *ngIf="mode === 'merge'">
+    <div class="change-fields">
+      <label>Đơn vị nguồn
+        <p-multiSelect [options]="activeUnitOptions" [(ngModel)]="mergeSources" (ngModelChange)="invalidate()" optionLabel="label" optionValue="value" [filter]="true" [virtualScroll]="true" [virtualScrollItemSize]="34" placeholder="Chọn một hoặc nhiều đơn vị"></p-multiSelect>
+      </label>
+      <label>Đơn vị kế thừa
+        <p-dropdown [options]="activeUnitOptions" [(ngModel)]="mergeTarget" (ngModelChange)="invalidate()" optionLabel="label" optionValue="value" [filter]="true" [virtualScroll]="true" [virtualScrollItemSize]="34" placeholder="Chọn đơn vị đích" appendTo="body"></p-dropdown>
+      </label>
+    </div>
+    <label class="change-note">Căn cứ/ghi chú <input type="text" [(ngModel)]="mergeNote" (ngModelChange)="invalidate()" maxlength="500" placeholder="Số quyết định hoặc nội dung biến động" /></label>
+    <p class="change-hint">Đơn vị nguồn sẽ ngừng hoạt động; đơn vị con và tài khoản được chuyển sang đích. Vai trò chỉ giữ nếu phù hợp cấp đơn vị mới. Dữ liệu nghiệp vụ cũ giữ tại nguồn và tra cứu qua báo cáo đã chốt.</p>
+  </div>
+
+  <div class="change-form" *ngIf="mode === 'split'">
+    <label>Đơn vị nguồn
+      <p-dropdown [options]="activeUnitOptions" [(ngModel)]="splitSource" (ngModelChange)="prepareSplit()" optionLabel="label" optionValue="value" [filter]="true" [virtualScroll]="true" [virtualScrollItemSize]="34" placeholder="Chọn đơn vị cần chia" appendTo="body"></p-dropdown>
+    </label>
+    <p class="change-hint">Tạo đơn vị đích trong cây trước, rồi phân bổ từng đơn vị con và tài khoản. Dữ liệu nghiệp vụ cũ giữ tại nguồn.</p>
+    <h3 *ngIf="splitSource">Đơn vị con</h3>
+    <div class="change-row" *ngFor="let child of splitChildren">
+      <input type="checkbox" [(ngModel)]="child.selected" (ngModelChange)="invalidate()" [attr.aria-label]="'Chuyển ' + child.name" />
+      <span>{{ child.name }}</span>
+      <p-dropdown [options]="activeUnitOptions" [(ngModel)]="child.targetId" (ngModelChange)="invalidate()" optionLabel="label" optionValue="value" [filter]="true" [virtualScroll]="true" [virtualScrollItemSize]="34" placeholder="Đơn vị đích" appendTo="body" [disabled]="!child.selected"></p-dropdown>
+    </div>
+    <h3 *ngIf="splitSource">Tài khoản của đơn vị nguồn</h3>
+    <div class="change-row change-row--user" *ngFor="let user of splitUsers">
+      <input type="checkbox" [(ngModel)]="user.selected" (ngModelChange)="invalidate()" [attr.aria-label]="'Chuyển ' + user.name" />
+      <span>{{ user.name }}</span>
+      <p-dropdown [options]="activeUnitOptions" [(ngModel)]="user.targetId" (ngModelChange)="invalidate()" optionLabel="label" optionValue="value" [filter]="true" [virtualScroll]="true" [virtualScrollItemSize]="34" placeholder="Đơn vị đích" appendTo="body" [disabled]="!user.selected"></p-dropdown>
+      <p-multiSelect [options]="roleOptions" [(ngModel)]="user.roleIds" (ngModelChange)="invalidate()" optionLabel="label" optionValue="value" placeholder="Vai trò mới" [disabled]="!user.selected"></p-multiSelect>
+    </div>
+    <label class="change-check"><input type="checkbox" [(ngModel)]="splitDeactivate" (ngModelChange)="invalidate()" /> Ngừng hoạt động đơn vị nguồn sau khi phân bổ hết</label>
+    <label class="change-note">Căn cứ/ghi chú <input type="text" [(ngModel)]="splitNote" (ngModelChange)="invalidate()" maxlength="500" /></label>
+  </div>
+
+  <div class="change-form" *ngIf="mode === 'users'">
+    <div class="change-fields">
+      <label>Đơn vị hiện tại
+        <p-dropdown [options]="activeUnitOptions" [(ngModel)]="transferSource" (ngModelChange)="transferUserIds = []; invalidate()" optionLabel="label" optionValue="value" [filter]="true" [virtualScroll]="true" [virtualScrollItemSize]="34" placeholder="Chọn đơn vị nguồn" appendTo="body"></p-dropdown>
+      </label>
+      <label>Đơn vị mới
+        <p-dropdown [options]="activeUnitOptions" [(ngModel)]="transferTarget" (ngModelChange)="invalidate()" optionLabel="label" optionValue="value" [filter]="true" [virtualScroll]="true" [virtualScrollItemSize]="34" placeholder="Chọn đơn vị đích" appendTo="body"></p-dropdown>
+      </label>
+      <label>Tài khoản
+        <p-multiSelect [options]="transferUserOptions" [(ngModel)]="transferUserIds" (ngModelChange)="invalidate()" optionLabel="label" optionValue="value" [filter]="true" placeholder="Chọn tài khoản"></p-multiSelect>
+      </label>
+      <label>Vai trò mới (áp dụng cho các tài khoản đã chọn)
+        <p-multiSelect [options]="roleOptions" [(ngModel)]="transferRoleIds" (ngModelChange)="invalidate()" optionLabel="label" optionValue="value" placeholder="Chọn vai trò"></p-multiSelect>
+      </label>
+    </div>
+    <p class="change-hint">Tài khoản và lịch sử thao tác được giữ nguyên. Quyền cũ bị thu hồi; người dùng cần đăng nhập lại.</p>
+  </div>
+
+  <div class="change-form" *ngIf="mode === 'history'">
+    <label>Đơn vị
+      <p-dropdown [options]="allUnitOptions" [(ngModel)]="historyUnit" optionLabel="label" optionValue="value" [filter]="true" [virtualScroll]="true" [virtualScrollItemSize]="34" placeholder="Chọn đơn vị" appendTo="body"></p-dropdown>
+    </label>
+    <button pButton type="button" label="Xem lịch sử" icon="pi pi-search" class="p-button-outlined" [disabled]="!historyUnit || busy" (click)="loadHistory()"></button>
+    <div class="change-history" *ngIf="versions.length">
+      <h3>Tên và cấp trên theo thời điểm</h3>
+      <div *ngFor="let version of versions">{{ version.validFrom | date:'dd/MM/yyyy HH:mm' }} – {{ version.validTo ? (version.validTo | date:'dd/MM/yyyy HH:mm') : 'nay' }}: {{ version.maDonVi }} · {{ version.tenDonVi }} · cấp trên: {{ version.parentId ? unitLabel(version.parentId) : 'không có' }} · {{ version.isActive ? 'Hoạt động' : 'Ngừng hoạt động' }}</div>
+    </div>
+    <div class="change-history" *ngIf="successors.length">
+      <h3>Quan hệ kế thừa</h3>
+      <div *ngFor="let edge of successors">{{ edge.effectiveAt | date:'dd/MM/yyyy' }}: {{ unitLabel(edge.sourceDvId) }} → {{ unitLabel(edge.targetDvId) }}</div>
+    </div>
+  </div>
+
+  <div class="change-actions" *ngIf="mode !== 'history'">
+    <button pButton type="button" label="Xem trước ảnh hưởng" icon="pi pi-eye" class="p-button-outlined" [loading]="busy" (click)="runPreview()"></button>
+    <button pButton type="button" label="Xác nhận thực hiện" icon="pi pi-check" [disabled]="!canExecute" (click)="execute()"></button>
+  </div>
+  <div class="change-preview" *ngIf="preview">
+    <strong>Kết quả xem trước:</strong>
+    <span *ngIf="mode === 'users'">{{ $any(preview).userCount }} tài khoản</span>
+    <span *ngIf="mode !== 'users'">{{ $any(preview).unitCount }} đơn vị nguồn · {{ $any(preview).childCount }} đơn vị con · {{ $any(preview).userCount }} tài khoản · {{ $any(preview).draftSnapshotCount }} bản nháp</span>
+    <ul *ngIf="previewErrors.length"><li *ngFor="let item of previewErrors">{{ item }}</li></ul>
+  </div>
+  <p class="change-error" *ngIf="error">{{ error }}</p>
+</section>

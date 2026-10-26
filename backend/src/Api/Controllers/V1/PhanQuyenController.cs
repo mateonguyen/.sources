@@ -42,7 +42,7 @@ public sealed class PhanQuyenController : ControllerBase
     }
 
     [HttpGet("user-roles")]
-    [HasPermission(Permissions.Users.Read)]
+    [HasPermission(Permissions.PhanQuyen.Read)]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyCollection<UserRoleMappingDto>>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<IReadOnlyCollection<UserRoleMappingDto>>>> GetUserRoleMappings(
         [FromQuery] long? donViId,
@@ -82,7 +82,7 @@ public sealed class PhanQuyenController : ControllerBase
     }
 
     [HttpGet("role-permissions")]
-    [HasPermission(Permissions.Roles.Read)]
+    [HasPermission(Permissions.PhanQuyen.Read)]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyCollection<RolePermissionMappingDto>>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<IReadOnlyCollection<RolePermissionMappingDto>>>> GetRolePermissionMappings(
         CancellationToken cancellationToken)

@@ -14,6 +14,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { TreeSelectModule } from 'primeng/treeselect';
 import { DonViApi, DonViDto, UpsertDonViRequest } from './don-vi.api';
+import { DonViChangePanelComponent } from './don-vi-change-panel.component';
+import { AuthService } from '../../core/auth/auth.service';
 import { CodeValueDto, CodesApi } from '../codes/codes.api';
 import { ConfirmDialogWrapperService } from '../../shared/ui/confirm-dialog-wrapper.service';
 import { EmptyStateComponent } from '../../shared/ui/empty-state.component';
@@ -63,6 +65,7 @@ type EditorMode = 'create-root' | 'create-child' | 'edit';
     TreeSelectModule,
     CheckboxModule,
     ButtonModule,
+    DonViChangePanelComponent,
   ],
   templateUrl: './don-vi.page.html',
   styleUrl: './don-vi.page.scss',
@@ -108,12 +111,22 @@ export class DonViPage {
     isActive: [true],
   });
 
+  get hasPrimaryValidationFeedback(): boolean {
+    const maDonVi = this.form.controls.maDonVi;
+    const tenDonVi = this.form.controls.tenDonVi;
+    return (
+      (maDonVi.invalid && maDonVi.touched) ||
+      (tenDonVi.invalid && tenDonVi.touched)
+    );
+  }
+
   constructor(
     private readonly donViApi: DonViApi,
     private readonly codesApi: CodesApi,
     private readonly formBuilder: FormBuilder,
     private readonly notificationService: NotificationService,
     private readonly confirmDialog: ConfirmDialogWrapperService,
+    public readonly authService: AuthService,
   ) {
     this.form.controls.capDonVi.valueChanges.subscribe((value) => {
       if (!this.isTongHopCapDonVi(value)) {
@@ -285,9 +298,9 @@ export class DonViPage {
       return;
     }
 
-    const confirmed = await this.confirmDialog.confirmDelete({
-      message: `Xác nhận xóa đơn vị ${this.selected.tenDonVi}?`,
-      acceptLabel: 'Xóa',
+    const confirmed = await this.confirmDialog.confirmDeactivate({
+      message: `Ngừng hoạt động đơn vị ${this.selected.tenDonVi}? Dữ liệu lịch sử vẫn được giữ để tra cứu.`,
+      acceptLabel: 'Ngừng hoạt động',
       rejectLabel: 'Hủy',
       countdownSeconds: 5,
     });
@@ -296,7 +309,7 @@ export class DonViPage {
     }
 
     await this.donViApi.delete(this.selected.id);
-    this.notificationService.show('success', 'Xóa đơn vị thành công.');
+    this.notificationService.show('success', 'Đã ngừng hoạt động đơn vị.');
     this.createNew();
     await this.load();
   }

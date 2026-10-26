@@ -10,16 +10,18 @@
       Đơn vị của bạn đang ở chế độ <strong>Tổng hợp</strong> — màn hình này chỉ
       hiển thị dữ liệu do chính đơn vị bạn nhập. Số liệu của các đơn vị cấp dưới
       sẽ được <strong>tự động gộp khi Nộp báo cáo</strong>; theo dõi chi tiết tại
-      màn <a routerLink="/tien-do-tong-hop">Tiến độ tổng hợp</a>.
+      màn <a routerLink="/tong-hop-du-lieu">Tiến độ tổng hợp</a>.
     </span>
   </div>
 
   <ng-container *ngIf="isCustomModule; else genericModuleTemplate">
     <div class="training-page">
-      <header class="training-page-header">
-        <h1>{{ moduleConfig.title }}</h1>
-        <p>{{ moduleConfig.subtitle }}</p>
-      </header>
+      <app-page-header
+        [title]="moduleConfig.title"
+        [subtitle]="moduleConfig.subtitle"
+        [eyebrow]="isNangLucSoModule ? 'ĐÁNH GIÁ NĂNG LỰC SỐ' : 'QUẢN LÝ ĐÀO TẠO'"
+        [icon]="isDaoTaoBoiDuongModule ? 'pi pi-book' : (isDaoTaoHocVienModule ? 'pi pi-graduation-cap' : 'pi pi-chart-bar')"
+      ></app-page-header>
 
       <div class="relative mt-3 min-h-40">
         <app-loading-overlay
@@ -33,85 +35,116 @@
           *ngIf="!loading && isDaoTaoBoiDuongModule"
         >
           <article class="training-summary__card training-summary__card--blue">
-            <i class="pi pi-book"></i>
-            <strong>{{ totalCourses }}</strong>
-            <span>Tổng khóa học</span>
+            <span class="training-summary__icon">
+              <i class="pi pi-book"></i>
+            </span>
+            <div class="training-summary__content">
+              <span>Tổng khóa học</span>
+              <strong>{{ totalCourses }}</strong>
+            </div>
           </article>
           <article class="training-summary__card training-summary__card--green">
-            <i class="pi pi-users"></i>
-            <strong>{{ totalStudents }}</strong>
-            <span>Tổng học viên</span>
+            <span class="training-summary__icon">
+              <i class="pi pi-users"></i>
+            </span>
+            <div class="training-summary__content">
+              <span>Tổng học viên</span>
+              <strong>{{ totalStudents }}</strong>
+            </div>
           </article>
           <article
             class="training-summary__card training-summary__card--orange"
           >
-            <i class="pi pi-clock"></i>
-            <strong>{{ totalHours | number: '1.0-1' }}</strong>
-            <span>Tổng thời gian (giờ)</span>
+            <span class="training-summary__icon">
+              <i class="pi pi-clock"></i>
+            </span>
+            <div class="training-summary__content">
+              <span>Tổng thời gian</span>
+              <strong>{{ totalHours | number: '1.0-1' }}</strong>
+              <small>giờ</small>
+            </div>
           </article>
         </div>
 
         <!-- Summary cards: Học viên -->
         <div class="training-summary" *ngIf="!loading && isDaoTaoHocVienModule">
           <article class="training-summary__card training-summary__card--green">
-            <i class="pi pi-star"></i>
-            <strong>{{ hvTotalTienSi }}</strong>
-            <span>Tiến sĩ</span>
+            <span class="training-summary__icon"><i class="pi pi-star"></i></span>
+            <div class="training-summary__content">
+              <span>Tiến sĩ</span>
+              <strong>{{ hvTotalTienSi }}</strong>
+            </div>
           </article>
           <article
             class="training-summary__card training-summary__card--orange"
           >
-            <i class="pi pi-bookmark"></i>
-            <strong>{{ hvTotalThacSi }}</strong>
-            <span>Thạc sĩ</span>
+            <span class="training-summary__icon"><i class="pi pi-bookmark"></i></span>
+            <div class="training-summary__content">
+              <span>Thạc sĩ</span>
+              <strong>{{ hvTotalThacSi }}</strong>
+            </div>
           </article>
           <article class="training-summary__card training-summary__card--red">
-            <i class="pi pi-graduation-cap"></i>
-            <strong>{{ hvTotalDaiHoc }}</strong>
-            <span>Đại học</span>
+            <span class="training-summary__icon"><i class="pi pi-graduation-cap"></i></span>
+            <div class="training-summary__content">
+              <span>Đại học</span>
+              <strong>{{ hvTotalDaiHoc }}</strong>
+            </div>
           </article>
           <article
             class="training-summary__card training-summary__card--purple"
           >
-            <i class="pi pi-briefcase"></i>
-            <strong>{{ hvTotalCaoDang }}</strong>
-            <span>Cao đẳng</span>
+            <span class="training-summary__icon"><i class="pi pi-briefcase"></i></span>
+            <div class="training-summary__content">
+              <span>Cao đẳng</span>
+              <strong>{{ hvTotalCaoDang }}</strong>
+            </div>
           </article>
           <article class="training-summary__card training-summary__card--slate">
-            <i class="pi pi-building-columns"></i>
-            <strong>{{ hvTotalTrungCap }}</strong>
-            <span>Trung cấp</span>
+            <span class="training-summary__icon"><i class="pi pi-building-columns"></i></span>
+            <div class="training-summary__content">
+              <span>Trung cấp</span>
+              <strong>{{ hvTotalTrungCap }}</strong>
+            </div>
           </article>
         </div>
 
         <div class="training-summary" *ngIf="!loading && isNangLucSoModule">
           <article class="training-summary__card training-summary__card--blue">
-            <i class="pi pi-sitemap"></i>
-            <strong>{{ nlsTotalGroups }}</strong>
-            <span>Tổng nhóm vị trí</span>
+            <span class="training-summary__icon"><i class="pi pi-sitemap"></i></span>
+            <div class="training-summary__content">
+              <span>Tổng nhóm vị trí</span>
+              <strong>{{ nlsTotalGroups }}</strong>
+            </div>
           </article>
           <article class="training-summary__card training-summary__card--green">
-            <i class="pi pi-users"></i>
-            <strong>{{ nlsTotalAssessed }}</strong>
-            <span>Tổng số diện đánh giá</span>
+            <span class="training-summary__icon"><i class="pi pi-users"></i></span>
+            <div class="training-summary__content">
+              <span>Tổng số diện đánh giá</span>
+              <strong>{{ nlsTotalAssessed }}</strong>
+            </div>
           </article>
           <article
             class="training-summary__card training-summary__card--orange"
           >
-            <i class="pi pi-check-circle"></i>
-            <strong>{{ nlsTotalPassed }}</strong>
-            <span>Tổng số đạt</span>
+            <span class="training-summary__icon"><i class="pi pi-check-circle"></i></span>
+            <div class="training-summary__content">
+              <span>Tổng số đạt</span>
+              <strong>{{ nlsTotalPassed }}</strong>
+            </div>
           </article>
           <article class="training-summary__card training-summary__card--red">
-            <i class="pi pi-exclamation-circle"></i>
-            <strong>{{ nlsTotalNotPassed }}</strong>
-            <span>Tổng số chưa đạt</span>
+            <span class="training-summary__icon"><i class="pi pi-exclamation-circle"></i></span>
+            <div class="training-summary__content">
+              <span>Tổng số chưa đạt</span>
+              <strong>{{ nlsTotalNotPassed }}</strong>
+            </div>
           </article>
         </div>
 
         <!-- Toolbar: Bồi dưỡng -->
         <div
-          class="training-toolbar"
+          class="training-toolbar training-toolbar--courses"
           *ngIf="!loading && isDaoTaoBoiDuongModule"
         >
           <div class="training-toolbar__left">
@@ -122,6 +155,7 @@
                 class="training-search-input"
                 type="text"
                 placeholder="Tìm tên khóa học..."
+                aria-label="Tìm theo tên khóa học"
                 [(ngModel)]="searchTerm"
                 [ngModelOptions]="{ standalone: true }"
               />
@@ -150,7 +184,7 @@
               pButton
               type="button"
               icon="pi pi-download"
-              class="training-btn app-button-success"
+              class="training-btn training-btn--export p-button-outlined"
               label="Xuất Excel"
               (click)="exportTrainingCsv()"
               [disabled]="filteredItems.length === 0"
@@ -261,6 +295,7 @@
                 inputId="filterTu"
                 [(ngModel)]="filterDraft.thoiGianTu"
                 [ngModelOptions]="{ standalone: true }"
+                [locale]="calendarLocaleVi"
                 dateFormat="dd/mm/yy"
                 [showIcon]="true"
                 [showButtonBar]="true"
@@ -270,12 +305,12 @@
             </div>
 
             <div class="app-field">
-              [locale]="calendarLocaleVi"
               <label for="filterDen">Thời gian đến</label>
               <p-calendar
                 inputId="filterDen"
                 [(ngModel)]="filterDraft.thoiGianDen"
                 [ngModelOptions]="{ standalone: true }"
+                [locale]="calendarLocaleVi"
                 dateFormat="dd/mm/yy"
                 [showIcon]="true"
                 [showButtonBar]="true"
@@ -285,7 +320,6 @@
             </div>
 
             <div class="training-filter-actions">
-              [locale]="calendarLocaleVi"
               <button
                 pButton
                 type="button"
@@ -322,9 +356,9 @@
         >
           <!-- Header – same pattern as mau-bao-cao -->
           <ng-template pTemplate="header">
-            <div class="app-mau-bao-cao-dialog__header">
+            <div class="app-mau-bao-cao-dialog__header app-dialog-header">
               <div>
-                <span class="app-mau-bao-cao-dialog__title">
+                <span class="app-mau-bao-cao-dialog__title app-dialog-title">
                   <i
                     [class]="isDaoTaoBoiDuongModule ? 'pi pi-book' : 'pi pi-user-edit'"
                     aria-hidden="true"
@@ -335,7 +369,7 @@
               </div>
               <button
                 type="button"
-                class="app-mau-bao-cao-dialog__close"
+                class="app-mau-bao-cao-dialog__close app-dialog-close"
                 aria-label="Đóng"
                 (click)="closeTrainingDialog()"
               >
@@ -353,6 +387,9 @@
             <!-- ══ Bồi dưỡng form ══ -->
             <div class="app-dialog-body" *ngIf="isDaoTaoBoiDuongModule">
               <section class="app-dialog-section app-dialog-section--basic">
+                <div class="app-dialog-section__header app-dialog-section__header--compact">
+                  <div><h3>Thông tin khóa học</h3></div>
+                </div>
                 <div class="app-dialog-grid tfd-grid--main">
                   <!-- Tên khóa học -->
                   <div
@@ -1371,14 +1408,16 @@
 
         <!-- Empty state: Bồi dưỡng -->
         <app-empty-state
-          class="mt-3"
+          class="training-empty-state"
           *ngIf="isDaoTaoBoiDuongModule && !loading && filteredItems.length === 0"
-          title="Chưa có khóa học nào"
-          message="Bắt đầu bằng cách thêm khóa học đầu tiên vào kho dữ liệu."
-          icon="pi-inbox"
-          actionLabel="Thêm khóa học đầu tiên"
-          actionIcon="pi pi-plus"
-          (action)="openTrainingCreateDialog()"
+          [title]="items.length === 0 ? 'Chưa có khóa học nào' : 'Không tìm thấy khóa học phù hợp'"
+          [message]="items.length === 0 ? 'Bắt đầu bằng cách thêm khóa học đầu tiên vào kho dữ liệu.' : 'Thử thay đổi từ khóa tìm kiếm hoặc xóa các điều kiện lọc đang áp dụng.'"
+          [icon]="items.length === 0 ? 'pi-inbox' : 'pi-search'"
+          [actionLabel]="items.length === 0 ? (canSaveCurrentMode() ? 'Thêm khóa học đầu tiên' : '') : 'Xóa điều kiện lọc'"
+          [actionIcon]="items.length === 0 ? 'pi pi-plus' : 'pi pi-filter-slash'"
+          [actionSeverity]="items.length === 0 ? 'primary' : 'secondary'"
+          [actionStyleClass]="items.length === 0 ? 'training-empty-state__action training-empty-state__action--primary' : 'training-empty-state__action training-empty-state__action--secondary'"
+          (action)="handleTrainingEmptyStateAction()"
         ></app-empty-state>
 
         <!-- Empty state: Học viên -->

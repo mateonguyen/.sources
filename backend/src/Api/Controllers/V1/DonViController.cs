@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using ThucLuc.Api.Common.Authorization;
 using ThucLuc.Api.Common.Models;
 using ThucLuc.Application.Features.DonVi;
@@ -28,7 +29,7 @@ public sealed class DonViController : ControllerBase
     }
 
     [HttpGet("tree")]
-    [HasPermission(Permissions.DonVi.Read)]
+    [Authorize]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyCollection<DonViDto>>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<IReadOnlyCollection<DonViDto>>>> GetTree(CancellationToken cancellationToken)
     {
@@ -46,7 +47,7 @@ public sealed class DonViController : ControllerBase
     }
 
     [HttpGet("{id:long}")]
-    [HasPermission(Permissions.DonVi.Read)]
+    [Authorize]
     [ProducesResponseType(typeof(ApiResponse<DonViDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<DonViDto>>> GetById(long id, CancellationToken cancellationToken)
     {

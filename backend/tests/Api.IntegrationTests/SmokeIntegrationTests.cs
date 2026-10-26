@@ -65,7 +65,7 @@ public sealed class SmokeIntegrationTests : IClassFixture<ApiTestWebApplicationF
         var loginResponse = await client.PostAsJsonAsync("/api/v1/auth/login", new
         {
             username = "admin",
-            password = "Admin@123"
+            password = "Test@123"
         });
 
         loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);

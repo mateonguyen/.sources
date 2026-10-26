@@ -18,7 +18,7 @@ public sealed class DonViIntegrationTests : IClassFixture<ApiTestWebApplicationF
     public async Task GetTree_Should_Return_Ok_For_Authorized_User()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("viewer.user", "ViewerUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("viewer.user", "Test@123");
 
         var response = await client.GetAsync("/api/v1/don-vi/tree");
 
@@ -29,7 +29,7 @@ public sealed class DonViIntegrationTests : IClassFixture<ApiTestWebApplicationF
     public async Task Create_Should_Return_Forbidden_For_User_Without_Create_Permission()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("viewer.user", "ViewerUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("viewer.user", "Test@123");
 
         var response = await client.PostAsJsonAsync("/api/v1/don-vi", new
         {
@@ -47,7 +47,7 @@ public sealed class DonViIntegrationTests : IClassFixture<ApiTestWebApplicationF
     public async Task GetById_Should_Return_Derived_Counts_After_Creating_Phong_Child()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Admin@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Test@123");
 
         var createResponse = await client.PostAsJsonAsync("/api/v1/don-vi", new
         {
@@ -79,7 +79,7 @@ public sealed class DonViIntegrationTests : IClassFixture<ApiTestWebApplicationF
     public async Task Create_Should_Reject_TongHop_Mode_For_Phong_Level()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Admin@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Test@123");
 
         var response = await client.PostAsJsonAsync("/api/v1/don-vi", new
         {

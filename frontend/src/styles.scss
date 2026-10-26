@@ -8,6 +8,7 @@
 @import "primeflex/primeflex.css";
 @import "primeng/resources/themes/lara-light-blue/theme.css";
 @import "primeng/resources/primeng.css";
+@import "overlayscrollbars/overlayscrollbars.css";
 
 @import "./styles/tokens/colors";
 @import "./styles/tokens/spacing";
@@ -84,22 +85,17 @@
 /* â”€â”€ Training dialog (tfd-dialog) â”€â”€
    All styles here because PrimeNG appendTo="body" moves the dialog
    outside the Angular component host, so component SCSS won't apply.
-   Uses the same floating-label system as nhan-luc-cntt dialog. */
+   Uses the shared external-label form system. */
 
 /* Dialog shell */
 .tfd-dialog.p-dialog {
-  border-radius: var(--app-radius);
-  box-shadow:
-    0 24px 60px -12px rgba(16, 30, 54, 0.22),
-    0 8px 20px -6px rgba(16, 30, 54, 0.1);
+  border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #e2e8f0;
 }
 
 .tfd-dialog .p-dialog-header {
-  padding: 0;
-  border-bottom: 1px solid var(--app-border);
-  background: var(--app-surface);
+  min-height: 3.75rem;
+  padding: 0.8rem 1rem;
 }
 
 .tfd-dialog .p-dialog-content {
@@ -125,7 +121,7 @@
   display: grid;
   grid-template-rows: auto;
   gap: 0;
-  padding: 1rem;
+  padding: 1rem 1.1rem 1.15rem;
   min-height: 0;
   flex: 1 1 auto;
   overflow: auto;
@@ -184,12 +180,9 @@
   gap: 0.6rem 0.8rem;
 }
 
-/* Form field â€“ floating label system (data-entry-form.scss handles core) */
+/* Form fields use the shared external-label system (data-entry-form.scss). */
 .tfd-dialog .app-form-field {
-  --surface-input: var(--app-surface-soft);
-  --form-label-font: var(--app-font-family-mono);
-  --form-placeholder-font: var(--app-font-family-mono);
-  --form-value-font: var(--app-font-family-heading);
+  --surface-input: #ffffff;
   min-width: 0;
 }
 
@@ -202,7 +195,7 @@
   margin-top: 0.12rem;
 }
 
-/* Keep contrast: form ná»n tráº¯ng -> input ná»n surface-soft */
+/* Keep controls visually consistent with all other data-entry dialogs. */
 .tfd-dialog .app-form-field .app-form-field__input,
 .tfd-dialog .app-form-field .p-dropdown,
 .tfd-dialog .app-form-field .p-calendar,
@@ -219,9 +212,10 @@
   justify-content: flex-end;
   gap: 0.5rem;
   flex: 0 0 auto;
-  padding: 0.7rem 1rem 1rem;
+  padding: 0.72rem 1rem;
   border-top: 1px solid var(--app-border);
-  background: var(--app-surface);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 -6px 18px rgba(15, 23, 42, 0.04);
 }
 
 /* Responsive */

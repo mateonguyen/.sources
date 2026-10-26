@@ -112,6 +112,7 @@
             optionLabel="label"
             optionValue="value"
             formControlName="donViId"
+            [disabled]="mode === 'edit'"
             placeholder="Chọn đơn vị"
             appendTo="body"
             [filter]="true"
@@ -144,6 +145,7 @@
               </div>
             </ng-template>
           </p-dropdown>
+          <small *ngIf="mode === 'edit'">Đổi đơn vị sử dụng tại mục Biến động đơn vị trong màn Đơn vị để cập nhật quyền cùng lúc.</small>
           <div
             class="app-form-field__feedback"
             [class.is-visible]="isInvalid('donViId')"
@@ -229,6 +231,7 @@
         </div>
 
         <div
+          *ngIf="canAssignRoles"
           class="app-form-field app-form-field--full"
           [class.has-value]="form.get('roleId')?.value != null"
           [class.has-error]="isInvalid('roleId')"

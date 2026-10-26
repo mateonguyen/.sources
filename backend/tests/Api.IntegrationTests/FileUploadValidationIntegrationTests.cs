@@ -24,7 +24,7 @@ public sealed class FileUploadValidationIntegrationTests : IClassFixture<ApiTest
     public async Task Upload_Should_Return_BadRequest_When_Required_Field_Missing(string missingField)
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Admin@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Test@123");
         using var content = CreateUploadContent(missingField);
 
         var response = await client.PostAsync("/api/v1/files/upload", content);
@@ -39,7 +39,7 @@ public sealed class FileUploadValidationIntegrationTests : IClassFixture<ApiTest
     public async Task Upload_Should_Succeed_When_Payload_Is_Valid()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Admin@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Test@123");
         using var content = CreateUploadContent();
 
         var response = await client.PostAsync("/api/v1/files/upload", content);

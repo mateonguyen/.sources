@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using ThucLuc.Api.Common.Authorization;
 using ThucLuc.Api.Common.Models;
 using ThucLuc.Application.Features.Codes;
@@ -42,7 +43,7 @@ public sealed class CodesController : ControllerBase
 
     [HttpGet("by-code/{code}")]
     [HttpGet("{code}")]
-    [HasPermission(Permissions.Codes.Read)]
+    [Authorize]
     [ProducesResponseType(typeof(ApiResponse<CodeDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<CodeDto>>> GetByCode(string code, CancellationToken cancellationToken)
     {
@@ -53,6 +54,7 @@ public sealed class CodesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "SYSTEM_ADMIN,QUAN_LY")]
     [HasPermission(Permissions.Codes.Create)]
     [ProducesResponseType(typeof(ApiResponse<CodeDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<CodeDto>>> Create([FromBody] UpsertCodeRequest request, CancellationToken cancellationToken)
@@ -62,6 +64,7 @@ public sealed class CodesController : ControllerBase
     }
 
     [HttpPut("{id:long}")]
+    [Authorize(Roles = "SYSTEM_ADMIN,QUAN_LY")]
     [HasPermission(Permissions.Codes.Update)]
     [ProducesResponseType(typeof(ApiResponse<CodeDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<CodeDto>>> Update(long id, [FromBody] UpsertCodeRequest request, CancellationToken cancellationToken)
@@ -71,6 +74,7 @@ public sealed class CodesController : ControllerBase
     }
 
     [HttpDelete("{id:long}")]
+    [Authorize(Roles = "SYSTEM_ADMIN,QUAN_LY")]
     [HasPermission(Permissions.Codes.Delete)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<object>>> Delete(long id, CancellationToken cancellationToken)
@@ -94,6 +98,7 @@ public sealed class CodesController : ControllerBase
     }
 
     [HttpPost("{codeId:long}/values")]
+    [Authorize(Roles = "SYSTEM_ADMIN,QUAN_LY")]
     [HasPermission(Permissions.Codes.Create)]
     [ProducesResponseType(typeof(ApiResponse<CodeValueDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<CodeValueDto>>> CreateValue(long codeId, [FromBody] UpsertCodeValueRequest request, CancellationToken cancellationToken)
@@ -103,6 +108,7 @@ public sealed class CodesController : ControllerBase
     }
 
     [HttpPut("{codeId:long}/values/{valueId:long}")]
+    [Authorize(Roles = "SYSTEM_ADMIN,QUAN_LY")]
     [HasPermission(Permissions.Codes.Update)]
     [ProducesResponseType(typeof(ApiResponse<CodeValueDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<CodeValueDto>>> UpdateValue(long codeId, long valueId, [FromBody] UpsertCodeValueRequest request, CancellationToken cancellationToken)
@@ -112,11 +118,67 @@ public sealed class CodesController : ControllerBase
     }
 
     [HttpDelete("{codeId:long}/values/{valueId:long}")]
+    [Authorize(Roles = "SYSTEM_ADMIN,QUAN_LY")]
     [HasPermission(Permissions.Codes.Delete)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<object>>> DeleteValue(long codeId, long valueId, CancellationToken cancellationToken)
     {
         await _codeService.DeleteValueAsync(codeId, valueId, cancellationToken);
+        return Ok(ApiResponseFactory.Success<object>(null));
+    }
+
+    [HttpGet("{codeId:long}/unit-values")]
+    [HasPermission(Permissions.Codes.Read)]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyCollection<CodeValueDto>>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<IReadOnlyCollection<CodeValueDto>>>> GetUnitValues(
+        long codeId,
+        [FromQuery] bool includeHidden = true,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await _codeService.GetUnitValuesAsync(codeId, includeHidden, cancellationToken);
+        return Ok(ApiResponseFactory.Success(result));
+    }
+
+    [HttpPost("{codeId:long}/unit-values")]
+    [HasPermission(Permissions.Codes.Create)]
+    public async Task<ActionResult<ApiResponse<CodeValueDto>>> CreateUnitValue(
+        long codeId,
+        [FromBody] UpsertUnitCodeValueRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _codeService.CreateUnitValueAsync(codeId, request, cancellationToken);
+        return Ok(ApiResponseFactory.Success(result));
+    }
+
+    [HttpPut("{codeId:long}/unit-values/{valueId:long}")]
+    [HasPermission(Permissions.Codes.Update)]
+    public async Task<ActionResult<ApiResponse<CodeValueDto>>> UpdateUnitValue(
+        long codeId,
+        long valueId,
+        [FromBody] UpsertUnitCodeValueRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _codeService.UpdateUnitValueAsync(codeId, valueId, request, cancellationToken);
+        return Ok(ApiResponseFactory.Success(result));
+    }
+
+    [HttpDelete("{codeId:long}/unit-values/{valueId:long}")]
+    [HasPermission(Permissions.Codes.Delete)]
+    public async Task<ActionResult<ApiResponse<object>>> DeleteUnitValue(long codeId, long valueId, CancellationToken cancellationToken)
+    {
+        await _codeService.DeleteUnitValueAsync(codeId, valueId, cancellationToken);
+        return Ok(ApiResponseFactory.Success<object>(null));
+    }
+
+    [HttpPut("{codeId:long}/unit-values/{valueId:long}/visibility")]
+    [HasPermission(Permissions.Codes.Update)]
+    public async Task<ActionResult<ApiResponse<object>>> SetUnitValueVisibility(
+        long codeId,
+        long valueId,
+        [FromBody] SetCatalogItemVisibilityRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _codeService.SetUnitValueVisibilityAsync(codeId, valueId, request.IsVisible, cancellationToken);
         return Ok(ApiResponseFactory.Success<object>(null));
     }
 }

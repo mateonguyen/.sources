@@ -44,6 +44,7 @@ export class AuthService {
     'tien_do_bao_cao:',
     'ky_bao_cao:',
     'mau_bao_cao:',
+    'bien_dong_bao_cao:',
   ];
 
   private readonly tokenKey = 'thuc_luc_access_token';
@@ -199,17 +200,16 @@ export class AuthService {
       );
 
     const hasSystemAdmin = profile.permissions.includes('system:admin');
-    const isRestrictedBusinessRole =
-      profile.roles.some((role) => role.toUpperCase() === 'SYSTEM_ADMIN') ||
-      profile.roles.some((role) => role.toUpperCase() === 'QUAN_LY');
-
-    if (isBusinessPermission && isRestrictedBusinessRole) {
-      return false;
-    }
-
     return (
       (hasSystemAdmin && !isBusinessPermission && !isSystemAdminExcluded) ||
       profile.permissions.includes(permission)
+    );
+  }
+
+  hasRole(role: string): boolean {
+    const normalizedRole = role.trim().toUpperCase();
+    return !!normalizedRole && !!this.profile()?.roles.some(
+      (assignedRole) => assignedRole.toUpperCase() === normalizedRole,
     );
   }
 

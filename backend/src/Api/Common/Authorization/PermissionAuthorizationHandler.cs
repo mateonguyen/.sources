@@ -19,13 +19,6 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
         var hasSystemAdmin = currentUser.HasPermission(Permissions.SystemAdmin);
         var isBusinessPermission = Permissions.IsBusinessPermission(requirement.Permission);
         var isSystemAdminExcluded = Permissions.IsSystemAdminExcluded(requirement.Permission);
-        var isRestrictedBusinessRole =
-            currentUser.IsInRole("SYSTEM_ADMIN") || currentUser.IsInRole("QUAN_LY");
-
-        if (isBusinessPermission && isRestrictedBusinessRole)
-        {
-            return Task.CompletedTask;
-        }
 
         if ((hasSystemAdmin && !isBusinessPermission && !isSystemAdminExcluded) || currentUser.HasPermission(requirement.Permission))
         {

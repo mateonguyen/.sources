@@ -1,11 +1,28 @@
 using Microsoft.EntityFrameworkCore;
 using ThucLuc.Application.Common.Contracts;
+using ThucLuc.Domain.Enums;
 
 namespace ThucLuc.Application.Security;
 
 public interface IDonViDataScopeService
 {
     Task<DonViDataScope> GetScopeAsync(CancellationToken cancellationToken = default);
+    Task<DonViHistoricalReadScope> GetHistoricalReadScopeAsync(CancellationToken cancellationToken = default, long? rootUnitId = null);
+}
+
+// Predecessor access applies only to reports submitted before the unit change.
+// It must never be used as the scope for live business data or draft edits.
+public sealed class DonViHistoricalReadScope
+{
+    public DonViDataScope Current { get; init; } = new();
+    public IReadOnlyDictionary<long, DateTime> PredecessorCutoffs { get; init; } = new Dictionary<long, DateTime>();
+    public IReadOnlyCollection<long> CandidateIds => Current.AllowedDonViIds.Concat(PredecessorCutoffs.Keys).Distinct().ToArray();
+
+    public bool CanRead(long donViId, DateTime? submittedAt, SnapshotStatus status)
+        => Current.Contains(donViId)
+            || (submittedAt.HasValue && (status is SnapshotStatus.Submitted or SnapshotStatus.Locked)
+                && PredecessorCutoffs.TryGetValue(donViId, out var cutoff)
+                && submittedAt.Value <= cutoff);
 }
 
 public sealed class DonViDataScope
@@ -92,5 +109,38 @@ public sealed class DonViDataScopeService : IDonViDataScopeService
             HasFullAccess = false,
             AllowedDonViIds = allowed.ToArray()
         };
+    }
+
+    public async Task<DonViHistoricalReadScope> GetHistoricalReadScopeAsync(CancellationToken cancellationToken = default, long? rootUnitId = null)
+    {
+        var current = await GetScopeAsync(cancellationToken);
+        if (rootUnitId.HasValue)
+            current = new DonViDataScope
+            {
+                AllowedDonViIds = current.Contains(rootUnitId.Value) ? [rootUnitId.Value] : []
+            };
+        if (current.HasFullAccess)
+            return new DonViHistoricalReadScope { Current = current };
+
+        var edges = await _dbContext.DonViSuccessors.AsNoTracking()
+            .Select(x => new { x.SourceDvId, x.TargetDvId, x.EffectiveAt })
+            .ToListAsync(cancellationToken);
+        var byTarget = edges.GroupBy(x => x.TargetDvId).ToDictionary(x => x.Key, x => x.ToArray());
+        var cutoffs = new Dictionary<long, DateTime>();
+        var queue = new Queue<(long Id, DateTime Cutoff)>(current.AllowedDonViIds.Select(x => (x, DateTime.MaxValue)));
+        while (queue.Count > 0)
+        {
+            var (targetId, targetCutoff) = queue.Dequeue();
+            if (!byTarget.TryGetValue(targetId, out var incoming)) continue;
+            foreach (var edge in incoming)
+            {
+                var cutoff = edge.EffectiveAt < targetCutoff ? edge.EffectiveAt : targetCutoff;
+                if (current.Contains(edge.SourceDvId)) continue;
+                if (cutoffs.TryGetValue(edge.SourceDvId, out var previous) && previous >= cutoff) continue;
+                cutoffs[edge.SourceDvId] = cutoff;
+                queue.Enqueue((edge.SourceDvId, cutoff));
+            }
+        }
+        return new DonViHistoricalReadScope { Current = current, PredecessorCutoffs = cutoffs };
     }
 }

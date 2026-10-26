@@ -201,7 +201,7 @@ export const BIZ_MODULES: Record<string, BizModuleConfig> = {
     endpoint: 'dao-tao-hoc-vien',
     requiresKyBaoCaoCode: false,
     bindDonViToAccount: true,
-    title: 'Đào Tạo Học Viện',
+    title: 'Đào tạo học viên',
     subtitle: 'Thống kê số liệu đào tạo tại học viện, nhà trường.',
     navLabel: 'Đào tạo học viện',
     navIcon: 'pi-building',

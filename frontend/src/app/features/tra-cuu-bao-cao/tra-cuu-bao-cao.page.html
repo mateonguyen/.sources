@@ -1,6 +1,10 @@
 <app-section-card
-  title="Tra cứu báo cáo"
-  subtitle="Màn theo dõi quản lý dựa trên báo cáo đã nộp; hỗ trợ xem báo cáo gần nhất theo từng đơn vị."
+  [title]="isSelfUnit ? 'Lịch sử báo cáo đã nộp' : 'Tra cứu báo cáo'"
+  [subtitle]="
+    isSelfUnit
+      ? 'Toàn bộ báo cáo đơn vị bạn đã nộp qua các kỳ, mới nhất trước.'
+      : 'Tra cứu báo cáo đã nộp theo kỳ và đơn vị; mỗi đơn vị hiển thị phiên bản nộp mới nhất trong kỳ.'
+  "
 >
   <button
     sectionActions
@@ -12,22 +16,61 @@
     (click)="goToComparePage()"
   ></button>
 
-  <!-- Bộ lọc -->
-  <div class="tcbc-filter-shell">
-    <div class="tcbc-filters tcbc-filters-primary">
-      <div class="app-field tcbc-filter-mode">
-        <label>Chế độ tra cứu</label>
+  <!-- Đơn vị tự nộp: chỉ có đúng báo cáo của chính mình, không cần chọn đơn vị/chế độ tra cứu — chỉ lọc nhanh theo năm/kỳ -->
+  <div class="tcbc-filter-shell" *ngIf="isSelfUnit">
+    <div class="tcbc-filters tcbc-filters-primary tcbc-filters--self">
+      <div class="app-field tcbc-filter-ky">
+        <label>Năm</label>
         <p-dropdown
-          [options]="viewModeOptions"
+          [options]="yearOptions"
           optionLabel="label"
           optionValue="value"
-          [(ngModel)]="viewMode"
+          [(ngModel)]="filterYear"
           [ngModelOptions]="{ standalone: true }"
           appendTo="body"
-          (onChange)="onViewModeChange()"
+          placeholder="Tất cả các năm"
+          [showClear]="true"
         ></p-dropdown>
       </div>
 
+      <div class="app-field tcbc-filter-search">
+        <label>Tìm theo kỳ báo cáo</label>
+        <input
+          pInputText
+          type="text"
+          [ngModel]="filterTextInput"
+          (ngModelChange)="onFilterTextChange($event)"
+          (keydown.enter)="applyFilterImmediately()"
+          [ngModelOptions]="{ standalone: true }"
+          placeholder="Nhập mã kỳ báo cáo..."
+        />
+      </div>
+    </div>
+
+    <div class="tcbc-filter-actions tcbc-filter-actions--self">
+      <span class="tcbc-count-pill">{{ filteredCountLabel }}</span>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-filter-slash"
+        class="p-button-text p-button-sm"
+        label="Xóa lọc"
+        (click)="clearFilters()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-refresh"
+        class="p-button-secondary p-button-sm"
+        label="Làm mới"
+        (click)="loadMyHistory()"
+      ></button>
+    </div>
+  </div>
+
+  <!-- Bộ lọc (chỉ dành cho vai trò quản lý xem nhiều đơn vị) -->
+  <div class="tcbc-filter-shell" *ngIf="!isSelfUnit">
+    <div class="tcbc-filters tcbc-filters--manager">
       <div class="app-field tcbc-filter-ky">
         <label>Kỳ báo cáo</label>
         <p-dropdown
@@ -37,10 +80,22 @@
           [(ngModel)]="selectedKyId"
           [ngModelOptions]="{ standalone: true }"
           appendTo="body"
+          [filter]="true"
+          filterBy="label,code"
+          filterPlaceholder="Tìm tên hoặc mã kỳ..."
+          emptyFilterMessage="Không tìm thấy kỳ báo cáo"
+          scrollHeight="360px"
+          panelStyleClass="tcbc-period-panel"
           placeholder="Chọn kỳ báo cáo"
-          [disabled]="viewMode === 'latest'"
           (onChange)="onKyChange()"
-        ></p-dropdown>
+        >
+          <ng-template pTemplate="item" let-option>
+            <div class="tcbc-period-option">
+              <strong>{{ option.label }}</strong>
+              <small *ngIf="option.code !== option.label">{{ option.code }}</small>
+            </div>
+          </ng-template>
+        </p-dropdown>
       </div>
 
       <div class="app-field tcbc-filter-status">
@@ -55,9 +110,6 @@
           placeholder="Tất cả trạng thái"
         ></p-dropdown>
       </div>
-    </div>
-
-    <div class="tcbc-filters-secondary">
       <div class="app-field tcbc-filter-search">
         <label>Tìm kiếm đơn vị</label>
         <input
@@ -73,15 +125,6 @@
 
       <div class="tcbc-filter-actions">
         <span class="tcbc-count-pill">{{ filteredCountLabel }}</span>
-        <label class="tcbc-toggle">
-          <input
-            type="checkbox"
-            [(ngModel)]="latestOnly"
-            [ngModelOptions]="{ standalone: true }"
-            [disabled]="viewMode === 'latest'"
-          />
-          <span>Chỉ phiên bản mới nhất</span>
-        </label>
         <button
           pButton
           type="button"
@@ -109,16 +152,20 @@
     ></app-loading-overlay>
 
     <app-empty-state
-      *ngIf="!loading && !selectedKyId"
+      *ngIf="!loading && !isSelfUnit && !selectedKyId"
       title="Chưa chọn kỳ báo cáo"
       message="Vui lòng chọn kỳ báo cáo để xem danh sách snapshot."
       icon="pi-search"
     ></app-empty-state>
 
     <app-empty-state
-      *ngIf="!loading && selectedKyId && filteredSnapshots.length === 0"
-      title="Không có dữ liệu"
-      message="Không tìm thấy báo cáo nào phù hợp với bộ lọc hiện tại."
+      *ngIf="!loading && (isSelfUnit || selectedKyId) && filteredSnapshots.length === 0"
+      [title]="isSelfUnit ? 'Chưa có báo cáo nào' : 'Không có dữ liệu'"
+      [message]="
+        isSelfUnit
+          ? 'Đơn vị bạn chưa nộp báo cáo nào. Vào Nộp báo cáo để bắt đầu.'
+          : 'Không tìm thấy báo cáo nào phù hợp với bộ lọc hiện tại.'
+      "
       icon="pi-inbox"
     ></app-empty-state>
 

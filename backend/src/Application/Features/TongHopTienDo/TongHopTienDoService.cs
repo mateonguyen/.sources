@@ -146,9 +146,14 @@ public sealed class TongHopTienDoService : ITongHopTienDoService
 
         var donVi = await _db.DonVis
             .Where(x => x.Id == donViId && x.IsActive == activeOnly)
-            .Select(x => new { x.Id, x.TenDonVi, x.CapDonVi })
+            .Select(x => new { x.Id, x.TenDonVi, x.CapDonVi, x.ParentId })
             .FirstOrDefaultAsync(ct)
             ?? throw new AppException("DON_VI_NOT_FOUND", "Không tìm thấy đơn vị.", 404);
+
+        var tongHopValue = "TONG_HOP";
+        var parentIsTongHop = donVi.ParentId.HasValue
+            && await _db.DonVis.AnyAsync(
+                x => x.Id == donVi.ParentId.Value && x.CheDoNhapLieu == tongHopValue, ct);
 
         var tt = await _db.KyTrangThaiDonVis
             .Where(x => x.KyBaoCao!.KyCode == kyBaoCaoCode && x.DonViId == donViId)
@@ -199,6 +204,7 @@ public sealed class TongHopTienDoService : ITongHopTienDoService
                 && maxUpdated.HasValue
                 && maxUpdated.Value > mocXacNhan.Value,
             CapNhatLanCuoi = tt?.UpdatedAt,
+            ParentIsTongHop = parentIsTongHop,
             HanBoSung = hanBoSung,
             SoNhanLuc = await _db.NhanLucCntts.CountAsync(x => x.DonViId == donViId, ct),
             SoNangLucSo = await _db.NangLucSos.CountAsync(x => x.DonViId == donViId, ct),

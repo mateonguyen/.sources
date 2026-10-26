@@ -27,6 +27,17 @@ public sealed class HaTangMangController : ControllerBase
         return Ok(ApiResponseFactory.Success(result));
     }
 
+    [HttpGet("direct-child-count")]
+    [HasPermission(Permissions.HaTangMang.Read)]
+    [ProducesResponseType(typeof(ApiResponse<int>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<int>>> GetDirectChildCount(
+        [FromQuery] long donViId,
+        CancellationToken cancellationToken)
+    {
+        var result = await _service.GetDirectChildCountAsync(donViId, cancellationToken);
+        return Ok(ApiResponseFactory.Success(result));
+    }
+
     [HttpGet("{id:long}")]
     [HasPermission(Permissions.HaTangMang.Read)]
     [ProducesResponseType(typeof(ApiResponse<HaTangMangDto>), StatusCodes.Status200OK)]

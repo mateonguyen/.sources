@@ -2,6 +2,7 @@
 import {
   Component,
   computed,
+  HostListener,
   signal,
   WritableSignal,
 } from '@angular/core';
@@ -24,6 +25,7 @@ import { DialogModule } from 'primeng/dialog';
 import { TreeSelectModule } from 'primeng/treeselect';
 import { TreeNode } from 'primeng/api';
 import { AuthService } from '../../core/auth/auth.service';
+import { PendingChangesAware } from '../../core/navigation/pending-changes.guard';
 import { NotificationService } from '../../core/ui/notification.service';
 import { DonViApi, DonViDto } from '../don-vi/don-vi.api';
 import { ConfirmDialogWrapperService } from '../../shared/ui/confirm-dialog-wrapper.service';
@@ -113,7 +115,7 @@ interface AggregateDraft {
   templateUrl: './thiet-bi-cntt.page.html',
   styleUrl: './thiet-bi-cntt.page.scss',
 })
-export class ThietBiCnttPage {
+export class ThietBiCnttPage implements PendingChangesAware {
   // Không dùng `overflow-hidden` của panel dùng chung: dropdown có ô cuộn
   // danh sách riêng, lớp đó có thể làm phần option bị cắt khi panel nằm trong
   // card. Overlay được append ra body và giữ class riêng để hiển thị ổn định.
@@ -203,6 +205,24 @@ export class ThietBiCnttPage {
   expandedRows = signal<Record<string, boolean>>({});
   aggregateDrafts = signal<Record<number, AggregateDraft>>({});
   savingAggregateId = signal<number | null>(null);
+  savingAllAggregates = signal(false);
+
+  readonly dirtyAggregateIds = computed(() => {
+    const drafts = this.aggregateDrafts();
+    return Object.keys(drafts)
+      .map(Number)
+      .filter((categoryId) =>
+        this.hasAggregateDraftChanges(categoryId, drafts[categoryId]),
+      );
+  });
+
+  readonly dirtyAggregateCount = computed(
+    () => this.dirtyAggregateIds().length,
+  );
+
+  readonly hasUnsavedAggregateChanges = computed(
+    () => this.dirtyAggregateCount() > 0,
+  );
 
   filterLoaiThietBiId = signal<number | null>(null);
   filterTenThietBi = signal<string>('');
@@ -480,6 +500,20 @@ export class ThietBiCnttPage {
     }
   }
 
+  async reloadFromServer(): Promise<void> {
+    if (
+      this.hasUnsavedAggregateChanges() &&
+      !(await this.confirmDiscardAggregateChanges(
+        'Dữ liệu bạn vừa nhập chưa được lưu. Tải lại trang sẽ hủy toàn bộ thay đổi này.',
+        'Tải lại',
+      ))
+    ) {
+      return;
+    }
+
+    await this.load();
+  }
+
   onModelAutocomplete(event: { query?: string }): void {
     this.refreshModelSuggestions(event.query ?? '');
   }
@@ -641,16 +675,18 @@ export class ThietBiCnttPage {
   }
 
   hasAggregateChanges(category: ThietBiCategoryView): boolean {
-    const draft = this.aggregateDraft(category);
-    return (
-      draft.soLuongHienDung !== category.currentCount ||
-      draft.tinhTrang.trim() !== (category.primaryItem?.tinhTrang ?? '').trim() ||
-      draft.ghiChu.trim() !== (category.primaryItem?.ghiChu ?? '').trim()
+    return this.hasAggregateDraftChanges(
+      category.id,
+      this.aggregateDraft(category),
     );
   }
 
   async saveAggregate(category: ThietBiCategoryView): Promise<void> {
-    if (this.savingAggregateId() !== null) {
+    if (
+      !this.hasAggregateChanges(category) ||
+      this.savingAggregateId() !== null ||
+      this.savingAllAggregates()
+    ) {
       return;
     }
 
@@ -663,41 +699,111 @@ export class ThietBiCnttPage {
       return;
     }
 
-    const draft = this.aggregateDraft(category);
-    const quantity = Math.max(0, draft.soLuongHienDung);
-    const current = category.primaryItem;
+    const draftsToKeep = this.captureDirtyAggregateDrafts([category.id]);
     this.savingAggregateId.set(category.id);
     try {
-      const payload: UpsertThietBiCnttRequest = {
+      await this.persistAggregateDraft(
+        category.id,
+        this.aggregateDraft(category),
         donViId,
-        loaiThietBiId: category.id,
-        tenThietBi: null,
-        hangSanXuat: null,
-        model: null,
-        cauHinh: null,
-        heDieuHanh: null,
-        donViSuDung: null,
-        soLuongTong: quantity,
-        soLuongHienDung: quantity,
-        soLuongHong: 0,
-        tinhTrang: this.normalizeText(draft.tinhTrang),
-        ghiChu: this.normalizeText(draft.ghiChu),
-        ungDungIds: [],
-      };
-
-      if (current) {
-        await this.thietBiApi.update(current.id, payload);
-      } else {
-        await this.thietBiApi.create(payload);
-      }
+      );
       this.notificationService.show(
         'success',
         `Đã lưu thông tin ${category.label}.`,
       );
       await this.load();
+      this.restoreAggregateDrafts(draftsToKeep);
     } finally {
       this.savingAggregateId.set(null);
     }
+  }
+
+  async saveAllAggregateChanges(): Promise<void> {
+    const dirtyIds = [...this.dirtyAggregateIds()];
+    if (
+      dirtyIds.length === 0 ||
+      this.savingAllAggregates() ||
+      this.savingAggregateId() !== null
+    ) {
+      return;
+    }
+
+    const donViId = this.donViId();
+    if (!donViId) {
+      this.notificationService.show(
+        'error',
+        'Không xác định được đơn vị. Vui lòng đăng nhập lại.',
+      );
+      return;
+    }
+
+    const pendingDrafts = this.captureDirtyAggregateDrafts();
+    const failedIds: number[] = [];
+    this.savingAllAggregates.set(true);
+    try {
+      for (const categoryId of dirtyIds) {
+        this.savingAggregateId.set(categoryId);
+        try {
+          await this.persistAggregateDraft(
+            categoryId,
+            pendingDrafts[categoryId],
+            donViId,
+          );
+        } catch {
+          failedIds.push(categoryId);
+        }
+      }
+
+      await this.load();
+      this.restoreAggregateDrafts(
+        Object.fromEntries(
+          failedIds.map((categoryId) => [
+            categoryId,
+            pendingDrafts[categoryId],
+          ]),
+        ),
+      );
+
+      if (failedIds.length === 0) {
+        this.notificationService.show(
+          'success',
+          `Đã lưu ${dirtyIds.length} dòng thiết bị tổng hợp.`,
+        );
+      } else {
+        this.notificationService.show(
+          'error',
+          `Đã lưu ${dirtyIds.length - failedIds.length}/${dirtyIds.length} dòng. ${failedIds.length} dòng chưa lưu được và vẫn được giữ lại để bạn thử lại.`,
+        );
+      }
+    } finally {
+      this.savingAggregateId.set(null);
+      this.savingAllAggregates.set(false);
+    }
+  }
+
+  discardAggregateChanges(): void {
+    this.syncAggregateDrafts();
+  }
+
+  async canDeactivate(): Promise<boolean> {
+    if (!this.hasUnsavedAggregateChanges()) {
+      return true;
+    }
+
+    return this.confirmDiscardAggregateChanges(
+      `Bạn còn ${this.dirtyAggregateCount()} dòng thiết bị chưa lưu. Nếu rời trang, các thay đổi này sẽ bị mất.`,
+      'Rời trang',
+    );
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  protectUnsavedChanges(event: BeforeUnloadEvent): void {
+    if (!this.hasUnsavedAggregateChanges()) {
+      return;
+    }
+
+    event.preventDefault();
+    event.returnValue = '';
   }
 
   async save(): Promise<void> {
@@ -768,7 +874,7 @@ export class ThietBiCnttPage {
 
       this.resetForm();
       this.closeDialog();
-      await this.load();
+      await this.loadPreservingAggregateDrafts();
     } finally {
       this.saving.set(false);
     }
@@ -814,7 +920,7 @@ export class ThietBiCnttPage {
     if (this.selectedId() === item.id) {
       this.resetForm();
     }
-    await this.load();
+    await this.loadPreservingAggregateDrafts();
   }
 
   resetForm(): void {
@@ -1163,6 +1269,109 @@ export class ThietBiCnttPage {
         (option) => option.value === loaiThietBiId,
       )?.laTongHop ?? false
     );
+  }
+
+  private hasAggregateDraftChanges(
+    categoryId: number,
+    draft: AggregateDraft | undefined,
+  ): boolean {
+    if (!draft) {
+      return false;
+    }
+
+    const categoryItems = this.items().filter(
+      (item) => item.loaiThietBiId === categoryId,
+    );
+    const currentCount = categoryItems.reduce(
+      (sum, item) => sum + item.soLuongHienDung,
+      0,
+    );
+    const current = categoryItems[0] ?? null;
+
+    return (
+      Number(draft.soLuongHienDung) !== currentCount ||
+      draft.tinhTrang.trim() !== (current?.tinhTrang ?? '').trim() ||
+      draft.ghiChu.trim() !== (current?.ghiChu ?? '').trim()
+    );
+  }
+
+  private captureDirtyAggregateDrafts(
+    excludedCategoryIds: number[] = [],
+  ): Record<number, AggregateDraft> {
+    const excluded = new Set(excludedCategoryIds);
+    const drafts = this.aggregateDrafts();
+    return Object.fromEntries(
+      this.dirtyAggregateIds()
+        .filter((categoryId) => !excluded.has(categoryId))
+        .map((categoryId) => [categoryId, { ...drafts[categoryId] }]),
+    );
+  }
+
+  private restoreAggregateDrafts(
+    draftsToRestore: Record<number, AggregateDraft>,
+  ): void {
+    if (Object.keys(draftsToRestore).length === 0) {
+      return;
+    }
+
+    this.aggregateDrafts.update((drafts) => ({
+      ...drafts,
+      ...draftsToRestore,
+    }));
+  }
+
+  private async loadPreservingAggregateDrafts(): Promise<void> {
+    const draftsToRestore = this.captureDirtyAggregateDrafts();
+    await this.load();
+    this.restoreAggregateDrafts(draftsToRestore);
+  }
+
+  private async persistAggregateDraft(
+    categoryId: number,
+    draft: AggregateDraft,
+    donViId: number,
+  ): Promise<void> {
+    const quantity = Math.max(0, Number(draft.soLuongHienDung));
+    const current = this.items().find(
+      (item) => item.loaiThietBiId === categoryId,
+    );
+    const payload: UpsertThietBiCnttRequest = {
+      donViId,
+      loaiThietBiId: categoryId,
+      tenThietBi: null,
+      hangSanXuat: null,
+      model: null,
+      cauHinh: null,
+      heDieuHanh: null,
+      donViSuDung: null,
+      soLuongTong: quantity,
+      soLuongHienDung: quantity,
+      soLuongHong: 0,
+      tinhTrang: this.normalizeText(draft.tinhTrang),
+      ghiChu: this.normalizeText(draft.ghiChu),
+      ungDungIds: [],
+    };
+
+    if (current) {
+      await this.thietBiApi.update(current.id, payload);
+      return;
+    }
+
+    await this.thietBiApi.create(payload);
+  }
+
+  private confirmDiscardAggregateChanges(
+    message: string,
+    acceptLabel: string,
+  ): Promise<boolean> {
+    return this.confirmDialog.confirm({
+      header: 'Thay đổi chưa được lưu',
+      message,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel,
+      rejectLabel: 'Ở lại',
+      acceptButtonStyleClass: 'p-button-warning',
+    });
   }
 
   private syncAggregateDrafts(): void {

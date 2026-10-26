@@ -109,6 +109,18 @@
           ></p-dropdown>
         </div>
 
+        <div class="app-form-field app-form-field--full">
+          <label class="app-form-field__checkbox">
+            <p-checkbox formControlName="isRequired" [binary]="true"></p-checkbox>
+            <span class="app-form-field__checkbox-text">
+              Bắt buộc áp dụng
+              <small class="app-form-field__checkbox-hint">
+                Đơn vị không được ẩn giá trị này khỏi danh mục sử dụng.
+              </small>
+            </span>
+          </label>
+        </div>
+
         <div
           class="app-form-field app-form-field--full"
           [class.has-value]="form.get('description')?.value"

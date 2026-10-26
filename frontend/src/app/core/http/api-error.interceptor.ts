@@ -32,8 +32,8 @@ export const apiErrorInterceptor: HttpInterceptorFn = (request, next) => {
         if (!isAuthEndpoint && !sessionExpiredShown) {
           sessionExpiredShown = true;
           notificationService.show(
-            'error',
-            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.',
+            'info',
+            'Phiên làm việc đã kết thúc. Vui lòng đăng nhập lại để tiếp tục.',
           );
           // Reset after delay so re-login in the same SPA session works correctly.
           setTimeout(() => {

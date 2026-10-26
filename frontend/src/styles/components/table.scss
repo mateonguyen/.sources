@@ -300,7 +300,7 @@ p-treetable.app-ref-loai-treetable,
   border-bottom: 0 !important;
 }
 
-.app-ref-loai-treetable .col-name { width: 34%; }
+.app-ref-loai-treetable .col-name { width: 31%; }
 .app-ref-loai-treetable .col-code {
   width: 13%;
   font-family: var(--app-font-family-base);
@@ -308,9 +308,17 @@ p-treetable.app-ref-loai-treetable,
   font-size: var(--app-font-size-ui-table-body);
 }
 .app-ref-loai-treetable .col-tonghop { width: 9%; text-align: center; }
-.app-ref-loai-treetable .col-order   { width: 14%; text-align: center; }
-.app-ref-loai-treetable .col-status  { width: 15%; text-align: center; }
-.app-ref-loai-treetable .col-actions { width: 15%; text-align: center; }
+.app-ref-loai-treetable .col-order   { width: 11%; text-align: center; }
+.app-ref-loai-treetable .col-status  { width: 13%; text-align: center; }
+.app-ref-loai-treetable .col-actions { width: 23%; text-align: center; }
+
+.app-ref-loai-treetable .p-treetable-tbody > tr.unit-proposal-table-row {
+  background: #fffaf0 !important;
+}
+
+.app-ref-loai-treetable .p-treetable-tbody > tr.unit-proposal-table-row:hover {
+  background: #fff5df !important;
+}
 
 .app-ref-loai-treetable .p-treetable-toggler {
   // Bo margin-left mac dinh cua PrimeNG (rowNode.level * 16px, dat qua

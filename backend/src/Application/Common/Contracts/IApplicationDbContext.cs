@@ -18,13 +18,23 @@ public interface IApplicationDbContext
 
     DbSet<UserRoleAssignment> UserRoleAssignments { get; }
 
+    DbSet<UserUnitHistory> UserUnitHistories { get; }
+
     DbSet<RefreshTokenSession> RefreshTokenSessions { get; }
 
     DbSet<DonVi> DonVis { get; }
 
+    DbSet<DonViVersion> DonViVersions { get; }
+
+    DbSet<DonViChange> DonViChanges { get; }
+
+    DbSet<DonViSuccessor> DonViSuccessors { get; }
+
     DbSet<Code> Codes { get; }
 
     DbSet<CodeValue> CodeValues { get; }
+
+    DbSet<UnitCatalogItemSetting> UnitCatalogItemSettings { get; }
 
     DbSet<RefLoaiThietBi> RefLoaiThietBis { get; }
 
@@ -37,6 +47,8 @@ public interface IApplicationDbContext
     DbSet<BaoCaoSnapshot> BaoCaoSnapshots { get; }
 
     DbSet<BaoCaoSnapshotXacNhan> BaoCaoSnapshotXacNhans { get; }
+
+    DbSet<BaoCaoSnapshotMetric> BaoCaoSnapshotMetrics { get; }
 
     DbSet<SnapshotBatch> SnapshotBatches { get; }
 

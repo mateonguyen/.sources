@@ -33,7 +33,7 @@ public sealed class PermissionsController : ControllerBase
     }
 
     [HttpGet]
-    [HasPermission(Permissions.Roles.Read)]
+    [HasPermission(Permissions.PermissionCatalog.Read)]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyCollection<PermissionItemDto>>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<IReadOnlyCollection<PermissionItemDto>>>> GetAll(CancellationToken cancellationToken)
     {

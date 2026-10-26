@@ -20,7 +20,7 @@ public sealed class SnapshotSubmitIntegrationTests : IClassFixture<ApiTestWebApp
     public async Task Submit_Should_Succeed_With_Valid_Payload()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         var snapshotId = await CreateDraftAsync(client, "{\"nhanLuc\":10}");
         var submitResponse = await client.PostAsJsonAsync($"/api/v1/snapshot/{snapshotId}/submit", new { ghiChu = "ok" });
@@ -34,7 +34,7 @@ public sealed class SnapshotSubmitIntegrationTests : IClassFixture<ApiTestWebApp
     public async Task Submit_Should_Fail_When_Snapshot_Data_Is_Empty_Object()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         var snapshotId = await CreateDraftAsync(client, "{}");
         var submitResponse = await client.PostAsJsonAsync($"/api/v1/snapshot/{snapshotId}/submit", new { ghiChu = "invalid" });
@@ -47,7 +47,7 @@ public sealed class SnapshotSubmitIntegrationTests : IClassFixture<ApiTestWebApp
     public async Task Submit_Should_Fail_When_Report_Period_Is_Not_Open()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         var snapshotId = await CreateDraftAsync(client, "{\"v\":1}");
 
@@ -67,7 +67,7 @@ public sealed class SnapshotSubmitIntegrationTests : IClassFixture<ApiTestWebApp
     public async Task Submit_Should_Update_KyTrangThaiDonVi_And_Write_Audit_Log()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         var snapshotId = await CreateDraftAsync(client, "{\"v\":1}");
         var submitResponse = await client.PostAsJsonAsync($"/api/v1/snapshot/{snapshotId}/submit", new { ghiChu = "audit" });
@@ -88,7 +88,7 @@ public sealed class SnapshotSubmitIntegrationTests : IClassFixture<ApiTestWebApp
     public async Task Submit_Should_Fail_When_Another_Active_Snapshot_Exists()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         var firstSnapshotId = await CreateDraftAsync(client, "{\"v\":1}");
         var firstSubmitResponse = await client.PostAsJsonAsync($"/api/v1/snapshot/{firstSnapshotId}/submit", new { ghiChu = "first" });
@@ -106,7 +106,7 @@ public sealed class SnapshotSubmitIntegrationTests : IClassFixture<ApiTestWebApp
     public async Task SubmitCurrent_Should_Create_Immutable_Snapshot_From_Current_Live_Data()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         await _factory.ExecuteDbContextAsync(async dbContext =>
         {
@@ -132,7 +132,7 @@ public sealed class SnapshotSubmitIntegrationTests : IClassFixture<ApiTestWebApp
     public async Task Delete_Should_Cancel_Submitted_Snapshot_And_Allow_Submit_Again()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         var snapshotId = await CreateDraftAsync(client, "{\"v\":1}");
         var submitResponse = await client.PostAsJsonAsync($"/api/v1/snapshot/{snapshotId}/submit", new { ghiChu = "cancel" });
@@ -157,7 +157,7 @@ public sealed class SnapshotSubmitIntegrationTests : IClassFixture<ApiTestWebApp
     public async Task SubmitCurrent_Should_Require_Force_When_TongHop_Has_Unconfirmed_Children()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         await _factory.ExecuteDbContextAsync(async dbContext =>
         {
@@ -229,7 +229,7 @@ public sealed class SnapshotSubmitIntegrationTests : IClassFixture<ApiTestWebApp
     public async Task SubmitCurrent_TongHop_Should_Write_Batch_Confirmations_And_Breakdown()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         long childId = 0;
         await _factory.ExecuteDbContextAsync(async dbContext =>
@@ -333,7 +333,7 @@ public sealed class SnapshotSubmitIntegrationTests : IClassFixture<ApiTestWebApp
     public async Task SubmitCurrent_TuNhap_Should_Not_Require_Force_And_Breakdown_Should_Be_Empty()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         await _factory.ExecuteDbContextAsync(async dbContext =>
         {
@@ -407,7 +407,7 @@ public sealed class SnapshotSubmitIntegrationTests : IClassFixture<ApiTestWebApp
     public async Task SubmitCurrent_Should_Snapshot_AtttHtttDauTu_And_Keep_Live_Data_Editable()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         var seeded = await _factory.ExecuteDbContextAsync(async dbContext =>
         {

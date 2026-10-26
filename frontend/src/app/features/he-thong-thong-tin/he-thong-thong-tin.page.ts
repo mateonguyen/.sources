@@ -19,11 +19,7 @@ import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { AuthService } from '../../core/auth/auth.service';
 import { CodeDto, CodesApi, CodeValueDto } from '../codes/codes.api';
-import {
-  DonViApi,
-  DonViDto,
-  DonViParentCandidateDto,
-} from '../don-vi/don-vi.api';
+import { DonViApi, DonViDto } from '../don-vi/don-vi.api';
 import { NotificationService } from '../../core/ui/notification.service';
 import { ConfirmDialogWrapperService } from '../../shared/ui/confirm-dialog-wrapper.service';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
@@ -138,7 +134,6 @@ export class HeThongThongTinPage {
   softwareTypeCatalogValues = signal<CodeValueDto[]>([]);
   standardCatalogValues = signal<CodeValueDto[]>([]);
   donViTree = signal<DonViDto[]>([]);
-  donViFallbackOptions = signal<Array<SelectOption<string>>>([]);
 
   selectedSoftwareId = signal<number | null>(null);
   selectedStandardId = signal<number | null>(null);
@@ -255,9 +250,7 @@ export class HeThongThongTinPage {
   readonly standardCount = computed(() => this.standardItems().length);
 
   readonly donViQuanLyOptions = computed<Array<SelectOption<string>>>(() =>
-    this.flattenDonViOptions(this.donViTree()).length > 0
-      ? this.flattenDonViOptions(this.donViTree())
-      : this.donViFallbackOptions(),
+    this.flattenDonViOptions(this.donViTree()),
   );
 
   readonly standardCatalogOptions = computed<Array<SelectOption<string>>>(() =>
@@ -288,7 +281,6 @@ export class HeThongThongTinPage {
         softwareTypeCode,
         standardCode,
         donViTree,
-        donViParents,
       ] = await Promise.all([
         this.heThongApi.getAll().catch(() => []),
         this.heThongApi.getAllTieuChuan().catch(() => []),
@@ -299,7 +291,6 @@ export class HeThongThongTinPage {
           .getByCode('HTTT_TIEU_CHUAN_CAND')
           .catch(() => null as CodeDto | null),
         this.donViApi.getTree().catch(() => []),
-        this.donViApi.getParentCandidates().catch(() => []),
       ]);
 
       this.softwareItems.set(softwareItems);
@@ -312,9 +303,6 @@ export class HeThongThongTinPage {
       this.standardCatalogValues.set(standardCatalogValues);
       const scopedDonViTree = this.resolveUserDonViSubtree(donViTree);
       this.donViTree.set(scopedDonViTree);
-      this.donViFallbackOptions.set(
-        this.mapDonViParentCandidatesToOptions(donViParents),
-      );
       if (scopedDonViTree.length === 0) {
         this.notificationService.show(
           'warning',
@@ -796,15 +784,6 @@ export class HeThongThongTinPage {
   private normalizeText(value: string | null | undefined): string | null {
     const normalized = value?.trim();
     return normalized ? normalized : null;
-  }
-
-  private mapDonViParentCandidatesToOptions(
-    items: DonViParentCandidateDto[],
-  ): Array<SelectOption<string>> {
-    return items.map((item) => ({
-      label: item.displayName || item.tenDonVi,
-      value: item.tenDonVi,
-    }));
   }
 
   private getDefaultStandardCatalogValues(): CodeValueDto[] {

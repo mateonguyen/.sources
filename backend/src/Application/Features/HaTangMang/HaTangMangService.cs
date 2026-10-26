@@ -11,6 +11,8 @@ public interface IHaTangMangService
 {
     Task<IReadOnlyCollection<HaTangMangDto>> GetAllAsync(CancellationToken cancellationToken = default);
 
+    Task<int> GetDirectChildCountAsync(long donViId, CancellationToken cancellationToken = default);
+
     Task<HaTangMangDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
     Task<HaTangMangDto> UpsertAsync(long? id, UpsertHaTangMangRequest request, CancellationToken cancellationToken = default);
@@ -45,6 +47,16 @@ public sealed class HaTangMangService : IHaTangMangService
             SoKetNoiInternet = x.SoKetNoiInternet,
             GhiChu = x.GhiChu
         }).ToListAsync(cancellationToken);
+
+    public async Task<int> GetDirectChildCountAsync(long donViId, CancellationToken cancellationToken = default)
+    {
+        await EnsureValidScopeAsync(donViId, cancellationToken);
+        // Oracle provider khong sinh SQL dung voi bool tran trong predicate.
+        var activeFlag = true;
+        return await _dbContext.DonVis.CountAsync(
+            x => x.ParentId == donViId && x.IsActive == activeFlag,
+            cancellationToken);
+    }
 
     public async Task<HaTangMangDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
         => await ApplyReadScope(_dbContext.HaTangMangs).Where(x => x.Id == id).Select(x => new HaTangMangDto

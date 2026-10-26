@@ -47,6 +47,37 @@
   color: var(--app-primary-500); padding: 5px 10px;
 }
 .tdn-ky-bar .p-dropdown .p-dropdown-trigger { color: var(--app-primary-500); }
+.tdn-ky-option {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+
+  strong {
+    overflow: hidden;
+    color: var(--app-text-strong);
+    font-size: 0.83rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  small {
+    overflow: hidden;
+    color: var(--app-text-muted);
+    font-size: 0.72rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+:host ::ng-deep .tdn-ky-dropdown-panel {
+  min-width: min(620px, 94vw) !important;
+}
+
+:host ::ng-deep .tdn-ky-dropdown-panel .p-dropdown-filter {
+  width: 100%;
+}
 .tdn-ky-bar__badge-open {
   display: inline-flex; align-items: center; gap: 4px;
   padding: 3px 8px; border-radius: var(--app-radius);
@@ -128,4 +159,201 @@
 .tdn-timestamp {
   font-size: 0.8rem;
   color: #64748b;
+}
+
+/* ── Bộ lọc và thao tác bảng ── */
+.tdn-table-toolbar {
+  display: grid;
+  grid-template-columns: minmax(380px, 1fr) 220px 250px max-content max-content;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--app-border);
+  border-bottom: 0;
+  border-radius: var(--app-radius) var(--app-radius) 0 0;
+  background: #f8fafc;
+}
+
+.tdn-table-toolbar__search {
+  position: relative;
+  min-width: 0;
+
+  > i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    z-index: 1;
+    color: var(--app-text-muted);
+    transform: translateY(-50%);
+  }
+
+  input {
+    width: 100%;
+    padding-left: 34px;
+  }
+}
+
+.tdn-table-toolbar__filter { min-width: 0; }
+
+:host ::ng-deep .tdn-table-toolbar__select {
+  width: 100%;
+  min-width: 0;
+}
+
+:host ::ng-deep .tdn-table-toolbar__clear {
+  white-space: nowrap;
+}
+
+.tdn-table-toolbar__count {
+  color: var(--app-text-muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.tdn-row-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.tdn-no-action { color: #94a3b8; }
+
+.tdn-request-cell {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+
+  small {
+    color: var(--app-text-muted);
+    font-size: 0.7rem;
+  }
+}
+
+.tdn-request-cell__reason {
+  display: block;
+  max-width: 220px;
+  overflow: hidden;
+  color: #475569;
+  font-size: 0.76rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tdn-request-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background: #f8fafc;
+
+  > div {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 10px;
+    line-height: 1.45;
+  }
+
+  span { color: var(--app-text-muted); font-size: 0.8rem; }
+  strong { color: var(--app-text-strong); font-size: 0.84rem; font-weight: 600; }
+}
+
+.tdn-request-note {
+  margin: 12px 0 0;
+  color: var(--app-text-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+:host ::ng-deep .tdn-table-toolbar + .app-table-wrap {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+:host ::ng-deep .app-admin-table .p-paginator {
+  justify-content: flex-end;
+  border-top: 1px solid var(--app-border);
+  padding: 8px 10px;
+}
+
+/* ── Xem nhanh báo cáo đã nộp ── */
+:host ::ng-deep .tdn-preview-dialog {
+  display: flex;
+  flex-direction: column;
+  max-height: 94vh;
+}
+
+:host ::ng-deep .tdn-preview-dialog .p-dialog-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+}
+
+.tdn-preview {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.tdn-preview__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--app-border);
+  background: #f8fafc;
+
+  > div { display: flex; align-items: center; gap: 10px; }
+  span { color: var(--app-text-muted); font-size: 0.8rem; }
+}
+
+.tdn-preview__loading {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--app-text-muted);
+}
+
+.tdn-preview__frame {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  border: 0;
+  background: #eef2f6;
+}
+
+@media (max-width: 980px) {
+  :host ::ng-deep .tdn-ky-dropdown {
+    width: min(520px, 70vw) !important;
+  }
+
+  .tdn-table-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) max-content;
+  }
+
+  .tdn-table-toolbar__search { grid-column: 1 / -1; }
+  .tdn-table-toolbar__count { justify-self: end; }
+  .tdn-stat-row { grid-template-columns: repeat(3, 1fr); }
+
+  :host ::ng-deep .tdn-preview-dialog {
+    width: 98vw !important;
+    height: 96vh !important;
+    max-height: 96vh;
+  }
+
+  .tdn-preview__meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+
+    > div { flex-wrap: wrap; }
+  }
 }

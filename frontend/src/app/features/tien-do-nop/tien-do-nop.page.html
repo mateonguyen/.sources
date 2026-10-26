@@ -1,6 +1,6 @@
 <app-section-card
   title="Tiến độ nộp báo cáo"
-  subtitle="Theo dõi trạng thái nộp báo cáo của các đơn vị địa phương."
+  subtitle="Theo dõi trạng thái nộp và xử lý yêu cầu bổ sung của các đơn vị."
 >
   <div class="tdn-ky-bar">
     <span class="tdn-ky-bar__label">Kỳ báo cáo</span>
@@ -13,10 +13,24 @@
         [(ngModel)]="selectedKyId"
         [ngModelOptions]="{ standalone: true }"
         appendTo="body"
+        [filter]="true"
+        filterBy="label,code"
+        filterPlaceholder="Tìm tên hoặc mã kỳ..."
+        emptyFilterMessage="Không tìm thấy kỳ báo cáo"
+        scrollHeight="360px"
+        styleClass="tdn-ky-dropdown"
+        panelStyleClass="tdn-ky-dropdown-panel"
         placeholder="Chọn kỳ báo cáo"
         (onChange)="loadTienDo()"
-        [style]="{ width: 'auto', minWidth: '280px', maxWidth: '420px' }"
-      ></p-dropdown>
+        [style]="{ width: 'clamp(400px, 38vw, 620px)' }"
+      >
+        <ng-template pTemplate="item" let-option>
+          <div class="tdn-ky-option">
+            <strong>{{ option.label }}</strong>
+            <small *ngIf="option.code !== option.label">{{ option.code }}</small>
+          </div>
+        </ng-template>
+      </p-dropdown>
       <span class="tdn-ky-bar__badge-open" *ngIf="selectedKy?.trangThai === 2">Đang mở</span>
       <span class="tdn-ky-bar__date" *ngIf="selectedKy?.ngayBatDau">
         {{ selectedKy!.ngayBatDau | date:'dd/MM/yyyy' }}
@@ -89,20 +103,92 @@
         </div>
       </div>
 
+      <div class="tdn-table-toolbar" *ngIf="tienDoRows.length > 0">
+        <div class="tdn-table-toolbar__search">
+          <i class="pi pi-search" aria-hidden="true"></i>
+          <input
+            pInputText
+            type="search"
+            [(ngModel)]="filterText"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="onTableCriteriaChange()"
+            placeholder="Tìm theo tên hoặc mã đơn vị..."
+            aria-label="Tìm đơn vị"
+          />
+        </div>
+
+        <div class="tdn-table-toolbar__filter tdn-table-toolbar__filter--status">
+          <p-dropdown
+            [options]="statusOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="filterStatus"
+            [ngModelOptions]="{ standalone: true }"
+            (onChange)="onTableCriteriaChange()"
+            appendTo="body"
+            styleClass="tdn-table-toolbar__select"
+            ariaLabel="Lọc theo trạng thái"
+          ></p-dropdown>
+        </div>
+
+        <div class="tdn-table-toolbar__filter tdn-table-toolbar__filter--sort">
+          <p-dropdown
+            [options]="sortOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="sortMode"
+            [ngModelOptions]="{ standalone: true }"
+            (onChange)="onTableCriteriaChange()"
+            appendTo="body"
+            styleClass="tdn-table-toolbar__select"
+            ariaLabel="Sắp xếp danh sách"
+          ></p-dropdown>
+        </div>
+
+        <button
+          pButton
+          type="button"
+          icon="pi pi-filter-slash"
+          label="Xóa lọc"
+          class="p-button-text p-button-sm tdn-table-toolbar__clear"
+          *ngIf="hasActiveFilters"
+          (click)="clearTableFilters()"
+        ></button>
+
+        <span class="tdn-table-toolbar__count">
+          {{ filteredTienDoRows.length }}/{{ tienDoRows.length }} đơn vị
+        </span>
+      </div>
+
+      <app-empty-state
+        *ngIf="tienDoRows.length > 0 && filteredTienDoRows.length === 0"
+        title="Không tìm thấy đơn vị"
+        message="Thử thay đổi từ khóa hoặc trạng thái đang lọc."
+        icon="pi-search"
+      ></app-empty-state>
+
       <div
         class="app-table-wrap app-table-wrap--spacious"
-        *ngIf="tienDoRows.length > 0"
+        *ngIf="filteredTienDoRows.length > 0"
       >
         <p-table
-          [value]="tienDoRows"
+          [value]="filteredTienDoRows"
+          [paginator]="filteredTienDoRows.length > 20"
+          [rows]="20"
+          [first]="tableFirst"
+          (onPage)="tableFirst = $event.first"
+          [rowsPerPageOptions]="[20, 50, 100]"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Hiển thị {first}–{last} trong {totalRecords} đơn vị"
           styleClass="p-datatable-sm app-admin-table"
         >
           <ng-template pTemplate="header">
             <tr>
               <th>Đơn vị</th>
-              <th style="width: 160px">Trạng thái</th>
+              <th style="width: 145px">Trạng thái</th>
               <th style="width: 150px">Thời gian nộp</th>
-              <th style="width: 150px; text-align: center">Yêu cầu bổ sung</th>
+              <th style="width: 230px">Yêu cầu bổ sung</th>
+              <th style="width: 310px; text-align: center">Thao tác</th>
             </tr>
           </ng-template>
 
@@ -118,17 +204,77 @@
               <td class="tdn-timestamp">
                 {{ row.submittedAt ? (row.submittedAt | date:'dd/MM HH:mm') : '—' }}
               </td>
+              <td>
+                <ng-container *ngIf="requestForUnit(row.donViId) as request; else noRequest">
+                  <div class="tdn-request-cell">
+                    <app-status-badge
+                      [label]="requestStatusLabel(request.trangThai)"
+                      [tone]="requestStatusTone(request.trangThai)"
+                    ></app-status-badge>
+                    <span class="tdn-request-cell__reason" [title]="request.lyDo">
+                      {{ request.lyDo }}
+                    </span>
+                    <small *ngIf="request.hanBoSung">
+                      Hạn {{ request.hanBoSung | date:'dd/MM/yyyy' }}
+                    </small>
+                  </div>
+                </ng-container>
+                <ng-template #noRequest><span class="tdn-no-action">—</span></ng-template>
+              </td>
               <td style="text-align: center">
-                <button
-                  pButton
-                  type="button"
-                  icon="pi pi-plus-circle"
-                  label="Tạo yêu cầu"
-                  size="small"
-                  severity="warning"
-                  *ngIf="row.trangThai === 5"
-                  (click)="openYcbsDialog(row.donViId)"
-                ></button>
+                <div class="tdn-row-actions">
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-eye"
+                    label="Xem báo cáo"
+                    class="p-button-outlined p-button-sm"
+                    *ngIf="row.snapshotId"
+                    [loading]="previewLoadingId === row.snapshotId"
+                    [disabled]="previewLoadingId !== null && previewLoadingId !== row.snapshotId"
+                    pTooltip="Xem bản báo cáo đã nộp"
+                    tooltipPosition="left"
+                    (click)="openSnapshotPreview(row)"
+                  ></button>
+                  <ng-container *ngIf="requestForUnit(row.donViId) as request">
+                    <button
+                      pButton
+                      type="button"
+                      icon="pi pi-check"
+                      label="Duyệt"
+                      class="p-button-sm"
+                      severity="success"
+                      *ngIf="request.trangThai === 1 && canManageRequests"
+                      [disabled]="requestProcessing"
+                      (click)="openApproveDialog(request)"
+                    ></button>
+                    <button
+                      pButton
+                      type="button"
+                      icon="pi pi-times"
+                      class="p-button-outlined p-button-sm p-button-danger"
+                      *ngIf="request.trangThai === 1 && canManageRequests"
+                      [disabled]="requestProcessing"
+                      pTooltip="Từ chối yêu cầu"
+                      tooltipPosition="left"
+                      (click)="openRejectDialog(request)"
+                    ></button>
+                  </ng-container>
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-plus-circle"
+                    label="Yêu cầu bổ sung"
+                    size="small"
+                    severity="warning"
+                    *ngIf="row.trangThai === 5 && !hasActiveRequest(row.donViId)"
+                    (click)="openYcbsDialog(row.donViId)"
+                  ></button>
+                  <span
+                    class="tdn-no-action"
+                    *ngIf="!row.snapshotId && row.trangThai !== 5 && requestForUnit(row.donViId)?.trangThai !== 1"
+                  >—</span>
+                </div>
               </td>
             </tr>
           </ng-template>
@@ -137,6 +283,7 @@
 
     </ng-container>
   </div>
+
 </app-section-card>
 
 <p-dialog
@@ -206,5 +353,138 @@
       [loading]="ycbsLoading"
       (click)="confirmYcbs()"
     ></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="showApproveDialog"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="!requestProcessing"
+  header="Duyệt yêu cầu bổ sung"
+  [style]="{ width: '480px', maxWidth: '95vw' }"
+  appendTo="body"
+>
+  <div class="app-dialog-body-standard" *ngIf="approveTarget">
+    <div class="tdn-request-summary">
+      <div><span>Đơn vị</span><strong>{{ approveTarget.tenDonVi }}</strong></div>
+      <div><span>Lý do</span><strong>{{ approveTarget.lyDo }}</strong></div>
+    </div>
+    <p class="tdn-request-note">
+      Sau khi duyệt, báo cáo đã nộp sẽ được mở lại để đơn vị cập nhật dữ liệu.
+    </p>
+    <div class="app-form-field mt-3" [class.has-value]="!!approveHanBoSung">
+      <input
+        class="app-form-field__input"
+        pInputText
+        type="date"
+        [(ngModel)]="approveHanBoSung"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder=" "
+        [disabled]="requestProcessing"
+      />
+      <label class="app-form-field__label">Hạn bổ sung</label>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Hủy" severity="secondary" [disabled]="requestProcessing" (click)="closeApproveDialog()"></button>
+    <button pButton type="button" label="Xác nhận duyệt" icon="pi pi-check" severity="success" [loading]="requestProcessing" (click)="confirmApprove()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="showRejectDialog"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="!requestProcessing"
+  header="Từ chối yêu cầu bổ sung"
+  [style]="{ width: '480px', maxWidth: '95vw' }"
+  appendTo="body"
+>
+  <div class="app-dialog-body-standard" *ngIf="rejectTarget">
+    <div class="tdn-request-summary">
+      <div><span>Đơn vị</span><strong>{{ rejectTarget.tenDonVi }}</strong></div>
+      <div><span>Lý do đề nghị</span><strong>{{ rejectTarget.lyDo }}</strong></div>
+    </div>
+    <div class="app-form-field mt-3" [class.has-value]="!!rejectReason">
+      <textarea
+        class="app-form-field__input"
+        pInputTextarea
+        rows="4"
+        [(ngModel)]="rejectReason"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder=" "
+        [disabled]="requestProcessing"
+      ></textarea>
+      <label class="app-form-field__label required">Lý do từ chối</label>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Hủy" severity="secondary" [disabled]="requestProcessing" (click)="closeRejectDialog()"></button>
+    <button pButton type="button" label="Xác nhận từ chối" icon="pi pi-times" severity="danger" [loading]="requestProcessing" (click)="confirmReject()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="showPreviewDialog"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  header="Xem báo cáo đã nộp"
+  styleClass="tdn-preview-dialog"
+  [style]="{ width: '96vw', height: '94vh', maxWidth: 'none' }"
+  [contentStyle]="{ overflow: 'hidden', padding: '0', display: 'flex', flexDirection: 'column', flex: '1 1 auto', minHeight: '0' }"
+  appendTo="body"
+  (onHide)="closePreview()"
+>
+  <div class="tdn-preview">
+    <div class="tdn-preview__meta" *ngIf="previewRow">
+      <div>
+        <strong>{{ previewRow.tenDonVi }}</strong>
+        <span *ngIf="previewRow.maDonVi">{{ previewRow.maDonVi }}</span>
+      </div>
+      <div>
+        <span>{{ selectedKyDisplayName }}</span>
+        <span *ngIf="previewRow.snapshotPhienBan">Phiên bản {{ previewRow.snapshotPhienBan }}</span>
+        <span *ngIf="previewRow.submittedAt">Nộp {{ previewRow.submittedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+    </div>
+
+    <div class="tdn-preview__loading" *ngIf="previewLoadingId !== null">
+      <i class="pi pi-spin pi-spinner"></i>
+      Đang tải báo cáo...
+    </div>
+
+    <iframe
+      #previewFrame
+      *ngIf="previewLoadingId === null && previewPdfUrl"
+      class="tdn-preview__frame"
+      [src]="previewPdfUrl"
+      title="Báo cáo đã nộp"
+    ></iframe>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      type="button"
+      icon="pi pi-external-link"
+      label="Mở tab mới"
+      class="p-button-outlined"
+      [disabled]="!previewInlineUrl"
+      (click)="openPreviewInNewTab()"
+    ></button>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-print"
+      label="In"
+      class="p-button-outlined"
+      [disabled]="!previewPdfUrl"
+      (click)="printPreview()"
+    ></button>
+    <button pButton type="button" label="Đóng" severity="secondary" (click)="closePreview()"></button>
   </ng-template>
 </p-dialog>

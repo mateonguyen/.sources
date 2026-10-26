@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -24,6 +25,7 @@ export interface CategoryUpsertInitialData {
   description?: string | null;
   sortOrder: number;
   isActive: boolean;
+  allowUnitCustomization: boolean;
 }
 
 export interface CategoryUpsertSubmitPayload {
@@ -34,6 +36,7 @@ export interface CategoryUpsertSubmitPayload {
   description?: string | null;
   sortOrder: number;
   isActive: boolean;
+  allowUnitCustomization: boolean;
 }
 
 @Component({
@@ -48,6 +51,7 @@ export interface CategoryUpsertSubmitPayload {
     InputNumberModule,
     InputTextareaModule,
     ButtonModule,
+    CheckboxModule,
   ],
   templateUrl: './category-upsert-dialog.component.html',
   styleUrl: './category-upsert-dialog.component.scss',
@@ -72,6 +76,7 @@ export class CategoryUpsertDialogComponent implements OnChanges {
     isActive: [true, [Validators.required]],
     sortOrder: [0, [Validators.required]],
     description: ['', [Validators.maxLength(500)]],
+    allowUnitCustomization: [false],
   });
 
   constructor(private readonly formBuilder: FormBuilder) {}
@@ -84,6 +89,8 @@ export class CategoryUpsertDialogComponent implements OnChanges {
         isActive: this.initialData?.isActive ?? true,
         sortOrder: this.initialData?.sortOrder ?? 0,
         description: this.initialData?.description ?? '',
+        allowUnitCustomization:
+          this.initialData?.allowUnitCustomization ?? false,
       });
     }
   }
@@ -144,6 +151,7 @@ export class CategoryUpsertDialogComponent implements OnChanges {
       description: (raw.description ?? '').trim() || null,
       sortOrder: Number(raw.sortOrder ?? 0),
       isActive: !!raw.isActive,
+      allowUnitCustomization: !!raw.allowUnitCustomization,
     });
   }
 }

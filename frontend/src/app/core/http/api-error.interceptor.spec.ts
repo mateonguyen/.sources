@@ -44,11 +44,13 @@ describe('apiErrorInterceptor', () => {
       apiErrorInterceptor(req, next).subscribe({ error: () => void 0 });
     });
 
-    expect(authService.logout).toHaveBeenCalledTimes(1);
+    // Việc logout thuộc authInterceptor/AuthService sau khi refresh token thất bại.
+    // apiErrorInterceptor chỉ chịu trách nhiệm hiển thị thông báo một lần.
+    expect(authService.logout).not.toHaveBeenCalled();
     expect(notificationService.show).toHaveBeenCalledTimes(1);
     expect(notificationService.show).toHaveBeenCalledWith(
-      'error',
-      'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.',
+      'info',
+      'Phiên làm việc đã kết thúc. Vui lòng đăng nhập lại để tiếp tục.',
     );
   });
 

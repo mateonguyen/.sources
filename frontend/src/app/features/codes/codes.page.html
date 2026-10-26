@@ -1,9 +1,11 @@
 <app-section-card
-  title="Quản lý danh mục"
+  title="Danh mục chung"
+  subtitle="Quản lý bộ danh mục chuẩn và các giá trị bổ sung theo đơn vị."
   styleClass="codes-card"
 >
-  <div sectionActions class="codes-header-actions">
+  <div *ngIf="catalogScope === 'standard'" sectionActions class="codes-header-actions">
     <button
+      *ngIf="canCreateCatalog"
       pButton
       type="button"
       icon="pi pi-plus"
@@ -13,6 +15,7 @@
       (click)="openCreateCategoryDialog()"
     ></button>
     <button
+      *ngIf="canUpdateCatalog"
       pButton
       type="button"
       icon="pi pi-pencil"
@@ -23,6 +26,7 @@
       (click)="openEditCategoryDialog()"
     ></button>
     <button
+      *ngIf="canDeleteCatalog"
       pButton
       type="button"
       icon="pi pi-trash"
@@ -33,6 +37,33 @@
       (click)="deleteCode()"
     ></button>
   </div>
+
+  <div class="catalog-scope-bar" *ngIf="canManageStandard || canCustomizeUnit">
+    <div class="catalog-scope-bar__label">
+      <span>Phạm vi cấu hình</span>
+      <small>Phạm vi đơn vị được xác định theo đơn vị gắn với tài khoản đăng nhập.</small>
+    </div>
+    <div class="catalog-scope-switch" role="tablist" aria-label="Phạm vi cấu hình danh mục">
+      <button
+        *ngIf="canManageStandard"
+        type="button"
+        [class.is-active]="catalogScope === 'standard'"
+        (click)="setCatalogScope('standard')"
+      >
+        <i class="pi pi-globe"></i> Chuẩn toàn hệ thống
+      </button>
+      <button
+        *ngIf="canCustomizeUnit"
+        type="button"
+        [class.is-active]="catalogScope === 'unit'"
+        (click)="setCatalogScope('unit')"
+      >
+        <i class="pi pi-building"></i> Áp dụng tại đơn vị đăng nhập
+      </button>
+    </div>
+  </div>
+
+  <ng-container *ngIf="catalogScope === 'standard'; else unitCatalogScope">
 
   <div class="codes-shell">
     <app-loading-overlay
@@ -45,7 +76,7 @@
       title="Chưa có danh mục"
       message="Tạo danh mục đầu tiên để bắt đầu quản lý dữ liệu dùng chung."
       icon="pi-list"
-      actionLabel="Thêm danh mục"
+      [actionLabel]="canCreateCatalog ? 'Thêm danh mục' : ''"
       actionIcon="pi pi-plus"
       actionSeverity="primary"
       (action)="openCreateCategoryDialog()"
@@ -114,6 +145,7 @@
               >
             </div>
             <button
+              *ngIf="canCreateCatalog"
               pButton
               type="button"
               icon="pi pi-plus"
@@ -169,6 +201,7 @@
                       <span class="order-cell__value">{{ row.sortOrder }}</span>
                       <div class="order-cell__btns">
                         <button
+                          *ngIf="canUpdateCatalog"
                           type="button"
                           class="action-btn action-btn--reorder"
                           pTooltip="Đưa lên trên"
@@ -177,6 +210,7 @@
                           (click)="moveValueUp(row)"
                         ><i class="pi pi-arrow-up"></i></button>
                         <button
+                          *ngIf="canUpdateCatalog"
                           type="button"
                           class="action-btn action-btn--reorder"
                           pTooltip="Đưa xuống dưới"
@@ -195,6 +229,7 @@
                   <td class="col-actions">
                     <div class="action-btns">
                       <button
+                        *ngIf="canUpdateCatalog"
                         type="button"
                         class="action-btn action-btn--edit"
                         pTooltip="Chỉnh sửa"
@@ -202,6 +237,7 @@
                         (click)="openEditValueDialog(row)"
                       ><i class="pi pi-pencil"></i></button>
                       <button
+                        *ngIf="canDeleteCatalog"
                         type="button"
                         class="action-btn action-btn--delete"
                         pTooltip="Xóa"
@@ -259,4 +295,9 @@
     (visibleChange)="onValueDialogVisibleChange($event)"
     (save)="onValueDialogSave($event)"
   ></app-code-value-dialog>
+  </ng-container>
+
+  <ng-template #unitCatalogScope>
+    <app-unit-catalog-page catalogType="common"></app-unit-catalog-page>
+  </ng-template>
 </app-section-card>

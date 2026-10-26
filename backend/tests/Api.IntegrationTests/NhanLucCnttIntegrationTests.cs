@@ -21,7 +21,7 @@ public sealed class NhanLucCnttIntegrationTests : IClassFixture<ApiTestWebApplic
     public async Task Scd2_Create_Update_AsOf_Delete_Should_Work_EndToEnd()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         var createResponse = await client.PostAsJsonAsync("/api/v1/nhan-luc-cntt", new
         {
@@ -99,7 +99,7 @@ public sealed class NhanLucCnttIntegrationTests : IClassFixture<ApiTestWebApplic
     public async Task Delete_Should_Return_Forbidden_For_Viewer()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("viewer.user", "ViewerUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("viewer.user", "Test@123");
 
         var response = await client.DeleteAsync("/api/v1/nhan-luc-cntt/1");
 
@@ -110,7 +110,7 @@ public sealed class NhanLucCnttIntegrationTests : IClassFixture<ApiTestWebApplic
     public async Task Update_NonTrigger_Fields_Should_Update_InPlace_Without_New_Version()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         var createResponse = await client.PostAsJsonAsync("/api/v1/nhan-luc-cntt", new
         {

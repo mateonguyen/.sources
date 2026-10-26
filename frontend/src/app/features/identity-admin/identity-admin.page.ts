@@ -12,6 +12,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import { AuthService } from '../../core/auth/auth.service';
 import { NotificationService } from '../../core/ui/notification.service';
 import { ConfirmDialogWrapperService } from '../../shared/ui/confirm-dialog-wrapper.service';
 import { CheckboxIndeterminateDirective } from '../../shared/directives/checkbox-indeterminate.directive';
@@ -133,6 +134,11 @@ interface PermissionMatrixModuleGroup {
 export class IdentityAdminPage {
   private static readonly LOAD_TIMEOUT_MS = 12000;
   private static readonly SYSTEM_ADMIN_PERMISSION_CODE = 'system:admin';
+  private static readonly ADMINISTRATOR_ONLY_PERMISSION_CODES = new Set([
+    'permissions:read',
+    'phan_quyen:read',
+    'phan_quyen:update',
+  ]);
 
   module: IdentityModule = 'users';
   loading = false;
@@ -243,9 +249,10 @@ export class IdentityAdminPage {
   private readonly moduleCodeLabelMap: Record<string, string> = {
     users: 'Người dùng',
     roles: 'Vai trò',
-    permissions: 'Phân quyền',
+    permissions: 'Quyền',
     phan_quyen: 'Phân quyền',
-    codes: 'Danh mục',
+    codes: 'Danh mục chung',
+    ref_loai_thiet_bi: 'Loại thiết bị CNTT',
     don_vi: 'Đơn vị',
     ky_bao_cao: 'Kỳ báo cáo',
     mau_bao_cao: 'Mẫu báo cáo',
@@ -349,6 +356,7 @@ export class IdentityAdminPage {
     permissions: 'system_admin',
     phan_quyen: 'system_admin',
     codes: 'system_admin',
+    ref_loai_thiet_bi: 'system_admin',
     danh_muc: 'system_admin',
     don_vi: 'system_admin',
     ky_bao_cao: 'reports',
@@ -384,6 +392,7 @@ export class IdentityAdminPage {
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
+    private readonly authService: AuthService,
     private readonly identityApi: IdentityAdminApi,
     private readonly notificationService: NotificationService,
     private readonly confirmDialog: ConfirmDialogWrapperService,
@@ -396,9 +405,9 @@ export class IdentityAdminPage {
   get title(): string {
     switch (this.module) {
       case 'users':
-        return 'Quản lý Người dùng';
+        return 'Quản lý người dùng';
       case 'roles':
-        return 'Quản lý Vai trò';
+        return 'Quản lý vai trò';
       case 'permissions':
         return 'Quản lý quyền';
       default:
@@ -496,12 +505,16 @@ export class IdentityAdminPage {
         case 'users':
           [this.users, this.donVis] = await Promise.all([
             this.identityApi.getUsers(),
-            this.identityApi.getDonVis(),
+            this.canReadDonVi
+              ? this.identityApi.getDonVis()
+              : Promise.resolve([]),
           ]);
-          this.roles = await this.identityApi.getRoles().catch(() => []);
-          this.userRoleMappings = await this.identityApi
-            .getUserRoleMappings()
-            .catch(() => []);
+          this.roles = this.canReadRoles
+            ? await this.identityApi.getRoles()
+            : [];
+          this.userRoleMappings = this.canReadAssignments
+            ? await this.identityApi.getUserRoleMappings()
+            : [];
           this.syncDonViOptions();
           this.buildUserDonViOptions();
           this.buildUserRoleOptions();
@@ -1287,6 +1300,69 @@ export class IdentityAdminPage {
     return typeof row.permissionIdByAction[action] === 'number';
   }
 
+  get canCreateUsers(): boolean {
+    return this.authService.hasPermission('users:create');
+  }
+
+  get canUpdateUsers(): boolean {
+    return this.authService.hasPermission('users:update');
+  }
+
+  get canUseUserActions(): boolean {
+    return this.canUpdateUsers;
+  }
+
+  get canCreateRoles(): boolean {
+    return this.authService.hasPermission('roles:create');
+  }
+
+  get canUpdateRoles(): boolean {
+    return this.authService.hasPermission('roles:update');
+  }
+
+  get canUseRoleActions(): boolean {
+    return this.canUpdateRoles || this.canReadAssignments;
+  }
+
+  get canReadAssignments(): boolean {
+    return this.authService.hasPermission('phan_quyen:read');
+  }
+
+  get canUpdateAssignments(): boolean {
+    return this.authService.hasPermission('phan_quyen:update');
+  }
+
+  private get canReadRoles(): boolean {
+    return this.authService.hasPermission('roles:read');
+  }
+
+  private get canReadDonVi(): boolean {
+    return this.authService.hasPermission('don_vi:read');
+  }
+
+  isPermissionLocked(permissionId: number): boolean {
+    const permission = this.permissions.find((item) => item.id === permissionId);
+    return !!permission &&
+      IdentityAdminPage.ADMINISTRATOR_ONLY_PERMISSION_CODES.has(
+        permission.permCode.toLowerCase(),
+      );
+  }
+
+  isPermissionCellLocked(
+    row: PermissionMatrixRow,
+    action: PermissionActionKey,
+  ): boolean {
+    const permissionId = row.permissionIdByAction[action];
+    return typeof permissionId === 'number' && this.isPermissionLocked(permissionId);
+  }
+
+  isPermissionRowLocked(row: PermissionMatrixRow): boolean {
+    return (
+      row.permissionIds.length > 0 &&
+      row.permissionIds.every((id) => this.isPermissionLocked(id))
+    );
+  }
+
   isActionSelected(
     row: PermissionMatrixRow,
     action: PermissionActionKey,
@@ -1337,7 +1413,7 @@ export class IdentityAdminPage {
   }
 
   onPermissionCellToggle(permissionId: number, checked: boolean): void {
-    if (this.isPermissionMatrixReadOnly) {
+    if (this.isPermissionMatrixReadOnly || this.isPermissionLocked(permissionId)) {
       return;
     }
 
@@ -1361,7 +1437,7 @@ export class IdentityAdminPage {
   }
 
   onPermissionRowToggle(row: PermissionMatrixRow, checked: boolean): void {
-    if (this.isPermissionMatrixReadOnly) {
+    if (this.isPermissionMatrixReadOnly || this.isPermissionRowLocked(row)) {
       return;
     }
 
@@ -1383,6 +1459,9 @@ export class IdentityAdminPage {
     }
 
     for (const permissionId of group.permissionIds) {
+      if (this.isPermissionLocked(permissionId)) {
+        continue;
+      }
       if (checked) {
         this.selectedPermissionIds.add(permissionId);
       } else {
@@ -1393,8 +1472,10 @@ export class IdentityAdminPage {
 
   isActionColumnChecked(action: PermissionActionKey): boolean {
     const rows = this.currentPermissionModuleState?.rows ?? [];
-    const eligibleRows = rows.filter((row) =>
-      this.isActionAllowed(row, action),
+    const eligibleRows = rows.filter(
+      (row) =>
+        this.isActionAllowed(row, action) &&
+        !this.isPermissionCellLocked(row, action),
     );
     if (!eligibleRows.length) {
       return false;
@@ -1405,8 +1486,10 @@ export class IdentityAdminPage {
 
   isActionColumnIndeterminate(action: PermissionActionKey): boolean {
     const rows = this.currentPermissionModuleState?.rows ?? [];
-    const eligibleRows = rows.filter((row) =>
-      this.isActionAllowed(row, action),
+    const eligibleRows = rows.filter(
+      (row) =>
+        this.isActionAllowed(row, action) &&
+        !this.isPermissionCellLocked(row, action),
     );
     if (!eligibleRows.length) {
       return false;
@@ -1435,6 +1518,9 @@ export class IdentityAdminPage {
     const ids =
       this.currentPermissionModuleState?.actionPermissionIds[action] ?? [];
     for (const id of ids) {
+      if (this.isPermissionLocked(id)) {
+        continue;
+      }
       if (checked) {
         this.selectedPermissionIds.add(id);
       } else {
@@ -1472,25 +1558,13 @@ export class IdentityAdminPage {
         } as UpdateRolePermissionsRequest,
       );
 
-      const mappingIndex = this.rolePermissionMappings.findIndex(
-        (mapping) => mapping.roleId === this.selectedPermissionRoleId,
-      );
-      if (mappingIndex >= 0) {
-        this.rolePermissionMappings[mappingIndex] = {
-          ...this.rolePermissionMappings[mappingIndex],
-          permissionIds,
-        };
-      } else {
-        const role = this.selectedPermissionRole;
-        this.rolePermissionMappings.push({
-          roleId: this.selectedPermissionRoleId,
-          roleCode: role?.roleCode ?? '',
-          tenRole: role?.tenRole ?? '',
-          permissionIds,
-        });
-      }
-
-      this.originalPermissionIds = new Set(permissionIds);
+      // Doc lai tu server thay vi danh dau thanh cong theo du lieu vua gui.
+      // Nhu vay ma tran luon phan anh dung quyen se duoc dua vao access token.
+      this.rolePermissionMappings =
+        await this.identityApi.getRolePermissionMappings();
+      this.seedSelectedPermissionsForRole(this.selectedPermissionRoleId);
+      this.permissionMatrixModulesState = this.buildPermissionMatrixModules();
+      this.refreshPermissionMatrixView();
       this.refreshPermissionUserState();
       this.notificationService.show('success', 'Lưu phân quyền thành công.');
     } catch {

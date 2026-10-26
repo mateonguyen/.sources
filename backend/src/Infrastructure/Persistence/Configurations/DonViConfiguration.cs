@@ -21,6 +21,7 @@ public sealed class DonViConfiguration : IEntityTypeConfiguration<DonVi>
         builder.Property(x => x.CheDoNhapLieu).HasMaxLength(20).HasColumnName("CHE_DO_NHAP_LIEU").HasDefaultValue("TU_NHAP");
         builder.HasIndex(x => x.MaDonVi).IsUnique();
         builder.HasIndex(x => x.CapDonVi).HasDatabaseName("IX_REF_DV_CAP");
+        builder.HasIndex(x => x.CapSo).HasDatabaseName("IX_REF_DV_CAP_SO");
         builder.HasOne(x => x.Parent).WithMany(x => x.Children).HasForeignKey(x => x.ParentId).OnDelete(DeleteBehavior.Restrict);
     }
 }

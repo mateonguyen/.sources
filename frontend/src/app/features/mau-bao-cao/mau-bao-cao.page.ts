@@ -8,6 +8,7 @@ import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import { AuthService } from '../../core/auth/auth.service';
 import { ConfirmDialogWrapperService } from '../../shared/ui/confirm-dialog-wrapper.service';
 import { EmptyStateComponent } from '../../shared/ui/empty-state.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
@@ -86,8 +87,21 @@ export class MauBaoCaoPage {
     private readonly mauBaoCaoApi: MauBaoCaoApi,
     private readonly notificationService: NotificationService,
     private readonly confirmDialog: ConfirmDialogWrapperService,
+    private readonly authService: AuthService,
   ) {
     this.load();
+  }
+
+  get canCreate(): boolean {
+    return this.authService.hasPermission('mau_bao_cao:create');
+  }
+
+  get canUpdate(): boolean {
+    return this.authService.hasPermission('mau_bao_cao:update');
+  }
+
+  get canDelete(): boolean {
+    return this.authService.hasPermission('mau_bao_cao:delete');
   }
 
   async load(): Promise<void> {
@@ -113,6 +127,10 @@ export class MauBaoCaoPage {
   }
 
   openCreate(): void {
+    if (!this.canCreate) {
+      return;
+    }
+
     this.dialogMode = 'create';
     this.dialogInitialData = {
       maMau: '',
@@ -126,6 +144,10 @@ export class MauBaoCaoPage {
   }
 
   openEdit(item: MauBaoCaoDto): void {
+    if (!this.canUpdate) {
+      return;
+    }
+
     this.dialogMode = 'edit';
     this.dialogInitialData = {
       id: item.id,
@@ -147,6 +169,17 @@ export class MauBaoCaoPage {
   }
 
   async onDialogSave(payload: MauBaoCaoDialogSubmitPayload): Promise<void> {
+    const allowed = payload.mode === 'create' ? this.canCreate : this.canUpdate;
+    if (!allowed) {
+      this.dialogVisible = false;
+      this.dialogInitialData = null;
+      this.notificationService.show(
+        'error',
+        'Bạn không có quyền thực hiện thao tác này.',
+      );
+      return;
+    }
+
     this.saving = true;
 
     try {
@@ -187,6 +220,10 @@ export class MauBaoCaoPage {
   }
 
   async delete(item: MauBaoCaoDto): Promise<void> {
+    if (!this.canDelete) {
+      return;
+    }
+
     const confirmed = await this.confirmDialog.confirmDelete({
       header: 'Xóa mẫu báo cáo',
       message: `Xác nhận xóa mẫu '${item.tenMau}' (${item.maMau})?`,

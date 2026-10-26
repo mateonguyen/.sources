@@ -15,6 +15,9 @@ public interface IBaoCaoExportService
 {
     /// <summary>Xuất biểu mẫu báo cáo (theo mẫu H05) từ dữ liệu ĐÃ CHỐT của snapshot. format: xlsx | pdf.</summary>
     Task<BaoCaoExportResultDto> ExportAsync(long snapshotId, string format, CancellationToken ct = default);
+
+    /// <summary>Danh sách bản ghi chi tiết (bất biến) của 1 module tại 1 kỳ/đơn vị đã nộp — dùng cho màn Hiện trạng "xem chi tiết".</summary>
+    Task<ModuleRecordsDto> GetModuleRecordsAsync(long kyBaoCaoId, long donViId, string moduleCode, CancellationToken ct = default);
 }
 
 public sealed class BaoCaoExportResultDto
@@ -103,8 +106,8 @@ public sealed class BaoCaoExportService : IBaoCaoExportService
             .FirstOrDefaultAsync(x => x.Id == snapshotId, ct)
             ?? throw new AppException("SNAPSHOT_NOT_FOUND", "Không tìm thấy snapshot.", 404);
 
-        var scope = await _donViDataScopeService.GetScopeAsync(ct);
-        if (!scope.Contains(snapshot.DonViId))
+        var scope = await _donViDataScopeService.GetHistoricalReadScopeAsync(ct);
+        if (!scope.CanRead(snapshot.DonViId, snapshot.SubmittedAt, snapshot.TrangThai))
         {
             throw new AppException("SNAPSHOT_NOT_FOUND", "Không tìm thấy snapshot.", 404);
         }
@@ -112,6 +115,19 @@ public sealed class BaoCaoExportService : IBaoCaoExportService
         if (snapshot.TrangThai == SnapshotStatus.Draft)
         {
             throw new AppException("SNAPSHOT_NOT_SUBMITTED", "Chỉ xuất biểu mẫu từ báo cáo đã nộp.", 422);
+        }
+
+        if (snapshot.SubmittedAt.HasValue && snapshot.DonVi is not null)
+        {
+            var historicalIdentity = await _db.DonViVersions.AsNoTracking()
+                .Where(x => x.DonViId == snapshot.DonViId && x.ValidFrom <= snapshot.SubmittedAt.Value)
+                .OrderByDescending(x => x.ValidFrom)
+                .FirstOrDefaultAsync(ct);
+            if (historicalIdentity is not null)
+            {
+                snapshot.DonVi.TenDonVi = historicalIdentity.TenDonVi;
+                snapshot.DonVi.MaDonVi = historicalIdentity.MaDonVi;
+            }
         }
 
         var mime = normalizedFormat == "xlsx" ? XlsxMime : "application/pdf";
@@ -179,6 +195,87 @@ public sealed class BaoCaoExportService : IBaoCaoExportService
             PreviewUrl = await _fileStorageService.GetPresignedDownloadUrlAsync(filePath, TimeSpan.FromMinutes(15), ct),
             DownloadUrl = await _fileStorageService.GetPresignedDownloadUrlAsync(filePath, TimeSpan.FromMinutes(15), ct, friendlyFileName),
         };
+    }
+
+    public async Task<ModuleRecordsDto> GetModuleRecordsAsync(long kyBaoCaoId, long donViId, string moduleCode, CancellationToken ct = default)
+    {
+        var snapshot = await _db.BaoCaoSnapshots
+            .AsNoTracking()
+            .Include(x => x.KyBaoCao)!.ThenInclude(k => k!.MauBaoCao)
+            .Where(x => x.KyBaoCaoId == kyBaoCaoId && x.DonViId == donViId
+                     && (x.TrangThai == SnapshotStatus.Locked || x.TrangThai == SnapshotStatus.Submitted))
+            .OrderByDescending(x => x.PhienBan)
+            .FirstOrDefaultAsync(ct)
+            ?? throw new AppException("SNAPSHOT_NOT_FOUND", "Đơn vị chưa nộp báo cáo cho kỳ này.", 404);
+
+        var scope = await _donViDataScopeService.GetHistoricalReadScopeAsync(ct);
+        if (!scope.CanRead(donViId, snapshot.SubmittedAt, snapshot.TrangThai))
+            throw new AppException("SNAPSHOT_NOT_FOUND", "Không tìm thấy dữ liệu cho đơn vị này.", 404);
+
+        var data = await LoadExportDataAsync(snapshot, ct);
+        var code = moduleCode.Trim().ToUpperInvariant();
+
+        ModuleRecordSectionDto Section(string title, string[] headers, IReadOnlyCollection<object?[]> rows)
+            => new() { Title = title, Headers = headers, Rows = rows };
+
+        if (code == "NHAN_LUC_CNTT")
+        {
+            var headers = new[] { "Họ và tên", "Ngày sinh", "Cấp bậc", "Chức vụ", "Đơn vị", "Điện thoại", "Trình độ CNTT", "Trình độ LLCT" };
+            var sections = data.NhanLuc.Where(x => x.DonViId == donViId)
+                .GroupBy(x => Translate(data.CodeLabels, "LOAI_NHAN_LUC", x.LoaiNhanLuc))
+                .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
+                .Select(g => Section(
+                    string.IsNullOrWhiteSpace(g.Key) ? "Chưa phân loại" : g.Key,
+                    headers,
+                    g.Select(x => new object?[]
+                    {
+                        x.HoTen, FmtDate(x.NgaySinh), Translate(data.CodeLabels, "CAP_BAC_CONG_AN", x.CapBac), x.ChucVu,
+                        data.DonViNames.GetValueOrDefault(x.DonViId, string.Empty), x.DienThoai,
+                        Translate(data.CodeLabels, "TRINH_DO_CNTT", x.TrinhDoCntt), Translate(data.CodeLabels, "TRINH_DO_LLCT", x.TrinhDoLlct),
+                    }).ToArray()))
+                .ToArray();
+            return new ModuleRecordsDto { ModuleCode = code, ModuleName = "Nhân lực CNTT", Sections = sections };
+        }
+
+        if (code == "NANG_LUC_SO")
+        {
+            var headers = new[] { "Nhóm vị trí", "Tổng số đánh giá", "Đạt", "Chưa đạt", "Ghi chú" };
+            var rows = data.NangLucSo.Select(x => new object?[] { x.Nhom, x.DienDanhGia, x.Dat, x.ChuaDat, x.GhiChu }).ToArray();
+            return new ModuleRecordsDto { ModuleCode = code, ModuleName = "Năng lực số", Sections = [Section(string.Empty, headers, rows)] };
+        }
+
+        if (code == "HE_THONG_THONG_TIN")
+        {
+            var sections = new List<ModuleRecordSectionDto>();
+            if (data.ModuleRows.TryGetValue("HE_THONG_THONG_TIN_DUNG_CHUNG", out var dc) && dc.Count > 0)
+                sections.Add(Section("Dùng chung", HtttDungChungHeaders.Skip(1).ToArray(), dc));
+            if (data.ModuleRows.TryGetValue("HE_THONG_THONG_TIN_TU_PHAT_TRIEN", out var tpt) && tpt.Count > 0)
+                sections.Add(Section("Tự phát triển", HtttTuPhatTrienHeaders.Skip(1).ToArray(), tpt));
+            if (data.ModuleRows.TryGetValue("HE_THONG_THONG_TIN_CHUA_PHAN_LOAI", out var cpl) && cpl.Count > 0)
+                sections.Add(Section("Chưa phân loại", HtttTuPhatTrienHeaders.Skip(1).ToArray(), cpl));
+            return new ModuleRecordsDto { ModuleCode = code, ModuleName = "Hệ thống thông tin", Sections = sections };
+        }
+
+        if (code == "HTTT_TIEU_CHUAN")
+        {
+            var rows = data.ModuleRows.GetValueOrDefault("HTTT_TIEU_CHUAN") ?? [];
+            return new ModuleRecordsDto { ModuleCode = code, ModuleName = "HTTT tiêu chuẩn", Sections = [Section(string.Empty, HtttTieuChuanHeaders.Skip(1).ToArray(), rows)] };
+        }
+
+        // Module co du lieu nhom theo band (VD theo he thong lien ket) uu tien hon vi chi tiet hon ban phang.
+        if (GroupedModuleDefs.TryGetValue(code, out var groupedDef) && data.ModuleGroupedRows.TryGetValue(code, out var groups) && groups.Count > 0)
+        {
+            var headers = groupedDef.Headers.Skip(1).ToArray();
+            return new ModuleRecordsDto { ModuleCode = code, ModuleName = groupedDef.Title, Sections = groups.Select(g => Section(g.Label, headers, g.Rows)).ToArray() };
+        }
+
+        if (ModuleGridDefs.TryGetValue(code, out var def))
+        {
+            var rows = data.ModuleRows.GetValueOrDefault(code) ?? [];
+            return new ModuleRecordsDto { ModuleCode = code, ModuleName = def.Title, Sections = [Section(string.Empty, def.Headers.Skip(1).ToArray(), rows)] };
+        }
+
+        throw new AppException("MODULE_RECORDS_NOT_SUPPORTED", "Module này chưa hỗ trợ xem danh sách chi tiết.", 422);
     }
 
     /// <summary>Tên file thân thiện khi tải về, ví dụ: Bao-cao-Du-an-CNTT_Cong-an-TP-Ha-Noi_2026Q3_DU_AN_v3.xlsx</summary>
@@ -253,36 +350,75 @@ public sealed class BaoCaoExportService : IBaoCaoExportService
         public bool HasModule(string code) => ModuleList.Count == 0 || ModuleList.Contains(code);
     }
 
-    private async Task<byte[]> BuildWorkbookAsync(BaoCaoSnapshotEntity snapshot, bool tongHopOnly, CancellationToken ct)
+    private async Task<ExportData> LoadExportDataAsync(BaoCaoSnapshotEntity snapshot, CancellationToken ct)
     {
+        var batch = await ResolveBatchAsync(snapshot, ct);
+        var asOf = batch?.FinishedAt ?? snapshot.SubmittedAt ?? snapshot.LockedAt ?? DateTime.Now;
+        var kyCode = snapshot.KyBaoCao?.KyCode ?? string.Empty;
+        var versions = await _db.DonViVersions.AsNoTracking()
+            .Where(x => x.ValidFrom <= asOf)
+            .ToListAsync(ct);
+        var historicalUnits = versions.GroupBy(x => x.DonViId)
+            .Select(x => x.OrderByDescending(v => v.ValidFrom).First())
+            .ToDictionary(x => x.DonViId);
         var modeContext = await _donViInputModeService.GetContextAsync(snapshot.DonViId, ct);
+        var historicalChildren = historicalUnits.Values
+            .Where(x => x.IsActive && x.ParentId == snapshot.DonViId).ToArray();
+        if (historicalUnits.TryGetValue(snapshot.DonViId, out var historicalRoot))
+        {
+            var descendants = new HashSet<long>();
+            var queue = new Queue<long>();
+            queue.Enqueue(snapshot.DonViId);
+            while (queue.Count > 0)
+            {
+                var parent = queue.Dequeue();
+                foreach (var child in historicalUnits.Values.Where(x => x.IsActive && x.ParentId == parent))
+                    if (descendants.Add(child.DonViId)) queue.Enqueue(child.DonViId);
+            }
+            var descendantIds = descendants.ToArray();
+            modeContext = new DonViInputModeContext
+            {
+                DonViId = snapshot.DonViId,
+                CapDonVi = historicalRoot.CapDonVi ?? string.Empty,
+                CheDoNhapLieu = historicalRoot.CheDoNhapLieu,
+                DescendantDonViIds = descendantIds,
+                AggregateDonViIds = descendantIds.Length > 0 ? descendantIds : [snapshot.DonViId]
+            };
+        }
         var targetDonViIds = modeContext.IsTongHop
             ? modeContext.AggregateDonViIds.ToArray()
             : new[] { snapshot.DonViId };
 
-        var batch = await ResolveBatchAsync(snapshot, ct);
-        var asOf = batch?.FinishedAt ?? snapshot.SubmittedAt ?? snapshot.LockedAt ?? DateTime.Now;
-        var kyCode = snapshot.KyBaoCao?.KyCode ?? string.Empty;
-
         var codeLabels = await LoadCodeLabelsAsync(ct);
+        var currentNames = await _db.DonVis.AsNoTracking()
+            .Select(x => new { x.Id, x.TenDonVi })
+            .ToDictionaryAsync(x => x.Id, x => x.TenDonVi, ct);
+        foreach (var unit in historicalUnits.Values)
+            currentNames[unit.DonViId] = unit.TenDonVi;
 
-        var data = new ExportData
+        return new ExportData
         {
             Snapshot = snapshot,
             ModeContext = modeContext,
-            SoDonViCapPhong = await CountDirectChildrenAsync(snapshot.DonViId, isCapPhong: true, ct),
-            SoDonViCapXa = await CountDirectChildrenAsync(snapshot.DonViId, isCapPhong: false, ct),
+            SoDonViCapPhong = historicalRoot is null
+                ? await CountDirectChildrenAsync(snapshot.DonViId, isCapPhong: true, ct)
+                : historicalChildren.Count(x => IsCapPhongByTen(x.TenDonVi)),
+            SoDonViCapXa = historicalRoot is null
+                ? await CountDirectChildrenAsync(snapshot.DonViId, isCapPhong: false, ct)
+                : historicalChildren.Count(x => IsCapXaByTen(x.TenDonVi)),
             ModuleList = ParseModuleList(snapshot.KyBaoCao?.MauBaoCao?.DanhSachModule),
             CodeLabels = codeLabels,
-            DonViNames = await _db.DonVis
-                .AsNoTracking()
-                .Select(x => new { x.Id, x.TenDonVi })
-                .ToDictionaryAsync(x => x.Id, x => x.TenDonVi, ct),
+            DonViNames = currentNames,
             NhanLuc = await LoadNhanLucAsync(targetDonViIds, asOf, ct),
-            NangLucSo = await LoadNangLucSoAsync(targetDonViIds, kyCode, ct),
+            NangLucSo = await LoadNangLucSoAsync(targetDonViIds, kyCode, codeLabels, ct),
             ModuleRows = await LoadModuleRowsAsync(targetDonViIds, kyCode, asOf, codeLabels, ct),
             ModuleGroupedRows = await LoadGroupedModuleRowsAsync(targetDonViIds, kyCode, asOf, codeLabels, ct),
         };
+    }
+
+    private async Task<byte[]> BuildWorkbookAsync(BaoCaoSnapshotEntity snapshot, bool tongHopOnly, CancellationToken ct)
+    {
+        var data = await LoadExportDataAsync(snapshot, ct);
 
         using var workbook = new XLWorkbook();
 
@@ -1076,7 +1212,11 @@ public sealed class BaoCaoExportService : IBaoCaoExportService
             .ToList();
     }
 
-    private async Task<List<NlsGroup>> LoadNangLucSoAsync(long[] targetDonViIds, string kyCode, CancellationToken ct)
+    private async Task<List<NlsGroup>> LoadNangLucSoAsync(
+        long[] targetDonViIds,
+        string kyCode,
+        IReadOnlyDictionary<string, Dictionary<string, string>> codeLabels,
+        CancellationToken ct)
     {
         // His theo (KyBaoCaoCode, DonViId) — mỗi cặp chỉ giữ 1 bộ chốt gần nhất.
         // Chưa từng chốt thì fallback live.
@@ -1098,7 +1238,9 @@ public sealed class BaoCaoExportService : IBaoCaoExportService
         }
 
         return raw
-            .GroupBy(x => x.NhomViTri, StringComparer.OrdinalIgnoreCase)
+            .GroupBy(
+                x => Translate(codeLabels, "NHOM_NANG_LUC_SO", x.NhomViTri),
+                StringComparer.OrdinalIgnoreCase)
             .Select(g => new NlsGroup(
                 g.Key,
                 g.Sum(x => x.TongSoDienDanhGia),
@@ -1137,7 +1279,8 @@ public sealed class BaoCaoExportService : IBaoCaoExportService
             .OrderBy(x => x.NoiDungDaoTao).ToListAsync(ct))
             .Select(x => new object?[]
             {
-                x.NoiDungDaoTao, x.SoTienSi, x.SoThacSi, x.SoDaiHoc, x.SoCaoDang, x.SoTrungCap, x.GhiChu,
+                Translate(codeLabels, "NOI_DUNG_DAO_TAO_HV", x.NoiDungDaoTao),
+                x.SoTienSi, x.SoThacSi, x.SoDaiHoc, x.SoCaoDang, x.SoTrungCap, x.GhiChu,
             }).ToList<object?[]>();
 
         result["HA_TANG_MANG"] = (await _db.HaTangMangHis.AsNoTracking()
@@ -1172,7 +1315,7 @@ public sealed class BaoCaoExportService : IBaoCaoExportService
             .OrderBy(x => x.TenGiaiPhap).ToListAsync(ct))
             .Select(x => new object?[]
             {
-                x.TenGiaiPhap,
+                Translate(codeLabels, "GIAI_PHAP_ATTT", x.TenGiaiPhap),
                 FmtRatio(x.MayTinhBcanetSl, x.MayTinhBcanetTs), FmtRatio(x.MayTinhInternetSl, x.MayTinhInternetTs), FmtRatio(x.MayTinhLocalSl, x.MayTinhLocalTs),
                 FmtRatio(x.MayChuBcanetSl, x.MayChuBcanetTs), FmtRatio(x.MayChuInternetSl, x.MayChuInternetTs), FmtRatio(x.MayChuLocalSl, x.MayChuLocalTs),
                 x.GhiChu,
@@ -1782,8 +1925,10 @@ public sealed class BaoCaoExportService : IBaoCaoExportService
             "TRINH_DO_LLCT",
             "LOAI_NHAN_LUC",
             "NHOM_NANG_LUC_SO",
+            "NOI_DUNG_DAO_TAO_HV",
             "NHOM_CAMERA",
             "NGUON_VON_DU_AN",
+            "GIAI_PHAP_ATTT",
         };
         var values = await _db.CodeValues
             .AsNoTracking()
@@ -1797,7 +1942,10 @@ public sealed class BaoCaoExportService : IBaoCaoExportService
                 g => g.Key,
                 g => g
                     .GroupBy(x => x.Value, StringComparer.OrdinalIgnoreCase)
-                    .ToDictionary(x => x.Key, x => x.First().Name, StringComparer.OrdinalIgnoreCase),
+                    .ToDictionary(
+                        x => x.Key,
+                        x => x.First().Name,
+                        StringComparer.OrdinalIgnoreCase),
                 StringComparer.OrdinalIgnoreCase);
     }
 

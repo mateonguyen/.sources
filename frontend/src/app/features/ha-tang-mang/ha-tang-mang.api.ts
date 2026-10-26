@@ -48,6 +48,16 @@ export class HaTangMangApi {
     ).then((response) => response.data);
   }
 
+  getDirectChildCount(donViId: number): Promise<number> {
+    const params = new HttpParams().set('donViId', String(donViId));
+    return firstValueFrom(
+      this.httpClient.get<ApiResponse<number>>(
+        `${API_BASE_URL}/ha-tang-mang/direct-child-count`,
+        { params },
+      ),
+    ).then((response) => response.data);
+  }
+
   saveMatrix(payload: SaveHaTangMangMatrixRequest): Promise<HaTangMangDto[]> {
     return firstValueFrom(
       this.httpClient.put<ApiResponse<HaTangMangDto[]>>(

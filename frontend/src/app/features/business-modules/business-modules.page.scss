@@ -2,6 +2,15 @@
   --training-primary: #1e3a5f;
   --training-gray-600: #4b5563;
   --training-gray-900: #111827;
+  min-width: 0;
+}
+
+:host ::ng-deep .biz-module-card .p-card-body {
+  padding: 1.1rem 1.25rem 1.25rem;
+}
+
+:host ::ng-deep .biz-module-card .p-card-content {
+  padding-top: 0;
 }
 
 // Banner nhắc: đơn vị chế độ TONG_HOP, màn module chỉ là dữ liệu tự nhập
@@ -31,67 +40,104 @@
   }
 }
 
-.training-page-header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-top: 0.2rem;
-}
-
-.training-page-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  line-height: 1.2;
-  font-weight: 700;
-  color: var(--training-gray-900);
-}
-
-.training-page-header p {
-  margin: 0;
-  font-size: 0.95rem;
-  color: var(--training-gray-600);
-}
-
 .training-summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 0.65rem;
-  margin-top: 0.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
 }
 
 .training-summary__card {
-  border-radius: var(--app-radius);
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05);
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  padding: 0.75rem 0.85rem;
-  background: #fff;
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
+  align-items: center;
+  gap: 0.8rem;
+  min-height: 5rem;
+  padding: 0.8rem 0.95rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--app-border) 82%, white 18%);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.055);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
-.training-summary__card i {
+.training-summary__card:hover {
+  border-color: color-mix(in srgb, var(--training-primary) 24%, white 76%);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.075);
+  transform: translateY(-1px);
+}
+
+.training-summary__icon {
+  display: inline-flex;
+  flex: 0 0 2.65rem;
+  align-items: center;
+  justify-content: center;
+  width: 2.65rem;
+  height: 2.65rem;
+  border-radius: 8px;
+}
+
+.training-summary__icon i {
   font-size: 1.1rem;
 }
 
-.training-summary__card strong {
-  font-size: 1.6rem;
+.training-summary__content {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  justify-content: start;
+  column-gap: 0.3rem;
+  min-width: 0;
+}
+
+.training-summary__content strong {
+  grid-column: 1;
+  grid-row: 2;
+  font-size: 1.55rem;
   line-height: 1.1;
+  font-variant-numeric: tabular-nums;
   color: var(--training-gray-900);
 }
 
-.training-summary__card span {
+.training-summary__content > span {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  margin-bottom: 0.18rem;
   font-size: 0.8125rem;
   color: var(--training-gray-600);
   font-weight: 600;
+}
+
+.training-summary__content small {
+  grid-column: 2;
+  grid-row: 2;
+  color: var(--app-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.training-summary__card--blue .training-summary__icon {
+  background: #eef4ff;
 }
 
 .training-summary__card--blue i {
   color: #2563eb;
 }
 
+.training-summary__card--green .training-summary__icon {
+  background: #ecf8f3;
+}
+
 .training-summary__card--green i {
   color: #059669;
+}
+
+.training-summary__card--orange .training-summary__icon {
+  background: #fff3e8;
 }
 
 .training-summary__card--orange i {
@@ -102,12 +148,24 @@
   color: #8b5cf6;
 }
 
+.training-summary__card--purple .training-summary__icon {
+  background: #f4efff;
+}
+
 .training-summary__card--red i {
   color: #ef4444;
 }
 
+.training-summary__card--red .training-summary__icon {
+  background: #fff0f0;
+}
+
 .training-summary__card--slate i {
   color: #475569;
+}
+
+.training-summary__card--slate .training-summary__icon {
+  background: #f1f5f9;
 }
 
 .training-actions__count {
@@ -116,12 +174,20 @@
 }
 
 .training-toolbar {
-  margin-top: 0.55rem;
+  margin-top: 0.75rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+.training-toolbar--courses {
+  min-height: 3.65rem;
+  padding: 0.62rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--app-border) 84%, white 16%);
+  border-radius: 8px;
+  background: #f8fafc;
 }
 
 .training-toolbar--simple {
@@ -131,9 +197,19 @@
 .training-toolbar__left,
 .training-toolbar__right {
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
   align-items: center;
   flex-wrap: wrap;
+}
+
+.training-toolbar__left {
+  flex: 1 1 24rem;
+  min-width: 0;
+}
+
+.training-toolbar__right {
+  flex: 0 0 auto;
+  justify-content: flex-end;
 }
 
 .training-toolbar__ky-form {
@@ -221,7 +297,8 @@
 
 .training-search-wrap {
   position: relative;
-  width: 260px;
+  width: clamp(280px, 32vw, 430px);
+  max-width: 100%;
 }
 
 .training-search-icon {
@@ -237,11 +314,36 @@
 
 .training-search-input {
   width: 100%;
+  height: 2.4rem;
   padding-left: 36px !important;
+  border-color: color-mix(in srgb, var(--app-border) 88%, white 12%);
+  background: #fff;
 }
 
 .training-btn {
-  border-radius: var(--app-radius);
+  min-height: 2.4rem;
+  border-radius: 6px;
+}
+
+:host ::ng-deep .training-btn--export.p-button {
+  border-color: #8ba58a;
+  background: #fff;
+  color: #315f2f;
+  box-shadow: none;
+}
+
+:host ::ng-deep .training-btn--export.p-button:not(.p-disabled):hover {
+  border-color: #315f2f;
+  background: #f1f7ef;
+  color: #244c23;
+}
+
+:host ::ng-deep .training-btn--export.p-button.p-disabled,
+:host ::ng-deep .training-btn--export.p-button:disabled {
+  border-color: var(--app-border) !important;
+  background: #f8fafc !important;
+  color: #94a3b8 !important;
+  opacity: 1;
 }
 
 .training-btn--sm {
@@ -706,6 +808,81 @@
   }
 }
 
+.training-empty-state {
+  display: block;
+  margin-top: 0.75rem;
+}
+
+:host ::ng-deep .training-empty-state .app-empty-state {
+  display: flex;
+  min-height: 13.5rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  border: 1px dashed color-mix(in srgb, var(--training-primary) 25%, white 75%);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(30, 58, 95, 0.045), transparent 42%),
+    #ffffff;
+}
+
+:host ::ng-deep .training-empty-state .app-empty-state-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: #eef4f9;
+  color: var(--training-primary);
+  font-size: 1.15rem;
+}
+
+:host ::ng-deep .training-empty-state .app-empty-state h3 {
+  margin: 0.7rem 0 0.25rem;
+  color: var(--training-gray-900);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+:host ::ng-deep .training-empty-state .app-empty-state p {
+  max-width: 32rem;
+  margin: 0 0 1rem;
+  color: var(--training-gray-600);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+:host
+  ::ng-deep
+  .training-empty-state
+  .training-empty-state__action--primary.p-button {
+  min-height: 2.4rem;
+  border-color: var(--training-primary);
+  border-radius: 6px;
+  background: var(--training-primary);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(30, 58, 95, 0.16);
+}
+
+:host
+  ::ng-deep
+  .training-empty-state
+  .training-empty-state__action--primary.p-button:not(.p-disabled):hover {
+  border-color: #163554;
+  background: #163554;
+  box-shadow: 0 5px 12px rgba(30, 58, 95, 0.2);
+}
+
+:host
+  ::ng-deep
+  .training-empty-state
+  .training-empty-state__action--secondary.p-button {
+  min-height: 2.4rem;
+  border-radius: 6px;
+}
+
 .training-search {
   max-width: 420px;
 }
@@ -908,6 +1085,45 @@
 }
 
 @media (max-width: 720px) {
+  :host ::ng-deep .biz-module-card .p-card-body {
+    padding: 0.9rem;
+  }
+
+  .training-page-header {
+    align-items: flex-start;
+  }
+
+  .training-page-header__icon {
+    flex-basis: 2.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .training-page-header h1 {
+    font-size: 1.2rem;
+  }
+
+  .training-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .training-toolbar--courses {
+    align-items: stretch;
+  }
+
+  .training-toolbar__left,
+  .training-toolbar__right {
+    width: 100%;
+  }
+
+  .training-toolbar__right {
+    justify-content: stretch;
+  }
+
+  .training-toolbar__right .training-btn {
+    flex: 1 1 auto;
+  }
+
   .training-filter-grid {
     grid-template-columns: 1fr;
   }

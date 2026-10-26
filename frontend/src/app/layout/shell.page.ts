@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   HostListener,
+  NgZone,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -16,9 +18,11 @@ import {
 } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
+import { OverlayScrollbars } from 'overlayscrollbars';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../core/auth/auth.service';
+import { getRoutePermission } from '../core/auth/route-permissions';
 import { DonViModeService } from '../core/don-vi/don-vi-mode.service';
 import { LoadingService } from '../core/ui/loading.service';
 import { DonViApi } from '../features/don-vi/don-vi.api';
@@ -33,7 +37,6 @@ interface SidebarMenuItem {
   label: string;
   route: string;
   icon: string;
-  permission?: string;
 }
 
 interface SidebarMenuGroup {
@@ -58,7 +61,7 @@ interface SidebarMenuGroup {
   templateUrl: './shell.page.html',
   styleUrl: './shell.page.scss',
 })
-export class ShellPage implements OnInit, OnDestroy {
+export class ShellPage implements OnInit, AfterViewInit, OnDestroy {
   private static readonly EXPANDED_GROUPS_STORAGE_KEY =
     'thuc-luc:sidebar:expanded-groups';
 
@@ -96,43 +99,36 @@ export class ShellPage implements OnInit, OnDestroy {
           label: 'Người dùng',
           route: '/nguoi-dung',
           icon: 'pi pi-user',
-          permission: 'users:read',
         },
         {
           label: 'Vai trò',
           route: '/vai-tro',
           icon: 'pi pi-shield',
-          permission: 'roles:read',
         },
         {
           label: 'Quyền',
           route: '/quyen',
           icon: 'pi pi-key',
-          permission: 'roles:read',
         },
         {
           label: 'Phân quyền',
           route: '/phan-quyen',
           icon: 'pi pi-link',
-          permission: 'roles:update',
         },
         {
           label: 'Đơn vị',
           route: '/don-vi',
           icon: 'pi pi-sitemap',
-          permission: 'don_vi:read',
         },
         {
-          label: 'Quản lý danh mục',
+          label: 'Danh mục chung',
           route: '/codes',
           icon: 'pi pi-list',
-          permission: 'codes:read',
         },
         {
           label: 'Loại thiết bị CNTT',
           route: '/ref-loai-thiet-bi',
           icon: 'pi pi-desktop',
-          permission: 'ref_loai_thiet_bi:read',
         },
       ],
     },
@@ -141,60 +137,39 @@ export class ShellPage implements OnInit, OnDestroy {
       label: 'Báo cáo',
       items: [
         {
-          label: 'Tổng hợp dữ liệu',
-          route: '/tong-hop-du-lieu',
-          icon: 'pi pi-check-circle',
-          permission: 'tong_hop_tien_do:xac_nhan',
-        },
-        {
-          label: 'Nộp báo cáo',
-          route: '/nop-bao-cao',
-          icon: 'pi pi-send',
-          permission: 'snapshot:submit',
-        },
-        {
-          label: 'Yêu cầu bổ sung',
-          route: '/yeu-cau-bo-sung',
-          icon: 'pi pi-exclamation-circle',
-          // chỉ vai duyệt (QUAN_LY) mới cần xem danh sách toàn bộ đơn vị ở đây;
-          // CAP_TINH/CAP_XA gửi + xem yêu cầu của mình ngay trong màn Nộp báo cáo
-          permission: 'yeu_cau_bo_sung:approve',
-        },
-        {
-          label: 'Tiến độ tổng hợp',
-          route: '/tien-do-tong-hop',
-          icon: 'pi pi-chart-bar',
-          permission: 'tong_hop_tien_do:read',
-        },
-        {
-          label: 'Tiến độ báo cáo',
-          route: '/tien-do-nop',
-          icon: 'pi pi-list-check',
-          permission: 'tien_do_bao_cao:read',
+          label: 'Mẫu báo cáo',
+          route: '/mau-bao-cao',
+          icon: 'pi pi-file',
         },
         {
           label: 'Kỳ báo cáo',
           route: '/ky-bao-cao',
           icon: 'pi pi-calendar',
-          permission: 'ky_bao_cao:create',
         },
         {
-          label: 'Mẫu báo cáo',
-          route: '/mau-bao-cao',
-          icon: 'pi pi-file',
-          permission: 'mau_bao_cao:read',
+          label: 'Tổng hợp dữ liệu',
+          route: '/tong-hop-du-lieu',
+          icon: 'pi pi-check-circle',
+        },
+        {
+          label: 'Nộp báo cáo',
+          route: '/nop-bao-cao',
+          icon: 'pi pi-send',
+        },
+        {
+          label: 'Tiến độ báo cáo',
+          route: '/tien-do-nop',
+          icon: 'pi pi-list-check',
         },
         {
           label: 'Tra cứu báo cáo',
           route: '/tra-cuu-bao-cao',
           icon: 'pi pi-search',
-          permission: 'snapshot:read',
         },
         {
-          label: 'So sánh báo cáo',
+          label: 'Hiện trạng & biến động',
           route: '/so-sanh-bao-cao',
           icon: 'pi pi-chart-line',
-          permission: 'snapshot:read',
         },
       ],
     },
@@ -207,25 +182,21 @@ export class ShellPage implements OnInit, OnDestroy {
           label: 'Nhân lực CNTT',
           route: '/nhan-luc-cntt',
           icon: 'pi pi-users',
-          permission: 'nhan_luc_cntt:read',
         },
         {
           label: 'Đào tạo bồi dưỡng',
           route: '/dao-tao-boi-duong',
           icon: 'pi pi-users',
-          permission: 'dao_tao_boi_duong:read',
         },
         {
           label: 'Đào tạo học viện',
           route: '/dao-tao-hoc-vien',
           icon: 'pi pi-building',
-          permission: 'dao_tao_hoc_vien:read',
         },
         {
           label: 'Năng lực số',
           route: '/nang-luc-so',
           icon: 'pi pi-chart-bar',
-          permission: 'nang_luc_so:read',
         },
       ],
     },
@@ -238,43 +209,36 @@ export class ShellPage implements OnInit, OnDestroy {
           label: 'Thiết bị CNTT',
           route: '/thiet-bi-cntt',
           icon: 'pi pi-desktop',
-          permission: 'thiet_bi_cntt:read',
         },
         {
           label: 'Hệ thống thông tin',
           route: '/he-thong-thong-tin',
           icon: 'pi pi-server',
-          permission: 'he_thong_thong_tin:read',
         },
         {
           label: 'Hạ tầng mạng',
           route: '/ha-tang-mang',
           icon: 'pi pi-wifi',
-          permission: 'ha_tang_mang:read',
         },
         {
           label: 'Giám sát NOC',
           route: '/giam-sat-noc',
           icon: 'pi pi-server',
-          permission: 'giam_sat_noc:read',
         },
         {
           label: 'Camera quản lý',
           route: '/camera-quan-ly',
           icon: 'pi pi-video',
-          permission: 'camera_quan_ly:read',
         },
         {
           label: 'Camera thực trạng',
           route: '/camera-thuc-trang',
           icon: 'pi pi-map-marker',
-          permission: 'camera_thuc_trang:read',
         },
         {
           label: 'Dự án CNTT',
           route: '/du-an-cntt',
           icon: 'pi pi-briefcase',
-          permission: 'du_an_cntt:read',
         },
       ],
     },
@@ -287,7 +251,6 @@ export class ShellPage implements OnInit, OnDestroy {
           label: 'Văn bản QPPL',
           route: '/van-ban-qppl',
           icon: 'pi pi-book',
-          permission: 'van_ban_qppl:read',
         },
       ],
     },
@@ -300,25 +263,21 @@ export class ShellPage implements OnInit, OnDestroy {
           label: 'Giám sát SOC',
           route: '/giam-sat-soc',
           icon: 'pi pi-shield',
-          permission: 'giam_sat_soc:read',
         },
         {
           label: 'ATTT vận hành',
           route: '/attt-httt-van-hanh',
           icon: 'pi pi-lock',
-          permission: 'attt_httt_van_hanh:read',
         },
         {
           label: 'ATTT đầu tư',
           route: '/attt-httt-dau-tu',
           icon: 'pi pi-wallet',
-          permission: 'attt_httt_dau_tu:read',
         },
         {
           label: 'Giải pháp ATTT',
           route: '/giai-phap-attt',
           icon: 'pi pi-shield',
-          permission: 'giai_phap_attt:read',
         },
       ],
     },
@@ -334,12 +293,22 @@ export class ShellPage implements OnInit, OnDestroy {
   @ViewChild('menuSearchInput')
   private menuSearchInput?: ElementRef<HTMLInputElement>;
 
+  @ViewChild('contentEl')
+  private contentEl?: ElementRef<HTMLElement>;
+
+  @ViewChild('sidebarMenuEl')
+  private sidebarMenuEl?: ElementRef<HTMLElement>;
+
+  private contentScrollbars?: OverlayScrollbars;
+  private sidebarScrollbars?: OverlayScrollbars;
+
   constructor(
     public readonly authService: AuthService,
     public readonly loadingService: LoadingService,
     private readonly donViApi: DonViApi,
     private readonly donViModeService: DonViModeService,
     private readonly router: Router,
+    private readonly ngZone: NgZone,
   ) {}
 
   ngOnInit(): void {
@@ -356,8 +325,48 @@ export class ShellPage implements OnInit, OnDestroy {
       });
   }
 
+  ngAfterViewInit(): void {
+    // Duoi 980px sidebar tro lai position:static (xem @media trong
+    // shell.page.scss) va content cuon tu nhien theo trang - khong quan ly
+    // bang OverlayScrollbars o breakpoint nay.
+    if (!window.matchMedia('(min-width: 981px)').matches) {
+      return;
+    }
+
+    // Scrollbar dang overlay - an mac dinh, chi hien mo khi di chuot/cuon vao
+    // vung tuong ung, khong chiem cho bo cuc (giong scrollbar overlay cua macOS).
+    const scrollbarOptions = {
+      scrollbars: {
+        theme: 'os-theme-dark',
+        autoHide: 'move',
+        autoHideDelay: 600,
+      },
+    } as const;
+
+    // OverlayScrollbars tu dung ResizeObserver/MutationObserver rieng, khong
+    // lien quan gi den state cua Angular - khoi tao ngoai NgZone de tranh cac
+    // callback noi bo cua no kich hoat change detection lien tuc (co the gay
+    // vong lap "unstable zone" lam treo trang khi dieu huong).
+    this.ngZone.runOutsideAngular(() => {
+      if (this.contentEl) {
+        this.contentScrollbars = OverlayScrollbars(
+          this.contentEl!.nativeElement,
+          scrollbarOptions,
+        );
+      }
+      if (this.sidebarMenuEl) {
+        this.sidebarScrollbars = OverlayScrollbars(
+          this.sidebarMenuEl!.nativeElement,
+          scrollbarOptions,
+        );
+      }
+    });
+  }
+
   ngOnDestroy(): void {
     this.routerEventsSub?.unsubscribe();
+    this.contentScrollbars?.destroy();
+    this.sidebarScrollbars?.destroy();
   }
 
   get filteredMenuGroups(): SidebarMenuGroup[] {
@@ -520,9 +529,10 @@ export class ShellPage implements OnInit, OnDestroy {
   }
 
   private canView(item: SidebarMenuItem): boolean {
-    return item.permission
-      ? this.authService.hasPermission(item.permission)
-      : true;
+    const requiredPermission = getRoutePermission(item.route);
+    return (
+      !!requiredPermission && this.authService.hasPermission(requiredPermission)
+    );
   }
 
   private get activeGroupId(): string | null {

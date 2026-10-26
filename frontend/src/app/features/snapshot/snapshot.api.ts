@@ -124,6 +124,15 @@ export class SnapshotApi {
     ).then((response) => response.data ?? []);
   }
 
+  /** Toàn bộ lịch sử báo cáo đã nộp của chính đơn vị người dùng hiện tại, mọi kỳ, mới nhất trước. */
+  getMyHistory(): Promise<SnapshotDto[]> {
+    return firstValueFrom(
+      this.httpClient.get<ApiResponse<SnapshotDto[]>>(
+        `${API_BASE_URL}/snapshot/my-history`,
+      ),
+    ).then((response) => response.data ?? []);
+  }
+
   compareTwoKy(
     donViId: number,
     fromKyBaoCaoId: number,

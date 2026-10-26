@@ -106,6 +106,21 @@
           ></p-inputNumber>
         </div>
 
+        <div class="app-form-field app-form-field--full">
+          <label class="app-form-field__checkbox">
+            <p-checkbox
+              formControlName="allowUnitCustomization"
+              [binary]="true"
+            ></p-checkbox>
+            <span class="app-form-field__checkbox-text">
+              Cho phép đơn vị tùy chỉnh
+              <small class="app-form-field__checkbox-hint">
+                Đơn vị được ẩn mục không bắt buộc và bổ sung mục riêng.
+              </small>
+            </span>
+          </label>
+        </div>
+
         <div
           class="app-form-field app-form-field--full"
           [class.has-value]="form.get('description')?.value"

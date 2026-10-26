@@ -16,6 +16,9 @@ public sealed class CodeValueConfiguration : IEntityTypeConfiguration<CodeValue>
         builder.Property(x => x.Description).HasColumnName("DESCRIPTION").HasMaxLength(500);
         builder.Property(x => x.SortOrder).HasColumnName("SORT_ORDER").HasDefaultValue(0).IsRequired();
         builder.Property(x => x.IsActive).HasColumnName("IS_ACTIVE").HasDefaultValue(true).IsRequired();
+        builder.Property(x => x.DonViId).HasColumnName("DON_VI_ID");
+        builder.Property(x => x.ReportingValueId).HasColumnName("REPORTING_VALUE_ID");
+        builder.Property(x => x.IsRequired).HasColumnName("IS_REQUIRED").HasDefaultValue(false).IsRequired();
         builder.Property(x => x.CreatedAt).HasColumnName("CREATED_AT").IsRequired();
         builder.Property(x => x.UpdatedAt).HasColumnName("UPDATED_AT").IsRequired();
         builder.Property(x => x.CreatedBy).HasColumnName("CREATED_BY");

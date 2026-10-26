@@ -1,162 +1,193 @@
-<app-section-card
-  title="So sánh báo cáo"
-  subtitle="Màn chuyên biệt để đối chiếu chênh lệch dữ liệu giữa 2 kỳ theo từng đơn vị."
->
-  <div class="ssbc-filter-box">
-    <div class="ssbc-filters">
-      <div class="app-field">
-        <label>Đơn vị</label>
-        <p-dropdown
-          [options]="donViOptions"
-          optionLabel="label"
-          optionValue="value"
-          [(ngModel)]="selectedDonViId"
-          [ngModelOptions]="{ standalone: true }"
-          appendTo="body"
-          placeholder="Chọn đơn vị"
-          (onChange)="onDonViChange()"
-        ></p-dropdown>
-      </div>
+<div class="change-page">
+  <app-page-header title="Hiện trạng & biến động" subtitle="Tra cứu dữ liệu hiện tại và phân tích thay đổi nghiệp vụ theo đơn vị, kỳ báo cáo và module.">
+    <button pButton type="button" icon="pi pi-refresh" label="Làm mới" class="p-button-outlined" [disabled]="loading" (click)="loadOptions()"></button>
+  </app-page-header>
 
-      <div class="app-field">
-        <label>Kỳ nguồn</label>
-        <p-dropdown
-          [options]="kyOptions"
-          optionLabel="label"
-          optionValue="value"
-          [(ngModel)]="fromKyBaoCaoId"
-          [ngModelOptions]="{ standalone: true }"
-          appendTo="body"
-          placeholder="Chọn kỳ nguồn"
-        ></p-dropdown>
-      </div>
-
-      <div class="app-field">
-        <label>Kỳ đích</label>
-        <p-dropdown
-          [options]="kyOptions"
-          optionLabel="label"
-          optionValue="value"
-          [(ngModel)]="toKyBaoCaoId"
-          [ngModelOptions]="{ standalone: true }"
-          appendTo="body"
-          placeholder="Chọn kỳ đích"
-        ></p-dropdown>
-      </div>
-
-      <div class="ssbc-actions">
-        <button
-          pButton
-          type="button"
-          icon="pi pi-sort-alt"
-          class="p-button-outlined p-button-sm"
-          pTooltip="Đảo kỳ nguồn và kỳ đích"
-          tooltipPosition="left"
-          (click)="swapKy()"
-        ></button>
-        <button
-          pButton
-          type="button"
-          icon="pi pi-sliders-h"
-          label="So sánh"
-          [loading]="comparing"
-          (click)="compare()"
-        ></button>
-      </div>
+  <section class="analysis-toolbar" aria-label="Điều kiện theo dõi">
+    <div class="analysis-mode" role="tablist" aria-label="Chế độ theo dõi">
+      <button type="button" role="tab" [class.active]="analysisMode === 'CURRENT'" [attr.aria-selected]="analysisMode === 'CURRENT'" (click)="setAnalysisMode('CURRENT')"><i class="pi pi-table"></i>Hiện trạng</button>
+      <button type="button" role="tab" [class.active]="analysisMode === 'CHANGE'" [attr.aria-selected]="analysisMode === 'CHANGE'" (click)="setAnalysisMode('CHANGE')"><i class="pi pi-chart-line"></i>Biến động</button>
     </div>
-  </div>
 
-  <div class="relative min-h-48 mt-4">
-    <app-loading-overlay
-      [active]="loading"
-      label="Đang tải dữ liệu so sánh..."
-    ></app-loading-overlay>
+    <div class="toolbar-field toolbar-field--unit" *ngIf="options && !options.canViewScope">
+      <div class="scope-lock" title="Tài khoản đơn vị chỉ được xem dữ liệu của chính đơn vị mình"><i class="pi pi-lock"></i><span>{{ currentUnitLabel }}</span></div>
+    </div>
+    <div class="toolbar-field toolbar-field--period">
+      <span class="field-prefix">{{ analysisMode === 'CURRENT' ? 'Kỳ báo cáo' : 'Kỳ đích' }}</span>
+      <p-dropdown [options]="toPeriodOptions" [(ngModel)]="selectedToPeriodId" optionLabel="tenKy" optionValue="id" appendTo="body" panelStyleClass="period-dropdown-panel" [filter]="true" filterBy="tenKy,tenMau,kyCode" filterPlaceholder="Tìm tên hoặc mã kỳ..." emptyFilterMessage="Không tìm thấy kỳ báo cáo" scrollHeight="360px" [attr.aria-label]="analysisMode === 'CURRENT' ? 'Kỳ báo cáo' : 'Kỳ đích'" placeholder="Chọn kỳ báo cáo" (onChange)="onTargetPeriodChange()">
+        <ng-template pTemplate="item" let-item>
+          <div class="period-item"><strong>{{ item.tenKy }}</strong><small>{{ item.tenMau }} · {{ item.kyCode }}</small></div>
+        </ng-template>
+      </p-dropdown>
+    </div>
+    <div class="toolbar-field toolbar-field--period" *ngIf="analysisMode === 'CHANGE'">
+      <span class="field-prefix">Kỳ đối chiếu</span>
+      <p-dropdown [options]="fromPeriodOptions" [(ngModel)]="selectedFromPeriodId" optionLabel="tenKy" optionValue="id" appendTo="body" panelStyleClass="period-dropdown-panel" [filter]="true" filterBy="tenKy,tenMau,kyCode" filterPlaceholder="Tìm tên hoặc mã kỳ..." emptyFilterMessage="Không tìm thấy kỳ đối chiếu" scrollHeight="360px" aria-label="Kỳ đối chiếu" placeholder="Chọn kỳ cùng mẫu" (onChange)="onFromPeriodChange()">
+        <ng-template pTemplate="item" let-item>
+          <div class="period-item"><strong>{{ item.tenKy }}</strong><small>{{ item.tenMau }} · {{ item.kyCode }}</small></div>
+        </ng-template>
+      </p-dropdown>
+    </div>
+    <div class="toolbar-stats" *ngIf="analysisMode === 'CURRENT' && currentOverview as cur">
+      <span><i class="pi pi-sitemap"></i>{{ cur.totalUnits }} đơn vị</span>
+      <span><i class="pi pi-th-large"></i>{{ cur.totalModules }} module</span>
+      <span><i class="pi pi-database"></i>{{ cur.totalMetrics }} chỉ số</span>
+    </div>
+    <i class="pi pi-spin pi-spinner toolbar-spinner" *ngIf="loading"></i>
+  </section>
 
-    <app-empty-state
-      *ngIf="!loading && options.length === 0"
-      title="Chưa có dữ liệu để so sánh"
-      message="Mỗi đơn vị cần có ít nhất 2 kỳ đã nộp/khóa thì mới so sánh được."
-      icon="pi-search"
-    ></app-empty-state>
+  <div class="workspace-shell relative min-h-48">
+    <app-loading-overlay [active]="loading" [label]="analysisMode === 'CURRENT' ? 'Đang tải hiện trạng dữ liệu...' : 'Đang tính toán biến động...'"></app-loading-overlay>
+    <app-empty-state *ngIf="!loading && analysisMode === 'CURRENT' && !currentOverview" title="Chưa có dữ liệu hiện trạng" message="Chọn kỳ báo cáo để xem các chỉ số nghiệp vụ hiện có." icon="pi-table"></app-empty-state>
+    <app-empty-state *ngIf="!loading && analysisMode === 'CHANGE' && !overview" title="Chưa có kết quả phân tích" message="Chọn hai kỳ sử dụng cùng mẫu báo cáo để hệ thống đối chiếu các chỉ số nghiệp vụ đã chốt." icon="pi-chart-line"></app-empty-state>
 
-    <app-empty-state
-      *ngIf="!loading && options.length > 0 && !compareResult"
-      title="Chọn điều kiện để bắt đầu so sánh"
-      message="Chọn đơn vị, kỳ nguồn và kỳ đích rồi bấm So sánh."
-      icon="pi-chart-line"
-    ></app-empty-state>
+    <ng-container *ngIf="!loading && analysisMode === 'CURRENT' && currentOverview as currentData">
+      <section class="change-workspace current-workspace" [class.change-workspace--single]="currentData.units.length <= 1">
+        <aside class="unit-panel" *ngIf="currentData.units.length > 1">
+          <div class="panel-heading"><div><strong>Đơn vị có dữ liệu</strong><small>Chọn đơn vị để xem hiện trạng</small></div><span>{{ filteredCurrentUnits.length }}/{{ currentData.units.length }} đơn vị</span></div>
+          <div class="unit-filter"><i class="pi pi-search"></i><input type="text" class="p-inputtext" [(ngModel)]="unitFilterText" placeholder="Tìm tên hoặc mã đơn vị..." /></div>
+          <div class="unit-list">
+            <button *ngFor="let unit of filteredCurrentUnits; trackBy: trackByCurrentUnit" type="button" class="unit-row" [class.active]="selectedCurrentUnit?.donViId === unit.donViId" (click)="selectCurrentUnit(unit)">
+              <span class="unit-icon"><i class="pi pi-building"></i></span>
+              <span class="unit-main"><strong>{{ unit.tenDonVi }}</strong><small>{{ unit.maDonVi }}</small></span>
+              <span class="unit-counts"><b>{{ unit.metricCount }} chỉ số</b><small>{{ unit.moduleCount }} module</small></span>
+              <i class="pi pi-chevron-right"></i>
+            </button>
+            <div class="unit-list-empty" *ngIf="!filteredCurrentUnits.length">Không tìm thấy đơn vị phù hợp.</div>
+          </div>
+        </aside>
 
-    <div *ngIf="!loading && compareResult" class="ssbc-result">
-      <div class="ssbc-result-meta">
-        <strong>{{ compareResult.tenDonVi }}</strong>
-        <span
-          >{{ compareResult.fromKyCode }} → {{ compareResult.toKyCode }}</span
-        >
-        <span class="ssbc-metric-pill"
-          >{{ changedModuleCount }} module đổi</span
-        >
-        <span class="ssbc-metric-pill ssbc-metric-pill--up"
-          >Tăng: {{ upModuleCount }}</span
-        >
-        <span class="ssbc-metric-pill ssbc-metric-pill--down"
-          >Giảm: {{ downModuleCount }}</span
-        >
-        <label class="ssbc-toggle">
-          <input
-            type="checkbox"
-            [(ngModel)]="onlyChanged"
-            [ngModelOptions]="{ standalone: true }"
-          />
-          Chỉ hiển thị module có thay đổi
-        </label>
+        <main class="detail-panel" *ngIf="selectedCurrentUnit as unit">
+          <div class="panel-heading detail-heading"><div><strong>{{ unit.tenDonVi }}</strong><small>Dữ liệu nghiệp vụ tại {{ currentData.tenKy }}</small></div><span class="current-period-badge"><i class="pi pi-calendar"></i>{{ currentData.kyCode }}</span></div>
+          <div class="module-filter" *ngIf="unit.modules.length"><i class="pi pi-search"></i><input type="text" class="p-inputtext" [(ngModel)]="moduleFilterText" placeholder="Tìm module..." /><small>{{ filteredCurrentUnitModules.length }}/{{ unit.modules.length }} module</small></div>
+          <div class="detail-panel-body">
+            <div class="module-strip" *ngIf="filteredCurrentUnitModules.length">
+              <article *ngFor="let module of filteredCurrentUnitModules" class="module-card current-module-card" [class.active]="expandedModuleCode === module.moduleCode" tabindex="0" role="button" [attr.aria-expanded]="expandedModuleCode === module.moduleCode" (click)="toggleModule(module.moduleCode)" (keydown.enter)="toggleModule(module.moduleCode)">
+                <div class="module-title"><span class="module-icon"><i class="pi pi-chart-bar"></i></span><strong>{{ module.moduleName }}</strong><i class="pi module-caret" [ngClass]="expandedModuleCode === module.moduleCode ? 'pi-chevron-up' : 'pi-chevron-down'"></i></div>
+                <ng-container *ngIf="primaryCurrentMetric(module) as metric"><div class="current-value">{{ formatValue(metric.value, metric.unit) }}</div><small>{{ metric.metricName }}</small></ng-container>
+              </article>
+            </div>
+            <div class="module-strip-empty" *ngIf="unit.modules.length && !filteredCurrentUnitModules.length">Không tìm thấy module phù hợp.</div>
+
+            <div class="module-detail" *ngIf="expandedCurrentModule as module">
+              <div class="module-detail-heading">
+                <div><strong>{{ module.moduleName }}</strong><small>{{ module.metrics.length }} chỉ số</small></div>
+                <div class="module-detail-actions">
+                  <span class="module-search"><i class="pi pi-search"></i><input type="text" class="p-inputtext" [(ngModel)]="moduleSearchText" placeholder="Tìm chỉ số..." /></span>
+                  <button type="button" class="module-detail-records-btn" (click)="openRecordsDialog(module.moduleCode, module.moduleName, currentData.kyBaoCaoId, unit.donViId)"><i class="pi pi-list"></i>Danh sách chi tiết</button>
+                  <button type="button" class="module-detail-close" title="Đóng chi tiết" (click)="closeModuleDetail()"><i class="pi pi-times"></i></button>
+                </div>
+              </div>
+              <p-table [value]="filteredExpandedCurrentMetrics" styleClass="p-datatable-sm change-table current-table" [scrollable]="true" scrollHeight="360px">
+                <ng-template pTemplate="header"><tr><th>Chỉ số</th><th class="numeric">Giá trị hiện tại</th><th>Đơn vị tính</th></tr></ng-template>
+                <ng-template pTemplate="body" let-row><tr>
+                  <td>{{ row.metricName }}</td>
+                  <td class="numeric current-metric-value">{{ formatValue(row.value, row.unit) }}</td>
+                  <td>{{ row.unit }}</td>
+                </tr></ng-template>
+                <ng-template pTemplate="emptymessage"><tr><td colspan="3">Không tìm thấy chỉ số phù hợp.</td></tr></ng-template>
+              </p-table>
+            </div>
+            <div class="module-detail-hint" *ngIf="!expandedCurrentModule && unit.modules.length">
+              <i class="pi pi-arrow-up"></i> Chọn 1 module ở trên để xem danh sách chỉ số chi tiết.
+            </div>
+            <app-empty-state *ngIf="unit.modules.length === 0" title="Chưa có dữ liệu nghiệp vụ" message="Đơn vị chưa có chỉ số được ghi nhận trong kỳ báo cáo này." icon="pi-database"></app-empty-state>
+          </div>
+        </main>
+      </section>
+    </ng-container>
+
+    <ng-container *ngIf="!loading && analysisMode === 'CHANGE' && overview as data">
+      <section class="change-summary" aria-label="Tổng quan biến động">
+        <article class="summary-card summary-card--all"><span class="summary-icon"><i class="pi pi-sitemap"></i></span><div><small>Đơn vị được phân tích</small><strong>{{ data.totalUnits }}</strong></div></article>
+        <article class="summary-card summary-card--good"><span class="summary-icon"><i class="pi pi-arrow-up-right"></i></span><div><small>Đang cải thiện</small><strong>{{ data.improvingCount }}</strong></div></article>
+        <article class="summary-card summary-card--warn"><span class="summary-icon"><i class="pi pi-exclamation-triangle"></i></span><div><small>Cần chú ý</small><strong>{{ data.worseningCount }}</strong></div></article>
+        <article class="summary-card summary-card--stable"><span class="summary-icon"><i class="pi pi-minus-circle"></i></span><div><small>Ổn định</small><strong>{{ data.stableCount }}</strong></div></article>
+        <article class="summary-card summary-card--missing"><span class="summary-icon"><i class="pi pi-question-circle"></i></span><div><small>Thiếu dữ liệu đối chiếu</small><strong>{{ data.missingDataCount }}</strong></div></article>
+      </section>
+
+      <div class="change-period-note">
+        <i class="pi pi-calendar"></i> Đối chiếu <strong>{{ data.fromKyCode }}</strong><i class="pi pi-arrow-right"></i><strong>{{ data.toKyCode }}</strong>
+        <span>Giảm không đồng nghĩa với thiếu; trạng thái được đánh giá theo chiều ý nghĩa của từng chỉ số.</span>
       </div>
 
-      <div class="ssbc-sort-row">
-        <div class="app-field ssbc-sort-field">
-          <label>Sắp xếp kết quả</label>
-          <p-dropdown
-            [options]="sortOptions"
-            optionLabel="label"
-            optionValue="value"
-            [(ngModel)]="sortMode"
-            [ngModelOptions]="{ standalone: true }"
-            appendTo="body"
-          ></p-dropdown>
+      <section class="change-workspace" [class.change-workspace--single]="data.units.length <= 1">
+        <aside class="unit-panel" *ngIf="data.units.length > 1">
+          <div class="panel-heading"><div><strong>Danh sách đơn vị</strong><small>Chọn để xem chi tiết biến động</small></div><span>{{ filteredChangeUnits.length }}/{{ data.units.length }} đơn vị</span></div>
+          <div class="unit-filter"><i class="pi pi-search"></i><input type="text" class="p-inputtext" [(ngModel)]="unitFilterText" placeholder="Tìm tên hoặc mã đơn vị..." /></div>
+          <div class="unit-list">
+            <button *ngFor="let unit of filteredChangeUnits; trackBy: trackByUnit" type="button" class="unit-row" [class.active]="selectedUnit?.donViId === unit.donViId" (click)="selectUnit(unit)">
+              <span class="status-dot" [attr.data-status]="unit.status"></span>
+              <span class="unit-main"><strong>{{ unit.tenDonVi }}</strong><small>{{ unit.maDonVi }}</small></span>
+              <span class="unit-counts"><b *ngIf="unit.worseningCount">{{ unit.worseningCount }} cần chú ý</b><small *ngIf="!unit.worseningCount">{{ statusLabel[unit.status] }}</small></span>
+              <i class="pi pi-chevron-right"></i>
+            </button>
+            <div class="unit-list-empty" *ngIf="!filteredChangeUnits.length">Không tìm thấy đơn vị phù hợp.</div>
+          </div>
+        </aside>
+
+        <main class="detail-panel" *ngIf="selectedUnit as unit">
+          <div class="panel-heading detail-heading"><div><strong>{{ unit.tenDonVi }}</strong><small>Chi tiết thay đổi theo chỉ số nghiệp vụ</small></div><span class="status-badge" [attr.data-status]="unit.status">{{ statusLabel[unit.status] }}</span></div>
+          <div class="module-filter" *ngIf="unit.modules.length"><i class="pi pi-search"></i><input type="text" class="p-inputtext" [(ngModel)]="moduleFilterText" placeholder="Tìm module..." /><small>{{ filteredChangeUnitModules.length }}/{{ unit.modules.length }} module</small></div>
+          <div class="detail-panel-body">
+            <div class="module-strip" *ngIf="filteredChangeUnitModules.length">
+              <article *ngFor="let module of filteredChangeUnitModules" class="module-card" [class.active]="expandedModuleCode === module.moduleCode" tabindex="0" role="button" [attr.aria-expanded]="expandedModuleCode === module.moduleCode" (click)="toggleModule(module.moduleCode)" (keydown.enter)="toggleModule(module.moduleCode)">
+                <div class="module-title"><span class="status-dot" [attr.data-status]="module.status"></span><strong>{{ module.moduleName }}</strong><i class="pi module-caret" [ngClass]="expandedModuleCode === module.moduleCode ? 'pi-chevron-up' : 'pi-chevron-down'"></i></div>
+                <ng-container *ngIf="primaryMetric(module) as metric"><div class="module-values"><span>{{ formatValue(metric.fromValue, metric.unit) }}</span><i class="pi pi-arrow-right"></i><b>{{ formatValue(metric.toValue, metric.unit) }}</b></div><small>{{ metric.metricName }}</small></ng-container>
+              </article>
+            </div>
+            <div class="module-strip-empty" *ngIf="unit.modules.length && !filteredChangeUnitModules.length">Không tìm thấy module phù hợp.</div>
+
+            <div class="module-detail" *ngIf="expandedChangeModule as module">
+              <div class="module-detail-heading">
+                <div><strong>{{ module.moduleName }}</strong><small>{{ module.metrics.length }} chỉ số</small></div>
+                <div class="module-detail-actions">
+                  <span class="module-search"><i class="pi pi-search"></i><input type="text" class="p-inputtext" [(ngModel)]="moduleSearchText" placeholder="Tìm chỉ số..." /></span>
+                  <button type="button" class="module-detail-records-btn" (click)="openRecordsDialog(module.moduleCode, module.moduleName, data.toKyBaoCaoId, unit.donViId)"><i class="pi pi-list"></i>Danh sách chi tiết</button>
+                  <button type="button" class="module-detail-close" title="Đóng chi tiết" (click)="closeModuleDetail()"><i class="pi pi-times"></i></button>
+                </div>
+              </div>
+              <p-table [value]="filteredExpandedChangeMetrics" styleClass="p-datatable-sm change-table" [scrollable]="true" scrollHeight="360px">
+                <ng-template pTemplate="header"><tr><th>Chỉ số</th><th class="numeric">Kỳ đối chiếu</th><th class="numeric">Kỳ đích</th><th class="numeric">Chênh lệch</th><th>Đánh giá</th></tr></ng-template>
+                <ng-template pTemplate="body" let-row><tr>
+                  <td>{{ row.metricName }}<small>{{ row.unit }}</small></td>
+                  <td class="numeric">{{ formatValue(row.fromValue, row.unit) }}</td><td class="numeric"><strong>{{ formatValue(row.toValue, row.unit) }}</strong></td>
+                  <td class="numeric"><span class="delta" [attr.data-status]="row.status">{{ formatDelta(row.delta) }} <small *ngIf="row.deltaPercent != null">({{ formatDelta(row.deltaPercent) }}%)</small></span></td>
+                  <td><span class="status-badge" [attr.data-status]="row.status">{{ getStatusLabel(row.status) }}</span></td>
+                </tr></ng-template>
+                <ng-template pTemplate="emptymessage"><tr><td colspan="5">Không tìm thấy chỉ số phù hợp.</td></tr></ng-template>
+              </p-table>
+            </div>
+            <div class="module-detail-hint" *ngIf="!expandedChangeModule && unit.modules.length">
+              <i class="pi pi-arrow-up"></i> Chọn 1 module ở trên để xem danh sách chỉ số chi tiết.
+            </div>
+            <app-empty-state *ngIf="unit.modules.length === 0" title="Chưa có chỉ số đã chốt" message="Các chỉ số sẽ được ghi nhận bất biến từ lần nộp báo cáo tiếp theo." icon="pi-database"></app-empty-state>
+          </div>
+        </main>
+      </section>
+
+    </ng-container>
+  </div>
+</div>
+
+<p-dialog [(visible)]="recordsDialogVisible" [modal]="true" [style]="{width:'92vw',maxWidth:'1100px'}" [dismissableMask]="true" (onHide)="closeRecordsDialog()" styleClass="records-dialog">
+  <ng-template pTemplate="header">
+    <div class="records-dialog-header"><i class="pi pi-list"></i><strong>{{ recordsDialogTitle }}</strong><small *ngIf="recordsDialogData">{{ recordsTotalRows }} bản ghi</small></div>
+  </ng-template>
+  <div class="records-dialog-body relative">
+    <app-loading-overlay [active]="recordsDialogLoading" label="Đang tải danh sách chi tiết..."></app-loading-overlay>
+    <ng-container *ngIf="!recordsDialogLoading && recordsDialogData">
+      <div class="records-search"><i class="pi pi-search"></i><input type="text" class="p-inputtext" [(ngModel)]="recordsSearchText" placeholder="Tìm trong danh sách..." /></div>
+      <ng-container *ngIf="filteredRecordSections.length; else noRecords">
+        <div class="records-section" *ngFor="let section of filteredRecordSections">
+          <h4 *ngIf="section.title">{{ section.title }} <small>({{ section.rows.length }})</small></h4>
+          <p-table [value]="section.rows" styleClass="p-datatable-sm change-table records-table" [scrollable]="true" scrollHeight="min(50vh, 420px)">
+            <ng-template pTemplate="header"><tr><th *ngFor="let h of section.headers">{{ h }}</th></tr></ng-template>
+            <ng-template pTemplate="body" let-row><tr><td *ngFor="let cell of row">{{ formatCell(cell) }}</td></tr></ng-template>
+          </p-table>
         </div>
-      </div>
-
-      <p-table [value]="displayedModules" styleClass="p-datatable-sm">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Module</th>
-            <th class="ssbc-col-narrow">{{ compareResult.fromKyCode }}</th>
-            <th class="ssbc-col-narrow">{{ compareResult.toKyCode }}</th>
-            <th class="ssbc-col-narrow">Chênh lệch</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-row>
-          <tr>
-            <td>{{ row.moduleCode }}</td>
-            <td class="ssbc-col-narrow">{{ row.fromCount }}</td>
-            <td class="ssbc-col-narrow">{{ row.toCount }}</td>
-            <td class="ssbc-col-narrow">
-              <span
-                [class.ssbc-delta-up]="row.delta > 0"
-                [class.ssbc-delta-down]="row.delta < 0"
-              >
-                {{ row.delta > 0 ? '+' : '' }}{{ row.delta }}
-              </span>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-
-      <div
-        *ngIf="onlyChanged && displayedModules.length === 0"
-        class="ssbc-empty-note"
-      >
-        Hai kỳ không có chênh lệch dữ liệu theo module.
-      </div>
-    </div>
+      </ng-container>
+      <ng-template #noRecords><app-empty-state title="Không có bản ghi" message="Chưa có bản ghi nào được ghi nhận cho module này tại kỳ báo cáo đã chọn, hoặc không khớp với từ khóa tìm kiếm." icon="pi-database"></app-empty-state></ng-template>
+    </ng-container>
   </div>
-</app-section-card>
+</p-dialog>

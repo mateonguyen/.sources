@@ -60,6 +60,16 @@ public sealed class BaoCaoSnapshotController : ControllerBase
         return Ok(ApiResponseFactory.Success(result));
     }
 
+    [HttpGet("my-history")]
+    [HasPermission(Permissions.BaoCaoSnapshot.Read)]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyCollection<BaoCaoSnapshotDto>>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<IReadOnlyCollection<BaoCaoSnapshotDto>>>> GetMyHistory(
+        CancellationToken cancellationToken)
+    {
+        var result = await _snapshotService.GetMyHistoryAsync(cancellationToken);
+        return Ok(ApiResponseFactory.Success(result));
+    }
+
     [HttpGet("compare")]
     [HasPermission(Permissions.BaoCaoSnapshot.Read)]
     [ProducesResponseType(typeof(ApiResponse<SnapshotCompareDto>), StatusCodes.Status200OK)]

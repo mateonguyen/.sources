@@ -5,6 +5,7 @@
 >
   <div sectionActions class="mau-bao-cao-actions">
     <button
+      *ngIf="canCreate"
       pButton
       type="button"
       icon="pi pi-plus"
@@ -105,8 +106,8 @@
       title="Chưa có mẫu báo cáo"
       message="Tạo mẫu báo cáo đầu tiên để bắt đầu quản trị kỳ theo template."
       icon="pi pi-file-edit"
-      actionLabel="Thêm mẫu"
-      actionIcon="pi pi-plus"
+      [actionLabel]="canCreate ? 'Thêm mẫu' : ''"
+      [actionIcon]="canCreate ? 'pi pi-plus' : ''"
       actionSeverity="primary"
       (action)="openCreate()"
     ></app-empty-state>
@@ -136,7 +137,7 @@
             <th>Tần suất</th>
             <th>Module</th>
             <th>Trạng thái</th>
-            <th>Thao tác</th>
+            <th *ngIf="canUpdate || canDelete">Thao tác</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-item>
@@ -169,9 +170,10 @@
                 </span>
               </div>
             </td>
-            <td>
+            <td *ngIf="canUpdate || canDelete">
               <div class="action-btns">
                 <button
+                  *ngIf="canUpdate"
                   type="button"
                   class="action-btn action-btn--edit"
                   pTooltip="Chỉnh sửa"
@@ -179,6 +181,7 @@
                   (click)="openEdit(item)"
                 ><i class="pi pi-pencil"></i></button>
                 <button
+                  *ngIf="canDelete"
                   type="button"
                   class="action-btn action-btn--delete"
                   [disabled]="item.kyBaoCaoCount > 0"
@@ -220,7 +223,7 @@
     </div>
 
     <app-mau-bao-cao-upsert-dialog
-      *ngIf="dialogVisible"
+      *ngIf="dialogVisible && (dialogMode === 'create' ? canCreate : canUpdate)"
       [visible]="dialogVisible"
       [submitting]="saving"
       [mode]="dialogMode"

@@ -117,6 +117,9 @@ export class NopBaoCaoPage implements OnInit {
     VAN_BAN_QPPL: 'Văn bản QPPL',
   };
 
+  /** Chỉ 3 trạng thái thực sự được backend gán (1, 4, 5) — 2 (Đang nhập) và 3 (Đã xác nhận) không bao giờ xảy ra trong luồng thật nên đã bỏ khỏi timeline. */
+  readonly donViTrangThaiSteps: readonly number[] = [1, 4, 5];
+
   readonly donViTrangThaiMap: Record<
     number,
     { label: string; tone: BadgeTone; icon: string; desc: string }
@@ -126,18 +129,6 @@ export class NopBaoCaoPage implements OnInit {
       tone: 'neutral',
       icon: 'pi-circle',
       desc: 'Đơn vị chưa bắt đầu nhập liệu',
-    },
-    2: {
-      label: 'Đang nhập',
-      tone: 'warning',
-      icon: 'pi-spinner',
-      desc: 'Đơn vị đang nhập dữ liệu',
-    },
-    3: {
-      label: 'Đã xác nhận',
-      tone: 'info',
-      icon: 'pi-check-circle',
-      desc: 'Dữ liệu đã được xác nhận nội bộ',
     },
     4: {
       label: 'Đang bổ sung',

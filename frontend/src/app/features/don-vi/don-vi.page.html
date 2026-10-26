@@ -1,4 +1,8 @@
-<app-section-card title="Danh mục đơn vị" styleClass="donvi-card">
+<app-section-card
+  title="Danh mục đơn vị"
+  subtitle="Quản lý cây tổ chức và thông tin đơn vị trong hệ thống."
+  styleClass="donvi-card"
+>
   <div sectionActions class="head-actions">
     <button
       pButton
@@ -180,7 +184,10 @@
           </div>
         </div>
 
-        <div class="primary-fields">
+        <div
+          class="primary-fields"
+          [class.has-validation-feedback]="hasPrimaryValidationFeedback"
+        >
           <div class="app-field">
             <label for="maDonVi">Mã đơn vị</label>
             <input
@@ -189,11 +196,13 @@
               type="text"
               formControlName="maDonVi"
             />
-            <small
-              class="app-validation-error"
-              *ngIf="form.controls.maDonVi.invalid && form.controls.maDonVi.touched"
-              >Mã đơn vị bắt buộc, tối đa 50 ký tự.</small
-            >
+            <div class="app-field-validation" aria-live="polite">
+              <small
+                class="app-validation-error"
+                *ngIf="form.controls.maDonVi.invalid && form.controls.maDonVi.touched"
+                >Bắt buộc, tối đa 50 ký tự.</small
+              >
+            </div>
           </div>
 
           <div class="app-field">
@@ -204,11 +213,13 @@
               type="text"
               formControlName="tenDonVi"
             />
-            <small
-              class="app-validation-error"
-              *ngIf="form.controls.tenDonVi.invalid && form.controls.tenDonVi.touched"
-              >Tên đơn vị bắt buộc, tối đa 200 ký tự.</small
-            >
+            <div class="app-field-validation" aria-live="polite">
+              <small
+                class="app-validation-error"
+                *ngIf="form.controls.tenDonVi.invalid && form.controls.tenDonVi.touched"
+                >Bắt buộc, tối đa 200 ký tự.</small
+              >
+            </div>
           </div>
 
           <div class="app-field">
@@ -219,6 +230,7 @@
               type="text"
               formControlName="tenVietTat"
             />
+            <div class="app-field-validation" aria-hidden="true"></div>
           </div>
         </div>
 
@@ -346,9 +358,9 @@
             pButton
             type="button"
             severity="danger"
-            icon="pi pi-trash"
-            label="Xóa đơn vị"
-            *ngIf="selected"
+            icon="pi pi-ban"
+            label="Ngừng hoạt động"
+            *ngIf="selected?.isActive"
             (click)="softDelete()"
           ></button>
         </app-form-action-bar>
@@ -356,3 +368,8 @@
     </div>
   </div>
 </app-section-card>
+<app-don-vi-change-panel
+  *ngIf="authService.hasRole('SYSTEM_ADMIN')"
+  [units]="data"
+  (changed)="load()"
+></app-don-vi-change-panel>

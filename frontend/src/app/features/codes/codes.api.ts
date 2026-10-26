@@ -17,6 +17,11 @@ export interface CodeValueDto {
   description?: string;
   sortOrder: number;
   isActive: boolean;
+  donViId?: number | null;
+  reportingValueId?: number | null;
+  isRequired?: boolean;
+  isLocal?: boolean;
+  isVisible?: boolean;
 }
 
 export interface CodeDto {
@@ -26,6 +31,7 @@ export interface CodeDto {
   description?: string;
   sortOrder: number;
   isActive: boolean;
+  allowUnitCustomization?: boolean;
   values: CodeValueDto[];
 }
 
@@ -35,10 +41,19 @@ export interface UpsertCodeRequest {
   description?: string;
   sortOrder: number;
   isActive: boolean;
+  allowUnitCustomization?: boolean;
 }
 
 export interface UpsertCodeValueRequest {
   value: string;
+  name: string;
+  description?: string;
+  sortOrder: number;
+  isActive: boolean;
+  isRequired?: boolean;
+}
+
+export interface UpsertUnitCodeValueRequest {
   name: string;
   description?: string;
   sortOrder: number;
@@ -148,6 +163,54 @@ export class CodesApi {
     return firstValueFrom(
       this.httpClient.delete<ApiResponse<unknown>>(
         `${API_BASE_URL}/codes/${codeId}/values/${valueId}`,
+      ),
+    ).then(() => undefined);
+  }
+
+  getUnitValues(codeId: number, includeHidden = true): Promise<CodeValueDto[]> {
+    return firstValueFrom(
+      this.httpClient.get<ApiResponse<CodeValueDto[]>>(
+        `${API_BASE_URL}/codes/${codeId}/unit-values?includeHidden=${includeHidden}`,
+        { context: new HttpContext().set(SUPPRESS_ERROR_TOAST, true) },
+      ),
+    ).then((response) => response.data);
+  }
+
+  createUnitValue(codeId: number, payload: UpsertUnitCodeValueRequest): Promise<CodeValueDto> {
+    return firstValueFrom(
+      this.httpClient.post<ApiResponse<CodeValueDto>>(
+        `${API_BASE_URL}/codes/${codeId}/unit-values`,
+        payload,
+        { context: new HttpContext().set(SUPPRESS_ERROR_TOAST, true) },
+      ),
+    ).then((response) => response.data);
+  }
+
+  updateUnitValue(codeId: number, valueId: number, payload: UpsertUnitCodeValueRequest): Promise<CodeValueDto> {
+    return firstValueFrom(
+      this.httpClient.put<ApiResponse<CodeValueDto>>(
+        `${API_BASE_URL}/codes/${codeId}/unit-values/${valueId}`,
+        payload,
+        { context: new HttpContext().set(SUPPRESS_ERROR_TOAST, true) },
+      ),
+    ).then((response) => response.data);
+  }
+
+  deleteUnitValue(codeId: number, valueId: number): Promise<void> {
+    return firstValueFrom(
+      this.httpClient.delete<ApiResponse<unknown>>(
+        `${API_BASE_URL}/codes/${codeId}/unit-values/${valueId}`,
+        { context: new HttpContext().set(SUPPRESS_ERROR_TOAST, true) },
+      ),
+    ).then(() => undefined);
+  }
+
+  setUnitValueVisibility(codeId: number, valueId: number, isVisible: boolean): Promise<void> {
+    return firstValueFrom(
+      this.httpClient.put<ApiResponse<unknown>>(
+        `${API_BASE_URL}/codes/${codeId}/unit-values/${valueId}/visibility`,
+        { isVisible },
+        { context: new HttpContext().set(SUPPRESS_ERROR_TOAST, true) },
       ),
     ).then(() => undefined);
   }

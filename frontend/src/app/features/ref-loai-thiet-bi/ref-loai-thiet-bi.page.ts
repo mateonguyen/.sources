@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TreeNode } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -14,6 +14,7 @@ import { TreeTableNodeCollapseEvent, TreeTableNodeExpandEvent } from 'primeng/tr
 import {
   RefLoaiThietBiApi,
   RefLoaiThietBiDto,
+  UnitRefLoaiThietBiProposalDto,
   UpsertRefLoaiThietBiRequest,
 } from './ref-loai-thiet-bi.api';
 import { ConfirmDialogWrapperService } from '../../shared/ui/confirm-dialog-wrapper.service';
@@ -21,14 +22,26 @@ import { EmptyStateComponent } from '../../shared/ui/empty-state.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
 import { SectionCardComponent } from '../../shared/ui/section-card.component';
 import { NotificationService } from '../../core/ui/notification.service';
+import { AuthService } from '../../core/auth/auth.service';
+import { UnitCatalogPage } from '../unit-catalog/unit-catalog.page';
 
 type DialogMode = 'create' | 'edit';
+type StandardizeMode = 'merge' | 'promote';
+
+interface StandardMergeRow {
+  id: number;
+  label: string;
+  path: string;
+  depth: number;
+  selectable: boolean;
+}
 
 @Component({
   selector: 'app-ref-loai-thiet-bi-page',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     ReactiveFormsModule,
     SectionCardComponent,
     EmptyStateComponent,
@@ -41,15 +54,24 @@ type DialogMode = 'create' | 'edit';
     TooltipModule,
     TreeTableModule,
     DialogModule,
+    UnitCatalogPage,
   ],
   templateUrl: './ref-loai-thiet-bi.page.html',
   styleUrl: './ref-loai-thiet-bi.page.scss',
 })
 export class RefLoaiThietBiPage {
+  catalogScope: 'standard' | 'unit' = 'standard';
   data: RefLoaiThietBiDto[] = [];
   treeNodes: TreeNode<RefLoaiThietBiDto>[] = [];
   loading = false;
   saving = false;
+  unitProposals: UnitRefLoaiThietBiProposalDto[] = [];
+  standardizeDialogVisible = false;
+  standardizeMode: StandardizeMode = 'merge';
+  standardizeItem: UnitRefLoaiThietBiProposalDto | null = null;
+  targetStandardId: number | null = null;
+  mergeSearch = '';
+  newStandardCode = '';
 
   // Giu trang thai dong/mo giua cac lan build lai cay (sau moi lan luu/xoa),
   // vi TreeNode duoc tao moi hoan toan tu data moi tra ve.
@@ -81,6 +103,7 @@ export class RefLoaiThietBiPage {
   constructor(
     private readonly api: RefLoaiThietBiApi,
     private readonly fb: FormBuilder,
+    private readonly authService: AuthService,
     private readonly notificationService: NotificationService,
     private readonly confirmDialog: ConfirmDialogWrapperService,
   ) {
@@ -90,8 +113,45 @@ export class RefLoaiThietBiPage {
       laTongHop: [false],
       sortOrder: [0],
       isActive: [true],
+      isRequired: [false],
     });
-    this.load();
+    this.catalogScope = this.canManageStandard ? 'standard' : 'unit';
+    if (this.catalogScope === 'standard') {
+      void this.load();
+    }
+  }
+
+  get canManageStandard(): boolean {
+    return (
+      (this.authService.hasRole('SYSTEM_ADMIN') ||
+        this.authService.hasRole('QUAN_LY')) &&
+      this.authService.hasPermission('ref_loai_thiet_bi:read')
+    );
+  }
+
+  get canCustomizeUnit(): boolean {
+    return this.authService.hasPermission('ref_loai_thiet_bi:read');
+  }
+
+  get canCreateCatalog(): boolean {
+    return this.authService.hasPermission('ref_loai_thiet_bi:create');
+  }
+
+  get canUpdateCatalog(): boolean {
+    return this.authService.hasPermission('ref_loai_thiet_bi:update');
+  }
+
+  get canDeleteCatalog(): boolean {
+    return this.authService.hasPermission('ref_loai_thiet_bi:delete');
+  }
+
+  setCatalogScope(scope: 'standard' | 'unit'): void {
+    if (scope === 'standard' && !this.canManageStandard) return;
+    if (scope === 'unit' && !this.canCustomizeUnit) return;
+    this.catalogScope = scope;
+    if (scope === 'standard' && this.data.length === 0) {
+      void this.load();
+    }
   }
 
   get dialogTitle(): string {
@@ -101,31 +161,179 @@ export class RefLoaiThietBiPage {
     return this.dialogParentId === null ? 'Thêm nhóm gốc' : `Thêm loại con của "${this.dialogParentLabel}"`;
   }
 
+  get standardMergeRows(): StandardMergeRow[] {
+    const result: StandardMergeRow[] = [];
+    const visit = (items: RefLoaiThietBiDto[], depth = 0, prefix = ''): void => {
+      for (const item of items) {
+        const path = prefix ? `${prefix} / ${item.tenLoai}` : item.tenLoai;
+        result.push({
+          id: item.id,
+          label: item.tenLoai,
+          path,
+          depth,
+          selectable: item.children.length === 0 && item.isActive,
+        });
+        visit(item.children, depth + 1, path);
+      }
+    };
+    visit(this.data);
+    return result;
+  }
+
+  get filteredStandardMergeRows(): StandardMergeRow[] {
+    const query = this.normalize(this.mergeSearch);
+    return query
+      ? this.standardMergeRows.filter((item) => this.normalize(item.path).includes(query))
+      : this.standardMergeRows;
+  }
+
   async load(): Promise<void> {
     this.loading = true;
     try {
-      this.data = await this.api.getAdminTree();
-      this.treeNodes = this.buildTreeNodes(this.data, true);
+      const [data, proposals] = await Promise.all([
+        this.api.getAdminTree(),
+        this.canManageStandard ? this.api.getUnitProposals() : Promise.resolve([]),
+      ]);
+      this.data = data;
+      this.unitProposals = proposals;
+      this.treeNodes = this.buildCombinedTreeNodes();
     } catch (error: unknown) {
       this.notificationService.show('error', this.extractErrorMessage(error, 'Không thể tải dữ liệu loại thiết bị.'));
       this.data = [];
       this.treeNodes = [];
+      this.unitProposals = [];
     } finally {
       this.loading = false;
     }
   }
 
-  private buildTreeNodes(items: RefLoaiThietBiDto[], isRoot: boolean): TreeNode<RefLoaiThietBiDto>[] {
-    return items.map((item) => {
-      const key = String(item.id);
-      return {
-        key,
-        label: item.tenLoai,
-        data: item,
-        expanded: this.expandedKeys.has(key) || isRoot,
-        children: item.children.length > 0 ? this.buildTreeNodes(item.children, false) : [],
-      };
-    });
+  openMergeProposal(item: UnitRefLoaiThietBiProposalDto): void {
+    this.standardizeMode = 'merge';
+    this.standardizeItem = item;
+    this.targetStandardId = null;
+    this.mergeSearch = '';
+    this.newStandardCode = '';
+    this.standardizeDialogVisible = true;
+  }
+
+  openPromoteProposal(item: UnitRefLoaiThietBiProposalDto): void {
+    this.standardizeMode = 'promote';
+    this.standardizeItem = item;
+    this.targetStandardId = null;
+    this.mergeSearch = '';
+    this.newStandardCode = this.suggestStandardCode(item.tenLoai);
+    this.standardizeDialogVisible = true;
+  }
+
+  closeStandardizeDialog(): void {
+    this.standardizeDialogVisible = false;
+    this.standardizeItem = null;
+    this.targetStandardId = null;
+    this.newStandardCode = '';
+    this.mergeSearch = '';
+  }
+
+  selectStandardTarget(row: StandardMergeRow): void {
+    if (row.selectable) {
+      this.targetStandardId = row.id;
+    }
+  }
+
+  async submitStandardize(): Promise<void> {
+    if (!this.standardizeItem) return;
+    if (this.standardizeMode === 'merge' && !this.targetStandardId) {
+      this.notificationService.show('warning', 'Vui lòng chọn loại thiết bị chuẩn để hợp nhất.');
+      return;
+    }
+    if (this.standardizeMode === 'promote' && !this.newStandardCode.trim()) {
+      this.notificationService.show('warning', 'Vui lòng nhập mã cho loại thiết bị chuẩn mới.');
+      return;
+    }
+
+    this.saving = true;
+    try {
+      await this.api.standardizeUnitProposal(this.standardizeItem.id, {
+        targetStandardId: this.standardizeMode === 'merge' ? this.targetStandardId : null,
+        maLoaiMoi: this.standardizeMode === 'promote' ? this.newStandardCode.trim() : null,
+      });
+      this.notificationService.show(
+        'success',
+        this.standardizeMode === 'merge'
+          ? 'Đã hợp nhất mục bổ sung vào loại thiết bị chuẩn.'
+          : 'Đã duyệt mục bổ sung thành loại thiết bị chuẩn.',
+      );
+      this.closeStandardizeDialog();
+      await this.load();
+    } catch (error: unknown) {
+      this.notificationService.show('error', this.extractErrorMessage(error, 'Không thể xử lý mục bổ sung.'));
+    } finally {
+      this.saving = false;
+    }
+  }
+
+  private buildCombinedTreeNodes(): TreeNode<RefLoaiThietBiDto>[] {
+    const rows: RefLoaiThietBiDto[] = [];
+    const collectStandardRows = (items: RefLoaiThietBiDto[]): void => {
+      for (const item of items) {
+        rows.push({ ...item, children: [] });
+        collectStandardRows(item.children);
+      }
+    };
+    collectStandardRows(this.data);
+
+    for (const proposal of this.unitProposals) {
+      rows.push({
+        id: proposal.id,
+        parentId: proposal.parentId,
+        maLoai: '',
+        tenLoai: proposal.tenLoai,
+        cap: 0,
+        laTongHop: proposal.laTongHop,
+        sortOrder: proposal.sortOrder,
+        isActive: true,
+        donViId: proposal.donViId,
+        isLocal: true,
+        isVisible: true,
+        proposal,
+        children: [],
+      });
+    }
+
+    const rowIds = new Set(rows.map((row) => row.id));
+    const rowsByParent = new Map<number | null, RefLoaiThietBiDto[]>();
+    for (const row of rows) {
+      const parentId = row.parentId !== null && rowIds.has(row.parentId) ? row.parentId : null;
+      const siblings = rowsByParent.get(parentId) ?? [];
+      siblings.push(row);
+      rowsByParent.set(parentId, siblings);
+    }
+
+    const buildNodes = (parentId: number | null, isRoot: boolean): TreeNode<RefLoaiThietBiDto>[] =>
+      (rowsByParent.get(parentId) ?? [])
+        .sort((a, b) => {
+          const sourceOrder = Number(!!a.proposal) - Number(!!b.proposal);
+          return sourceOrder || a.sortOrder - b.sortOrder || a.tenLoai.localeCompare(b.tenLoai, 'vi');
+        })
+        .map((row) => {
+          const children = buildNodes(row.id, false);
+          const key = String(row.id);
+          return {
+            key,
+            label: row.tenLoai,
+            data: row,
+            expanded:
+              this.expandedKeys.has(key) ||
+              isRoot ||
+              children.some((child) => this.containsProposal(child)),
+            children,
+          };
+        });
+
+    return buildNodes(null, true);
+  }
+
+  private containsProposal(node: TreeNode<RefLoaiThietBiDto>): boolean {
+    return !!node.data?.proposal || (node.children ?? []).some((child) => this.containsProposal(child));
   }
 
   onNodeExpand(event: TreeTableNodeExpandEvent): void {
@@ -151,6 +359,7 @@ export class RefLoaiThietBiPage {
       laTongHop: false,
       sortOrder: this.data.length,
       isActive: true,
+      isRequired: false,
     });
     this.dialogVisible = true;
   }
@@ -166,6 +375,7 @@ export class RefLoaiThietBiPage {
       laTongHop: false,
       sortOrder: parent.children.length,
       isActive: true,
+      isRequired: false,
     });
     this.dialogVisible = true;
   }
@@ -181,6 +391,7 @@ export class RefLoaiThietBiPage {
       laTongHop: node.laTongHop,
       sortOrder: node.sortOrder,
       isActive: node.isActive,
+      isRequired: node.isRequired ?? false,
     });
     this.dialogVisible = true;
   }
@@ -210,6 +421,7 @@ export class RefLoaiThietBiPage {
         laTongHop: !!value.laTongHop,
         sortOrder: value.sortOrder ?? 0,
         isActive: value.isActive,
+        isRequired: !!value.isRequired,
       };
 
       if (this.dialogMode === 'edit' && this.dialogEditingId) {
@@ -283,6 +495,7 @@ export class RefLoaiThietBiPage {
       laTongHop: item.laTongHop,
       sortOrder,
       isActive: item.isActive,
+      isRequired: item.isRequired ?? false,
     };
   }
 
@@ -333,5 +546,24 @@ export class RefLoaiThietBiPage {
     return (
       (error as { error?: { error?: { message?: string } } })?.error?.error?.message ?? fallback
     );
+  }
+
+  private normalize(value: string | null | undefined): string {
+    return (value ?? '')
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .trim()
+      .toLowerCase();
+  }
+
+  private suggestStandardCode(value: string): string {
+    const normalized = value
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .replace(/đ/gi, 'd')
+      .toUpperCase()
+      .replace(/[^A-Z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+    return `TB_${normalized || 'MOI'}`.slice(0, 50);
   }
 }

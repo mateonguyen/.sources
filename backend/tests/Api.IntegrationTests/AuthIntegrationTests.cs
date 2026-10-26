@@ -23,7 +23,7 @@ public sealed class AuthIntegrationTests : IClassFixture<ApiTestWebApplicationFa
         var response = await client.PostAsJsonAsync("/api/v1/auth/login", new
         {
             username = "admin",
-            password = "Admin@123"
+            password = "Test@123"
         });
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -51,7 +51,7 @@ public sealed class AuthIntegrationTests : IClassFixture<ApiTestWebApplicationFa
     public async Task Me_Should_Return_Profile_When_Token_Is_Valid()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Admin@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Test@123");
 
         var response = await client.GetAsync("/api/v1/auth/me");
 

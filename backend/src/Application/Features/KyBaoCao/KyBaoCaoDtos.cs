@@ -56,6 +56,8 @@ public sealed class KyBaoCaoTienDoDonViDto
 
     public string TenDonVi { get; set; } = string.Empty;
 
+    public string MaDonVi { get; set; } = string.Empty;
+
     public KyBaoCaoStatus KyTrangThai { get; set; }
 
     public Domain.Enums.KyTrangThaiDonViStatus TrangThaiDonVi { get; set; }

@@ -29,6 +29,9 @@ public sealed class TienDoDonViDto
 
     public DateTime? CapNhatLanCuoi { get; set; }
 
+    /// <summary>true = đơn vị cha đang ở chế độ Tổng hợp → DaXacNhan của đơn vị này được cha dùng làm điều kiện cảnh báo khi cha Nộp báo cáo. false = không ai đọc DaXacNhan, bấm xác nhận vô nghĩa.</summary>
+    public bool ParentIsTongHop { get; set; }
+
     /// <summary>Hạn bổ sung từ YCBS đang DangBoSung (nếu có).</summary>
     public DateOnly? HanBoSung { get; set; }
 

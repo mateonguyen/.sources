@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 import { forbiddenRedirectGuard } from './core/auth/forbidden-redirect.guard';
+import { permissionGuard } from './core/auth/permission.guard';
+import { pendingChangesGuard } from './core/navigation/pending-changes.guard';
 
 export const routes: Routes = [
   {
@@ -11,6 +13,7 @@ export const routes: Routes = [
   {
     path: '',
     canActivate: [authGuard],
+    canActivateChild: [permissionGuard],
     loadComponent: () => import('./layout/shell.page').then((m) => m.ShellPage),
     children: [
       {
@@ -77,11 +80,9 @@ export const routes: Routes = [
           ),
       },
       {
+        // Đã gộp vào /tong-hop-du-lieu (nội dung branch theo CheDoNhapLieu) — giữ redirect cho link/bookmark cũ.
         path: 'tien-do-tong-hop',
-        loadComponent: () =>
-          import('./features/tien-do-tong-hop/tien-do-tong-hop.page').then(
-            (m) => m.TienDoTongHopPage,
-          ),
+        redirectTo: 'tong-hop-du-lieu',
       },
       {
         path: 'tong-hop-du-lieu',
@@ -91,11 +92,9 @@ export const routes: Routes = [
           ),
       },
       {
+        // Đã gộp vào Tiến độ báo cáo; giữ redirect để không làm hỏng liên kết cũ.
         path: 'yeu-cau-bo-sung',
-        loadComponent: () =>
-          import('./features/yeu-cau-bo-sung/yeu-cau-bo-sung.page').then(
-            (m) => m.YeuCauBoSungPage,
-          ),
+        redirectTo: 'tien-do-nop',
       },
       {
         path: 'nop-bao-cao',
@@ -182,6 +181,7 @@ export const routes: Routes = [
       },
       {
         path: 'thiet-bi-cntt',
+        canDeactivate: [pendingChangesGuard],
         loadComponent: () =>
           import('./features/thiet-bi-cntt/thiet-bi-cntt.page').then(
             (m) => m.ThietBiCnttPage,

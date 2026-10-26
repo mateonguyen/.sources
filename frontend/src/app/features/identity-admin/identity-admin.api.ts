@@ -100,6 +100,16 @@ export interface DonViDto {
   isActive: boolean;
 }
 
+export interface TransferUsersRequest {
+  items: Array<{ userId: number; sourceDonViId: number; targetDonViId: number; roleIds: number[] }>;
+}
+
+export interface TransferUsersPreviewDto {
+  userCount: number;
+  errors: string[];
+  users: Array<{ userId: number; hoTen: string; sourceDonViId: number; targetDonViId: number; oldRoleIds: number[]; newRoleIds: number[] }>;
+}
+
 @Injectable({ providedIn: 'root' })
 export class IdentityAdminApi {
   constructor(private readonly httpClient: HttpClient) {}
@@ -210,5 +220,13 @@ export class IdentityAdminApi {
     return firstValueFrom(
       this.httpClient.get<ApiResponse<DonViDto[]>>(`${API_BASE_URL}/don-vi`),
     ).then((response) => response.data);
+  }
+
+  previewTransfers(payload: TransferUsersRequest): Promise<TransferUsersPreviewDto> {
+    return firstValueFrom(this.httpClient.post<ApiResponse<TransferUsersPreviewDto>>(`${API_BASE_URL}/users/transfers/preview`, payload)).then(x => x.data);
+  }
+
+  transferUsers(payload: TransferUsersRequest): Promise<void> {
+    return firstValueFrom(this.httpClient.post<ApiResponse<unknown>>(`${API_BASE_URL}/users/transfers`, payload)).then(() => undefined);
   }
 }

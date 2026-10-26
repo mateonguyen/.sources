@@ -1,11 +1,13 @@
 using System.Text;
 using System.Text.Json;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Serilog.Context;
 using Serilog;
@@ -13,6 +15,7 @@ using ThucLuc.Api.Common.Extensions;
 using ThucLuc.Api.Common.Filters;
 using ThucLuc.Api.Common.Middleware;
 using ThucLuc.Application;
+using ThucLuc.Application.Common.Contracts;
 using ThucLuc.Infrastructure.DependencyInjection;
 using ThucLuc.Infrastructure.Options;
 using ThucLuc.Infrastructure.Persistence.Seeding;
@@ -91,6 +94,28 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = signingKey,
             ClockSkew = TimeSpan.FromMinutes(1)
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var principal = context.Principal;
+                var userIdText = principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+                var tokenStamp = principal?.FindFirstValue("user_security_stamp");
+                var unitText = principal?.FindFirstValue(ThucLuc.Infrastructure.Identity.ClaimTypes.DonViId);
+                if (!long.TryParse(userIdText, out var userId) || !long.TryParse(unitText, out var unitId) || string.IsNullOrEmpty(tokenStamp))
+                {
+                    context.Fail("Phiên đăng nhập không hợp lệ.");
+                    return;
+                }
+                var db = context.HttpContext.RequestServices.GetRequiredService<IApplicationDbContext>();
+                var user = await db.Users.AsNoTracking()
+                    .Where(x => x.Id == userId)
+                    .Select(x => new { x.DonViId, x.IsActive, x.DeletedAt, x.SecurityStamp })
+                    .FirstOrDefaultAsync(context.HttpContext.RequestAborted);
+                if (user is null || !user.IsActive || user.DeletedAt.HasValue || user.DonViId != unitId || user.SecurityStamp != tokenStamp)
+                    context.Fail("Phiên đăng nhập đã thay đổi hoặc bị thu hồi.");
+            }
+        };
     });
 
 builder.Services.AddSwaggerGen(options =>
@@ -153,6 +178,13 @@ if (shouldSeedOnStartup)
     using var scope = app.Services.CreateScope();
     var seeder = scope.ServiceProvider.GetRequiredService<IBaselineDataSeeder>();
     await seeder.SeedAsync();
+
+    var shouldSeedDemoData = app.Configuration.GetValue<bool>($"{SeedOptions.SectionName}:SeedDemoReportingData");
+    if (shouldSeedDemoData)
+    {
+        var demoSeeder = scope.ServiceProvider.GetRequiredService<IDemoReportingDataSeeder>();
+        await demoSeeder.SeedAsync();
+    }
 }
 
 app.UseSerilogRequestLogging();

@@ -25,6 +25,7 @@ public sealed class JwtTokenService : IJwtTokenService
 
     public Task<AuthTokenDto> GenerateAsync(ApplicationUser user, IReadOnlyCollection<string> roles, IReadOnlyCollection<string> permissions, CancellationToken cancellationToken = default)
     {
+        user.SecurityStamp ??= Guid.NewGuid().ToString("N");
         var now = _dateTimeProvider.Now;
         var expiresAt = now.AddMinutes(_options.AccessTokenMinutes);
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SigningKey));
@@ -37,7 +38,8 @@ public sealed class JwtTokenService : IJwtTokenService
             new(System.Security.Claims.ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(System.Security.Claims.ClaimTypes.Name, user.UserName ?? string.Empty),
             new(ClaimTypes.UserId, user.Id.ToString()),
-            new(ClaimTypes.DonViId, user.DonViId.ToString())
+            new(ClaimTypes.DonViId, user.DonViId.ToString()),
+            new("user_security_stamp", user.SecurityStamp)
         };
 
         claims.AddRange(roles.Select(role => new Claim(System.Security.Claims.ClaimTypes.Role, role)));

@@ -259,6 +259,18 @@ export class KyBaoCaoPage {
     this.showCreateDialog = true;
   }
 
+  get canCreate(): boolean {
+    return this.authService.hasPermission('ky_bao_cao:create');
+  }
+
+  get canApprove(): boolean {
+    return this.authService.hasPermission('ky_bao_cao:approve');
+  }
+
+  get canViewProgress(): boolean {
+    return this.authService.hasPermission('tien_do_bao_cao:read');
+  }
+
   closeCreateDialog(): void {
     this.showCreateDialog = false;
   }

@@ -83,6 +83,65 @@
   margin-bottom: 10px;
 }
 
+.tcbc-filters--manager {
+  grid-template-columns: minmax(360px, 1.35fr) minmax(200px, 0.65fr) minmax(300px, 1fr) auto;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: minmax(320px, 1fr) minmax(200px, 0.55fr);
+
+    .tcbc-filter-search { grid-column: 1 / 2; }
+    .tcbc-filter-actions { grid-column: 2 / 3; }
+  }
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+
+    .tcbc-filter-search,
+    .tcbc-filter-actions { grid-column: auto; }
+  }
+}
+
+:host ::ng-deep .tcbc-filters--manager .p-dropdown {
+  width: 100%;
+}
+
+::ng-deep .tcbc-period-panel {
+  width: min(620px, 94vw) !important;
+  min-width: min(520px, 94vw) !important;
+}
+
+::ng-deep .tcbc-period-panel .p-dropdown-filter {
+  width: 100%;
+}
+
+.tcbc-period-option {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+
+  strong,
+  small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  strong { color: var(--app-text-strong); font-size: 0.82rem; }
+  small { color: var(--app-text-muted); font-size: 0.72rem; }
+}
+
+.tcbc-filters--self {
+  grid-template-columns: 220px 1fr;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tcbc-filter-actions--self {
+  margin-top: 10px;
+}
+
 .tcbc-filters-secondary {
   display: grid;
   grid-template-columns: minmax(300px, 1fr) auto;
@@ -118,22 +177,6 @@
   color: #1d4f91;
   font-size: 0.76rem;
   font-weight: 600;
-}
-
-.tcbc-toggle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
-  color: #475569;
-  cursor: pointer;
-  user-select: none;
-
-  input[type="checkbox"] {
-    width: 14px;
-    height: 14px;
-    cursor: pointer;
-  }
 }
 
 .tcbc-don-vi {

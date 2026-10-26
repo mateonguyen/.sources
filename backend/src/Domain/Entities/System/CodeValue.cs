@@ -16,5 +16,11 @@ public sealed class CodeValue : AuditableEntityBase
 
     public bool IsActive { get; set; } = true;
 
+    public long? DonViId { get; set; }
+
+    public long? ReportingValueId { get; set; }
+
+    public bool IsRequired { get; set; }
+
     public Code? Code { get; set; }
 }

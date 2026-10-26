@@ -26,6 +26,7 @@ export interface KyBaoCaoDto {
 export interface KyBaoCaoTienDoDonViDto {
   donViId: number;
   tenDonVi: string;
+  maDonVi?: string;
   trangThai: number;
   kyTrangThai?: number;
   trangThaiDonVi?: number;

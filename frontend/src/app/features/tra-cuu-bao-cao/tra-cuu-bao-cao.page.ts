@@ -9,6 +9,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
+import { AuthService } from '../../core/auth/auth.service';
 import { NotificationService } from '../../core/ui/notification.service';
 import { EmptyStateComponent } from '../../shared/ui/empty-state.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
@@ -50,11 +51,10 @@ export class TraCuuBaoCaoPage implements OnInit, OnDestroy {
   downloadingId: number | null = null;
   allKy: KyBaoCaoDto[] = [];
   selectedKyId: number | null = null;
-  viewMode: 'latest' | 'byKy' = 'latest';
   allSnapshots: SnapshotDto[] = [];
   filterStatus: number | null = null;
   filterText = '';
-  latestOnly = true;
+  filterYear: number | null = null;
   filterTextInput = '';
 
   showBreakdownDialog = false;
@@ -93,17 +93,10 @@ export class TraCuuBaoCaoPage implements OnInit, OnDestroy {
     VAN_BAN_QPPL: 'Văn bản QPPL',
   };
 
-  readonly viewModeOptions = [
-    { label: 'Theo báo cáo gần nhất từng đơn vị', value: 'latest' as const },
-    { label: 'Theo một kỳ báo cáo cụ thể', value: 'byKy' as const },
-  ];
-
   readonly statusOptions = [
     { label: 'Tất cả trạng thái', value: null },
-    { label: 'Bản nháp', value: 1 },
     { label: 'Đã nộp', value: 2 },
     { label: 'Đã khoá', value: 3 },
-    { label: 'Đã thay thế', value: 4 },
   ];
 
   readonly statusMap: Record<number, { label: string; tone: BadgeTone }> = {
@@ -119,10 +112,32 @@ export class TraCuuBaoCaoPage implements OnInit, OnDestroy {
     private readonly notification: NotificationService,
     private readonly router: Router,
     private readonly sanitizer: DomSanitizer,
+    private readonly authService: AuthService,
   ) {}
 
+  /** Đơn vị tự nộp (CAP_TINH/CAP_XA) chỉ bao giờ thấy đúng báo cáo của chính mình — dùng màn lịch sử rút gọn thay vì bộ lọc đa đơn vị/đa kỳ. */
+  get isSelfUnit(): boolean {
+    if (this.authService.hasRole('SYSTEM_ADMIN')) return false;
+    return this.authService.hasRole('CAP_TINH') || this.authService.hasRole('CAP_XA');
+  }
+
   ngOnInit(): void {
-    void this.loadKy();
+    if (this.isSelfUnit) {
+      void this.loadMyHistory();
+    } else {
+      void this.loadKy();
+    }
+  }
+
+  async loadMyHistory(): Promise<void> {
+    this.loading = true;
+    try {
+      this.allSnapshots = await this.snapshotApi.getMyHistory();
+    } catch {
+      this.notification.show('error', 'Không thể tải lịch sử báo cáo.');
+    } finally {
+      this.loading = false;
+    }
   }
 
   ngOnDestroy(): void {
@@ -132,21 +147,20 @@ export class TraCuuBaoCaoPage implements OnInit, OnDestroy {
     }
   }
 
-  get kyOptions(): { label: string; value: number }[] {
-    return this.allKy.map((k) => ({ label: k.tenKy || k.kyCode, value: k.id }));
+  get kyOptions(): { label: string; value: number; code: string }[] {
+    return [...this.allKy]
+      .sort((a, b) => this.kySortKey(b) - this.kySortKey(a))
+      .map((k) => ({ label: k.tenKy || k.kyCode, value: k.id, code: k.kyCode }));
+  }
+
+  /** Mới nhất trước: ưu tiên ngày bắt đầu kỳ, fallback năm+quý/tháng khi thiếu ngày. */
+  private kySortKey(k: KyBaoCaoDto): number {
+    if (k.ngayBatDau) return new Date(k.ngayBatDau).getTime();
+    return k.nam * 100 + (k.quy ?? k.thang ?? 0);
   }
 
   get filteredSnapshots(): SnapshotDto[] {
     let rows = this.allSnapshots;
-
-    if (this.latestOnly) {
-      const seen = new Set<number>();
-      rows = rows.filter((r) => {
-        if (seen.has(r.donViId)) return false;
-        seen.add(r.donViId);
-        return true;
-      });
-    }
 
     if (this.filterStatus !== null) {
       rows = rows.filter((r) => r.trangThai === this.filterStatus);
@@ -162,11 +176,27 @@ export class TraCuuBaoCaoPage implements OnInit, OnDestroy {
       );
     }
 
+    if (this.filterYear !== null) {
+      rows = rows.filter((r) => this.kyYear(r.kyCode) === this.filterYear);
+    }
+
     return rows;
   }
 
   get filteredCountLabel(): string {
     return `${this.filteredSnapshots.length} bản ghi`;
+  }
+
+  /** Danh sách năm có mặt trong lịch sử, mới nhất trước — dùng lọc nhanh khi lịch sử kéo dài nhiều năm. */
+  get yearOptions(): { label: string; value: number }[] {
+    const years = new Set(this.allSnapshots.map((r) => this.kyYear(r.kyCode)).filter((y): y is number => y !== null));
+    return [...years].sort((a, b) => b - a).map((y) => ({ label: `Năm ${y}`, value: y }));
+  }
+
+  /** KyCode luôn bắt đầu bằng 4 chữ số năm (vd 2026Q3_..., 2026_HA_TANG). */
+  private kyYear(kyCode: string): number | null {
+    const match = /^(\d{4})/.exec(kyCode);
+    return match ? Number(match[1]) : null;
   }
 
   statusLabel(trangThai: number): string {
@@ -181,9 +211,9 @@ export class TraCuuBaoCaoPage implements OnInit, OnDestroy {
     this.loading = true;
     try {
       this.allKy = await this.kyBaoCaoApi.getAll();
-      if (this.allKy.length > 0) {
-        const moKy = this.allKy.find((k) => k.trangThai === 2);
-        this.selectedKyId = (moKy ?? this.allKy[0]).id;
+      const nearestPeriod = this.kyOptions[0];
+      if (nearestPeriod) {
+        this.selectedKyId = nearestPeriod.value;
         await this.loadSnapshots();
       }
     } catch {
@@ -196,16 +226,11 @@ export class TraCuuBaoCaoPage implements OnInit, OnDestroy {
   async loadSnapshots(): Promise<void> {
     this.loading = true;
     try {
-      if (this.viewMode === 'latest') {
-        this.allSnapshots = await this.snapshotApi.getLatestByDonVi();
-        this.latestOnly = true;
-      } else {
-        if (!this.selectedKyId) {
-          this.allSnapshots = [];
-          return;
-        }
-        this.allSnapshots = await this.snapshotApi.getByKy(this.selectedKyId);
+      if (!this.selectedKyId) {
+        this.allSnapshots = [];
+        return;
       }
+      this.allSnapshots = await this.snapshotApi.getLatestByDonVi(this.selectedKyId);
     } catch {
       this.notification.show('error', 'Không thể tải danh sách báo cáo.');
     } finally {
@@ -346,7 +371,7 @@ export class TraCuuBaoCaoPage implements OnInit, OnDestroy {
     this.filterStatus = null;
     this.filterText = '';
     this.filterTextInput = '';
-    this.latestOnly = this.viewMode === 'latest';
+    this.filterYear = null;
   }
 
   downloadPreviewPdf(): void {
@@ -402,10 +427,6 @@ export class TraCuuBaoCaoPage implements OnInit, OnDestroy {
   }
 
   onKyChange(): void {
-    void this.loadSnapshots();
-  }
-
-  onViewModeChange(): void {
     void this.loadSnapshots();
   }
 

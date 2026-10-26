@@ -4,6 +4,7 @@ using ThucLuc.Application.Features.Auth;
 using ThucLuc.Application.Features.AtttHtttDauTu;
 using ThucLuc.Application.Features.AtttHtttVanHanh;
 using ThucLuc.Application.Features.BaoCaoSnapshot;
+using ThucLuc.Application.Features.BaoCaoBienDong;
 using ThucLuc.Application.Features.CameraQuanLy;
 using ThucLuc.Application.Features.CameraThucTrang;
 using ThucLuc.Application.Features.Codes;
@@ -43,11 +44,14 @@ public static class DependencyInjection
 
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IDonViService, DonViService>();
+        services.AddScoped<IDonViChangeService, DonViChangeService>();
         services.AddScoped<IDonViInputModeService, DonViInputModeService>();
         services.AddScoped<IRefLoaiThietBiService, RefLoaiThietBiService>();
         services.AddScoped<IKyBaoCaoService, KyBaoCaoService>();
         services.AddScoped<IMauBaoCaoService, MauBaoCaoService>();
         services.AddScoped<IBaoCaoSnapshotService, BaoCaoSnapshotService>();
+        services.AddScoped<IBaoCaoSnapshotMetricService, BaoCaoSnapshotMetricService>();
+        services.AddScoped<IBaoCaoBienDongService, BaoCaoBienDongService>();
         services.AddScoped<IBaoCaoExportService, BaoCaoExportService>();
         services.AddScoped<IYeuCauBoSungService, YeuCauBoSungService>();
         services.AddScoped<IUserService, UserService>();

@@ -25,6 +25,8 @@ describe('LoginPage', () => {
     await fixture.componentInstance.submit();
 
     expect(authServiceSpy.login).toHaveBeenCalled();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/trang-chu'], {
+      replaceUrl: true,
+    });
   });
 });

@@ -57,3 +57,33 @@ public sealed class AssignRolesRequest
 
     public long DonViId { get; set; }
 }
+
+public sealed class TransferUsersRequest
+{
+    public IReadOnlyCollection<TransferUserItem> Items { get; set; } = Array.Empty<TransferUserItem>();
+}
+
+public sealed class TransferUserItem
+{
+    public long UserId { get; set; }
+    public long SourceDonViId { get; set; }
+    public long TargetDonViId { get; set; }
+    public IReadOnlyCollection<long> RoleIds { get; set; } = Array.Empty<long>();
+}
+
+public sealed class TransferUsersPreviewDto
+{
+    public int UserCount { get; set; }
+    public IReadOnlyCollection<string> Errors { get; set; } = Array.Empty<string>();
+    public IReadOnlyCollection<TransferUserPreviewItem> Users { get; set; } = Array.Empty<TransferUserPreviewItem>();
+}
+
+public sealed class TransferUserPreviewItem
+{
+    public long UserId { get; set; }
+    public string HoTen { get; set; } = string.Empty;
+    public long SourceDonViId { get; set; }
+    public long TargetDonViId { get; set; }
+    public IReadOnlyCollection<long> OldRoleIds { get; set; } = Array.Empty<long>();
+    public IReadOnlyCollection<long> NewRoleIds { get; set; } = Array.Empty<long>();
+}

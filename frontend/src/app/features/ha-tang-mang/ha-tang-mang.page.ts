@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { AuthService } from '../../core/auth/auth.service';
-import { DonViApi } from '../don-vi/don-vi.api';
 import { NotificationService } from '../../core/ui/notification.service';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
 import { SectionCardComponent } from '../../shared/ui/section-card.component';
@@ -66,7 +65,6 @@ export class HaTangMangPage {
   constructor(
     private readonly authService: AuthService,
     private readonly haTangMangApi: HaTangMangApi,
-    private readonly donViApi: DonViApi,
     private readonly notificationService: NotificationService,
   ) {
     void this.load();
@@ -78,15 +76,10 @@ export class HaTangMangPage {
 
     this.loading.set(true);
     try {
-      const [items, donVi] = await Promise.all([
+      const [items, childCount] = await Promise.all([
         this.haTangMangApi.getAll(donViId),
-        this.donViApi.getById(donViId),
+        this.haTangMangApi.getDirectChildCount(donViId),
       ]);
-      // GetById cua API khong populate donVi.children (luon rong theo thiet
-      // ke) - "So DV truc thuoc" phai lay tu soDonViCapPhong + soDonViCapXa
-      // (tong hop san co trong DTO), khong duoc dung .children.length.
-      const childCount =
-        (donVi.soDonViCapPhong ?? 0) + (donVi.soDonViCapXa ?? 0);
       this.directChildCount.set(childCount);
       this.row.set(this.buildRow(items[0] ?? null, childCount));
     } finally {

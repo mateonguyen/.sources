@@ -21,16 +21,6 @@
   padding-bottom: 0.6rem;
 }
 
-:host ::ng-deep .codes-card .app-page-header {
-  align-items: center;
-  margin-bottom: 0.4rem;
-}
-
-:host ::ng-deep .codes-card .app-page-title {
-  font-size: 1.55rem;
-  margin: 0;
-}
-
 // app-category-upsert-dialog / app-code-value-dialog la con truc tiep cua
 // vung flex (p-card-content) - du dong (visible=false) van la 1 flex-item
 // nen van chiem cho/gay khoang trang thua. display:contents de chung
@@ -533,5 +523,79 @@
 
   .values-toolbar__add-btn {
     width: 100%;
+  }
+}
+
+.catalog-scope-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0.75rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-md);
+  background: var(--app-surface-soft);
+}
+
+.catalog-scope-bar__label {
+  display: grid;
+  gap: 0.15rem;
+
+  span {
+    color: var(--app-primary-900);
+    font-size: 0.82rem;
+    font-weight: 750;
+    text-transform: uppercase;
+  }
+
+  small {
+    color: var(--app-text-muted);
+    font-size: 0.78rem;
+  }
+}
+
+.catalog-scope-switch {
+  display: inline-flex;
+  padding: 0.2rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.55rem;
+  background: #fff;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 34px;
+    padding: 0.4rem 0.75rem;
+    border: 0;
+    border-radius: 0.4rem;
+    background: transparent;
+    color: var(--app-text-muted);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 650;
+    cursor: pointer;
+  }
+
+  button.is-active {
+    background: var(--app-primary-700);
+    color: #fff;
+  }
+}
+
+@media (max-width: 820px) {
+  .catalog-scope-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .catalog-scope-switch,
+  .catalog-scope-switch button {
+    width: 100%;
+  }
+
+  .catalog-scope-switch button {
+    justify-content: center;
   }
 }

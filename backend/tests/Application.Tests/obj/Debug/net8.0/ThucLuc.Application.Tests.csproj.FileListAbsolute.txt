@@ -148,3 +148,13 @@ D:\Projects\ThucLuc_V2\.sources\.tmp\verify-attt-dau-tu\bin\Debug\net8.0\ThucLuc
 D:\Projects\ThucLuc_V2\.sources\.tmp\verify-attt-dau-tu\bin\Debug\net8.0\ThucLuc.Application.Tests.runtimeconfig.json
 D:\Projects\ThucLuc_V2\.sources\.tmp\verify-attt-dau-tu\bin\Debug\net8.0\ThucLuc.Application.Tests.dll
 D:\Projects\ThucLuc_V2\.sources\.tmp\verify-attt-dau-tu\bin\Debug\net8.0\ThucLuc.Application.Tests.pdb
+D:\Projects\ThucLuc_V2\.sources\.build-validation\bien-dong-tests\CoverletSourceRootsMapping_ThucLuc.Application.Tests
+D:\Projects\ThucLuc_V2\.sources\.build-validation\bien-dong-tests\testhost.dll
+D:\Projects\ThucLuc_V2\.sources\.build-validation\bien-dong-tests\testhost.exe
+D:\Projects\ThucLuc_V2\.sources\.build-validation\bien-dong-tests\xunit.runner.visualstudio.dotnetcore.testadapter.dll
+D:\Projects\ThucLuc_V2\.sources\.build-validation\bien-dong-tests\xunit.runner.reporters.netcoreapp10.dll
+D:\Projects\ThucLuc_V2\.sources\.build-validation\bien-dong-tests\xunit.runner.utility.netcoreapp10.dll
+D:\Projects\ThucLuc_V2\.sources\.build-validation\bien-dong-tests\ThucLuc.Application.Tests.deps.json
+D:\Projects\ThucLuc_V2\.sources\.build-validation\bien-dong-tests\ThucLuc.Application.Tests.runtimeconfig.json
+D:\Projects\ThucLuc_V2\.sources\.build-validation\bien-dong-tests\ThucLuc.Application.Tests.dll
+D:\Projects\ThucLuc_V2\.sources\.build-validation\bien-dong-tests\ThucLuc.Application.Tests.pdb

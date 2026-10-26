@@ -37,7 +37,7 @@ public sealed class RolesController : ControllerBase
     }
 
     [HttpPut("{id:long}/permissions")]
-    [HasPermission(Permissions.Roles.Update)]
+    [HasPermission(Permissions.PhanQuyen.Update)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<object>>> UpdatePermissions(long id, [FromBody] UpdateRolePermissionsRequest request, CancellationToken cancellationToken)
     {

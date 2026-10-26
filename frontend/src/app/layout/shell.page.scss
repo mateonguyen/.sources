@@ -83,32 +83,14 @@
   z-index: 1200;
 }
 
+// Cuon that su duoc quan ly boi OverlayScrollbars (xem shell.page.ts) - scrollbar
+// dang overlay, an mac dinh, chi hien mo khi di chuot/cuon vao. Khong tu dat
+// overflow/scrollbar o day nua de tranh xung dot voi thu vien.
 .sidebar-menu {
   flex: 1 1 auto;
   min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
   padding: 0.1rem 0.1rem 0.15rem 0;
   margin-top: 0.5rem;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(40, 58, 78, 0.20) transparent;
-}
-
-.sidebar-menu::-webkit-scrollbar {
-  width: 7px;
-}
-
-.sidebar-menu::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.sidebar-menu::-webkit-scrollbar-thumb {
-  background: rgba(40, 58, 78, 0.22);
-  border-radius: var(--app-radius);
-}
-
-.sidebar-menu:hover::-webkit-scrollbar-thumb {
-  background: rgba(40, 58, 78, 0.36);
 }
 
 .sidebar-menu-search {
@@ -186,6 +168,7 @@
   display: grid;
   gap: 0.52rem;
 }
+
 
 .nav-group {
   display: grid;
@@ -527,8 +510,12 @@
   margin: 0.25rem 0.4rem;
 }
 
+// Cuon that su duoc quan ly boi OverlayScrollbars (xem shell.page.ts) - scrollbar
+// dang overlay, an mac dinh, chi hien mo khi di chuot/cuon vao. Khong tu dat
+// overflow/scrollbar o day nua de tranh xung dot voi thu vien.
 .content {
-  padding: 0 0 1.2rem;
+  height: calc(100vh - (var(--shell-gap) * 2));
+  min-height: 0;
 }
 
 @media (max-width: 980px) {
@@ -550,5 +537,12 @@
 
   .sidebar-menu {
     max-height: 50vh;
+  }
+
+  // Duoi breakpoint nay sidebar tro lai position:static (cuon cung trang) nen
+  // content cung phai tro lai cuon tu nhien, khong con bi ep khop 100vh.
+  .content {
+    height: auto;
+    overflow: visible;
   }
 }

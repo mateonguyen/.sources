@@ -1,10 +1,13 @@
 <app-section-card
-  title="Quản lý loại thiết bị"
-  subtitle="Cây danh mục không giới hạn số cấp - thêm loại con ở bất kỳ nhóm nào."
+  title="Loại thiết bị CNTT"
+  [subtitle]="catalogScope === 'standard'
+    ? 'Cây danh mục chuẩn dùng chung trong toàn hệ thống.'
+    : 'Điều chỉnh loại thiết bị áp dụng tại đơn vị gắn với tài khoản đăng nhập.'"
   styleClass="ref-loai-card"
 >
-  <div sectionActions>
+  <div *ngIf="catalogScope === 'standard'" sectionActions>
     <button
+      *ngIf="canCreateCatalog"
       pButton
       type="button"
       icon="pi pi-plus"
@@ -15,6 +18,33 @@
     ></button>
   </div>
 
+  <div class="catalog-scope-bar" *ngIf="canManageStandard || canCustomizeUnit">
+    <div class="catalog-scope-bar__label">
+      <span>Phạm vi cấu hình</span>
+      <small>Phạm vi đơn vị được xác định theo đơn vị gắn với tài khoản đăng nhập.</small>
+    </div>
+    <div class="catalog-scope-switch" role="tablist" aria-label="Phạm vi cấu hình loại thiết bị">
+      <button
+        *ngIf="canManageStandard"
+        type="button"
+        [class.is-active]="catalogScope === 'standard'"
+        (click)="setCatalogScope('standard')"
+      >
+        <i class="pi pi-globe"></i> Chuẩn toàn hệ thống
+      </button>
+      <button
+        *ngIf="canCustomizeUnit"
+        type="button"
+        [class.is-active]="catalogScope === 'unit'"
+        (click)="setCatalogScope('unit')"
+      >
+        <i class="pi pi-building"></i> Áp dụng tại đơn vị đăng nhập
+      </button>
+    </div>
+  </div>
+
+  <ng-container *ngIf="catalogScope === 'standard'; else unitCatalogScope">
+
   <div class="ref-loai-shell">
     <app-loading-overlay
       [active]="loading"
@@ -22,17 +52,17 @@
     ></app-loading-overlay>
 
     <app-empty-state
-      *ngIf="!loading && data.length === 0"
+      *ngIf="!loading && treeNodes.length === 0"
       title="Chưa có loại thiết bị"
       message="Tạo nhóm gốc đầu tiên để bắt đầu quản lý cây danh mục loại thiết bị."
       icon="pi-sitemap"
-      actionLabel="Thêm nhóm gốc"
+      [actionLabel]="canCreateCatalog ? 'Thêm nhóm gốc' : ''"
       actionIcon="pi pi-plus"
       actionSeverity="primary"
       (action)="openCreateRootDialog()"
     ></app-empty-state>
 
-    <section class="ref-loai-tree-panel" *ngIf="!loading && data.length > 0">
+    <section class="ref-loai-tree-panel" *ngIf="!loading && treeNodes.length > 0">
       <p-treeTable
         [value]="treeNodes"
         styleClass="p-datatable-sm app-admin-table app-ref-loai-treetable"
@@ -51,7 +81,7 @@
         </ng-template>
 
         <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
-          <tr [ttRow]="rowNode">
+          <tr [ttRow]="rowNode" [class.unit-proposal-table-row]="!!rowData.proposal">
             <td class="col-name">
               <div class="tt-name-cell">
                 <div
@@ -66,10 +96,16 @@
                   ></span>
                 </div>
                 <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
-                <span class="tt-name">{{ rowData.tenLoai }}</span>
+                <span class="tt-name-block">
+                  <span class="tt-name">{{ rowData.tenLoai }}</span>
+                  <small *ngIf="rowData.proposal as proposal">
+                    {{ proposal.tenDonVi }} · {{ proposal.soBanGhiSuDung }} bản ghi sử dụng
+                  </small>
+                </span>
+                <span class="proposal-badge" *ngIf="rowData.proposal">Đơn vị bổ sung</span>
               </div>
             </td>
-            <td class="col-code">{{ rowData.maLoai }}</td>
+            <td class="col-code">{{ rowData.proposal ? '—' : rowData.maLoai }}</td>
             <td class="col-tonghop">
               <i
                 class="pi"
@@ -80,10 +116,12 @@
               ></i>
             </td>
             <td class="col-order">
-              <div class="order-cell">
+              <span *ngIf="rowData.proposal">—</span>
+              <div class="order-cell" *ngIf="!rowData.proposal">
                 <span class="order-cell__value">{{ rowData.sortOrder }}</span>
                 <div class="order-cell__btns">
                   <button
+                    *ngIf="canUpdateCatalog"
                     type="button"
                     class="action-btn action-btn--reorder"
                     pTooltip="Đưa lên trên"
@@ -92,6 +130,7 @@
                     (click)="moveNodeUp(rowData)"
                   ><i class="pi pi-arrow-up"></i></button>
                   <button
+                    *ngIf="canUpdateCatalog"
                     type="button"
                     class="action-btn action-btn--reorder"
                     pTooltip="Đưa xuống dưới"
@@ -103,13 +142,38 @@
               </div>
             </td>
             <td class="col-status">
-              <span [class]="'status-badge ' + (rowData.isActive ? 'status-badge--dang-mo' : 'status-badge--da-dong')">
+              <span class="proposal-status" *ngIf="rowData.proposal">Chờ xử lý</span>
+              <span *ngIf="!rowData.proposal" [class]="'status-badge ' + (rowData.isActive ? 'status-badge--dang-mo' : 'status-badge--da-dong')">
                 {{ rowData.isActive ? 'Hoạt động' : 'Ngừng' }}
               </span>
             </td>
             <td class="col-actions">
+              <div class="proposal-inline-actions" *ngIf="rowData.proposal as proposal; else standardActions">
+                <button
+                  *ngIf="canUpdateCatalog"
+                  pButton
+                  type="button"
+                  label="Hợp nhất"
+                  icon="pi pi-link"
+                  class="p-button-outlined p-button-sm"
+                  [disabled]="proposal.coLoaiCon"
+                  [pTooltip]="proposal.coLoaiCon ? 'Xử lý các loại con trước khi hợp nhất' : 'Chuyển dữ liệu vào một loại chuẩn đã có'"
+                  (click)="openMergeProposal(proposal)"
+                ></button>
+                <button
+                  *ngIf="canUpdateCatalog"
+                  pButton
+                  type="button"
+                  label="Duyệt chuẩn"
+                  icon="pi pi-check"
+                  class="p-button-sm"
+                  (click)="openPromoteProposal(proposal)"
+                ></button>
+              </div>
+              <ng-template #standardActions>
               <div class="action-btns">
                 <button
+                  *ngIf="canCreateCatalog"
                   type="button"
                   class="action-btn action-btn--add"
                   pTooltip="Thêm loại con"
@@ -117,6 +181,7 @@
                   (click)="openCreateChildDialog(rowData)"
                 ><i class="pi pi-plus"></i></button>
                 <button
+                  *ngIf="canUpdateCatalog"
                   type="button"
                   class="action-btn action-btn--edit"
                   pTooltip="Chỉnh sửa"
@@ -124,6 +189,7 @@
                   (click)="openEditDialog(rowData)"
                 ><i class="pi pi-pencil"></i></button>
                 <button
+                  *ngIf="canDeleteCatalog"
                   type="button"
                   class="action-btn action-btn--delete"
                   pTooltip="Vô hiệu hóa"
@@ -131,6 +197,7 @@
                   (click)="deleteNode(rowData)"
                 ><i class="pi pi-trash"></i></button>
               </div>
+              </ng-template>
             </td>
           </tr>
         </ng-template>
@@ -244,6 +311,18 @@
               </span>
             </label>
           </div>
+
+          <div class="app-form-field app-form-field--full">
+            <label class="app-form-field__checkbox">
+              <p-checkbox formControlName="isRequired" [binary]="true"></p-checkbox>
+              <span class="app-form-field__checkbox-text">
+                Bắt buộc áp dụng
+                <small class="app-form-field__checkbox-hint">
+                  Đơn vị không được ẩn loại này khỏi danh mục sử dụng.
+                </small>
+              </span>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -268,4 +347,111 @@
       </div>
     </form>
   </p-dialog>
+
+  <p-dialog
+    [visible]="standardizeDialogVisible"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="false"
+    [style]="{ width: 'min(680px, 96vw)' }"
+    styleClass="app-ref-loai-dialog standardize-dialog"
+    appendTo="body"
+  >
+    <ng-template pTemplate="header">
+      <div class="app-ref-loai-dialog__header app-dialog-header">
+        <span class="app-dialog-title">
+          <i [class]="standardizeMode === 'merge' ? 'pi pi-link' : 'pi pi-check-circle'"></i>
+          {{ standardizeMode === 'merge' ? 'Hợp nhất với loại chuẩn' : 'Duyệt thành loại chuẩn mới' }}
+        </span>
+        <button type="button" class="app-dialog-close" aria-label="Đóng" (click)="closeStandardizeDialog()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+    </ng-template>
+
+    <div class="standardize-dialog__body" *ngIf="standardizeItem">
+      <div class="standardize-source">
+        <span>Mục đơn vị bổ sung</span>
+        <strong>{{ standardizeItem.tenLoai }}</strong>
+        <small>{{ standardizeItem.tenDonVi }} · {{ standardizeItem.soBanGhiSuDung }} bản ghi sử dụng</small>
+      </div>
+
+      <div class="standardize-field" *ngIf="standardizeMode === 'merge'">
+        <label>Chọn loại thiết bị chuẩn nhận dữ liệu <span>*</span></label>
+        <div class="merge-tree-picker">
+          <div class="merge-tree-picker__search">
+            <i class="pi pi-search"></i>
+            <input
+              type="text"
+              [(ngModel)]="mergeSearch"
+              placeholder="Tìm theo tên nhóm hoặc loại thiết bị..."
+              aria-label="Tìm loại thiết bị chuẩn"
+            />
+            <button
+              *ngIf="mergeSearch"
+              type="button"
+              aria-label="Xóa nội dung tìm kiếm"
+              (click)="mergeSearch = ''"
+            ><i class="pi pi-times"></i></button>
+          </div>
+
+          <div class="merge-tree-picker__list" role="listbox" aria-label="Cây loại thiết bị chuẩn">
+            <button
+              *ngFor="let row of filteredStandardMergeRows"
+              type="button"
+              class="merge-tree-picker__row"
+              [class.is-group]="!row.selectable"
+              [class.is-selected]="targetStandardId === row.id"
+              [disabled]="!row.selectable"
+              [style.padding-left.px]="12 + row.depth * 18"
+              [attr.aria-selected]="row.selectable ? targetStandardId === row.id : null"
+              (click)="selectStandardTarget(row)"
+            >
+              <i [class]="row.selectable ? 'pi pi-desktop' : 'pi pi-folder'"></i>
+              <span>
+                <strong>{{ row.label }}</strong>
+                <small *ngIf="mergeSearch && row.depth > 0">{{ row.path }}</small>
+              </span>
+              <i class="pi pi-check merge-tree-picker__check" *ngIf="targetStandardId === row.id"></i>
+            </button>
+
+            <div class="merge-tree-picker__empty" *ngIf="filteredStandardMergeRows.length === 0">
+              Không tìm thấy loại thiết bị phù hợp.
+            </div>
+          </div>
+        </div>
+        <small>Toàn bộ dữ liệu đang dùng mục bổ sung sẽ được chuyển sang loại chuẩn đã chọn.</small>
+      </div>
+
+      <div class="standardize-field" *ngIf="standardizeMode === 'promote'">
+        <label for="newStandardCode">Mã loại chuẩn mới <span>*</span></label>
+        <input
+          id="newStandardCode"
+          pInputText
+          [(ngModel)]="newStandardCode"
+          maxlength="50"
+          placeholder="Ví dụ: TB_THIET_BI_CHUYEN_DUNG"
+        />
+        <small>Mục này sẽ trở thành loại chuẩn và xuất hiện cho tất cả đơn vị.</small>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button pButton type="button" label="Hủy" class="p-button-outlined p-button-secondary" (click)="closeStandardizeDialog()"></button>
+      <button
+        pButton
+        type="button"
+        [icon]="standardizeMode === 'merge' ? 'pi pi-link' : 'pi pi-check'"
+        [label]="standardizeMode === 'merge' ? 'Xác nhận hợp nhất' : 'Duyệt vào chuẩn'"
+        [loading]="saving"
+        (click)="submitStandardize()"
+      ></button>
+    </ng-template>
+  </p-dialog>
+  </ng-container>
+
+  <ng-template #unitCatalogScope>
+    <app-unit-catalog-page catalogType="device"></app-unit-catalog-page>
+  </ng-template>
 </app-section-card>

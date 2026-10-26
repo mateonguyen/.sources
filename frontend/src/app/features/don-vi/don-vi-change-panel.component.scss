@@ -1,0 +1,22 @@
+.change-panel { margin-top: 1rem; padding: 1rem; border: 1px solid var(--app-border); border-radius: 8px; background: var(--app-surface); }
+.change-panel__head h2 { margin: 0; font-size: 1rem; color: var(--app-text-strong); }
+.change-panel__head p, .change-hint { margin: 0.3rem 0 0; font-size: 0.78rem; color: var(--app-text-muted); }
+.change-tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; border-bottom: 1px solid var(--app-border); margin: 0.9rem 0; padding-bottom: 0.55rem; }
+.change-tabs button { border: 1px solid var(--app-border); border-radius: 6px; background: #fff; color: var(--app-text); padding: 0.45rem 0.7rem; cursor: pointer; font: inherit; font-size: 0.8rem; }
+.change-tabs button.active { background: var(--app-primary-500); color: #fff; border-color: var(--app-primary-500); }
+.change-form { display: grid; gap: 0.85rem; }
+.change-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; }
+.change-form label { display: grid; gap: 0.3rem; min-width: 0; font-size: 0.78rem; font-weight: 650; color: var(--app-text-strong); }
+:host ::ng-deep .change-form .p-dropdown, :host ::ng-deep .change-form .p-multiselect { width: 100%; }
+.change-note input { width: 100%; border: 1px solid var(--app-border); border-radius: 6px; padding: 0.55rem; font: inherit; }
+.change-form h3, .change-history h3 { margin: 0.5rem 0 0; font-size: 0.82rem; }
+.change-row { display: grid; grid-template-columns: 24px minmax(150px, 1fr) minmax(220px, 1fr); gap: 0.6rem; align-items: center; font-size: 0.8rem; }
+.change-row--user { grid-template-columns: 24px minmax(150px, 1fr) minmax(200px, 1fr) minmax(160px, 1fr); }
+.change-check { display: flex !important; flex-direction: row; align-items: center; }
+.change-actions { display: flex; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; }
+.change-preview { margin-top: 0.85rem; padding: 0.75rem; background: #f2f7fb; border: 1px solid var(--app-border); border-radius: 6px; font-size: 0.8rem; }
+.change-preview strong { margin-right: 0.4rem; }
+.change-preview ul { color: #9a2b39; margin: 0.5rem 0 0; padding-left: 1.2rem; }
+.change-error { color: #9a2b39; font-size: 0.8rem; }
+.change-history { display: grid; gap: 0.35rem; font-size: 0.8rem; }
+@media (max-width: 800px) { .change-fields, .change-row, .change-row--user { grid-template-columns: 1fr; } }

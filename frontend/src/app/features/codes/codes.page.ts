@@ -19,6 +19,8 @@ import { EmptyStateComponent } from '../../shared/ui/empty-state.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
 import { SectionCardComponent } from '../../shared/ui/section-card.component';
 import { NotificationService } from '../../core/ui/notification.service';
+import { AuthService } from '../../core/auth/auth.service';
+import { UnitCatalogPage } from '../unit-catalog/unit-catalog.page';
 import {
   CategoryUpsertDialogComponent,
   CategoryUpsertDialogMode,
@@ -56,11 +58,13 @@ interface CategorySelectorItem {
     TagModule,
     CategoryUpsertDialogComponent,
     CodeValueDialogComponent,
+    UnitCatalogPage,
   ],
   templateUrl: './codes.page.html',
   styleUrl: './codes.page.scss',
 })
 export class CodesPage {
+  catalogScope: 'standard' | 'unit' = 'standard';
   data: CodeDto[] = [];
   selectedCode: CodeDto | null = null;
 
@@ -86,10 +90,47 @@ export class CodesPage {
 
   constructor(
     private readonly codesApi: CodesApi,
+    private readonly authService: AuthService,
     private readonly notificationService: NotificationService,
     private readonly confirmDialog: ConfirmDialogWrapperService,
   ) {
-    this.load();
+    this.catalogScope = this.canManageStandard ? 'standard' : 'unit';
+    if (this.catalogScope === 'standard') {
+      void this.load();
+    }
+  }
+
+  get canManageStandard(): boolean {
+    return (
+      (this.authService.hasRole('SYSTEM_ADMIN') ||
+        this.authService.hasRole('QUAN_LY')) &&
+      this.authService.hasPermission('codes:read')
+    );
+  }
+
+  get canCustomizeUnit(): boolean {
+    return this.authService.hasPermission('codes:read');
+  }
+
+  get canCreateCatalog(): boolean {
+    return this.authService.hasPermission('codes:create');
+  }
+
+  get canUpdateCatalog(): boolean {
+    return this.authService.hasPermission('codes:update');
+  }
+
+  get canDeleteCatalog(): boolean {
+    return this.authService.hasPermission('codes:delete');
+  }
+
+  setCatalogScope(scope: 'standard' | 'unit'): void {
+    if (scope === 'standard' && !this.canManageStandard) return;
+    if (scope === 'unit' && !this.canCustomizeUnit) return;
+    this.catalogScope = scope;
+    if (scope === 'standard' && this.data.length === 0) {
+      void this.load();
+    }
   }
 
   private buildCategorySelectorOptions(): CategorySelectorItem[] {
@@ -212,6 +253,7 @@ export class CodesPage {
       description: '',
       sortOrder: this.data.length + 1,
       isActive: true,
+      allowUnitCustomization: false,
     };
     this.categoryDialogVisible = true;
   }
@@ -233,6 +275,8 @@ export class CodesPage {
       description: this.selectedCode.description ?? '',
       sortOrder: this.selectedCode.sortOrder,
       isActive: this.selectedCode.isActive,
+      allowUnitCustomization:
+        this.selectedCode.allowUnitCustomization ?? false,
     };
     this.categoryDialogVisible = true;
   }
@@ -256,6 +300,7 @@ export class CodesPage {
         description: payload.description ?? undefined,
         sortOrder: payload.sortOrder,
         isActive: payload.isActive,
+        allowUnitCustomization: payload.allowUnitCustomization,
       };
 
       let selectedId: number;
@@ -346,6 +391,7 @@ export class CodesPage {
       description: '',
       sortOrder: 0,
       isActive: true,
+      isRequired: false,
     };
     this.valueDialogVisible = true;
   }
@@ -359,6 +405,7 @@ export class CodesPage {
       description: item.description ?? '',
       sortOrder: item.sortOrder,
       isActive: item.isActive,
+      isRequired: item.isRequired ?? false,
     };
     this.valueDialogVisible = true;
   }
@@ -520,6 +567,7 @@ export class CodesPage {
       description: payload.description ?? undefined,
       sortOrder,
       isActive: payload.isActive,
+      isRequired: payload.isRequired,
     };
   }
 

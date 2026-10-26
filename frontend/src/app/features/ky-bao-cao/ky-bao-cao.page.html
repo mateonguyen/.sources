@@ -5,6 +5,7 @@
 >
   <div sectionActions class="flex gap-2">
     <button
+      *ngIf="canCreate"
       pButton
       type="button"
       icon="pi pi-plus"
@@ -119,8 +120,8 @@
       title="Chưa có kỳ báo cáo nào"
       message="Bấm 'Tạo kỳ mới' để tạo kỳ báo cáo đầu tiên."
       icon="pi-calendar"
-      actionLabel="Tạo kỳ mới"
-      actionIcon="pi pi-plus"
+      [actionLabel]="canCreate ? 'Tạo kỳ mới' : ''"
+      [actionIcon]="canCreate ? 'pi pi-plus' : ''"
       (action)="openCreateDialog()"
     ></app-empty-state>
 
@@ -199,7 +200,7 @@
               <div class="action-btns">
                 <!-- Mở kỳ: ChuanBi → DangMo -->
                 <button
-                  *ngIf="item.trangThai === 1"
+                  *ngIf="canApprove && item.trangThai === 1"
                   type="button"
                   class="action-btn action-btn--stats"
                   pTooltip="Mở kỳ"
@@ -211,7 +212,7 @@
 
                 <!-- Đóng kỳ: DangMo → DaDong -->
                 <button
-                  *ngIf="item.trangThai === 2"
+                  *ngIf="canApprove && item.trangThai === 2"
                   type="button"
                   class="action-btn action-btn--lock"
                   pTooltip="Đóng kỳ"
@@ -223,7 +224,7 @@
 
                 <!-- Mở lại: DaDong → DangMo -->
                 <button
-                  *ngIf="item.trangThai === 3"
+                  *ngIf="canApprove && item.trangThai === 3"
                   type="button"
                   class="action-btn action-btn--stats"
                   pTooltip="Mở lại kỳ"
@@ -235,7 +236,7 @@
 
                 <!-- Khóa kỳ: chỉ DaDong → Khoa (không cho ChuanBi) -->
                 <button
-                  *ngIf="item.trangThai === 3"
+                  *ngIf="canApprove && item.trangThai === 3"
                   type="button"
                   class="action-btn action-btn--delete"
                   pTooltip="Khóa kỳ (không thể mở lại)"
@@ -270,6 +271,7 @@
                 </button>
 
                 <a
+                  *ngIf="canViewProgress"
                   class="action-btn action-btn--stats"
                   pTooltip="Xem tiến độ nộp"
                   tooltipPosition="top"

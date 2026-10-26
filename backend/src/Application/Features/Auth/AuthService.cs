@@ -62,14 +62,14 @@ public sealed class AuthService : IAuthService
 
         var roles = await (from assignment in _dbContext.UserRoleAssignments
                            join role in _dbContext.Roles on assignment.RoleId equals role.Id
-                           where assignment.UserId == user.Id
+                           where assignment.UserId == user.Id && assignment.DonViId == user.DonViId
                            select role.Name ?? string.Empty)
             .ToListAsync(cancellationToken);
 
         var permissions = await (from assignment in _dbContext.UserRoleAssignments
                                  join rolePermission in _dbContext.RolePermissions on assignment.RoleId equals rolePermission.RoleId
                                  join permission in _dbContext.Permissions on rolePermission.PermissionId equals permission.Id
-                                 where assignment.UserId == user.Id
+                                 where assignment.UserId == user.Id && assignment.DonViId == user.DonViId
                                  select permission.PermCode)
             .Distinct()
             .ToListAsync(cancellationToken);

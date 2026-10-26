@@ -5,7 +5,7 @@
 >
   <button
     sectionActions
-    *ngIf="module === 'users'"
+    *ngIf="module === 'users' && canCreateUsers"
     pButton
     type="button"
     label="Thêm người dùng"
@@ -15,7 +15,7 @@
   ></button>
   <button
     sectionActions
-    *ngIf="module === 'roles'"
+    *ngIf="module === 'roles' && canCreateRoles"
     pButton
     type="button"
     label="Thêm vai trò"
@@ -37,6 +37,7 @@
       (click)="onRefreshPermissionManagement()"
     ></button>
     <button
+      *ngIf="canUpdateAssignments"
       pButton
       type="button"
       label="Lưu phân quyền"
@@ -160,7 +161,7 @@
               <th class="col-fullname">Họ tên</th>
               <th class="col-unit">Đơn vị</th>
               <th class="col-status">Trạng thái</th>
-              <th class="col-actions">Thao tác</th>
+              <th *ngIf="canUseUserActions" class="col-actions">Thao tác</th>
             </tr>
           </ng-template>
 
@@ -200,9 +201,10 @@
               </td>
 
               <!-- Actions -->
-              <td class="col-actions">
+              <td *ngIf="canUseUserActions" class="col-actions">
                 <div class="action-btns">
                   <button
+                    *ngIf="canUpdateUsers"
                     type="button"
                     class="action-btn action-btn--edit"
                     pTooltip="Chỉnh sửa"
@@ -213,6 +215,7 @@
                     <i class="pi pi-pencil"></i>
                   </button>
                   <button
+                    *ngIf="canUpdateUsers"
                     type="button"
                     class="action-btn action-btn--copy"
                     pTooltip="Đặt lại mật khẩu"
@@ -223,6 +226,7 @@
                     <i class="pi pi-key"></i>
                   </button>
                   <button
+                    *ngIf="canUpdateUsers"
                     type="button"
                     class="action-btn action-btn--delete"
                     pTooltip="Ngừng hoạt động"
@@ -272,6 +276,7 @@
         [submitting]="userDialogSubmitting"
         [donViOptions]="userDonViOptions"
         [roleOptions]="userRoleOptions"
+        [canAssignRoles]="canUpdateAssignments"
         [initialData]="userDialogInitialData"
         (visibleChange)="onUserDialogVisibleChange($event)"
         (save)="onUserDialogSave($event)"
@@ -369,7 +374,7 @@
               <th class="col-role-type">Loại vai trò</th>
               <th class="col-role-status">Trạng thái</th>
               <th class="col-role-desc">Mô tả</th>
-              <th class="col-role-actions">Thao tác</th>
+              <th *ngIf="canUseRoleActions" class="col-role-actions">Thao tác</th>
             </tr>
           </ng-template>
 
@@ -413,9 +418,10 @@
                   {{ resolveRoleDescription(item) }}
                 </span>
               </td>
-              <td class="col-role-actions">
+              <td *ngIf="canUseRoleActions" class="col-role-actions">
                 <div class="action-btns">
                   <button
+                    *ngIf="canUpdateRoles"
                     type="button"
                     class="action-btn action-btn--edit"
                     (click)="onEditRole(item)"
@@ -427,6 +433,7 @@
                     <i class="pi pi-pencil"></i>
                   </button>
                   <button
+                    *ngIf="canReadAssignments"
                     type="button"
                     class="action-btn action-btn--view"
                     (click)="goToRolePermissions(item)"
@@ -437,6 +444,7 @@
                     <i class="pi pi-shield"></i>
                   </button>
                   <button
+                    *ngIf="canUpdateRoles"
                     type="button"
                     class="action-btn action-btn--delete"
                     (click)="onDeleteRole(item)"
@@ -840,7 +848,7 @@
                           [binary]="true"
                           [ngModel]="isRowChecked(row)"
                           [indeterminate]="isRowIndeterminate(row)"
-                          [disabled]="isPermissionMatrixReadOnly"
+                          [disabled]="isPermissionMatrixReadOnly || isPermissionRowLocked(row)"
                           (click)="$event.stopPropagation()"
                           (onChange)="onPermissionRowToggle(row, $event.checked)"
                         ></p-checkbox>
@@ -853,10 +861,11 @@
                       *ngFor="let actionColumn of permissionActionColumns"
                       class="matrix-cell"
                       [class.matrix-cell-disabled]="!isActionAllowed(row, actionColumn.key)"
-                      [class.matrix-cell-clickable]="isActionAllowed(row, actionColumn.key) && !isPermissionMatrixReadOnly"
+                      [class.matrix-cell-clickable]="isActionAllowed(row, actionColumn.key) && !isPermissionMatrixReadOnly && !isPermissionCellLocked(row, actionColumn.key)"
                       (click)="
                         isActionAllowed(row, actionColumn.key) &&
                           !isPermissionMatrixReadOnly &&
+                          !isPermissionCellLocked(row, actionColumn.key) &&
                           onPermissionActionCellToggle(
                             row,
                             actionColumn.key,
@@ -871,7 +880,7 @@
                           class="matrix-checkbox"
                           [binary]="true"
                           [ngModel]="isActionSelected(row, actionColumn.key)"
-                          [disabled]="isPermissionMatrixReadOnly"
+                          [disabled]="isPermissionMatrixReadOnly || isPermissionCellLocked(row, actionColumn.key)"
                           (click)="$event.stopPropagation()"
                           (onChange)="onPermissionActionCellToggle(row, actionColumn.key, $event.checked)"
                           [pTooltip]="getRowCell(row, actionColumn.key)?.permCode || ''"

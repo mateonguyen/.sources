@@ -35,14 +35,14 @@ describe('AuthService', () => {
     const loginPromise = service.login('admin', 'Admin@123');
 
     const request = httpMock.expectOne(
-      '/api/v1/auth/login',
+      '/api/v1/auth/login?rememberMe=false',
     );
     request.flush({
       success: true,
       data: {
         accessToken: 'token-1',
         refreshToken: 'refresh-1',
-        expiresAt: '2026-01-01T07:00:00',
+        expiresAt: '2099-01-01T07:00:00',
         user: {
           userId: 1,
           username: 'admin',
@@ -59,16 +59,46 @@ describe('AuthService', () => {
     expect(service.profile()?.username).toBe('admin');
   });
 
-  it('clears local state on logout', () => {
+  it('clears local state on logout', async () => {
     localStorage.setItem('thuc_luc_access_token', 'token-2');
     localStorage.setItem(
       'thuc_luc_user_profile',
       JSON.stringify({ username: 'u', permissions: [] }),
     );
 
-    service.logout();
+    const logoutPromise = service.logout();
+    const request = httpMock.expectOne('/api/v1/auth/logout');
+    request.flush({ success: true, data: { message: 'OK' } });
+    await logoutPromise;
 
     expect(service.token()).toBeNull();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
+  });
+
+  it('honors an explicitly assigned business permission regardless of role name', () => {
+    service.profile.set({
+      userId: 2,
+      username: 'manager',
+      hoTen: 'Manager',
+      donViId: 2001,
+      roles: ['QUAN_LY'],
+      permissions: ['nhan_luc_cntt:read'],
+    });
+
+    expect(service.hasPermission('nhan_luc_cntt:read')).toBeTrue();
+    expect(service.hasPermission('nhan_luc_cntt:update')).toBeFalse();
+  });
+
+  it('does not let system admin bypass the reporting analytics permission', () => {
+    service.profile.set({
+      userId: 1,
+      username: 'admin',
+      hoTen: 'Admin',
+      donViId: 2001,
+      roles: ['SYSTEM_ADMIN'],
+      permissions: ['system:admin'],
+    });
+
+    expect(service.hasPermission('bien_dong_bao_cao:read')).toBeFalse();
   });
 });

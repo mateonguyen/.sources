@@ -6,6 +6,7 @@ using FluentValidation;
 using ThucLuc.Application.Common.Contracts;
 using ThucLuc.Application.Common.Exceptions;
 using ThucLuc.Application.Features.DonVi;
+using ThucLuc.Application.Features.BaoCaoBienDong;
 using ThucLuc.Application.Security;
 using ThucLuc.Domain.Entities.Business;
 using ThucLuc.Domain.Entities.Reporting;
@@ -25,6 +26,7 @@ public interface IBaoCaoSnapshotService
     Task<BaoCaoSnapshotDto?> GetAsync(long id, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<BaoCaoSnapshotDto>> GetByKyAsync(long kyBaoCaoId, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<BaoCaoSnapshotDto>> GetLatestByDonViAsync(long? kyBaoCaoId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<BaoCaoSnapshotDto>> GetMyHistoryAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<SnapshotCompareOptionDto>> GetCompareOptionsAsync(CancellationToken cancellationToken = default);
     Task<SnapshotCompareDto> CompareTwoKyAsync(long donViId, long fromKyBaoCaoId, long toKyBaoCaoId, CancellationToken cancellationToken = default);
     Task<BaoCaoSnapshotDto> CreateDraftAsync(CreateBaoCaoSnapshotRequest request, CancellationToken cancellationToken = default);
@@ -58,6 +60,7 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
     private readonly ILogger<BaoCaoSnapshotService> _logger;
     private readonly IDonViDataScopeService _donViDataScopeService;
     private readonly IDonViInputModeService _donViInputModeService;
+    private readonly IBaoCaoSnapshotMetricService _snapshotMetricService;
 
     public BaoCaoSnapshotService(
         IApplicationDbContext dbContext,
@@ -71,7 +74,8 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
         IDateTimeProvider dateTimeProvider,
         ILogger<BaoCaoSnapshotService> logger,
         IDonViDataScopeService donViDataScopeService,
-        IDonViInputModeService donViInputModeService)
+        IDonViInputModeService donViInputModeService,
+        IBaoCaoSnapshotMetricService snapshotMetricService)
     {
         _dbContext = dbContext;
         _currentUserService = currentUserService;
@@ -85,6 +89,7 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
         _logger = logger;
         _donViDataScopeService = donViDataScopeService;
         _donViInputModeService = donViInputModeService;
+        _snapshotMetricService = snapshotMetricService;
     }
 
 
@@ -143,41 +148,47 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
 
     public async Task<BaoCaoSnapshotDto?> GetAsync(long id, CancellationToken cancellationToken = default)
     {
-        var scope = await _donViDataScopeService.GetScopeAsync(cancellationToken);
+        var scope = await _donViDataScopeService.GetHistoricalReadScopeAsync(cancellationToken);
 
         var query = _dbContext.BaoCaoSnapshots.Where(x => x.Id == id);
-        if (!scope.HasFullAccess)
+        if (!scope.Current.HasFullAccess)
         {
-            var allowedIds = scope.AllowedDonViIds;
+            var allowedIds = scope.CandidateIds;
             query = query.Where(x => allowedIds.Contains(x.DonViId));
         }
 
-        return await query
+        var result = await query
             .Select(ToDto())
             .FirstOrDefaultAsync(cancellationToken);
+        if (result is null || !scope.CanRead(result.DonViId, result.SubmittedAt, result.TrangThai)) return null;
+        await ApplyHistoricalNamesAsync([result], cancellationToken);
+        return result;
     }
 
 
     public async Task<IReadOnlyCollection<BaoCaoSnapshotDto>> GetByKyAsync(long kyBaoCaoId, CancellationToken cancellationToken = default)
     {
-        var scope = await _donViDataScopeService.GetScopeAsync(cancellationToken);
+        var scope = await _donViDataScopeService.GetHistoricalReadScopeAsync(cancellationToken);
 
         var query = _dbContext.BaoCaoSnapshots.Where(x => x.KyBaoCaoId == kyBaoCaoId);
-        if (!scope.HasFullAccess)
+        if (!scope.Current.HasFullAccess)
         {
-            var allowedIds = scope.AllowedDonViIds;
+            var allowedIds = scope.CandidateIds;
             query = query.Where(x => allowedIds.Contains(x.DonViId));
         }
 
-        return await query
+        var results = await query
             .OrderByDescending(x => x.PhienBan)
             .Select(ToDto())
             .ToListAsync(cancellationToken);
+        results = results.Where(x => scope.CanRead(x.DonViId, x.SubmittedAt, x.TrangThai)).ToList();
+        await ApplyHistoricalNamesAsync(results, cancellationToken);
+        return results;
     }
 
     public async Task<IReadOnlyCollection<BaoCaoSnapshotDto>> GetLatestByDonViAsync(long? kyBaoCaoId, CancellationToken cancellationToken = default)
     {
-        var scope = await _donViDataScopeService.GetScopeAsync(cancellationToken);
+        var scope = await _donViDataScopeService.GetHistoricalReadScopeAsync(cancellationToken);
 
         var query = _dbContext.BaoCaoSnapshots
             .Where(x => x.SubmittedAt != null && (x.TrangThai == SnapshotStatus.Submitted || x.TrangThai == SnapshotStatus.Locked));
@@ -187,9 +198,9 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
             query = query.Where(x => x.KyBaoCaoId == kyBaoCaoId.Value);
         }
 
-        if (!scope.HasFullAccess)
+        if (!scope.Current.HasFullAccess)
         {
-            var allowedIds = scope.AllowedDonViIds;
+            var allowedIds = scope.CandidateIds;
             query = query.Where(x => allowedIds.Contains(x.DonViId));
         }
 
@@ -198,12 +209,34 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
             .ThenByDescending(x => x.PhienBan)
             .Select(ToDto())
             .ToListAsync(cancellationToken);
+        snapshots = snapshots.Where(x => scope.CanRead(x.DonViId, x.SubmittedAt, x.TrangThai)).ToList();
+        await ApplyHistoricalNamesAsync(snapshots, cancellationToken);
 
         return snapshots
             .GroupBy(x => x.DonViId)
             .Select(group => group.First())
             .OrderBy(x => x.TenDonVi)
             .ToList();
+    }
+
+    /// <summary>Toàn bộ lịch sử báo cáo đã nộp của CHÍNH đơn vị người dùng hiện tại, mọi kỳ, mới nhất trước — dùng cho màn Tra cứu báo cáo rút gọn của đơn vị tự nộp.</summary>
+    public async Task<IReadOnlyCollection<BaoCaoSnapshotDto>> GetMyHistoryAsync(CancellationToken cancellationToken = default)
+    {
+        var currentUser = _currentUserService.GetCurrentUser();
+        var scope = await _donViDataScopeService.GetHistoricalReadScopeAsync(cancellationToken, currentUser.DonViId);
+        var unitIds = scope.PredecessorCutoffs.Keys.Append(currentUser.DonViId).Distinct().ToArray();
+
+        var results = await _dbContext.BaoCaoSnapshots
+            .Where(x => unitIds.Contains(x.DonViId)
+                && x.SubmittedAt != null
+                && (x.TrangThai == SnapshotStatus.Submitted || x.TrangThai == SnapshotStatus.Locked))
+            .OrderByDescending(x => x.SubmittedAt)
+            .ThenByDescending(x => x.PhienBan)
+            .Select(ToDto())
+            .ToListAsync(cancellationToken);
+        results = results.Where(x => x.DonViId == currentUser.DonViId || scope.CanRead(x.DonViId, x.SubmittedAt, x.TrangThai)).ToList();
+        await ApplyHistoricalNamesAsync(results, cancellationToken);
+        return results;
     }
 
     public async Task<SnapshotCompareDto> CompareTwoKyAsync(long donViId, long fromKyBaoCaoId, long toKyBaoCaoId, CancellationToken cancellationToken = default)
@@ -213,8 +246,8 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
             throw new AppException("SNAPSHOT_COMPARE_INVALID", "Hai kỳ báo cáo so sánh phải khác nhau.", 400);
         }
 
-        var scope = await _donViDataScopeService.GetScopeAsync(cancellationToken);
-        if (!scope.Contains(donViId))
+        var scope = await _donViDataScopeService.GetHistoricalReadScopeAsync(cancellationToken);
+        if (!scope.Current.Contains(donViId) && !scope.PredecessorCutoffs.ContainsKey(donViId))
         {
             throw new AppException("SNAPSHOT_SCOPE_DENIED", "Không có quyền xem dữ liệu đơn vị ngoài phạm vi.", 403);
         }
@@ -251,8 +284,22 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
             throw new AppException("SNAPSHOT_COMPARE_TO_NOT_FOUND", "Không tìm thấy snapshot đã nộp của kỳ đích.", 404);
         }
 
+        var submittedTimes = await _dbContext.BaoCaoSnapshots.AsNoTracking()
+            .Where(x => x.Id == fromSnapshotId.Value || x.Id == toSnapshotId.Value)
+            .Select(x => new { x.Id, x.SubmittedAt, x.TrangThai })
+            .ToListAsync(cancellationToken);
+        if (submittedTimes.Any(x => !scope.CanRead(donViId, x.SubmittedAt, x.TrangThai)))
+            throw new AppException("SNAPSHOT_SCOPE_DENIED", "Không có quyền xem dữ liệu đơn vị ngoài phạm vi.", 403);
+
         var fromSnapshot = await LoadSnapshotAsync(fromSnapshotId.Value, cancellationToken);
         var toSnapshot = await LoadSnapshotAsync(toSnapshotId.Value, cancellationToken);
+        var historicalName = toSnapshot.SubmittedAt.HasValue
+            ? await _dbContext.DonViVersions.AsNoTracking()
+                .Where(x => x.DonViId == donViId && x.ValidFrom <= toSnapshot.SubmittedAt.Value)
+                .OrderByDescending(x => x.ValidFrom)
+                .Select(x => x.TenDonVi)
+                .FirstOrDefaultAsync(cancellationToken)
+            : null;
 
         var fromTotals = await BuildSnapshotModuleTotalsAsync(fromSnapshot, cancellationToken);
         var toTotals = await BuildSnapshotModuleTotalsAsync(toSnapshot, cancellationToken);
@@ -280,7 +327,7 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
         return new SnapshotCompareDto
         {
             DonViId = donViId,
-            TenDonVi = toSnapshot.DonVi?.TenDonVi ?? fromSnapshot.DonVi?.TenDonVi ?? string.Empty,
+            TenDonVi = historicalName ?? toSnapshot.DonVi?.TenDonVi ?? fromSnapshot.DonVi?.TenDonVi ?? string.Empty,
             FromKyBaoCaoId = fromSnapshot.KyBaoCaoId,
             FromKyCode = fromSnapshot.KyBaoCao?.KyCode ?? string.Empty,
             FromSnapshotId = fromSnapshot.Id,
@@ -293,16 +340,16 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
 
     public async Task<IReadOnlyCollection<SnapshotCompareOptionDto>> GetCompareOptionsAsync(CancellationToken cancellationToken = default)
     {
-        var scope = await _donViDataScopeService.GetScopeAsync(cancellationToken);
+        var scope = await _donViDataScopeService.GetHistoricalReadScopeAsync(cancellationToken);
 
         var query = _dbContext.BaoCaoSnapshots
             .AsNoTracking()
             .Where(x => x.SubmittedAt != null
                 && (x.TrangThai == SnapshotStatus.Submitted || x.TrangThai == SnapshotStatus.Locked));
 
-        if (!scope.HasFullAccess)
+        if (!scope.Current.HasFullAccess)
         {
-            var allowedIds = scope.AllowedDonViIds;
+            var allowedIds = scope.CandidateIds;
             query = query.Where(x => allowedIds.Contains(x.DonViId));
         }
 
@@ -317,8 +364,16 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
             })
             .ToListAsync(cancellationToken);
 
-        var options = rows
-            .GroupBy(x => new { x.DonViId, x.TenDonVi })
+        var visibleRows = rows.Where(x => scope.CanRead(x.DonViId, x.SubmittedAt, SnapshotStatus.Submitted)).ToList();
+        var unitIds = visibleRows.Select(x => x.DonViId).Distinct().ToArray();
+        var versions = await _dbContext.DonViVersions.AsNoTracking()
+            .Where(x => unitIds.Contains(x.DonViId))
+            .Select(x => new { x.DonViId, x.TenDonVi, x.ValidFrom })
+            .ToListAsync(cancellationToken);
+        var versionsByUnit = versions.GroupBy(x => x.DonViId)
+            .ToDictionary(x => x.Key, x => x.OrderByDescending(v => v.ValidFrom).ToArray());
+        var options = visibleRows
+            .GroupBy(x => x.DonViId)
             .Select(group =>
             {
                 var kyOptions = group
@@ -334,8 +389,11 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
 
                 return new SnapshotCompareOptionDto
                 {
-                    DonViId = group.Key.DonViId,
-                    TenDonVi = group.Key.TenDonVi,
+                    DonViId = group.Key,
+                    TenDonVi = versionsByUnit.TryGetValue(group.Key, out var unitVersions)
+                        ? unitVersions.FirstOrDefault(x => x.ValidFrom <= group.Max(row => row.SubmittedAt))?.TenDonVi
+                            ?? unitVersions.Last().TenDonVi
+                        : group.First().TenDonVi,
                     KyOptions = kyOptions,
                 };
             })
@@ -536,17 +594,31 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
                 .FirstOrDefaultAsync(cancellationToken) ?? "[]");
 
         int copiedRows;
+        IReadOnlyCollection<long> metricSourceDonViIds;
         if (modeContext.IsTongHop)
         {
             var allDonViIds = GetTongHopSnapshotDonViIds(modeContext, entity.DonViId);
+            metricSourceDonViIds = allDonViIds;
             copiedRows = await CopyLiveToHisAsync(ky.KyCode, allDonViIds, batch.Id, now, currentUser.UserId, kyModuleList, cancellationToken);
             await WriteTongHopConfirmationsAsync(entity.Id, entity.KyBaoCaoId, modeContext.DescendantDonViIds, now, currentUser.UserId, cancellationToken);
         }
         else
         {
             // TU_NHAP: đơn vị tự nhập tự nộp — copy dữ liệu chính đơn vị đó vào _HIS để Tra cứu báo cáo đọc được.
+            metricSourceDonViIds = new[] { entity.DonViId };
             copiedRows = await CopyLiveToHisAsync(ky.KyCode, new[] { entity.DonViId }, batch.Id, now, currentUser.UserId, kyModuleList, cancellationToken);
         }
+
+        // Chốt các chỉ số nghiệp vụ cùng transaction với snapshot. Từ đây màn
+        // phân tích chỉ đọc facts bất biến, không phụ thuộc dữ liệu nhập hiện tại.
+        await _snapshotMetricService.CaptureLiveAsync(
+            entity.Id,
+            batch.Id,
+            entity.KyBaoCaoId,
+            entity.DonViId,
+            metricSourceDonViIds,
+            kyModuleList,
+            cancellationToken);
 
         batch.Status = "SUCCEEDED";
         batch.FinishedAt = now; // cùng mốc với SubmittedAt để ResolveSnapshotBatchAsync (FinishedAt <= SubmittedAt) tìm thấy
@@ -624,6 +696,39 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
     {
         var snapshot = await LoadSnapshotAsync(id, cancellationToken);
         var modeContext = await _donViInputModeService.GetContextAsync(snapshot.DonViId, cancellationToken);
+        var displayName = snapshot.DonVi?.TenDonVi ?? string.Empty;
+        var historicalNames = new Dictionary<long, string>();
+        if (snapshot.SubmittedAt.HasValue)
+        {
+            var versions = await _dbContext.DonViVersions.AsNoTracking()
+                .Where(x => x.ValidFrom <= snapshot.SubmittedAt.Value)
+                .ToListAsync(cancellationToken);
+            var historicalUnits = versions.GroupBy(x => x.DonViId)
+                .Select(x => x.OrderByDescending(v => v.ValidFrom).First())
+                .ToDictionary(x => x.DonViId);
+            if (historicalUnits.TryGetValue(snapshot.DonViId, out var root))
+            {
+                displayName = root.TenDonVi;
+                var descendants = new HashSet<long>();
+                var queue = new Queue<long>();
+                queue.Enqueue(snapshot.DonViId);
+                while (queue.Count > 0)
+                {
+                    var parentId = queue.Dequeue();
+                    foreach (var child in historicalUnits.Values.Where(x => x.IsActive && x.ParentId == parentId))
+                        if (descendants.Add(child.DonViId)) queue.Enqueue(child.DonViId);
+                }
+                modeContext = new DonViInputModeContext
+                {
+                    DonViId = snapshot.DonViId,
+                    CapDonVi = root.CapDonVi ?? string.Empty,
+                    CheDoNhapLieu = root.CheDoNhapLieu,
+                    DescendantDonViIds = descendants.ToArray(),
+                    AggregateDonViIds = descendants.Count > 0 ? descendants.ToArray() : [snapshot.DonViId]
+                };
+                historicalNames = historicalUnits.ToDictionary(x => x.Key, x => x.Value.TenDonVi);
+            }
+        }
 
         if (!modeContext.IsTongHop)
         {
@@ -633,7 +738,7 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
                 KyBaoCaoId = snapshot.KyBaoCaoId,
                 KyCode = snapshot.KyBaoCao?.KyCode ?? string.Empty,
                 DonViId = snapshot.DonViId,
-                TenDonVi = snapshot.DonVi?.TenDonVi ?? string.Empty,
+                TenDonVi = displayName,
                 SubmittedAt = snapshot.SubmittedAt,
             };
         }
@@ -647,7 +752,7 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
                 KyBaoCaoId = snapshot.KyBaoCaoId,
                 KyCode = snapshot.KyBaoCao?.KyCode ?? string.Empty,
                 DonViId = snapshot.DonViId,
-                TenDonVi = snapshot.DonVi?.TenDonVi ?? string.Empty,
+                TenDonVi = displayName,
                 SubmittedAt = snapshot.SubmittedAt,
             };
         }
@@ -666,12 +771,12 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
             .ToDictionaryAsync(x => x.DonViId, cancellationToken);
 
         var children = new List<SnapshotBreakdownUnitDto>(childInfos.Count);
-        foreach (var child in childInfos.OrderBy(x => x.TenDonVi))
+        foreach (var child in childInfos.OrderBy(x => historicalNames.GetValueOrDefault(x.Id, x.TenDonVi)))
         {
             children.Add(new SnapshotBreakdownUnitDto
             {
                 DonViId = child.Id,
-                TenDonVi = child.TenDonVi,
+                TenDonVi = historicalNames.GetValueOrDefault(child.Id, child.TenDonVi),
                 DaXacNhan = confirmationLookup.TryGetValue(child.Id, out var confirmation) && confirmation.DaXacNhan,
                 ModuleCounts = await BuildModuleCountsForDonViAsync(child.Id, batch, cancellationToken),
             });
@@ -683,7 +788,7 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
             KyBaoCaoId = snapshot.KyBaoCaoId,
             KyCode = snapshot.KyBaoCao?.KyCode ?? string.Empty,
             DonViId = snapshot.DonViId,
-            TenDonVi = snapshot.DonVi?.TenDonVi ?? string.Empty,
+            TenDonVi = displayName,
             SubmittedAt = snapshot.SubmittedAt,
             TotalChildren = childInfos.Count,
             ConfirmedChildren = children.Count(x => x.DaXacNhan),
@@ -804,12 +909,12 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
 
     public async Task<BaoCaoPdfResultDto> GeneratePdfAsync(long id, CancellationToken cancellationToken = default)
     {
-        var scope = await _donViDataScopeService.GetScopeAsync(cancellationToken);
+        var scope = await _donViDataScopeService.GetHistoricalReadScopeAsync(cancellationToken);
         var entity = await _dbContext.BaoCaoSnapshots
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
             ?? throw new AppException("SNAPSHOT_NOT_FOUND", "Không tìm thấy snapshot.", 404);
 
-        if (!scope.Contains(entity.DonViId))
+        if (!scope.CanRead(entity.DonViId, entity.SubmittedAt, entity.TrangThai))
         {
             throw new AppException("SNAPSHOT_NOT_FOUND", "Không tìm thấy snapshot.", 404);
         }
@@ -883,6 +988,9 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
     public async Task<string> GetSnapshotPreviewJsonAsync(long id, CancellationToken cancellationToken = default)
     {
         var snapshot = await LoadSnapshotAsync(id, cancellationToken);
+        var currentScope = await _donViDataScopeService.GetScopeAsync(cancellationToken);
+        if (!currentScope.Contains(snapshot.DonViId))
+            throw new AppException("SNAPSHOT_PREVIEW_UNAVAILABLE", "Báo cáo lịch sử được tra cứu qua tệp xuất đã chốt.", 422);
         return await BuildSnapshotJsonAsync(snapshot.KyBaoCaoId, snapshot.DonViId, cancellationToken);
     }
 
@@ -1151,20 +1259,41 @@ public sealed class BaoCaoSnapshotService : IBaoCaoSnapshotService
 
     private async Task<BaoCaoSnapshotEntity> LoadSnapshotAsync(long id, CancellationToken cancellationToken)
     {
-        var scope = await _donViDataScopeService.GetScopeAsync(cancellationToken);
+        var scope = await _donViDataScopeService.GetHistoricalReadScopeAsync(cancellationToken);
         var query = _dbContext.BaoCaoSnapshots
             .Include(x => x.KyBaoCao)
             .Include(x => x.DonVi)
             .Where(x => x.Id == id);
 
-        if (!scope.HasFullAccess)
+        if (!scope.Current.HasFullAccess)
         {
-            var allowedIds = scope.AllowedDonViIds;
+            var allowedIds = scope.CandidateIds;
             query = query.Where(x => allowedIds.Contains(x.DonViId));
         }
 
-        return await query.FirstOrDefaultAsync(cancellationToken)
-            ?? throw new AppException("SNAPSHOT_NOT_FOUND", "Không tìm thấy snapshot.", 404);
+        var snapshot = await query.FirstOrDefaultAsync(cancellationToken);
+        if (snapshot is null || !scope.CanRead(snapshot.DonViId, snapshot.SubmittedAt, snapshot.TrangThai))
+            throw new AppException("SNAPSHOT_NOT_FOUND", "Không tìm thấy snapshot.", 404);
+        return snapshot;
+    }
+
+    private async Task ApplyHistoricalNamesAsync(IReadOnlyCollection<BaoCaoSnapshotDto> snapshots, CancellationToken cancellationToken)
+    {
+        var ids = snapshots.Where(x => x.SubmittedAt.HasValue).Select(x => x.DonViId).Distinct().ToArray();
+        if (ids.Length == 0) return;
+        var versions = await _dbContext.DonViVersions.AsNoTracking()
+            .Where(x => ids.Contains(x.DonViId))
+            .Select(x => new { x.DonViId, x.TenDonVi, x.ValidFrom, x.ValidTo })
+            .ToListAsync(cancellationToken);
+        var byUnit = versions.GroupBy(x => x.DonViId).ToDictionary(x => x.Key, x => x.OrderByDescending(v => v.ValidFrom).ToArray());
+        foreach (var snapshot in snapshots)
+        {
+            if (!snapshot.SubmittedAt.HasValue || !byUnit.TryGetValue(snapshot.DonViId, out var unitVersions)) continue;
+            var submittedAt = snapshot.SubmittedAt.Value;
+            var version = unitVersions.FirstOrDefault(x => x.ValidFrom <= submittedAt && (x.ValidTo == null || submittedAt < x.ValidTo))
+                ?? unitVersions.LastOrDefault();
+            if (version is not null) snapshot.TenDonVi = version.TenDonVi;
+        }
     }
 
     private async Task<SnapshotBatchEntity> CreateSnapshotBatchAsync(long kyBaoCaoId, long donViId, DateTime now, long? userId, CancellationToken cancellationToken)

@@ -215,141 +215,14 @@
     padding: 0;
   }
 
-  .app-dialog-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.15rem 1.35rem;
-    border-bottom: 1px solid var(--app-border);
-    background: #fff;
-  }
-
-  .app-dialog-title {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--app-text-primary);
-  }
-
-  .app-dialog-close {
-    border: 0;
-    background: transparent;
-    color: var(--app-text-muted);
-    border-radius: var(--app-radius);
-    padding: 0.45rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.17s ease;
-
-    &:hover {
-      background: var(--app-surface);
-      color: var(--app-text-primary);
-    }
-  }
-
-  .app-dialog-body-standard {
-    padding: 1rem;
-  }
-
-  .app-dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    padding: 0.95rem 1.2rem 1.05rem;
-    border-top: 1px solid var(--app-border);
-    background: var(--app-surface);
-  }
-
-  .app-form-field {
-    background: #f3f6fa;
-    border-radius: var(--app-radius);
-    padding: 0.7rem 0.75rem 0.65rem;
-    min-height: 84px;
-  }
-
-  .app-form-field__label {
-    display: block;
-    margin-bottom: 0.4rem;
-    font-size: 0.69rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #48607b;
-  }
-
-  .app-form-field__label.required::after {
-    content: " *";
-    color: var(--app-danger-500);
-  }
-
-  .app-form-field__input,
-  .p-inputnumber .p-inputnumber-input,
-  .p-dropdown {
-    width: 100%;
-    border: none !important;
-    border-bottom: 1.5px solid #1e3a5f !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    color: var(--app-text-primary);
-    padding: 0.3rem 0 !important;
-  }
-
-  .p-inputnumber,
-  .p-dropdown {
-    width: 100%;
-  }
-
-  .p-dropdown .p-dropdown-label {
-    padding: 0.18rem 0 0.3rem !important;
-  }
-
-  .p-dropdown .p-dropdown-trigger {
-    width: 1.7rem;
-    background: transparent !important;
-    color: #1e3a5f;
-  }
-
-  .app-form-field__input::placeholder,
-  .p-dropdown .p-placeholder {
-    color: var(--app-text-muted);
-    opacity: 1;
-  }
-
-  .app-form-field__input:focus,
-  .p-inputnumber .p-inputnumber-input:focus,
-  .p-dropdown.p-focus {
-    border-bottom-color: var(--app-primary-700) !important;
-  }
-
-  .app-form-field__error {
-    display: block;
-    margin-top: 0.25rem;
-    font-size: 0.75rem;
-    color: var(--app-danger-500);
-  }
-
   .app-form-field--full {
     grid-column: 1 / -1;
-    background: transparent;
-    border-top: 1px solid var(--app-border);
-    border-radius: 0;
-    padding: 0.95rem 0 0;
-    min-height: auto;
   }
 
   .app-form-field__textarea {
-    min-height: 100px;
-    max-height: 110px;
+    min-height: 82px !important;
+    max-height: 120px;
     resize: vertical;
-    border: 1px solid var(--app-border) !important;
-    border-radius: var(--app-radius) !important;
-    background: #fff !important;
-    padding: 0.7rem !important;
-    line-height: 1.45;
   }
 }
 

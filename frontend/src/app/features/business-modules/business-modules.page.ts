@@ -31,6 +31,7 @@ import { EmptyStateComponent } from '../../shared/ui/empty-state.component';
 import { FilterBarComponent } from '../../shared/ui/filter-bar.component';
 import { FormActionBarComponent } from '../../shared/ui/form-action-bar.component';
 import { LoadingOverlayComponent } from '../../shared/ui/loading-overlay.component';
+import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import {
   APP_DIALOG_CONTENT_STYLE_CLASS,
   APP_DIALOG_STYLE_CLASS,
@@ -123,6 +124,7 @@ type ModuleViewMode = 'live' | 'history';
     ReactiveFormsModule,
     RouterLink,
     SectionCardComponent,
+    PageHeaderComponent,
     FilterBarComponent,
     FormActionBarComponent,
     EmptyStateComponent,
@@ -979,6 +981,18 @@ export class BusinessModulesPage {
       ...this.filterDraft,
     };
     this.trainingTableFirst = 0;
+  }
+
+  handleTrainingEmptyStateAction(): void {
+    if (this.items.length === 0) {
+      if (this.canSaveCurrentMode()) {
+        this.openTrainingCreateDialog();
+      }
+      return;
+    }
+
+    this.searchTerm = '';
+    this.clearTrainingFilters();
   }
 
   rowNumber(indexOnPage: number, first = 0): number {

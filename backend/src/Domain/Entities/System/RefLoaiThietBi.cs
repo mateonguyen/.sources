@@ -11,6 +11,9 @@ public sealed class RefLoaiThietBi : AuditableEntityBase
     public bool LaTongHop { get; set; }
     public int SortOrder { get; set; }
     public bool IsActive { get; set; } = true;
+    public long? DonViId { get; set; }
+    public long? ReportingLoaiId { get; set; }
+    public bool IsRequired { get; set; }
     public RefLoaiThietBi? Parent { get; set; }
     public ICollection<RefLoaiThietBi> Children { get; set; } = new List<RefLoaiThietBi>();
 }

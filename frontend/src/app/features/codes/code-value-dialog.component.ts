@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -24,6 +25,7 @@ export interface CodeValueInitialData {
   description?: string | null;
   sortOrder: number;
   isActive: boolean;
+  isRequired: boolean;
 }
 
 export interface CodeValueSubmitPayload {
@@ -34,6 +36,7 @@ export interface CodeValueSubmitPayload {
   description?: string | null;
   sortOrder: number;
   isActive: boolean;
+  isRequired: boolean;
 }
 
 @Component({
@@ -48,6 +51,7 @@ export interface CodeValueSubmitPayload {
     InputNumberModule,
     InputTextareaModule,
     ButtonModule,
+    CheckboxModule,
   ],
   templateUrl: './code-value-dialog.component.html',
   styleUrl: './code-value-dialog.component.scss',
@@ -72,6 +76,7 @@ export class CodeValueDialogComponent implements OnChanges {
     sortOrder: [0, [Validators.required]],
     isActive: [true, [Validators.required]],
     description: ['', [Validators.maxLength(500)]],
+    isRequired: [false],
   });
 
   constructor(private readonly formBuilder: FormBuilder) {}
@@ -84,6 +89,7 @@ export class CodeValueDialogComponent implements OnChanges {
         sortOrder: this.initialData?.sortOrder ?? 0,
         isActive: this.initialData?.isActive ?? true,
         description: this.initialData?.description ?? '',
+        isRequired: this.initialData?.isRequired ?? false,
       });
     }
   }
@@ -146,6 +152,7 @@ export class CodeValueDialogComponent implements OnChanges {
       description: (raw.description ?? '').trim() || null,
       sortOrder: Number(raw.sortOrder ?? 0),
       isActive: !!raw.isActive,
+      isRequired: !!raw.isRequired,
     });
   }
 }

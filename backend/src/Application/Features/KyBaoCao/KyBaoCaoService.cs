@@ -90,55 +90,65 @@ public sealed class KyBaoCaoService : IKyBaoCaoService
 
         var scope = await _donViDataScopeService.GetScopeAsync(cancellationToken);
 
-        // Tiến độ NỘP báo cáo chỉ theo dõi đơn vị nộp snapshot trực tiếp (cấp TINH/CUC).
-        // PHONG/XA không nộp lên H05 (chỉ xác nhận với cấp trên) nên không liệt kê ở đây —
-        // theo dõi họ bằng màn "Tiến độ tổng hợp".
-        var reportingCaps = new[] { "TINH", "CUC" };
-        var scopedQuery = _dbContext.KyTrangThaiDonVis
+        // Tiến độ NỘP báo cáo theo dõi TOÀN BỘ đơn vị nộp snapshot trực tiếp (cấp tỉnh trở lên,
+        // CapSo == 1) trong phạm vi được xem — kể cả đơn vị CHƯA từng thao tác trên kỳ này
+        // (chưa có dòng KyTrangThaiDonVi), nếu không "Chưa nhập" sẽ chỉ đếm được đơn vị đã
+        // từng bắt đầu chứ không phải đơn vị thực sự chưa nhập gì. PHONG/XA (CapSo == 2)
+        // không nộp lên H05 (chỉ xác nhận với cấp trên) nên không liệt kê ở đây — theo dõi
+        // họ bằng màn "Tiến độ tổng hợp".
+        var reportingCapSo = 1;
+        var activeFlag = true;
+        var eligibleUnitsQuery = _dbContext.DonVis
             .AsNoTracking()
-            .Where(x => x.KyBaoCaoId == id
-                     && x.DonVi != null
-                     && reportingCaps.Contains(x.DonVi.CapDonVi));
+            .Where(x => x.CapSo == reportingCapSo && x.IsActive == activeFlag);
 
         if (!scope.HasFullAccess)
         {
-            scopedQuery = scopedQuery.Where(x => scope.AllowedDonViIds.Contains(x.DonViId));
+            eligibleUnitsQuery = eligibleUnitsQuery.Where(x => scope.AllowedDonViIds.Contains(x.Id));
         }
 
-        var donVisRaw = await scopedQuery
-            .Select(x => new
-            {
-                x.DonViId,
-                TenDonVi = x.DonVi!.TenDonVi,
-                TrangThaiDonVi = x.TrangThai,
-                SnapshotId = _dbContext.BaoCaoSnapshots
-                    .Where(snapshot => snapshot.KyBaoCaoId == x.KyBaoCaoId && snapshot.DonViId == x.DonViId)
-                    .OrderByDescending(snapshot => snapshot.PhienBan)
-                    .Select(snapshot => (long?)snapshot.Id)
-                    .FirstOrDefault(),
-                SnapshotPhienBan = _dbContext.BaoCaoSnapshots
-                    .Where(snapshot => snapshot.KyBaoCaoId == x.KyBaoCaoId && snapshot.DonViId == x.DonViId)
-                    .OrderByDescending(snapshot => snapshot.PhienBan)
-                    .Select(snapshot => (int?)snapshot.PhienBan)
-                    .FirstOrDefault(),
-                SnapshotTrangThai = _dbContext.BaoCaoSnapshots
-                    .Where(snapshot => snapshot.KyBaoCaoId == x.KyBaoCaoId && snapshot.DonViId == x.DonViId)
-                    .OrderByDescending(snapshot => snapshot.PhienBan)
-                    .Select(snapshot => (SnapshotStatus?)snapshot.TrangThai)
-                    .FirstOrDefault(),
-                SubmittedAt = _dbContext.BaoCaoSnapshots
-                    .Where(snapshot => snapshot.KyBaoCaoId == x.KyBaoCaoId && snapshot.DonViId == x.DonViId)
-                    .OrderByDescending(snapshot => snapshot.PhienBan)
-                    .Select(snapshot => snapshot.SubmittedAt)
-                    .FirstOrDefault(),
-                LockedAt = _dbContext.BaoCaoSnapshots
-                    .Where(snapshot => snapshot.KyBaoCaoId == x.KyBaoCaoId && snapshot.DonViId == x.DonViId)
-                    .OrderByDescending(snapshot => snapshot.PhienBan)
-                    .Select(snapshot => snapshot.LockedAt)
-                    .FirstOrDefault(),
-                x.NgayMoLai,
-                x.NgayXacNhan
-            })
+        var donVisRaw = await eligibleUnitsQuery
+            .GroupJoin(
+                _dbContext.KyTrangThaiDonVis.Where(t => t.KyBaoCaoId == id),
+                donVi => donVi.Id,
+                trangThai => trangThai.DonViId,
+                (donVi, trangThaiGroup) => new { donVi, trangThaiGroup })
+            .SelectMany(
+                x => x.trangThaiGroup.DefaultIfEmpty(),
+                (x, trangThai) => new
+                {
+                    DonViId = x.donVi.Id,
+                    TenDonVi = x.donVi.TenDonVi,
+                    MaDonVi = x.donVi.MaDonVi,
+                    TrangThaiDonVi = trangThai != null ? trangThai.TrangThai : KyTrangThaiDonViStatus.ChuaNhap,
+                    SnapshotId = _dbContext.BaoCaoSnapshots
+                        .Where(snapshot => snapshot.KyBaoCaoId == id && snapshot.DonViId == x.donVi.Id)
+                        .OrderByDescending(snapshot => snapshot.PhienBan)
+                        .Select(snapshot => (long?)snapshot.Id)
+                        .FirstOrDefault(),
+                    SnapshotPhienBan = _dbContext.BaoCaoSnapshots
+                        .Where(snapshot => snapshot.KyBaoCaoId == id && snapshot.DonViId == x.donVi.Id)
+                        .OrderByDescending(snapshot => snapshot.PhienBan)
+                        .Select(snapshot => (int?)snapshot.PhienBan)
+                        .FirstOrDefault(),
+                    SnapshotTrangThai = _dbContext.BaoCaoSnapshots
+                        .Where(snapshot => snapshot.KyBaoCaoId == id && snapshot.DonViId == x.donVi.Id)
+                        .OrderByDescending(snapshot => snapshot.PhienBan)
+                        .Select(snapshot => (SnapshotStatus?)snapshot.TrangThai)
+                        .FirstOrDefault(),
+                    SubmittedAt = _dbContext.BaoCaoSnapshots
+                        .Where(snapshot => snapshot.KyBaoCaoId == id && snapshot.DonViId == x.donVi.Id)
+                        .OrderByDescending(snapshot => snapshot.PhienBan)
+                        .Select(snapshot => snapshot.SubmittedAt)
+                        .FirstOrDefault(),
+                    LockedAt = _dbContext.BaoCaoSnapshots
+                        .Where(snapshot => snapshot.KyBaoCaoId == id && snapshot.DonViId == x.donVi.Id)
+                        .OrderByDescending(snapshot => snapshot.PhienBan)
+                        .Select(snapshot => snapshot.LockedAt)
+                        .FirstOrDefault(),
+                    NgayMoLai = trangThai != null ? trangThai.NgayMoLai : null,
+                    NgayXacNhan = trangThai != null ? trangThai.NgayXacNhan : null,
+                })
             .ToListAsync(cancellationToken);
 
         var donVis = donVisRaw
@@ -148,6 +158,7 @@ public sealed class KyBaoCaoService : IKyBaoCaoService
                 TenDonVi = string.IsNullOrWhiteSpace(x.TenDonVi)
                     ? $"Đơn vị #{x.DonViId}"
                     : x.TenDonVi,
+                MaDonVi = x.MaDonVi,
                 KyTrangThai = ky.TrangThai,
                 TrangThaiDonVi = x.TrangThaiDonVi,
                 SnapshotId = x.SnapshotId,

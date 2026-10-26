@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using ThucLuc.Application.Common.Contracts;
 using ThucLuc.Application.Common.Exceptions;
 using ThucLuc.Application.Common.Models;
+using ThucLuc.Application.Security;
 using ThucLuc.Domain.Entities.System;
+using ThucLuc.Domain.Enums;
 using DonViEntity = ThucLuc.Domain.Entities.System.DonVi;
 
 namespace ThucLuc.Application.Features.DonVi;
@@ -57,17 +59,33 @@ public sealed class DonViService : IDonViService
     private readonly IApplicationDbContext _dbContext;
     private readonly IValidator<UpsertDonViRequest> _validator;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IDonViDataScopeService _donViDataScopeService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public DonViService(IApplicationDbContext dbContext, IValidator<UpsertDonViRequest> validator, IDateTimeProvider dateTimeProvider)
+    public DonViService(
+        IApplicationDbContext dbContext,
+        IValidator<UpsertDonViRequest> validator,
+        IDateTimeProvider dateTimeProvider,
+        IDonViDataScopeService donViDataScopeService,
+        ICurrentUserService currentUserService)
     {
         _dbContext = dbContext;
         _validator = validator;
         _dateTimeProvider = dateTimeProvider;
+        _donViDataScopeService = donViDataScopeService;
+        _currentUserService = currentUserService;
     }
 
     public async Task<IReadOnlyCollection<DonViDto>> GetFlatListAsync(CancellationToken cancellationToken = default)
     {
-        var items = await QueryDonViNodes()
+        var scope = await _donViDataScopeService.GetScopeAsync(cancellationToken);
+        var query = QueryDonViNodes();
+        if (!scope.HasFullAccess)
+        {
+            query = query.Where(x => scope.AllowedDonViIds.Contains(x.Id));
+        }
+
+        var items = await query
             .OrderBy(x => x.MaDonVi)
             .ThenBy(x => x.TenDonVi)
             .ToListAsync(cancellationToken);
@@ -80,7 +98,14 @@ public sealed class DonViService : IDonViService
 
     public async Task<IReadOnlyCollection<DonViDto>> GetTreeAsync(CancellationToken cancellationToken = default)
     {
-        var items = await QueryDonViNodes()
+        var scope = await _donViDataScopeService.GetScopeAsync(cancellationToken);
+        var query = QueryDonViNodes();
+        if (!scope.HasFullAccess)
+        {
+            query = query.Where(x => scope.AllowedDonViIds.Contains(x.Id));
+        }
+
+        var items = await query
             .OrderBy(x => x.MaDonVi)
             .ThenBy(x => x.TenDonVi)
             .ToListAsync(cancellationToken);
@@ -129,7 +154,14 @@ public sealed class DonViService : IDonViService
     public async Task<IReadOnlyCollection<DonViParentCandidateDto>> GetParentCandidatesAsync(long? excludeId, CancellationToken cancellationToken = default)
     {
         var activeFlag = true;
-        var items = await QueryDonViNodes()
+        var scope = await _donViDataScopeService.GetScopeAsync(cancellationToken);
+        var query = QueryDonViNodes();
+        if (!scope.HasFullAccess)
+        {
+            query = query.Where(x => scope.AllowedDonViIds.Contains(x.Id));
+        }
+
+        var items = await query
             .Where(x => x.IsActive == activeFlag)
             .OrderBy(x => x.MaDonVi)
             .ThenBy(x => x.TenDonVi)
@@ -190,6 +222,12 @@ public sealed class DonViService : IDonViService
 
     public async Task<DonViDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
+        var scope = await _donViDataScopeService.GetScopeAsync(cancellationToken);
+        if (!scope.Contains(id))
+        {
+            return null;
+        }
+
         var donVi = await _dbContext.DonVis
             .AsNoTracking()
             .Include(x => x.Children)
@@ -231,6 +269,22 @@ public sealed class DonViService : IDonViService
     public async Task<DonViDto> UpsertAsync(long? id, UpsertDonViRequest request, CancellationToken cancellationToken = default)
     {
         await _validator.ValidateAndThrowAsync(request, cancellationToken);
+        var scope = await _donViDataScopeService.GetScopeAsync(cancellationToken);
+
+        if (id.HasValue && !scope.Contains(id.Value))
+        {
+            throw new AppException("DONVI_OUTSIDE_SCOPE", "Không có quyền thao tác đơn vị ngoài phạm vi quản lý.", 403);
+        }
+
+        if (!id.HasValue && !request.ParentId.HasValue && !scope.HasFullAccess)
+        {
+            throw new AppException("DONVI_ROOT_FORBIDDEN", "Không có quyền tạo đơn vị gốc.", 403);
+        }
+
+        if (request.ParentId.HasValue && !scope.Contains(request.ParentId.Value))
+        {
+            throw new AppException("DONVI_PARENT_OUTSIDE_SCOPE", "Đơn vị cha nằm ngoài phạm vi quản lý.", 403);
+        }
 
         DonViEntity entity;
         if (id.HasValue)
@@ -243,6 +297,10 @@ public sealed class DonViService : IDonViService
             entity = new DonViEntity();
             await _dbContext.DonVis.AddAsync(entity, cancellationToken);
         }
+
+        var oldIdentity = id.HasValue
+            ? (entity.MaDonVi, entity.TenDonVi, entity.ParentId, entity.IsActive, entity.CapDonVi, entity.CheDoNhapLieu)
+            : default;
 
         if (request.ParentId.HasValue)
         {
@@ -281,6 +339,15 @@ public sealed class DonViService : IDonViService
         var normalizedCapDonVi = NormalizeNullable(request.CapDonVi)?.ToUpperInvariant();
         var normalizedCheDoNhapLieu = NormalizeNullable(request.CheDoNhapLieu)?.ToUpperInvariant() ?? "TU_NHAP";
         ValidateCheDoNhapLieu(normalizedCapDonVi, normalizedCheDoNhapLieu);
+        if (!request.IsActive && entity.IsActive)
+        {
+            if (await _dbContext.DonVis.CountAsync(x => x.ParentId == entity.Id && x.IsActive, cancellationToken) > 0)
+                throw new BusinessRuleException("DONVI_HAS_CHILDREN", "Cần chuyển các đơn vị con trước khi ngừng hoạt động.");
+            if (await _dbContext.Users.CountAsync(x => x.DonViId == entity.Id && x.IsActive, cancellationToken) > 0)
+                throw new BusinessRuleException("DONVI_HAS_ACTIVE_USERS", "Cần chuyển hoặc vô hiệu hóa tài khoản trước khi ngừng hoạt động đơn vị.");
+            if (await _dbContext.BaoCaoSnapshots.CountAsync(x => x.DonViId == entity.Id && x.TrangThai == SnapshotStatus.Draft, cancellationToken) > 0)
+                throw new BusinessRuleException("DONVI_HAS_DRAFT_REPORTS", "Cần xử lý báo cáo nháp trước khi ngừng hoạt động đơn vị.");
+        }
 
         entity.MaDonVi = request.MaDonVi.Trim().ToUpperInvariant();
         entity.TenDonVi = request.TenDonVi.Trim();
@@ -288,6 +355,7 @@ public sealed class DonViService : IDonViService
         entity.ParentId = request.ParentId;
         entity.DiaChi = request.DiaChi?.Trim();
         entity.CapDonVi = normalizedCapDonVi;
+        entity.CapSo = DonViEntity.ResolveCapSo(normalizedCapDonVi);
         entity.KhoiDonVi = NormalizeNullable(request.KhoiDonVi)?.ToUpperInvariant();
         entity.CheDoNhapLieu = normalizedCheDoNhapLieu;
         entity.WebsiteNoiBo = NormalizeNullable(request.WebsiteNoiBo);
@@ -295,26 +363,84 @@ public sealed class DonViService : IDonViService
         entity.TongBienChe = request.TongBienChe;
         entity.IsActive = request.IsActive;
 
+        if (_dbContext is not DbContext efDbContext)
+            throw new InvalidOperationException("Database context does not support transactions.");
+        await using var transaction = await efDbContext.Database.BeginTransactionAsync(cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
+        if (!id.HasValue || oldIdentity != (entity.MaDonVi, entity.TenDonVi, entity.ParentId, entity.IsActive, entity.CapDonVi, entity.CheDoNhapLieu))
+        {
+            await RecordVersionAsync(entity, cancellationToken);
+            await _dbContext.DonViChanges.AddAsync(new DonViChange
+            {
+                ChangeType = id.HasValue ? "UPDATE" : "CREATE",
+                EffectiveAt = _dateTimeProvider.Now,
+                CreatedAt = _dateTimeProvider.Now,
+                CreatedBy = _currentUserService.GetCurrentUser().UserId
+            }, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        await transaction.CommitAsync(cancellationToken);
         return await GetByIdAsync(entity.Id, cancellationToken) ?? throw new InvalidOperationException();
     }
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
     {
+        var scope = await _donViDataScopeService.GetScopeAsync(cancellationToken);
+        if (!scope.Contains(id))
+        {
+            throw new AppException("DONVI_OUTSIDE_SCOPE", "Không có quyền thao tác đơn vị ngoài phạm vi quản lý.", 403);
+        }
+
         var entity = await _dbContext.DonVis.FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
             ?? throw new AppException("DONVI_NOT_FOUND", "Không tìm thấy đơn vị.", 404);
 
-        var hasChildren = await _dbContext.DonVis.CountAsync(x => x.ParentId == id, cancellationToken) > 0;
+        var hasChildren = await _dbContext.DonVis.CountAsync(x => x.ParentId == id && x.IsActive, cancellationToken) > 0;
         if (hasChildren)
         {
             throw new BusinessRuleException("DONVI_HAS_CHILDREN", "Không thể xóa đơn vị còn đơn vị con.");
         }
 
-        var now = _dateTimeProvider.Now;
-        entity.DeletedAt = now;
+        if (!entity.IsActive) return;
+        var activeUsers = await _dbContext.Users.CountAsync(x => x.DonViId == id && x.IsActive, cancellationToken);
+        if (activeUsers > 0)
+            throw new BusinessRuleException("DONVI_HAS_ACTIVE_USERS", "Cần chuyển hoặc vô hiệu hóa tài khoản trước khi ngừng hoạt động đơn vị.");
+        if (await _dbContext.BaoCaoSnapshots.CountAsync(x => x.DonViId == id && x.TrangThai == SnapshotStatus.Draft, cancellationToken) > 0)
+            throw new BusinessRuleException("DONVI_HAS_DRAFT_REPORTS", "Cần xử lý báo cáo nháp trước khi ngừng hoạt động đơn vị.");
+        if (_dbContext is not DbContext efDbContext)
+            throw new InvalidOperationException("Database context does not support transactions.");
+        await using var transaction = await efDbContext.Database.BeginTransactionAsync(cancellationToken);
         entity.IsActive = false;
-        entity.MaDonVi = $"{entity.MaDonVi}_GT{now:yyyyMMdd}";
+        await RecordVersionAsync(entity, cancellationToken);
+        await _dbContext.DonViChanges.AddAsync(new DonViChange
+        {
+            ChangeType = "DEACTIVATE",
+            EffectiveAt = _dateTimeProvider.Now,
+            CreatedAt = _dateTimeProvider.Now,
+            CreatedBy = _currentUserService.GetCurrentUser().UserId
+        }, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+    }
+
+    private async Task RecordVersionAsync(DonViEntity entity, CancellationToken cancellationToken)
+    {
+        var now = _dateTimeProvider.Now;
+        var currentVersion = await _dbContext.DonViVersions
+            .Where(x => x.DonViId == entity.Id && x.ValidTo == null)
+            .OrderByDescending(x => x.ValidFrom)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (currentVersion is not null) currentVersion.ValidTo = now;
+        await _dbContext.DonViVersions.AddAsync(new DonViVersion
+        {
+            DonViId = entity.Id,
+            MaDonVi = entity.MaDonVi,
+            TenDonVi = entity.TenDonVi,
+            CapDonVi = entity.CapDonVi,
+            CheDoNhapLieu = entity.CheDoNhapLieu,
+            ParentId = entity.ParentId,
+            IsActive = entity.IsActive,
+            ValidFrom = now
+        }, cancellationToken);
     }
 
     private IQueryable<DonViNodeProjection> QueryDonViNodes()
@@ -421,7 +547,7 @@ public sealed class DonViService : IDonViService
             throw new AppException("DONVI_CHE_DO_NHAP_LIEU_INVALID", "Che do nhap lieu khong hop le.", 422);
         }
 
-        if (cheDoNhapLieu == "TONG_HOP" && capDonVi != "CAP_1")
+        if (cheDoNhapLieu == "TONG_HOP" && DonViEntity.ResolveCapSo(capDonVi) != 1)
         {
             throw new AppException("DONVI_CHE_DO_NHAP_LIEU_INVALID", "Chi don vi cap CAP_1 (truc thuoc Bo) moi duoc cau hinh TONG_HOP.", 422);
         }

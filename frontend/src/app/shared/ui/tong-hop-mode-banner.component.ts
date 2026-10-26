@@ -19,7 +19,7 @@ import { DonViModeService } from '../../core/don-vi/don-vi-mode.service';
         chỉ hiển thị dữ liệu do chính đơn vị bạn nhập. Số liệu của các đơn vị
         cấp dưới sẽ được <strong>tự động gộp khi Nộp báo cáo</strong>; theo dõi
         chi tiết tại màn
-        <a routerLink="/tien-do-tong-hop">Tiến độ tổng hợp</a>.
+        <a routerLink="/tong-hop-du-lieu">Tiến độ tổng hợp</a>.
       </span>
     </div>
   `,

@@ -1,4 +1,4 @@
-services:
+﻿services:
 
   minio:
     image: minio/minio:latest
@@ -17,13 +17,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-    restart: unless-stopped
-
-  gotenberg:
-    image: gotenberg/gotenberg:8
-    container_name: thuc-luc-gotenberg
-    ports:
-      - "${GOTENBERG_PORT:-3000}:3000"
     restart: unless-stopped
 
 volumes:

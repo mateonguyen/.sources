@@ -16,6 +16,7 @@ export interface TienDoDonViDto {
   ngayXacNhan: string | null;
   coThayDoiSauXacNhan: boolean;
   capNhatLanCuoi: string | null;
+  parentIsTongHop: boolean;
   hanBoSung?: string;
   soNhanLuc: number;
   soNangLucSo: number;

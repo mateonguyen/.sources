@@ -20,7 +20,7 @@ public sealed class SnapshotDataScopeIntegrationTests : IClassFixture<ApiTestWeb
     {
         await _factory.ResetDataAsync();
         var setup = await SeedScopeDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("h05.viewer", "H05Viewer@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("h05.viewer", "Test@123");
 
         var response = await client.GetAsync("/api/v1/snapshot?kyBaoCaoId=6001");
 
@@ -63,7 +63,7 @@ public sealed class SnapshotDataScopeIntegrationTests : IClassFixture<ApiTestWeb
     {
         await _factory.ResetDataAsync();
         var setup = await SeedScopeDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("viewer.user", "ViewerUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("viewer.user", "Test@123");
 
         var listResponse = await client.GetAsync("/api/v1/snapshot?kyBaoCaoId=6001");
         var pdfResponse = await client.GetAsync($"/api/v1/snapshot/{setup.HaNoiSnapshotId}/pdf");
@@ -77,7 +77,7 @@ public sealed class SnapshotDataScopeIntegrationTests : IClassFixture<ApiTestWeb
 
     private async Task<(long HaNoiSnapshotId, long DaNangSnapshotId, long ChildSnapshotId)> SeedScopeDataAsync()
     {
-        using var adminClient = await _factory.CreateAuthorizedClientAsync("admin", "Admin@123");
+        using var adminClient = await _factory.CreateAuthorizedClientAsync("admin", "Test@123");
 
         await _factory.ExecuteDbContextAsync(async dbContext =>
         {

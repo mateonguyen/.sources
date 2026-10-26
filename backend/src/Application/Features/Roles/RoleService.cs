@@ -158,6 +158,21 @@ public sealed class RoleService : IRoleService
             .Distinct()
             .ToArray();
 
+        var administratorOnlyPermissionIds = await _dbContext.Permissions
+            .Where(x => x.PermCode == Permissions.PermissionCatalog.Read
+                || x.PermCode == Permissions.PhanQuyen.Read
+                || x.PermCode == Permissions.PhanQuyen.Update)
+            .Select(x => x.Id)
+            .ToArrayAsync(cancellationToken);
+
+        if (!string.Equals(role.Name, "SYSTEM_ADMIN", StringComparison.OrdinalIgnoreCase)
+            && permissionIds.Intersect(administratorOnlyPermissionIds).Any())
+        {
+            throw new BusinessRuleException(
+                "ADMINISTRATOR_PERMISSION_RESERVED",
+                "Quyền xem danh mục quyền và phân quyền chỉ dành cho vai trò Quản trị hệ thống.");
+        }
+
         var systemAdminPermissionId = await _dbContext.Permissions
             .Where(x => x.PermCode == Permissions.SystemAdmin)
             .Select(x => (long?)x.Id)

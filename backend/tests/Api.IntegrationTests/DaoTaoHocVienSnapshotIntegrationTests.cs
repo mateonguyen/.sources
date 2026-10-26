@@ -22,7 +22,7 @@ public sealed class DaoTaoHocVienSnapshotIntegrationTests : IClassFixture<ApiTes
     public async Task BuildSnapshotJson_Should_Include_DaoTaoHocVien_Live_Data()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         await _factory.ExecuteDbContextAsync(async dbContext =>
         {
@@ -63,7 +63,7 @@ public sealed class DaoTaoHocVienSnapshotIntegrationTests : IClassFixture<ApiTes
     public async Task GetAll_Should_Seed_Live_Data_From_Latest_Locked_Snapshot_When_Current_Live_Table_Is_Empty()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         await _factory.ExecuteDbContextAsync(async dbContext =>
         {

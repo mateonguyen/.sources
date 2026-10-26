@@ -19,7 +19,7 @@ public sealed class SnapshotPdfIntegrationTests : IClassFixture<ApiTestWebApplic
     public async Task GetPdf_Should_Be_Rejected_When_Snapshot_Is_Draft()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
         var snapshotId = await CreateDraftAsync(client, "{\"field\":\"draft\"}");
 
         var response = await client.GetAsync($"/api/v1/snapshot/{snapshotId}/pdf");
@@ -31,7 +31,7 @@ public sealed class SnapshotPdfIntegrationTests : IClassFixture<ApiTestWebApplic
     public async Task GetPdf_Should_Succeed_After_Submit()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
         var snapshotId = await CreateDraftAndSubmitAsync(client, "{\"field\":\"submitted\"}");
 
         var response = await client.GetAsync($"/api/v1/snapshot/{snapshotId}/pdf");
@@ -45,7 +45,7 @@ public sealed class SnapshotPdfIntegrationTests : IClassFixture<ApiTestWebApplic
     public async Task Pdf_Should_Be_Generated_From_Stored_Snapshot()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
         _ = await CreateDraftAndSubmitAsync(client, "{\"marker\":\"payload-marker-2026\"}");
 
         _factory.FakePdfService.LastHtml.Should().NotBeNull();
@@ -58,7 +58,7 @@ public sealed class SnapshotPdfIntegrationTests : IClassFixture<ApiTestWebApplic
     public async Task Submit_And_GeneratePdf_Should_Create_File_Metadata()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         var snapshotId = await CreateDraftAndSubmitAsync(client, "{\"meta\":true}");
 

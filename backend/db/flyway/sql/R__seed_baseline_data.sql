@@ -839,5 +839,18 @@ WHEN MATCHED THEN UPDATE SET d.NAME = s.NAME, d.SORT_ORDER = s.SORT_ORDER, d.IS_
 WHEN NOT MATCHED THEN INSERT (CODE_ID, VALUE, NAME, SORT_ORDER, IS_ACTIVE, IS_SYSTEM, CREATED_AT, UPDATED_AT)
 VALUES (s.CODE_ID, s.VALUE, s.NAME, s.SORT_ORDER, 1, 0, SYSTIMESTAMP, SYSTIMESTAMP);
 
+-- Các danh mục nghiệp vụ được phép kế thừa bộ chuẩn và tùy chỉnh theo đơn vị.
+UPDATE CODES
+SET ALLOW_UNIT_CUSTOMIZATION = 1
+WHERE CODE IN (
+    'GIAI_PHAP_ATTT',
+    'NOI_DUNG_DAO_TAO_HV',
+    'NHOM_NANG_LUC_SO',
+    'HTTT_TIEU_CHUAN_CAND',
+    'LOAI_VAN_BAN',
+    'CO_QUAN_BAN_HANH',
+    'LINH_VUC_VAN_BAN'
+);
+
 -- Password hashes are intentionally not seeded in SQL because BCrypt output is environment-independent but frequently rotated.
 -- Use runtime BaselineDataSeeder for USERS/ROLES/PERMISSIONS population in lower environments and integration tests.

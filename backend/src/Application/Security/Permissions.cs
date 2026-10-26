@@ -43,7 +43,8 @@ public static class Permissions
         "yeu_cau_bo_sung:",
         "tien_do_bao_cao:",
         "ky_bao_cao:",
-        "mau_bao_cao:"
+        "mau_bao_cao:",
+        "bien_dong_bao_cao:"
     ];
 
     public static bool IsSystemAdminExcluded(string permission)
@@ -75,7 +76,6 @@ public static class Permissions
         public const string Read = "users:read";
         public const string Create = "users:create";
         public const string Update = "users:update";
-        public const string Admin = "users:admin";
     }
 
     public static class Roles
@@ -83,7 +83,17 @@ public static class Permissions
         public const string Read = "roles:read";
         public const string Create = "roles:create";
         public const string Update = "roles:update";
-        public const string Admin = "roles:admin";
+    }
+
+    public static class PermissionCatalog
+    {
+        public const string Read = "permissions:read";
+    }
+
+    public static class PhanQuyen
+    {
+        public const string Read = "phan_quyen:read";
+        public const string Update = "phan_quyen:update";
     }
 
     public static class KyBaoCao
@@ -282,6 +292,13 @@ public static class Permissions
         public const string Create = "codes:create";
         public const string Update = "codes:update";
         public const string Delete = "codes:delete";
+    }
+
+    public static class BaoCaoBienDong
+    {
+        public const string Read = "bien_dong_bao_cao:read";
+        public const string ReadScope = "bien_dong_bao_cao:read_scope";
+        public const string Export = "bien_dong_bao_cao:export";
     }
 
     public static class RefLoaiThietBi

@@ -112,7 +112,7 @@
         <div class="nop-status-steps">
           <div
             class="nop-status-step"
-            *ngFor="let step of [1, 2, 3, 4, 5]"
+            *ngFor="let step of donViTrangThaiSteps"
             [class.nop-status-step--done]="donViTrangThai > step"
             [class.nop-status-step--active]="donViTrangThai === step"
           >

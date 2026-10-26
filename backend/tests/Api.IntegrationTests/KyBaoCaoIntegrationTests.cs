@@ -18,7 +18,7 @@ public sealed class KyBaoCaoIntegrationTests : IClassFixture<ApiTestWebApplicati
     public async Task GetCurrent_Should_Return_Open_Period()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         var response = await client.GetAsync("/api/v1/ky-bao-cao/current");
 
@@ -31,7 +31,7 @@ public sealed class KyBaoCaoIntegrationTests : IClassFixture<ApiTestWebApplicati
     public async Task Create_Should_Be_Forbidden_For_User_Without_Permission()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         var response = await client.PostAsJsonAsync("/api/v1/ky-bao-cao", new
         {
@@ -49,7 +49,7 @@ public sealed class KyBaoCaoIntegrationTests : IClassFixture<ApiTestWebApplicati
     public async Task UpdateStatus_Should_Reject_ChuanBi_To_Khoa_And_Allow_Delete_ChuanBi()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Admin@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Test@123");
 
         var createResponse = await client.PostAsJsonAsync("/api/v1/ky-bao-cao", new
         {
@@ -84,7 +84,7 @@ public sealed class KyBaoCaoIntegrationTests : IClassFixture<ApiTestWebApplicati
     public async Task UpdateStatus_Should_Allow_DangMo_To_Khoa()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Admin@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Test@123");
 
         var response = await client.PatchAsJsonAsync("/api/v1/ky-bao-cao/6001/status", new
         {

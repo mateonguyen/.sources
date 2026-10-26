@@ -18,7 +18,7 @@ public sealed class SnapshotDraftIntegrationTests : IClassFixture<ApiTestWebAppl
     public async Task CreateDraft_Should_Succeed_When_Period_Open_And_User_Has_Permission()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         var response = await client.PostAsJsonAsync("/api/v1/snapshot/create-draft", new
         {
@@ -35,7 +35,7 @@ public sealed class SnapshotDraftIntegrationTests : IClassFixture<ApiTestWebAppl
     public async Task CreateDraft_Should_Reject_When_User_Missing_Permission()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("viewer.user", "ViewerUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("viewer.user", "Test@123");
 
         var response = await client.PostAsJsonAsync("/api/v1/snapshot/create-draft", new
         {
@@ -52,7 +52,7 @@ public sealed class SnapshotDraftIntegrationTests : IClassFixture<ApiTestWebAppl
     public async Task UpdateDraft_Should_Succeed_While_Status_Is_Draft()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         var createResponse = await client.PostAsJsonAsync("/api/v1/snapshot/create-draft", new
         {
@@ -78,7 +78,7 @@ public sealed class SnapshotDraftIntegrationTests : IClassFixture<ApiTestWebAppl
     public async Task UpdateDraft_Should_Fail_When_Snapshot_Already_Submitted_Or_Locked()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "DonViUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("donvi.user", "Test@123");
 
         var createResponse = await client.PostAsJsonAsync("/api/v1/snapshot/create-draft", new
         {

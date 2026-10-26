@@ -125,11 +125,46 @@
           pTooltip="Tải lại dữ liệu"
           tooltipPosition="top"
           [loading]="loading()"
-          (click)="load()"
+          (click)="reloadFromServer()"
         ></button>
       </div>
     </div>
   </app-filter-bar>
+
+  <aside
+    *ngIf="hasUnsavedAggregateChanges()"
+    class="aggregate-change-bar"
+    role="status"
+    aria-live="polite"
+  >
+    <span class="aggregate-change-bar__icon" aria-hidden="true">
+      <i class="pi pi-pencil"></i>
+    </span>
+    <span class="aggregate-change-bar__message">
+      <strong>Có {{ dirtyAggregateCount() }} dòng chưa lưu</strong>
+      <small>Hãy lưu trước khi chuyển sang chức năng khác.</small>
+    </span>
+    <span class="aggregate-change-bar__actions">
+      <button
+        pButton
+        type="button"
+        class="p-button-outlined p-button-secondary"
+        icon="pi pi-undo"
+        label="Hủy thay đổi"
+        [disabled]="savingAllAggregates()"
+        (click)="discardAggregateChanges()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-save"
+        label="Lưu thay đổi"
+        [loading]="savingAllAggregates()"
+        [disabled]="savingAggregateId() !== null && !savingAllAggregates()"
+        (click)="saveAllAggregateChanges()"
+      ></button>
+    </span>
+  </aside>
 
   <div class="device-content">
     <app-loading-overlay
@@ -167,6 +202,7 @@
           <article
             class="device-category"
             [class.device-category--aggregate]="category.laTongHop"
+            [class.device-category--dirty]="category.laTongHop && hasAggregateChanges(category)"
             *ngFor="let category of group.categories"
           >
             <ng-container *ngIf="category.laTongHop; else detailCategory">
@@ -232,18 +268,24 @@
                 </div>
 
                 <div class="aggregate-row__actions">
+                  <span
+                    class="aggregate-row__state"
+                    [class.aggregate-row__state--dirty]="hasAggregateChanges(category)"
+                  >
+                    {{ hasAggregateChanges(category) ? 'Chưa lưu' : 'Đã lưu' }}
+                  </span>
                   <button
-                    *ngIf="hasAggregateChanges(category)"
                     type="button"
                     class="aggregate-save-button"
-                    [disabled]="savingAggregateId() === category.id"
+                    [class.aggregate-save-button--idle]="!hasAggregateChanges(category)"
+                    [disabled]="!hasAggregateChanges(category) || savingAggregateId() !== null"
                     (click)="saveAggregate(category)"
                   >
                     <i
                       class="pi"
-                      [ngClass]="savingAggregateId() === category.id ? 'pi-spinner pi-spin' : 'pi-check'"
+                      [ngClass]="savingAggregateId() === category.id ? 'pi-spinner pi-spin' : 'pi-save'"
                     ></i>
-                    <span>Lưu</span>
+                    <span>Lưu dòng</span>
                   </button>
                 </div>
               </div>

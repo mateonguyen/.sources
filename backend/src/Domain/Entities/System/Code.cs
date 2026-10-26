@@ -14,5 +14,7 @@ public sealed class Code : AuditableEntityBase
 
     public bool IsActive { get; set; } = true;
 
+    public bool AllowUnitCustomization { get; set; }
+
     public ICollection<CodeValue> Values { get; set; } = new List<CodeValue>();
 }

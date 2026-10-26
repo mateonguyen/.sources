@@ -18,7 +18,7 @@ public sealed class AuthorizationIntegrationTests : IClassFixture<ApiTestWebAppl
     public async Task User_Without_Permission_Should_Not_Call_Snapshot_Create()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("viewer.user", "ViewerUser@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("viewer.user", "Test@123");
 
         var response = await client.PostAsJsonAsync("/api/v1/snapshot/create-draft", new
         {
@@ -34,7 +34,7 @@ public sealed class AuthorizationIntegrationTests : IClassFixture<ApiTestWebAppl
     public async Task SystemAdmin_Should_Bypass_Permission_Checks()
     {
         await _factory.ResetDataAsync();
-        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Admin@123");
+        using var client = await _factory.CreateAuthorizedClientAsync("admin", "Test@123");
 
         var response = await client.PostAsJsonAsync("/api/v1/snapshot/create-draft", new
         {
